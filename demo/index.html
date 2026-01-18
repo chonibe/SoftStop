@@ -3,297 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Real-World Use Cases Demo</title>
+    <title>Governor | Multi-Channel Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        deep: '#0a0a0f',
-                        'surface': '#12121a',
-                        'surface-2': '#1a1a26',
-                        'surface-3': '#252533',
+                        deep: '#0f0f13',
+                        'surface': '#1a1a24',
+                        'surface-2': '#252532',
                         'accent-blue': '#3b82f6',
                         'accent-green': '#10b981',
                         'accent-red': '#ef4444',
                         'accent-orange': '#f97316',
                         'accent-purple': '#8b5cf6',
-                        'accent-yellow': '#eab308',
-                        'accent-pink': '#ec4899',
-                        'wix': '#0C6EFC',
-                        'crown': '#FFD700',
-                        'crm': '#22c55e',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        body { font-family: 'Inter', sans-serif; }
         
-        @keyframes slide-up { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slide-in { from { transform: translateX(-10px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
+        /* Animations */
+        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slide-right { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-left { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+        @keyframes typing { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
         
-        .slide-up { animation: slide-up 0.3s ease-out forwards; }
-        .slide-in { animation: slide-in 0.3s ease-out forwards; }
-        .pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
-        .shake { animation: shake 0.4s ease-in-out; }
-        .glow { animation: glow 2s ease-in-out infinite; }
+        .slide-up { animation: slide-up 0.4s ease-out forwards; }
+        .slide-right { animation: slide-right 0.3s ease-out forwards; }
+        .slide-left { animation: slide-left 0.3s ease-out forwards; }
+        .pulse-badge { animation: pulse-badge 1s infinite; }
+        .shake { animation: shake 0.3s infinite; }
         
-        .tab-active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%); border-color: rgba(139, 92, 246, 0.5); }
+        .typing-dot { animation: typing 1s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         
-        .email-item { border-left: 3px solid transparent; transition: all 0.2s; }
-        .email-item:hover { background: rgba(255,255,255,0.03); border-left-color: rgba(255,255,255,0.2); }
-        .email-blocked { opacity: 0.4; text-decoration: line-through; }
+        /* Channel blocked state */
+        .channel-blocked { position: relative; }
+        .channel-blocked::after {
+            content: '🛡️ Governed';
+            position: absolute;
+            inset: 0;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #10b981;
+            backdrop-filter: blur(2px);
+        }
         
-        .brain-section { border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brain-section:last-child { border-bottom: none; }
+        /* Phone mockup */
+        .phone-frame {
+            background: linear-gradient(135deg, #2a2a3a 0%, #1a1a24 100%);
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .phone-screen {
+            background: #0f0f13;
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .phone-notch {
+            width: 80px;
+            height: 24px;
+            background: #0f0f13;
+            border-radius: 0 0 12px 12px;
+            margin: 0 auto;
+        }
         
-        .decision-item { font-size: 11px; padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; }
+        /* Decision log styling */
         .decision-blocked { background: rgba(16, 185, 129, 0.1); border-left: 2px solid #10b981; }
-        .decision-allowed { background: rgba(239, 68, 68, 0.1); border-left: 2px solid #ef4444; }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .decision-allowed { background: rgba(239, 68, 68, 0.05); border-left: 2px solid #ef4444; }
     </style>
 </head>
-<body class="bg-deep text-white antialiased min-h-screen overflow-x-hidden">
+<body class="bg-deep text-white antialiased min-h-screen">
 
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-deep/90 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-deep/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-accent-blue to-accent-purple rounded-lg flex items-center justify-center font-black text-sm shadow-lg shadow-accent-purple/20">G</div>
-                <span class="font-bold text-lg tracking-tight">Governor</span>
-                <span class="text-xs text-slate-500 ml-2 hidden sm:block">Real-World Use Cases</span>
+                <div class="w-8 h-8 bg-accent-blue rounded-lg flex items-center justify-center font-black text-sm">G</div>
+                <span class="font-bold text-lg">Governor</span>
             </div>
             
-            <!-- Global Controls -->
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-white/5">
-                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Pressure</span>
-                    <div class="w-20 h-1.5 bg-surface-2 rounded-full overflow-hidden">
-                        <div id="pressureBar" class="h-full bg-accent-blue rounded-full transition-all duration-300" style="width: 0%"></div>
+            <!-- Control Panel -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-white/5">
+                    <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Pressure</span>
+                    <div class="w-24 h-2 bg-surface-2 rounded-full overflow-hidden">
+                        <div id="pressureBar" class="h-full bg-accent-blue rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-                    <span id="pressureValue" class="text-xs font-mono font-bold w-8">0%</span>
+                    <span id="pressureValue" class="text-sm font-bold w-8">0%</span>
                 </div>
                 
-                <button id="governorBtn" class="flex items-center gap-2 bg-surface hover:bg-surface-2 border border-white/10 px-4 py-2 rounded-xl transition-all group">
-                    <div id="toggleIndicator" class="w-2.5 h-2.5 rounded-full bg-accent-red group-hover:scale-110 transition-transform"></div>
-                    <span id="toggleLabel" class="text-xs font-bold uppercase tracking-wider">Off</span>
+                <div class="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-white/5">
+                    <span id="blockedCount" class="text-xl font-black text-accent-green">0</span>
+                    <span class="text-xs text-slate-400 uppercase font-bold">Blocked</span>
+                </div>
+                
+                <button id="governorBtn" class="flex items-center gap-3 bg-accent-red/20 hover:bg-accent-red/30 border border-accent-red/30 px-5 py-2.5 rounded-xl transition-all">
+                    <div id="toggleIndicator" class="w-3 h-3 rounded-full bg-accent-red"></div>
+                    <span id="toggleLabel" class="text-sm font-bold">Governor OFF</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="pt-20 pb-12 px-4 lg:px-6">
-        <div class="max-w-[1600px] mx-auto">
+    <!-- Main Layout -->
+    <main class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
             
-            <!-- Intro Section -->
+            <!-- Intro -->
             <div class="text-center mb-8">
-                <h1 class="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    Three Companies. Same Problem.
-                </h1>
-                <p class="text-slate-400 text-sm lg:text-base max-w-2xl mx-auto mb-6">
-                    Watch how different businesses overwhelm users with AI-driven escalations. 
-                    <strong class="text-white">Toggle Governor to see intelligent policy enforcement.</strong>
+                <h1 class="text-4xl font-black mb-4">Experience Cross-Channel Pressure</h1>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-6">
+                    AI agents attack across email, SMS, chat, and in-app. 
+                    <strong class="text-white">Watch them stack pressure, then toggle Governor to see it stop.</strong>
                 </p>
-            </div>
-
-            <!-- Use Case Tabs -->
-            <div class="flex flex-wrap justify-center gap-3 mb-8">
-                <button class="use-case-tab tab-active flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 transition-all" data-tab="wix">
-                    <div class="w-8 h-8 bg-wix rounded-lg flex items-center justify-center font-bold text-sm">W</div>
-                    <div class="text-left">
-                        <div class="font-bold text-sm">Wix</div>
-                        <div class="text-[10px] text-slate-500">SaaS Platform</div>
-                    </div>
-                </button>
-                <button class="use-case-tab flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-surface hover:bg-surface-2 transition-all" data-tab="crown">
-                    <div class="w-8 h-8 bg-crown rounded-lg flex items-center justify-center font-bold text-sm text-deep">🎰</div>
-                    <div class="text-left">
-                        <div class="font-bold text-sm">CrownCoins</div>
-                        <div class="text-[10px] text-slate-500">Social Casino</div>
-                    </div>
-                </button>
-                <button class="use-case-tab flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-surface hover:bg-surface-2 transition-all" data-tab="crm">
-                    <div class="w-8 h-8 bg-crm rounded-lg flex items-center justify-center font-bold text-sm">AI</div>
-                    <div class="text-left">
-                        <div class="font-bold text-sm">SalesForce AI</div>
-                        <div class="text-[10px] text-slate-500">AI CRM</div>
-                    </div>
-                </button>
-            </div>
-
-            <!-- Main Layout: Email Inbox + Governor Brain -->
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
                 
-                <!-- LEFT: Email Inbox Panel -->
-                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden">
-                    <!-- Inbox Header -->
-                    <div class="bg-surface-2 px-5 py-4 border-b border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div id="inboxLogo" class="w-8 h-8 bg-wix rounded-lg flex items-center justify-center font-bold text-sm">W</div>
-                            <div>
-                                <div id="inboxTitle" class="font-bold">Wix Inbox</div>
-                                <div class="text-[10px] text-slate-500">Promotional emails from the last 30 days</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span id="emailCounter" class="text-xs text-slate-500 font-mono">0 emails</span>
-                            <button id="playBtn" class="bg-accent-blue hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-lg transition-all flex items-center gap-2">
-                                <span>▶</span> Play Demo
-                            </button>
-                        </div>
+                <!-- Use Case Selector -->
+                <div class="flex justify-center gap-3 mb-6">
+                    <button class="use-case-btn bg-accent-blue/20 border border-accent-blue/50 px-4 py-2 rounded-lg text-sm font-bold" data-use-case="wix">
+                        Wix (SaaS)
+                    </button>
+                    <button class="use-case-btn bg-surface border border-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-surface-2" data-use-case="crown">
+                        CrownCoins (Casino)
+                    </button>
+                    <button class="use-case-btn bg-surface border border-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-surface-2" data-use-case="crm">
+                        AI CRM (Sales)
+                    </button>
+                </div>
+                
+                <button id="startBtn" class="bg-accent-blue hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-accent-blue/25 transition-all active:scale-95">
+                    Start Demo
+                </button>
+            </div>
+
+            <!-- 4-Column Layout: Email | Dashboard | Phone | Governor Brain -->
+            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr_180px_280px] gap-4 items-start">
+                
+                <!-- LEFT: Email Inbox -->
+                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden" id="emailPanel">
+                    <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-3">
+                        <div id="emailLogo" class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-xs font-bold">W</div>
+                        <span class="font-semibold text-sm" id="emailCompany">Wix</span>
+                        <span id="emailBadge" class="ml-auto bg-accent-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
                     </div>
-                    
-                    <!-- Email List -->
-                    <div id="emailList" class="divide-y divide-white/5 max-h-[600px] overflow-y-auto">
-                        <div class="px-6 py-16 text-center text-slate-600">
-                            <div class="text-4xl mb-3">📧</div>
-                            <div class="font-medium">Press "Play Demo" to simulate email bombardment</div>
-                            <div class="text-xs text-slate-700 mt-2">Watch emails pile up, then toggle Governor to see policy enforcement</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Stats Bar -->
-                    <div class="bg-surface-2 px-5 py-3 border-t border-white/5 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-6">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-accent-red"></div>
-                                <span class="text-slate-500">Received:</span>
-                                <span id="statReceived" class="font-mono font-bold">0</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-accent-green"></div>
-                                <span class="text-slate-500">Blocked:</span>
-                                <span id="statBlocked" class="font-mono font-bold text-accent-green">0</span>
-                            </div>
-                        </div>
-                        <div class="text-slate-600 font-mono" id="timeElapsed">00:00</div>
+                    <div id="emailList" class="divide-y divide-white/5 max-h-[450px] overflow-y-auto">
+                        <div class="px-4 py-8 text-center text-slate-500 text-sm">No new emails</div>
                     </div>
                 </div>
 
-                <!-- RIGHT: Governor Brain Panel -->
+                <!-- CENTER: Dashboard -->
+                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden" id="dashboardPanel">
+                    <div class="bg-surface-2 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-accent-purple rounded-lg flex items-center justify-center font-bold text-sm">A</div>
+                            <span class="font-bold">Acme Dashboard</span>
+                        </div>
+                        <div class="text-sm text-slate-400">Welcome, Choni</div>
+                    </div>
+                    
+                    <div class="p-6 space-y-6">
+                        <!-- Urgency Banner -->
+                        <div id="urgencyBanner" class="hidden bg-gradient-to-r from-accent-red/20 to-accent-orange/20 border border-accent-red/30 rounded-xl p-4 relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">🔥</span>
+                                    <div>
+                                        <div class="font-bold text-accent-red">Limited Time Offer!</div>
+                                        <div class="text-sm text-slate-400">Upgrade now before prices increase</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="countdownTimer" class="text-2xl font-black text-white font-mono">23:59:59</div>
+                                    <div class="text-[10px] text-slate-500 uppercase">Time remaining</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAnalytics">
+                                <h3 class="font-bold mb-2">Analytics</h3>
+                                <p class="text-xs text-slate-500">Track your metrics</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAI">
+                                <span id="proBadge" class="hidden absolute -top-2 -right-2 bg-accent-blue text-white text-[10px] font-bold px-2 py-1 rounded-full pulse-badge">PRO</span>
+                                <h3 class="font-bold mb-2">AI Insights</h3>
+                                <p class="text-xs text-slate-500">Predictive recommendations</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureTeam">
+                                <h3 class="font-bold mb-2">Team</h3>
+                                <p class="text-xs text-slate-500">Collaborate</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAPI">
+                                <span id="limitBadge" class="hidden absolute -top-2 -right-2 bg-accent-orange text-white text-[10px] font-bold px-2 py-1 rounded-full">LIMIT</span>
+                                <h3 class="font-bold mb-2">API Access</h3>
+                                <p class="text-xs text-slate-500">RESTful endpoints</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Pricing CTA -->
+                        <div class="bg-gradient-to-br from-surface-2 to-surface rounded-2xl p-6 border border-white/5 relative" id="pricingCard">
+                            <div id="viewerCount" class="hidden absolute top-4 right-4 flex items-center gap-2 text-xs text-accent-red">
+                                <span class="w-2 h-2 bg-accent-red rounded-full animate-ping"></span>
+                                <span id="viewerNumber">47</span> viewing
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Upgrade to Pro</h3>
+                            <p class="text-sm text-slate-400 mb-4">Unlock all features</p>
+                            <div class="flex items-end gap-3 mb-4">
+                                <span class="text-4xl font-black">$49</span>
+                                <span class="text-slate-500 line-through text-lg mb-1" id="originalPrice" style="display: none;">$99</span>
+                                <span class="text-slate-500 text-sm mb-1">/month</span>
+                            </div>
+                            <button class="w-full bg-accent-blue hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-all" id="upgradeBtn">
+                                Upgrade Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Phone with SMS -->
+                <div class="flex flex-col items-center">
+                    <div class="phone-frame w-full max-w-[180px]">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="p-3 text-center border-b border-white/10">
+                                <div class="text-[10px] text-slate-400">12:34 PM</div>
+                            </div>
+                            <div id="smsContainer" class="p-3 space-y-2 min-h-[280px]">
+                                <div class="text-center text-slate-600 text-xs py-8">No messages</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">SMS</div>
+                    </div>
+                </div>
+
+                <!-- FAR RIGHT: Governor Brain -->
                 <div class="space-y-4">
                     <!-- User Memory -->
-                    <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden">
-                        <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-2">
-                            <span class="text-lg">🧠</span>
-                            <span class="font-bold text-sm">User Memory</span>
-                            <span class="ml-auto text-[10px] text-slate-500 font-mono" id="userId">user_choni_2024</span>
+                    <div class="bg-surface rounded-xl border border-white/5 overflow-hidden">
+                        <div class="bg-surface-2 px-4 py-2 border-b border-white/5 flex items-center gap-2">
+                            <span class="text-sm">🧠</span>
+                            <span class="font-bold text-xs">User Memory</span>
                         </div>
-                        <div class="p-4 space-y-3 text-xs font-mono">
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500">Emails received (24h)</span>
-                                <span id="memEmails24h" class="font-bold">0</span>
+                        <div class="p-3 space-y-2 text-[11px] font-mono">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Emails (24h)</span>
+                                <span id="memEmails" class="font-bold">0</span>
                             </div>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between">
                                 <span class="text-slate-500">Last email</span>
                                 <span id="memLastEmail" class="font-bold text-slate-400">—</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500">Discount offers seen</span>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Discounts seen</span>
                                 <span id="memDiscounts" class="font-bold">0</span>
                             </div>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between">
                                 <span class="text-slate-500">Urgency triggers</span>
                                 <span id="memUrgency" class="font-bold">0</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500">Session duration</span>
-                                <span id="memSession" class="font-bold">0m 0s</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500">Pressure score</span>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Pressure</span>
                                 <span id="memPressure" class="font-bold text-accent-blue">0</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Active Policy -->
-                    <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden" id="policyPanel">
-                        <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-2">
-                            <span class="text-lg">📜</span>
-                            <span class="font-bold text-sm">Active Policy</span>
-                            <span id="policyStatus" class="ml-auto text-[10px] font-bold uppercase tracking-wider text-accent-red">Inactive</span>
+                    <div class="bg-surface rounded-xl border border-white/5 overflow-hidden" id="policyPanel">
+                        <div class="bg-surface-2 px-4 py-2 border-b border-white/5 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm">📜</span>
+                                <span class="font-bold text-xs">Policy</span>
+                            </div>
+                            <span id="policyStatus" class="text-[10px] font-bold text-accent-red">OFF</span>
                         </div>
-                        <div class="p-4 space-y-2 text-xs" id="policyRules">
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <span class="w-5 h-5 rounded bg-surface-2 flex items-center justify-center">⏱️</span>
-                                <span>Email cooldown: <strong class="text-white">5 min</strong></span>
+                        <div class="p-3 space-y-1 text-[10px]">
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <span>⏱️</span><span>Cooldown: <strong class="text-white">30s</strong></span>
                             </div>
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <span class="w-5 h-5 rounded bg-surface-2 flex items-center justify-center">📊</span>
-                                <span>Max pressure: <strong class="text-white">80</strong></span>
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <span>📊</span><span>Max pressure: <strong class="text-white">80</strong></span>
                             </div>
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <span class="w-5 h-5 rounded bg-surface-2 flex items-center justify-center">🚫</span>
-                                <span>Daily email limit: <strong class="text-white">5/day</strong></span>
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <span>🚫</span><span>Email limit: <strong class="text-white">5/day</strong></span>
                             </div>
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <span class="w-5 h-5 rounded bg-surface-2 flex items-center justify-center">💸</span>
-                                <span>Discount cap: <strong class="text-white">2/week</strong></span>
-                            </div>
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <span class="w-5 h-5 rounded bg-surface-2 flex items-center justify-center">⚡</span>
-                                <span>Urgency limit: <strong class="text-white">1/day</strong></span>
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <span>💸</span><span>Discount cap: <strong class="text-white">2/wk</strong></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Decision Log -->
-                    <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden">
-                        <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-2">
-                            <span class="text-lg">📋</span>
-                            <span class="font-bold text-sm">Decision Log</span>
-                            <span class="ml-auto text-[10px] text-slate-500 font-mono">Last 10</span>
+                    <div class="bg-surface rounded-xl border border-white/5 overflow-hidden">
+                        <div class="bg-surface-2 px-4 py-2 border-b border-white/5 flex items-center gap-2">
+                            <span class="text-sm">📋</span>
+                            <span class="font-bold text-xs">Decisions</span>
                         </div>
-                        <div id="decisionLog" class="p-3 max-h-[240px] overflow-y-auto">
-                            <div class="text-center text-slate-600 text-xs py-6">
-                                Decisions will appear here...
-                            </div>
+                        <div id="decisionLog" class="p-2 max-h-[180px] overflow-y-auto text-[10px]">
+                            <div class="text-center text-slate-600 py-4">Waiting...</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Insight Banner -->
-            <div id="insightBanner" class="mt-8 hidden">
-                <div class="bg-gradient-to-r from-accent-green/10 to-accent-blue/10 border border-accent-green/20 rounded-2xl p-6 text-center glow">
-                    <div class="text-3xl mb-3">🛡️</div>
-                    <h3 class="text-xl font-bold text-accent-green mb-2">Governor Protected You</h3>
-                    <p class="text-sm text-slate-400 max-w-lg mx-auto" id="insightText">
-                        By enforcing cooldowns and pressure limits, Governor prevented email fatigue while still allowing important communications through.
-                    </p>
-                    <div class="flex justify-center gap-8 mt-4 text-sm">
-                        <div class="text-center">
-                            <div id="insightBlocked" class="text-2xl font-black text-accent-green">0</div>
-                            <div class="text-[10px] text-slate-500 uppercase">Blocked</div>
+            <!-- Chat Widget -->
+            <div id="chatWidget" class="fixed bottom-6 right-6 z-40 hidden">
+                <div class="bg-surface rounded-2xl border border-white/10 shadow-2xl w-72 overflow-hidden">
+                    <div class="bg-accent-purple px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">👋</div>
+                            <div>
+                                <div class="font-semibold text-sm">Sales Team</div>
+                                <div class="text-[10px] text-white/70">Online now</div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div id="insightAllowed" class="text-2xl font-black text-accent-blue">0</div>
-                            <div class="text-[10px] text-slate-500 uppercase">Allowed</div>
+                        <button id="closeChatBtn" class="text-white/50 hover:text-white text-lg">&times;</button>
+                    </div>
+                    <div id="chatMessages" class="p-4 space-y-3 max-h-48 overflow-y-auto"></div>
+                    <div class="p-3 border-t border-white/10">
+                        <input type="text" placeholder="Type a message..." class="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent-purple">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browser Notification -->
+            <div id="browserNotification" class="fixed top-24 right-6 z-40 hidden">
+                <div class="bg-surface border border-white/10 rounded-xl p-4 shadow-2xl w-80 slide-left">
+                    <div class="flex items-start gap-3">
+                        <div id="notifIcon" class="w-10 h-10 bg-accent-blue rounded-lg flex items-center justify-center text-lg">🔔</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span id="notifSource" class="text-xs font-bold text-slate-400 uppercase">System</span>
+                                <span class="text-[10px] text-slate-500">now</span>
+                            </div>
+                            <div id="notifTitle" class="font-semibold text-sm mb-0.5">Notification</div>
+                            <div id="notifBody" class="text-xs text-slate-400">Message content</div>
                         </div>
-                        <div class="text-center">
-                            <div id="insightPressure" class="text-2xl font-black text-accent-purple">0%</div>
-                            <div class="text-[10px] text-slate-500 uppercase">Pressure Saved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocked Notification -->
+            <div id="blockedNotification" class="fixed top-24 right-6 z-50 hidden">
+                <div class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-4 shadow-2xl w-80 slide-left">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-accent-green/20 rounded-lg flex items-center justify-center text-lg">🛡️</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-accent-green uppercase">BLOCKED</span>
+                            </div>
+                            <div id="blockedSource" class="font-semibold text-sm text-accent-green mb-0.5">Agent</div>
+                            <div id="blockedReason" class="text-xs text-slate-400">Reason</div>
                         </div>
                     </div>
                 </div>
@@ -301,562 +382,545 @@
         </div>
     </main>
 
+    <!-- Legend -->
+    <footer class="fixed bottom-6 left-6 z-40">
+        <div class="bg-surface/80 backdrop-blur-xl rounded-xl border border-white/5 p-4">
+            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-3">Active Agents</div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-[10px] font-bold">S</div>
+                    <span class="text-xs text-slate-400">Sales</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-[10px] font-bold">M</div>
+                    <span class="text-xs text-slate-400">Marketing</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-purple-500 rounded flex items-center justify-center text-[10px] font-bold">R</div>
+                    <span class="text-xs text-slate-400">Retention</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
     // =====================================================
-    // GOVERNOR MULTI-USE-CASE DEMO
-    // Real email subjects from Wix, CrownCoins, and AI CRM
+    // GOVERNOR MULTI-CHANNEL DEMO
+    // With real email examples from Wix, CrownCoins, AI CRM
     // =====================================================
-
-    // ---- Email Data ----
-    const useCases = {
+    
+    // ---- Real Email Data by Use Case ----
+    const emailData = {
         wix: {
             name: 'Wix',
-            color: 'wix',
-            logo: 'W',
-            description: 'SaaS Platform - Feature promotions, upsells, events',
+            color: 'bg-blue-500',
             emails: [
-                { subject: 'Choni, build a mobile app for your business—no code required.', type: 'feature', pressure: 8 },
-                { subject: 'Choni, add gift cards for last-minute holiday shoppers.', type: 'feature', pressure: 6 },
-                { subject: 'Boost your holiday sales with Facebook Ads by Wix.', type: 'upsell', pressure: 10 },
-                { subject: 'Last chance to get 50% off select apps in the Wix App Market pre-holiday sale.', type: 'discount', pressure: 15 },
-                { subject: 'Registration Ends soon: Sign up now for the Wix Israel Meetup.', type: 'urgency', pressure: 12 },
-                { subject: 'Black Friday is coming: Launch a complete marketing campaign.', type: 'urgency', pressure: 14 },
+                { subject: 'Choni, build a mobile app—no code required.', type: 'feature', pressure: 8 },
+                { subject: 'Add gift cards for last-minute shoppers.', type: 'feature', pressure: 6 },
+                { subject: 'Boost sales with Facebook Ads by Wix.', type: 'upsell', pressure: 10 },
+                { subject: 'Last chance: 50% off Wix App Market!', type: 'discount', pressure: 15 },
+                { subject: 'Registration Ends: Wix Israel Meetup.', type: 'urgency', pressure: 12 },
+                { subject: 'Black Friday: Launch marketing campaign.', type: 'urgency', pressure: 14 },
                 { subject: 'Save your spot for the Israel Meetup.', type: 'event', pressure: 8 },
-                { subject: 'Choni, get 50% off during the Wix App Market pre-holiday sale.', type: 'discount', pressure: 12 },
-                { subject: 'Sell gift cards with Wix.', type: 'feature', pressure: 5 },
-                { subject: 'Live webinar: Scale Your Business with Facebook Ads by Wix.', type: 'event', pressure: 9 },
-                { subject: 'Drive your business forward with Facebook Ads by Wix.', type: 'upsell', pressure: 10 },
-                { subject: "Choni, don't miss your 2021 eCommerce Holiday Guide.", type: 'urgency', pressure: 11 },
-                { subject: 'Velo Monthly: Improving site performance just got easier.', type: 'feature', pressure: 6 },
-                { subject: 'Registration ends soon! Sign up now for the SEO Meetup 2021.', type: 'urgency', pressure: 13 },
-                { subject: "Choni, It's getting dark in here… Introducing Velo Dark Theme.", type: 'feature', pressure: 5 },
-                { subject: 'Choni, your 2021 eCommerce Holiday Guide is here.', type: 'feature', pressure: 7 },
-                { subject: 'Save your spot for the SEO Meetup 2021.', type: 'event', pressure: 8 },
+                { subject: '50% off during pre-holiday sale.', type: 'discount', pressure: 12 },
+                { subject: 'Live webinar: Scale with Facebook Ads.', type: 'event', pressure: 9 },
+                { subject: "Don't miss your Holiday Guide.", type: 'urgency', pressure: 11 },
+                { subject: 'Velo Monthly: Site performance update.', type: 'feature', pressure: 6 },
+                { subject: 'SEO Meetup 2021 - Register now!', type: 'urgency', pressure: 13 },
+                { subject: 'Introducing Velo Dark Theme.', type: 'feature', pressure: 5 },
+                { subject: 'eCommerce Holiday Guide is here.', type: 'feature', pressure: 7 },
                 { subject: 'Get Your Own Email @savy.app.', type: 'upsell', pressure: 7 },
-                { subject: "Congrats on Publishing Your Site! So What's Next?", type: 'feature', pressure: 6 },
-                { subject: "Don't forget—live event on rethinking how design teams work.", type: 'event', pressure: 9 },
-                { subject: 'Inside X: The August roundup.', type: 'newsletter', pressure: 4 },
-                { subject: 'Velo Monthly: Wow-worthy animations and new rich content.', type: 'feature', pressure: 6 },
-                { subject: 'Live Event with AIGA: Rethinking how web design teams work.', type: 'event', pressure: 9 },
-                { subject: 'New: Build reusable code packages for your sites.', type: 'feature', pressure: 7 },
-                { subject: "It's here—real time collaboration on Editor X.", type: 'feature', pressure: 8 },
+                { subject: "Published Your Site! What's Next?", type: 'feature', pressure: 6 },
+                { subject: 'Real time collaboration on Editor X.', type: 'feature', pressure: 8 },
                 { subject: 'Your sites got high performance scores.', type: 'feature', pressure: 5 },
-                { subject: 'Meet the new wave of digital designers.', type: 'newsletter', pressure: 4 },
-                { subject: 'Make your site a thrilling, animated experience.', type: 'feature', pressure: 7 },
-                { subject: 'הזניקו את חנות האונליין שלכם עם וויקס', type: 'feature', pressure: 6 },
-                { subject: 'Inside X: The July roundup.', type: 'newsletter', pressure: 4 },
-                { subject: 'Choni, check out the Velo Monthly: new Velo Packages.', type: 'feature', pressure: 6 },
-                { subject: 'Notify your shoppers when products are back in stock.', type: 'feature', pressure: 7 },
-                { subject: 'Velo Monthly: Keep it custom and cutting-edge.', type: 'feature', pressure: 6 },
-                { subject: 'Inside X: The June roundup.', type: 'newsletter', pressure: 4 },
-                { subject: 'נועם מוויקס אשמח לדבר על החנות האונליין שלך.', type: 'sales', pressure: 12 },
-                { subject: 'Introducing the all-new Academy X.', type: 'feature', pressure: 7 },
-                { subject: "Preparing for Google's Core Web Vitals update.", type: 'feature', pressure: 8 },
-                { subject: 'Live Webinar: How to Optimize for Core Web Vitals.', type: 'event', pressure: 9 },
-                { subject: 'Reminder: One Week Until The Wix eCommerce Growth Summit.', type: 'urgency', pressure: 11 },
-                { subject: 'New Free Course: Build a Custom Membership Website.', type: 'feature', pressure: 6 },
-                { subject: 'Register Now: The Wix eCommerce Growth Summit.', type: 'event', pressure: 10 },
-                { subject: 'Inside X: The May roundup.', type: 'newsletter', pressure: 4 },
-                { subject: 'Live webinar coming soon: Get practical with Velo.', type: 'event', pressure: 8 },
-                { subject: 'Velo Monthly: Combine the power of Velo and Editor X.', type: 'feature', pressure: 6 },
-                { subject: 'New! Class with Gavin Strange.', type: 'event', pressure: 7 },
-                { subject: 'Last Chance: Register for the Wix SEO + seoClarity Webinar.', type: 'urgency', pressure: 14 },
-                { subject: 'Win unmissable prizes by entering our contest.', type: 'promotion', pressure: 10 },
+                { subject: 'Last Chance: SEO + seoClarity Webinar.', type: 'urgency', pressure: 14 },
+                { subject: 'Win prizes by entering our contest.', type: 'promotion', pressure: 10 },
             ]
         },
         crown: {
-            name: 'CrownCoins Casino',
-            color: 'crown',
-            logo: '🎰',
-            description: 'Social Casino - Coins, free spins, FOMO tactics',
+            name: 'CrownCoins',
+            color: 'bg-yellow-500',
             emails: [
-                { subject: 'Your Free Spins Are Here - For 48 Hours Only! 🎁', type: 'urgency', pressure: 18 },
+                { subject: 'Free Spins - 48 Hours Only! 🎁', type: 'urgency', pressure: 18 },
                 { subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 20 },
-                { subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promotion', pressure: 15 },
+                { subject: 'CrownCoins Week Is HERE! 🎁🥳', type: 'promotion', pressure: 15 },
                 { subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5 },
-                { subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 18 },
-                { subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promotion', pressure: 12 },
+                { subject: '26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 18 },
+                { subject: 'Claim Your Free Welcome Bonus 🎁', type: 'promotion', pressure: 12 },
                 { subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 10 },
-                { subject: 'Unwrap Your Exclusive FREE Gift, Choni! 🎁', type: 'promotion', pressure: 14 },
-                { subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promotion', pressure: 12 },
+                { subject: 'Unwrap Your FREE Gift, Choni! 🎁', type: 'promotion', pressure: 14 },
+                { subject: 'Claim Your FREE Bingo Card! 🎁', type: 'promotion', pressure: 12 },
                 { subject: 'Gift For You Choni 🎁', type: 'promotion', pressure: 10 },
-                { subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promotion', pressure: 12 },
-                { subject: 'One More FREE SC Gift Just for You, Choni! 🎁🎄', type: 'promotion', pressure: 14 },
                 { subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 16 },
-                { subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promotion', pressure: 12 },
                 { subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 17 },
-                { subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 15 },
-                { subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'promotion', pressure: 16 },
-                { subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 22 },
-                { subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 15 },
-                { subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 8 },
-                { subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promotion', pressure: 14 },
-                { subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 20 },
-                { subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promotion', pressure: 12 },
-                { subject: "Want Free SC? Here's How! 💸", type: 'promotion', pressure: 10 },
-                { subject: 'Turn Your Unused Coins to Big Wins Choni! 🚀', type: 'urgency', pressure: 16 },
-                { subject: 'Exclusive Mystery Gift Awaits - 48 Hours Only! 🎁', type: 'urgency', pressure: 18 },
-                { subject: 'Another Gift Just for You, Choni! 🎁', type: 'promotion', pressure: 12 },
-                { subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promotion', pressure: 14 },
-                { subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 17 },
-                { subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promotion', pressure: 14 },
-                { subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promotion', pressure: 15 },
-                { subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 22 },
-                { subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 15 },
+                { subject: '$10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 22 },
+                { subject: 'Your Shot at $10M Continues! 😱', type: 'urgency', pressure: 20 },
+                { subject: 'Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 18 },
                 { subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 20 },
-                { subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promotion', pressure: 16 },
-                { subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 14 },
-                { subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promotion', pressure: 15 },
-                { subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 22 },
-                { subject: 'Exclusive FREE Gift Inside - Join the Holiday Fun! 🎁🎅', type: 'promotion', pressure: 14 },
-                { subject: '40K CC + 2 SC FREE Gift and a 2,000 SC Raffle!? 🎁🤯', type: 'promotion', pressure: 18 },
-                { subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 12 },
-                { subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promotion', pressure: 14 },
-                { subject: 'A New Day, a New SC Gift! 🎁', type: 'promotion', pressure: 12 },
-                { subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promotion', pressure: 15 },
-                { subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 18 },
+                { subject: 'FREE 40K CC for Christmas! 🎁🎄', type: 'promotion', pressure: 16 },
+                { subject: "Didn't You Forget Something? 😮", type: 'urgency', pressure: 14 },
+                { subject: '$10,000,000 Top Prize Tonight! 🤯', type: 'urgency', pressure: 22 },
+                { subject: 'Did You See THIS?! 😱', type: 'urgency', pressure: 18 },
             ]
         },
         crm: {
             name: 'SalesForce AI',
-            color: 'crm',
-            logo: 'AI',
-            description: 'AI CRM - Automated follow-ups, pipeline nudges',
+            color: 'bg-green-500',
             emails: [
                 { subject: 'Just checking in...', type: 'follow-up', pressure: 8 },
-                { subject: 'Did you get a chance to review my last email?', type: 'follow-up', pressure: 12 },
-                { subject: 'Quick question about your sales pipeline', type: 'sales', pressure: 10 },
+                { subject: 'Did you see my last email?', type: 'follow-up', pressure: 12 },
+                { subject: 'Quick question about your pipeline', type: 'sales', pressure: 10 },
                 { subject: 'Re: Our conversation last week', type: 'follow-up', pressure: 9 },
-                { subject: "I noticed you haven't responded - is everything okay?", type: 'urgency', pressure: 14 },
+                { subject: "Haven't responded - everything okay?", type: 'urgency', pressure: 14 },
                 { subject: 'Your free trial ends in 3 days', type: 'urgency', pressure: 16 },
-                { subject: 'Thought of you when I saw this case study', type: 'nurture', pressure: 7 },
-                { subject: 'Can we schedule 15 minutes this week?', type: 'sales', pressure: 11 },
-                { subject: "Breaking: Your competitor just switched to us", type: 'fomo', pressure: 15 },
-                { subject: 'Your pipeline could be 3x bigger (here\'s how)', type: 'upsell', pressure: 12 },
+                { subject: 'Thought of you - case study inside', type: 'nurture', pressure: 7 },
+                { subject: 'Can we schedule 15 minutes?', type: 'sales', pressure: 11 },
+                { subject: "Your competitor just switched to us", type: 'fomo', pressure: 15 },
+                { subject: 'Your pipeline could be 3x bigger', type: 'upsell', pressure: 12 },
                 { subject: "Last attempt to reach you", type: 'urgency', pressure: 18 },
-                { subject: 'Re: Re: Re: Following up on our demo', type: 'follow-up', pressure: 14 },
-                { subject: 'Personalized recommendations based on your activity', type: 'ai', pressure: 10 },
-                { subject: "Your team is missing out on these features", type: 'fomo', pressure: 13 },
-                { subject: "CEO asked me to reach out personally", type: 'authority', pressure: 12 },
-                { subject: 'AI detected: Your sales are declining', type: 'urgency', pressure: 16 },
-                { subject: 'Limited seats left for our exclusive webinar', type: 'urgency', pressure: 14 },
-                { subject: 'Congrats on your recent funding! Let\'s talk growth.', type: 'personalized', pressure: 11 },
-                { subject: 'Your competitors are outpacing you', type: 'fomo', pressure: 15 },
-                { subject: 'AI recommendation: Upgrade now for 40% more leads', type: 'upsell', pressure: 14 },
-                { subject: 'Friendly reminder: Your proposal expires tomorrow', type: 'urgency', pressure: 17 },
-                { subject: 'New AI features just dropped - perfect for your use case', type: 'feature', pressure: 10 },
-                { subject: 'Quick win: 5 minutes to set up automation', type: 'nurture', pressure: 8 },
-                { subject: 'Your account is flagged for review', type: 'urgency', pressure: 16 },
-                { subject: "We haven't heard from you in a while...", type: 'follow-up', pressure: 10 },
-                { subject: 'URGENT: Action required on your account', type: 'urgency', pressure: 20 },
-                { subject: 'I have some ideas for your Q4 planning', type: 'sales', pressure: 9 },
-                { subject: 'Your free credits are about to expire', type: 'urgency', pressure: 15 },
-                { subject: 'Saw you viewed our pricing page 3 times this week', type: 'ai', pressure: 14 },
-                { subject: 'Can I be honest with you for a second?', type: 'sales', pressure: 11 },
+                { subject: 'Re: Re: Following up on demo', type: 'follow-up', pressure: 14 },
+                { subject: "Your team is missing features", type: 'fomo', pressure: 13 },
+                { subject: "CEO asked me to reach out", type: 'authority', pressure: 12 },
+                { subject: 'AI detected: Sales declining', type: 'urgency', pressure: 16 },
+                { subject: 'Limited seats for exclusive webinar', type: 'urgency', pressure: 14 },
+                { subject: 'Competitors are outpacing you', type: 'fomo', pressure: 15 },
+                { subject: 'Proposal expires tomorrow', type: 'urgency', pressure: 17 },
+                { subject: 'URGENT: Action required', type: 'urgency', pressure: 20 },
+                { subject: 'Viewed pricing page 3 times...', type: 'ai', pressure: 14 },
             ]
         }
     };
 
-    // ---- State ----
     const state = {
-        currentTab: 'wix',
-        isRunning: false,
+        isActive: false,
         governorEnabled: false,
+        useCase: 'wix',
         pressure: 0,
-        emailsReceived: 0,
-        emailsBlocked: 0,
-        emailIndex: 0,
+        blocked: 0,
+        emailCount: 0,
+        smsCount: 0,
         intervalId: null,
-        startTime: null,
+        emailIndex: 0,
         memory: {
             emails24h: 0,
             lastEmail: null,
             discounts: 0,
-            urgency: 0,
-            sessionStart: Date.now()
+            urgency: 0
         }
     };
 
-    // ---- DOM Elements ----
+    // Agent definitions with their target channels
+    const agents = {
+        sales: {
+            name: 'Sales',
+            color: 'orange',
+            channels: ['chat', 'notification'],
+            messages: [
+                { title: 'Quick question', body: 'Can we chat about upgrading?' },
+                { title: 'Special offer just for you', body: '30% off if you upgrade today.' },
+                { title: 'Following up', body: 'Did you review our Pro plan?' }
+            ]
+        },
+        marketing: {
+            name: 'Marketing',
+            color: 'red',
+            channels: ['banner', 'notification'],
+            messages: [
+                { title: '🔥 Flash Sale: 50% Off!', body: 'Expires in 24 hours!' },
+                { title: 'You\'re missing Pro features', body: '10,000+ teams use this.' },
+                { title: 'Last chance for early bird', body: 'Prices go up tomorrow!' }
+            ]
+        },
+        retention: {
+            name: 'Retention',
+            color: 'purple',
+            channels: ['sms', 'badge'],
+            messages: [
+                { title: 'We miss you!', body: 'Come back and see what\'s new.' },
+                { title: 'Your trial is ending', body: 'Upgrade now to keep your data.' },
+                { title: 'Exclusive comeback offer', body: '40% off first 3 months.' }
+            ]
+        }
+    };
+
+    // DOM Elements
     const els = {
-        tabs: document.querySelectorAll('.use-case-tab'),
-        inboxLogo: document.getElementById('inboxLogo'),
-        inboxTitle: document.getElementById('inboxTitle'),
-        emailList: document.getElementById('emailList'),
-        emailCounter: document.getElementById('emailCounter'),
-        playBtn: document.getElementById('playBtn'),
+        startBtn: document.getElementById('startBtn'),
         governorBtn: document.getElementById('governorBtn'),
         toggleIndicator: document.getElementById('toggleIndicator'),
         toggleLabel: document.getElementById('toggleLabel'),
         pressureBar: document.getElementById('pressureBar'),
         pressureValue: document.getElementById('pressureValue'),
-        statReceived: document.getElementById('statReceived'),
-        statBlocked: document.getElementById('statBlocked'),
-        timeElapsed: document.getElementById('timeElapsed'),
+        blockedCount: document.getElementById('blockedCount'),
+        emailList: document.getElementById('emailList'),
+        emailBadge: document.getElementById('emailBadge'),
+        emailLogo: document.getElementById('emailLogo'),
+        emailCompany: document.getElementById('emailCompany'),
+        smsContainer: document.getElementById('smsContainer'),
+        chatWidget: document.getElementById('chatWidget'),
+        chatMessages: document.getElementById('chatMessages'),
+        closeChatBtn: document.getElementById('closeChatBtn'),
+        browserNotification: document.getElementById('browserNotification'),
+        blockedNotification: document.getElementById('blockedNotification'),
+        urgencyBanner: document.getElementById('urgencyBanner'),
+        proBadge: document.getElementById('proBadge'),
+        limitBadge: document.getElementById('limitBadge'),
+        viewerCount: document.getElementById('viewerCount'),
+        originalPrice: document.getElementById('originalPrice'),
         decisionLog: document.getElementById('decisionLog'),
         policyStatus: document.getElementById('policyStatus'),
-        policyPanel: document.getElementById('policyPanel'),
-        insightBanner: document.getElementById('insightBanner'),
-        // Memory displays
-        memEmails24h: document.getElementById('memEmails24h'),
+        memEmails: document.getElementById('memEmails'),
         memLastEmail: document.getElementById('memLastEmail'),
         memDiscounts: document.getElementById('memDiscounts'),
         memUrgency: document.getElementById('memUrgency'),
-        memSession: document.getElementById('memSession'),
         memPressure: document.getElementById('memPressure'),
     };
 
-    // ---- Utility Functions ----
-    function updateMemoryDisplay() {
-        els.memEmails24h.textContent = state.memory.emails24h;
-        els.memLastEmail.textContent = state.memory.lastEmail ? formatTime(state.memory.lastEmail) : '—';
+    // ---- Use Case Selection ----
+    document.querySelectorAll('.use-case-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.use-case-btn').forEach(b => {
+                b.classList.remove('bg-accent-blue/20', 'border-accent-blue/50');
+                b.classList.add('bg-surface', 'border-white/10');
+            });
+            btn.classList.add('bg-accent-blue/20', 'border-accent-blue/50');
+            btn.classList.remove('bg-surface', 'border-white/10');
+            
+            state.useCase = btn.dataset.useCase;
+            const data = emailData[state.useCase];
+            els.emailLogo.className = `w-6 h-6 ${data.color} rounded flex items-center justify-center text-xs font-bold`;
+            els.emailLogo.textContent = data.name[0];
+            els.emailCompany.textContent = data.name;
+        });
+    });
+
+    // ---- Memory Display ----
+    function updateMemory() {
+        els.memEmails.textContent = state.memory.emails24h;
+        els.memLastEmail.textContent = state.memory.lastEmail ? 
+            `${Math.floor((Date.now() - state.memory.lastEmail) / 1000)}s ago` : '—';
         els.memDiscounts.textContent = state.memory.discounts;
         els.memUrgency.textContent = state.memory.urgency;
-        const elapsed = Math.floor((Date.now() - state.memory.sessionStart) / 1000);
-        els.memSession.textContent = `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`;
         els.memPressure.textContent = state.pressure;
         els.memPressure.className = `font-bold ${state.pressure > 60 ? 'text-accent-red' : state.pressure > 30 ? 'text-accent-orange' : 'text-accent-blue'}`;
     }
 
-    function formatTime(timestamp) {
-        const diff = Math.floor((Date.now() - timestamp) / 1000);
-        if (diff < 60) return `${diff}s ago`;
-        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-        return `${Math.floor(diff / 3600)}h ago`;
-    }
-
-    function updatePressure(delta) {
-        state.pressure = Math.max(0, Math.min(100, state.pressure + delta));
-        els.pressureBar.style.width = `${state.pressure}%`;
-        els.pressureValue.textContent = `${state.pressure}%`;
-        
-        if (state.pressure > 70) {
-            els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-300';
-        } else if (state.pressure > 40) {
-            els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-300';
-        } else {
-            els.pressureBar.className = 'h-full bg-accent-blue rounded-full transition-all duration-300';
-        }
-        
-        updateMemoryDisplay();
-    }
-
-    function addDecisionLog(email, blocked, reason) {
-        const logEl = document.getElementById('decisionLog');
-        if (logEl.querySelector('.text-slate-600')) {
-            logEl.innerHTML = '';
+    // ---- Decision Log ----
+    function logDecision(source, action, blocked, reason) {
+        const log = document.getElementById('decisionLog');
+        if (log.querySelector('.text-slate-600')) {
+            log.innerHTML = '';
         }
         
         const item = document.createElement('div');
-        item.className = `decision-item slide-up ${blocked ? 'decision-blocked' : 'decision-allowed'}`;
-        
-        const icon = blocked ? '🛡️' : '📨';
-        const status = blocked ? 'BLOCKED' : 'ALLOWED';
-        const statusColor = blocked ? 'text-accent-green' : 'text-accent-red';
-        
+        item.className = `p-2 rounded mb-1 slide-up ${blocked ? 'decision-blocked' : 'decision-allowed'}`;
         item.innerHTML = `
-            <div class="flex items-start gap-2">
-                <span>${icon}</span>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-0.5">
-                        <span class="font-bold ${statusColor}">${status}</span>
-                        <span class="text-slate-600">•</span>
-                        <span class="text-slate-500 truncate">${email.type}</span>
-                    </div>
-                    <div class="text-slate-400 truncate" title="${email.subject}">${email.subject.slice(0, 40)}...</div>
-                    ${blocked ? `<div class="text-accent-green/80 mt-1">↳ ${reason}</div>` : ''}
-                </div>
+            <div class="flex items-center gap-1 mb-0.5">
+                <span>${blocked ? '🛡️' : '📨'}</span>
+                <span class="font-bold ${blocked ? 'text-accent-green' : 'text-accent-red'}">${blocked ? 'BLOCKED' : 'ALLOWED'}</span>
             </div>
+            <div class="text-slate-400 truncate">${source}: ${action}</div>
+            ${blocked ? `<div class="text-accent-green/80">↳ ${reason}</div>` : ''}
         `;
+        log.prepend(item);
         
-        logEl.prepend(item);
-        
-        // Keep only last 10
-        while (logEl.children.length > 10) {
-            logEl.removeChild(logEl.lastChild);
+        while (log.children.length > 8) {
+            log.removeChild(log.lastChild);
         }
     }
 
-    function governorDecision(email) {
+    // ---- Governor Decision Engine ----
+    function checkGovernor(type, pressure) {
         if (!state.governorEnabled) {
-            return { blocked: false, reason: null };
+            return { blocked: false };
         }
         
         // Check policies
         if (state.memory.emails24h >= 5) {
-            return { blocked: true, reason: 'Daily email limit reached (5/day)' };
+            return { blocked: true, reason: 'Daily limit reached (5/day)' };
         }
-        
         if (state.pressure >= 80) {
-            return { blocked: true, reason: `Pressure limit exceeded (${state.pressure}/80)` };
+            return { blocked: true, reason: `Pressure limit (${state.pressure}/80)` };
+        }
+        if (state.memory.lastEmail && (Date.now() - state.memory.lastEmail) < 30000) {
+            return { blocked: true, reason: 'Cooldown active (30s)' };
+        }
+        if (type === 'discount' && state.memory.discounts >= 2) {
+            return { blocked: true, reason: 'Discount cap (2/week)' };
+        }
+        if (type === 'urgency' && state.memory.urgency >= 1) {
+            return { blocked: true, reason: 'Urgency limit (1/day)' };
+        }
+        if (pressure > 15 && state.pressure > 50) {
+            return { blocked: true, reason: 'High-pressure during elevated state' };
         }
         
-        if (state.memory.lastEmail && (Date.now() - state.memory.lastEmail) < 5000) {
-            return { blocked: true, reason: 'Cooldown active (5s)' };
-        }
-        
-        if (email.type === 'discount' && state.memory.discounts >= 2) {
-            return { blocked: true, reason: 'Discount cap reached (2/week)' };
-        }
-        
-        if (email.type === 'urgency' && state.memory.urgency >= 1) {
-            return { blocked: true, reason: 'Urgency limit reached (1/day)' };
-        }
-        
-        if (email.pressure > 15 && state.pressure > 50) {
-            return { blocked: true, reason: `High-pressure during elevated state` };
-        }
-        
-        return { blocked: false, reason: null };
+        return { blocked: false };
     }
 
-    function processEmail(email) {
-        const decision = governorDecision(email);
+    // ---- Channel Actions ----
+    function addEmail(email) {
+        const decision = checkGovernor(email.type, email.pressure);
         
         if (decision.blocked) {
-            state.emailsBlocked++;
-            els.statBlocked.textContent = state.emailsBlocked;
-            addDecisionLog(email, true, decision.reason);
-        } else {
-            state.emailsReceived++;
-            state.memory.emails24h++;
-            state.memory.lastEmail = Date.now();
-            
-            if (email.type === 'discount') state.memory.discounts++;
-            if (email.type === 'urgency') state.memory.urgency++;
-            
-            els.statReceived.textContent = state.emailsReceived;
-            updatePressure(email.pressure);
-            addEmail(email, decision.blocked);
-            addDecisionLog(email, false, null);
+            state.blocked++;
+            els.blockedCount.textContent = state.blocked;
+            logDecision(emailData[state.useCase].name, email.subject, true, decision.reason);
+            showBlockedFeedback(emailData[state.useCase].name, decision.reason);
+            return;
         }
         
-        els.emailCounter.textContent = `${state.emailsReceived} emails`;
-        updateMemoryDisplay();
-    }
-
-    function addEmail(email, blocked = false) {
-        const useCase = useCases[state.currentTab];
+        state.emailCount++;
+        state.memory.emails24h++;
+        state.memory.lastEmail = Date.now();
+        if (email.type === 'discount') state.memory.discounts++;
+        if (email.type === 'urgency') state.memory.urgency++;
         
-        if (els.emailList.querySelector('.text-slate-600')) {
+        els.emailBadge.textContent = state.emailCount;
+        els.emailBadge.classList.remove('hidden');
+        
+        if (els.emailList.querySelector('.text-slate-500')) {
             els.emailList.innerHTML = '';
         }
         
+        const data = emailData[state.useCase];
         const typeColors = {
             'urgency': 'bg-red-500/20 text-red-400',
             'discount': 'bg-yellow-500/20 text-yellow-400',
             'promotion': 'bg-purple-500/20 text-purple-400',
             'feature': 'bg-blue-500/20 text-blue-400',
-            'event': 'bg-cyan-500/20 text-cyan-400',
-            'sales': 'bg-orange-500/20 text-orange-400',
-            'follow-up': 'bg-gray-500/20 text-gray-400',
             'upsell': 'bg-pink-500/20 text-pink-400',
+            'follow-up': 'bg-gray-500/20 text-gray-400',
             'fomo': 'bg-red-500/20 text-red-400',
-            'ai': 'bg-green-500/20 text-green-400',
         };
-        
         const typeColor = typeColors[email.type] || 'bg-slate-500/20 text-slate-400';
         
         const item = document.createElement('div');
-        item.className = `email-item px-5 py-4 slide-in ${blocked ? 'email-blocked' : ''}`;
+        item.className = 'px-4 py-3 hover:bg-surface-2 cursor-pointer transition-colors slide-right';
         item.innerHTML = `
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${state.currentTab === 'crown' ? 'bg-crown text-deep' : `bg-${useCase.color}`}">
-                    ${useCase.logo}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-3 mb-1">
-                        <span class="font-bold text-sm">${useCase.name}</span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full ${typeColor} uppercase font-bold">${email.type}</span>
-                        <span class="ml-auto text-[10px] text-slate-600">just now</span>
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 ${data.color} rounded flex items-center justify-center text-xs font-bold flex-shrink-0">${data.name[0]}</div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-semibold text-sm truncate">${email.subject}</span>
                     </div>
-                    <div class="text-sm text-slate-300">${email.subject}</div>
-                    <div class="flex items-center gap-4 mt-2 text-[10px] text-slate-600">
-                        <span>Pressure: +${email.pressure}</span>
-                        ${blocked ? '<span class="text-accent-green font-bold">🛡️ BLOCKED</span>' : ''}
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] px-1.5 py-0.5 rounded ${typeColor} uppercase font-bold">${email.type}</span>
+                        <span class="text-[10px] text-slate-600">+${email.pressure} pressure</span>
                     </div>
                 </div>
             </div>
         `;
-        
         els.emailList.prepend(item);
+        
+        updatePressure(email.pressure);
+        logDecision(data.name, email.subject, false, null);
+        updateMemory();
     }
 
-    function switchTab(tabId) {
-        state.currentTab = tabId;
-        const useCase = useCases[tabId];
+    function addSMS(agent, msg) {
+        state.smsCount++;
         
-        // Update tabs
-        els.tabs.forEach(tab => {
-            if (tab.dataset.tab === tabId) {
-                tab.classList.add('tab-active');
-                tab.classList.remove('bg-surface', 'hover:bg-surface-2');
-            } else {
-                tab.classList.remove('tab-active');
-                tab.classList.add('bg-surface', 'hover:bg-surface-2');
-            }
-        });
-        
-        // Update inbox header
-        els.inboxLogo.className = `w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${tabId === 'crown' ? 'bg-crown text-deep' : `bg-${useCase.color}`}`;
-        els.inboxLogo.textContent = useCase.logo;
-        els.inboxTitle.textContent = `${useCase.name} Inbox`;
-        
-        // Reset state
-        resetDemo();
-    }
-
-    function resetDemo() {
-        state.isRunning = false;
-        state.emailsReceived = 0;
-        state.emailsBlocked = 0;
-        state.emailIndex = 0;
-        state.pressure = 0;
-        state.memory = {
-            emails24h: 0,
-            lastEmail: null,
-            discounts: 0,
-            urgency: 0,
-            sessionStart: Date.now()
-        };
-        
-        if (state.intervalId) {
-            clearInterval(state.intervalId);
-            state.intervalId = null;
+        if (els.smsContainer.querySelector('.text-slate-600')) {
+            els.smsContainer.innerHTML = '';
         }
         
-        els.emailList.innerHTML = `
-            <div class="px-6 py-16 text-center text-slate-600">
-                <div class="text-4xl mb-3">📧</div>
-                <div class="font-medium">Press "Play Demo" to simulate email bombardment</div>
-                <div class="text-xs text-slate-700 mt-2">Watch emails pile up, then toggle Governor to see policy enforcement</div>
-            </div>
+        const sms = document.createElement('div');
+        sms.className = 'bg-accent-blue/20 rounded-lg p-2 text-xs slide-up';
+        sms.innerHTML = `
+            <div class="font-semibold text-[10px] text-accent-blue mb-1">${agent.name}</div>
+            <div class="text-white">${msg.title}</div>
         `;
-        
-        els.decisionLog.innerHTML = `
-            <div class="text-center text-slate-600 text-xs py-6">
-                Decisions will appear here...
-            </div>
-        `;
-        
-        els.emailCounter.textContent = '0 emails';
-        els.statReceived.textContent = '0';
-        els.statBlocked.textContent = '0';
-        els.timeElapsed.textContent = '00:00';
-        els.playBtn.innerHTML = '<span>▶</span> Play Demo';
-        els.playBtn.disabled = false;
-        els.insightBanner.classList.add('hidden');
-        
-        updatePressure(0);
-        updateMemoryDisplay();
+        els.smsContainer.appendChild(sms);
+        els.smsContainer.scrollTop = els.smsContainer.scrollHeight;
     }
 
-    function startDemo() {
-        state.isRunning = true;
-        state.startTime = Date.now();
-        state.emailIndex = 0;
+    function showChat(agent, msg) {
+        els.chatWidget.classList.remove('hidden');
         
-        els.playBtn.innerHTML = '<span class="pulse-slow">●</span> Running...';
-        els.playBtn.disabled = true;
+        const bubble = document.createElement('div');
+        bubble.className = 'bg-surface-2 rounded-lg p-3 text-sm slide-up';
+        bubble.innerHTML = `
+            <div class="text-xs text-slate-500 mb-1">${agent.name}</div>
+            <div>${msg.body}</div>
+        `;
+        els.chatMessages.appendChild(bubble);
+        els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+    }
+
+    function showNotification(agent, msg) {
+        els.browserNotification.querySelector('#notifSource').textContent = agent.name;
+        els.browserNotification.querySelector('#notifTitle').textContent = msg.title;
+        els.browserNotification.querySelector('#notifBody').textContent = msg.body;
+        els.browserNotification.classList.remove('hidden');
         
-        const emails = useCases[state.currentTab].emails;
+        setTimeout(() => els.browserNotification.classList.add('hidden'), 4000);
+    }
+
+    function showBanner() {
+        els.urgencyBanner.classList.remove('hidden');
+        els.urgencyBanner.classList.add('shake');
+        setTimeout(() => els.urgencyBanner.classList.remove('shake'), 1000);
+    }
+
+    function showBadges() {
+        els.proBadge.classList.remove('hidden');
+        els.limitBadge.classList.remove('hidden');
+        els.viewerCount.classList.remove('hidden');
+        els.originalPrice.style.display = 'inline';
+    }
+
+    function showBlockedFeedback(source, reason) {
+        els.blockedNotification.querySelector('#blockedSource').textContent = source;
+        els.blockedNotification.querySelector('#blockedReason').textContent = reason;
+        els.blockedNotification.classList.remove('hidden');
+        
+        setTimeout(() => els.blockedNotification.classList.add('hidden'), 2500);
+    }
+
+    // ---- Pressure Management ----
+    function updatePressure(delta) {
+        state.pressure = Math.max(0, Math.min(100, state.pressure + delta));
+        els.pressureBar.style.width = `${state.pressure}%`;
+        els.pressureValue.textContent = `${state.pressure}%`;
+        
+        if (state.pressure > 75) {
+            els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
+        } else if (state.pressure > 40) {
+            els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
+        } else {
+            els.pressureBar.className = 'h-full bg-accent-blue rounded-full transition-all duration-500';
+        }
+        
+        updateMemory();
+    }
+
+    // ---- Core Escalation Logic ----
+    function attemptAgentEscalation(agentKey) {
+        if (!state.isActive) return;
+        
+        const agent = agents[agentKey];
+        const msg = agent.messages[Math.floor(Math.random() * agent.messages.length)];
+        const channel = agent.channels[Math.floor(Math.random() * agent.channels.length)];
+        
+        // Governor decision for non-email channels
+        let blocked = false;
+        let reason = '';
+        
+        if (state.governorEnabled && state.pressure > 50) {
+            blocked = true;
+            reason = 'Pressure too high';
+        }
+        
+        if (blocked) {
+            state.blocked++;
+            els.blockedCount.textContent = state.blocked;
+            showBlockedFeedback(agent.name, reason);
+            logDecision(agent.name, msg.title, true, reason);
+            updatePressure(-3);
+        } else {
+            switch (channel) {
+                case 'sms': addSMS(agent, msg); updatePressure(8); break;
+                case 'chat': showChat(agent, msg); updatePressure(10); break;
+                case 'notification': showNotification(agent, msg); updatePressure(6); break;
+                case 'banner': showBanner(); updatePressure(12); break;
+                case 'badge': showBadges(); updatePressure(5); break;
+            }
+            logDecision(agent.name, msg.title, false, null);
+        }
+    }
+
+    function runDemo() {
+        const emails = emailData[state.useCase].emails;
         const shuffled = [...emails].sort(() => Math.random() - 0.5);
+        const agentKeys = Object.keys(agents);
         
-        // Process emails at interval
         state.intervalId = setInterval(() => {
-            if (state.emailIndex >= shuffled.length) {
-                stopDemo();
-                return;
+            if (!state.isActive) return;
+            
+            // Send email
+            if (state.emailIndex < shuffled.length) {
+                addEmail(shuffled[state.emailIndex]);
+                state.emailIndex++;
             }
             
-            processEmail(shuffled[state.emailIndex]);
-            state.emailIndex++;
+            // Occasionally trigger agent escalation
+            if (Math.random() < 0.4) {
+                const randomAgent = agentKeys[Math.floor(Math.random() * agentKeys.length)];
+                attemptAgentEscalation(randomAgent);
+            }
             
-            // Update time
-            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-            els.timeElapsed.textContent = `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
-            
-        }, state.governorEnabled ? 800 : 400);
+        }, state.governorEnabled ? 2000 : 800);
     }
 
     function stopDemo() {
-        state.isRunning = false;
         if (state.intervalId) {
             clearInterval(state.intervalId);
             state.intervalId = null;
         }
-        
-        els.playBtn.innerHTML = '<span>↻</span> Restart';
-        els.playBtn.disabled = false;
-        
-        // Show insight banner
-        if (state.governorEnabled && state.emailsBlocked > 0) {
-            showInsightBanner();
-        }
     }
 
-    function showInsightBanner() {
-        els.insightBanner.classList.remove('hidden');
-        document.getElementById('insightBlocked').textContent = state.emailsBlocked;
-        document.getElementById('insightAllowed').textContent = state.emailsReceived;
-        document.getElementById('insightPressure').textContent = `${Math.min(100, state.emailsBlocked * 10)}%`;
+    // ---- Event Handlers ----
+    els.startBtn.addEventListener('click', () => {
+        state.isActive = true;
+        state.emailIndex = 0;
+        els.startBtn.textContent = 'Running...';
+        els.startBtn.disabled = true;
+        els.startBtn.classList.add('opacity-50');
         
-        const useCase = useCases[state.currentTab];
-        const insights = {
-            wix: 'Governor recognized repeated urgency patterns and discount fatigue, intelligently spacing feature updates while blocking excessive promotional pressure.',
-            crown: 'Governor identified gambling-style urgency tactics (48 hours, last chance) and capped aggressive FOMO triggers to protect user wellbeing.',
-            crm: 'Governor detected AI-generated follow-up sequences and limited redundant "checking in" emails while preserving genuine outreach.'
-        };
-        document.getElementById('insightText').textContent = insights[state.currentTab];
-    }
+        runDemo();
+        
+        // Fire initial burst
+        setTimeout(() => attemptAgentEscalation('marketing'), 500);
+        setTimeout(() => attemptAgentEscalation('sales'), 1200);
+    });
 
-    function toggleGovernor() {
+    els.governorBtn.addEventListener('click', () => {
         state.governorEnabled = !state.governorEnabled;
         
         if (state.governorEnabled) {
             els.toggleIndicator.classList.remove('bg-accent-red');
             els.toggleIndicator.classList.add('bg-accent-green');
-            els.toggleLabel.textContent = 'On';
-            els.governorBtn.classList.add('border-accent-green/50');
-            els.policyStatus.textContent = 'Active';
+            els.toggleLabel.textContent = 'Governor ON';
+            els.governorBtn.classList.remove('bg-accent-red/20', 'border-accent-red/30');
+            els.governorBtn.classList.add('bg-accent-green/20', 'border-accent-green/30');
+            els.policyStatus.textContent = 'ACTIVE';
             els.policyStatus.classList.remove('text-accent-red');
             els.policyStatus.classList.add('text-accent-green');
-            els.policyPanel.classList.add('border-accent-green/30');
+            
+            // Clear visual chaos
+            updatePressure(-20);
+            els.chatWidget.classList.add('hidden');
+            els.urgencyBanner.classList.add('hidden');
+            els.proBadge.classList.add('hidden');
+            els.limitBadge.classList.add('hidden');
+            els.viewerCount.classList.add('hidden');
+            els.originalPrice.style.display = 'none';
+            
+            // Restart with slower pace
+            stopDemo();
+            if (state.isActive) runDemo();
         } else {
             els.toggleIndicator.classList.add('bg-accent-red');
             els.toggleIndicator.classList.remove('bg-accent-green');
-            els.toggleLabel.textContent = 'Off';
-            els.governorBtn.classList.remove('border-accent-green/50');
-            els.policyStatus.textContent = 'Inactive';
+            els.toggleLabel.textContent = 'Governor OFF';
+            els.governorBtn.classList.add('bg-accent-red/20', 'border-accent-red/30');
+            els.governorBtn.classList.remove('bg-accent-green/20', 'border-accent-green/30');
+            els.policyStatus.textContent = 'OFF';
             els.policyStatus.classList.add('text-accent-red');
             els.policyStatus.classList.remove('text-accent-green');
-            els.policyPanel.classList.remove('border-accent-green/30');
-        }
-    }
-
-    // ---- Event Listeners ----
-    els.tabs.forEach(tab => {
-        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-    });
-
-    els.playBtn.addEventListener('click', () => {
-        if (state.isRunning) {
+            
             stopDemo();
-        } else if (els.playBtn.textContent.includes('Restart')) {
-            resetDemo();
-            startDemo();
-        } else {
-            startDemo();
+            if (state.isActive) runDemo();
         }
     });
 
-    els.governorBtn.addEventListener('click', toggleGovernor);
+    els.closeChatBtn.addEventListener('click', () => {
+        els.chatWidget.classList.add('hidden');
+    });
 
-    // Session timer
-    setInterval(updateMemoryDisplay, 1000);
-
-    // Initialize
-    updateMemoryDisplay();
+    // Update memory display every second
+    setInterval(updateMemory, 1000);
     </script>
 </body>
 </html>
