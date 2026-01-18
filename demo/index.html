@@ -54,20 +54,9 @@
         
         .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
         .pressure-card.visible { opacity: 1; transform: translateX(0); }
-        .pressure-card.blocked { opacity: 0.4; }
-        .pressure-card.blocked::after {
-            content: 'BLOCKED';
-            position: absolute;
-            top: 50%;
-            right: 1rem;
-            transform: translateY(-50%);
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.5);
-            color: #10b981;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 4px;
+        .pressure-card.blocked { opacity: 0.6; }
+        .pressure-card.blocked .block-reason {
+            display: block !important;
         }
         
         .timeline-line { 
@@ -780,11 +769,46 @@
     }
 
     function shouldBlock(event) {
-        if (!state.governorEnabled) return false;
-        if (state.pressure > 50) return true;
-        if (event.type === 'urgency' && state.pressure > 30) return true;
-        if (event.pressure > 14) return true;
-        return false;
+        if (!state.governorEnabled) return null;
+        
+        // Check various blocking rules and return reason
+        if (state.pressure > 50) {
+            return {
+                blocked: true,
+                rule: 'PRESSURE_LIMIT',
+                reason: `User pressure at ${state.pressure}% (limit: 50%)`,
+                suggestion: 'Wait for cooldown or reduce intensity'
+            };
+        }
+        if (event.type === 'urgency' && state.pressure > 30) {
+            return {
+                blocked: true,
+                rule: 'URGENCY_COOLDOWN',
+                reason: `Urgency blocked at ${state.pressure}% pressure`,
+                suggestion: 'User already received urgency messaging'
+            };
+        }
+        if (event.pressure > 14) {
+            return {
+                blocked: true,
+                rule: 'HIGH_PRESSURE_ACTION',
+                reason: `Action intensity ${event.pressure} exceeds limit (14)`,
+                suggestion: 'Use lower-pressure alternative'
+            };
+        }
+        
+        // Channel-specific limits
+        const channelLimits = { email: 3, sms: 1, push: 2, popup: 1, ad: 2, social: 1 };
+        if (channelLimits[event.channel] && state.counts[event.channel] >= channelLimits[event.channel]) {
+            return {
+                blocked: true,
+                rule: 'CHANNEL_LIMIT',
+                reason: `${event.channel.toUpperCase()} limit reached (${channelLimits[event.channel]}/day)`,
+                suggestion: `Try a different channel`
+            };
+        }
+        
+        return null;
     }
 
     function processEvent(event, card) {
@@ -803,11 +827,20 @@
             return;
         }
         
-        const blocked = shouldBlock(event);
+        const blockResult = shouldBlock(event);
         
-        if (blocked) {
+        if (blockResult && blockResult.blocked) {
             state.blocked++;
             card.classList.add('blocked');
+            
+            // Populate block reason in the card
+            const ruleEl = card.querySelector('.block-rule');
+            const reasonEl = card.querySelector('.block-reason-text');
+            const suggestionEl = card.querySelector('.block-suggestion');
+            if (ruleEl) ruleEl.textContent = blockResult.rule;
+            if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
+            if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
+            
             // Blocking prevents new pressure AND provides relief
             state.pressure = Math.max(0, state.pressure - 5);
         } else {
@@ -887,6 +920,15 @@
                                     </div>
                                     <div class="font-semibold text-sm">${event.subject}</div>
                                 </div>
+                            </div>
+                            <!-- Block reason (shown when blocked) -->
+                            <div class="block-reason hidden mt-3 bg-accent-green/10 border border-accent-green/30 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-green font-bold text-xs">🛡️ BLOCKED</span>
+                                    <span class="block-rule text-[10px] bg-accent-green/20 text-accent-green px-2 py-0.5 rounded font-mono"></span>
+                                </div>
+                                <div class="block-reason-text text-xs text-slate-400"></div>
+                                <div class="block-suggestion text-[10px] text-slate-500 mt-1 italic"></div>
                             </div>
                         </div>
                     `;
@@ -980,9 +1022,19 @@
                     type: card.dataset.type,
                     pressure: parseInt(card.dataset.pressure)
                 };
-                if (shouldBlock(event)) {
+                const blockResult = shouldBlock(event);
+                if (blockResult && blockResult.blocked) {
                     card.classList.add('blocked');
                     state.blocked++;
+                    
+                    // Populate block reason
+                    const ruleEl = card.querySelector('.block-rule');
+                    const reasonEl = card.querySelector('.block-reason-text');
+                    const suggestionEl = card.querySelector('.block-suggestion');
+                    if (ruleEl) ruleEl.textContent = blockResult.rule;
+                    if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
+                    if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
+                    
                     if (state.counts[event.channel] !== undefined) {
                         state.counts[event.channel]--;
                     }
