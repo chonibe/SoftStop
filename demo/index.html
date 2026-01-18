@@ -102,6 +102,16 @@
         .channel-popup { border-left-color: #ec4899; }
         .channel-badge { border-left-color: #eab308; }
         .channel-chat { border-left-color: #06b6d4; }
+        .channel-user { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+        
+        /* User action card styling */
+        .user-action { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border: 1px dashed rgba(16, 185, 129, 0.3);
+        }
+        .user-action .action-arrow {
+            color: #f97316;
+        }
         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #111118; }
@@ -287,72 +297,84 @@
     // Real pressure from multiple channels
     // =====================================================
 
-    // Multi-channel pressure data
+    // Multi-channel pressure data with user actions and platform responses
+    // Shows the feedback loop: User action → Platform response → More pressure
     const pressureEvents = [
-        // Day 1 - Dec 6
-        { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5 },
+        // Day 1 - Dec 6: Signup
+        { date: '2025-12-06', channel: 'user', subject: 'You signed up for CrownCoins Casino', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5, trigger: 'signup' },
         { date: '2025-12-06', channel: 'push', subject: 'Your account is ready! Claim your bonus', type: 'promo', pressure: 8 },
         
-        // Day 2 - Dec 7
-        { date: '2025-12-07', channel: 'email', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8 },
-        { date: '2025-12-07', channel: 'sms', subject: '🎰 Your FREE coins are waiting! Tap to claim', type: 'promo', pressure: 10 },
+        // Day 2 - Dec 7: User opened email but didn't click
+        { date: '2025-12-07', channel: 'user', subject: 'You opened the welcome email (no click)', type: 'action', pressure: -2, isUser: true },
+        { date: '2025-12-07', channel: 'email', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8, trigger: 'opened_no_click' },
+        { date: '2025-12-07', channel: 'sms', subject: '🎰 Your FREE coins are waiting! Tap to claim', type: 'promo', pressure: 10, trigger: 'opened_no_click' },
         
-        // Day 3 - Dec 8
-        { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12 },
-        { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15 },
+        // Day 3 - Dec 8: User visited site but left
+        { date: '2025-12-08', channel: 'user', subject: 'You visited the site for 30 seconds', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12, trigger: 'browse_abandon' },
+        { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15, trigger: 'browse_abandon' },
         
         // Day 4 - Dec 9
         { date: '2025-12-09', channel: 'email', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
         { date: '2025-12-09', channel: 'badge', subject: 'NEW: 3 unclaimed bonuses waiting', type: 'fomo', pressure: 6 },
         
-        // Day 5 - Dec 10
+        // Day 5 - Dec 10: User clicked on email
+        { date: '2025-12-10', channel: 'user', subject: 'You clicked the "$10M Jackpot" email', type: 'action', pressure: -5, isUser: true },
         { date: '2025-12-10', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
         { date: '2025-12-10', channel: 'email', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
-        { date: '2025-12-10', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14 },
-        { date: '2025-12-10', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16 },
+        { date: '2025-12-10', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14, trigger: 'email_click' },
+        { date: '2025-12-10', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16, trigger: 'email_click' },
         
-        // Day 6 - Dec 11
+        // Day 6 - Dec 11: User didn't claim gift
+        { date: '2025-12-11', channel: 'user', subject: 'You ignored 3 emails', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-11', channel: 'email', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-11', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12 },
+        { date: '2025-12-11', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12, trigger: 'inactivity' },
         
-        // Day 8 - Dec 13
+        // Day 8 - Dec 13: User viewed pricing
+        { date: '2025-12-13', channel: 'user', subject: 'You viewed the coin purchase page', type: 'action', pressure: -3, isUser: true },
         { date: '2025-12-13', channel: 'email', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
-        { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15 },
-        { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18 },
+        { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18, trigger: 'viewed_pricing' },
         
-        // Day 9 - Dec 14
-        { date: '2025-12-14', channel: 'email', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-14', channel: 'push', subject: 'Your gift expires in 3 hours!', type: 'urgency', pressure: 12 },
+        // Day 9 - Dec 14: User closed popup without action
+        { date: '2025-12-14', channel: 'user', subject: 'You closed the popup (no purchase)', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-14', channel: 'email', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'popup_dismiss' },
+        { date: '2025-12-14', channel: 'push', subject: 'Your gift expires in 3 hours!', type: 'urgency', pressure: 12, trigger: 'popup_dismiss' },
         
         // Day 10 - Dec 15
         { date: '2025-12-15', channel: 'email', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
         { date: '2025-12-15', channel: 'badge', subject: 'VIP status unlocked - claim rewards', type: 'fomo', pressure: 8 },
         
-        // Day 11 - Dec 16 (Heavy day)
+        // Day 11 - Dec 16: Heavy day - user is getting overwhelmed
+        { date: '2025-12-16', channel: 'user', subject: 'You marked 2 emails as spam', type: 'action', pressure: -10, isUser: true },
         { date: '2025-12-16', channel: 'email', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
         { date: '2025-12-16', channel: 'email', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
         { date: '2025-12-16', channel: 'email', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
-        { date: '2025-12-16', channel: 'sms', subject: '🚨 3 EMAILS WAITING - open now!', type: 'meta', pressure: 10 },
-        { date: '2025-12-16', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6 },
+        { date: '2025-12-16', channel: 'sms', subject: '🚨 3 EMAILS WAITING - open now!', type: 'meta', pressure: 10, trigger: 'low_engagement' },
+        { date: '2025-12-16', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6, trigger: 'low_engagement' },
         { date: '2025-12-16', channel: 'popup', subject: '47 players viewing this jackpot RIGHT NOW', type: 'fomo', pressure: 14 },
         
         // Day 12 - Dec 17
         { date: '2025-12-17', channel: 'email', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
         { date: '2025-12-17', channel: 'chat', subject: 'Quick question - did you see the mystery deal?', type: 'sales', pressure: 10 },
         
-        // Day 13 - Dec 18
-        { date: '2025-12-18', channel: 'email', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18 },
+        // Day 13 - Dec 18: User played a game
+        { date: '2025-12-18', channel: 'user', subject: 'You played slots for 10 minutes', type: 'action', pressure: -8, isUser: true },
+        { date: '2025-12-18', channel: 'email', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18, trigger: 'game_played' },
         { date: '2025-12-18', channel: 'email', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-18', channel: 'push', subject: 'JACKPOT ALERT: Drawing starts in 1 hour', type: 'urgency', pressure: 14 },
-        { date: '2025-12-18', channel: 'sms', subject: '🎰 $10M drawing TONIGHT. Are you in?', type: 'urgency', pressure: 14 },
+        { date: '2025-12-18', channel: 'push', subject: 'JACKPOT ALERT: Drawing starts in 1 hour', type: 'urgency', pressure: 14, trigger: 'game_played' },
+        { date: '2025-12-18', channel: 'sms', subject: '🎰 $10M drawing TONIGHT. Are you in?', type: 'urgency', pressure: 14, trigger: 'game_played' },
         
         // Day 14 - Dec 19
         { date: '2025-12-19', channel: 'email', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
         
-        // Day 15 - Dec 20
+        // Day 15 - Dec 20: User unsubscribed from SMS
+        { date: '2025-12-20', channel: 'user', subject: 'You unsubscribed from SMS', type: 'action', pressure: -15, isUser: true },
         { date: '2025-12-20', channel: 'email', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
-        { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12 },
+        { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'push', subject: 'We noticed you unsubscribed - here\'s 50 free coins', type: 'winback', pressure: 10, trigger: 'sms_unsub' },
         
         // Day 16 - Dec 21
         { date: '2025-12-21', channel: 'email', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
@@ -362,13 +384,13 @@
         { date: '2025-12-22', channel: 'email', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
         { date: '2025-12-22', channel: 'chat', subject: 'Happy holidays! Any questions about our promos?', type: 'sales', pressure: 8 },
         
-        // Day 18 - Dec 23 (Heavy day)
-        { date: '2025-12-23', channel: 'email', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-23', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18 },
+        // Day 18 - Dec 23: User added coins to cart but didn't buy
+        { date: '2025-12-23', channel: 'user', subject: 'You added coins to cart (abandoned)', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-23', channel: 'email', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18, trigger: 'cart_abandon' },
         { date: '2025-12-23', channel: 'email', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
-        { date: '2025-12-23', channel: 'sms', subject: '⏰ FINAL HOURS: Holiday bonus ends midnight', type: 'urgency', pressure: 16 },
-        { date: '2025-12-23', channel: 'push', subject: 'Only 6 hours left on your bonus!', type: 'urgency', pressure: 12 },
-        { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14 },
+        { date: '2025-12-23', channel: 'push', subject: 'Your cart is waiting! Complete purchase for bonus', type: 'urgency', pressure: 16, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
         
         // Day 19 - Dec 24
         { date: '2025-12-24', channel: 'email', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
@@ -376,7 +398,6 @@
         
         // Day 20 - Dec 25
         { date: '2025-12-25', channel: 'email', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
-        { date: '2025-12-25', channel: 'sms', subject: '🎄 Merry Christmas! Your gift is inside', type: 'promo', pressure: 8 },
         
         // Day 21 - Dec 26
         { date: '2025-12-26', channel: 'email', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
@@ -390,12 +411,12 @@
         { date: '2025-12-29', channel: 'email', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
         { date: '2025-12-29', channel: 'badge', subject: 'RAFFLE ENTRY: 2 hours remaining', type: 'urgency', pressure: 10 },
         
-        // Day 26 - Dec 31 (New Year's Eve)
-        { date: '2025-12-31', channel: 'email', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10 },
+        // Day 26 - Dec 31
+        { date: '2025-12-31', channel: 'user', subject: 'You logged in to check balance', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-31', channel: 'email', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10, trigger: 'login' },
         { date: '2025-12-31', channel: 'email', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
-        { date: '2025-12-31', channel: 'sms', subject: '🎆 NYE SPECIAL: 500% bonus until midnight!', type: 'urgency', pressure: 16 },
         { date: '2025-12-31', channel: 'push', subject: 'Ring in 2026 with FREE SPINS!', type: 'promo', pressure: 10 },
-        { date: '2025-12-31', channel: 'popup', subject: 'NEW YEAR COUNTDOWN: Claim before midnight!', type: 'urgency', pressure: 14 },
+        { date: '2025-12-31', channel: 'popup', subject: 'NEW YEAR COUNTDOWN: Claim before midnight!', type: 'urgency', pressure: 14, trigger: 'login' },
         
         // Day 27 - Jan 1
         { date: '2026-01-01', channel: 'email', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
@@ -404,16 +425,16 @@
         // Day 30 - Jan 4
         { date: '2026-01-04', channel: 'email', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
         { date: '2026-01-04', channel: 'email', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
-        { date: '2026-01-04', channel: 'sms', subject: '⏰ 48HR FLASH: 26 free spins expire soon!', type: 'urgency', pressure: 14 },
         
         // Day 33 - Jan 7
         { date: '2026-01-07', channel: 'email', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
         { date: '2026-01-07', channel: 'chat', subject: 'Hey! Did you make your choice yet?', type: 'sales', pressure: 10 },
         
         // Day 37 - Jan 11
-        { date: '2026-01-11', channel: 'email', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16 },
-        { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
-        { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12 },
+        { date: '2026-01-11', channel: 'user', subject: 'You haven\'t logged in for 10 days', type: 'action', pressure: 0, isUser: true },
+        { date: '2026-01-11', channel: 'email', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12, trigger: 'inactivity' },
         { date: '2026-01-11', channel: 'popup', subject: 'MYSTERY DEAL: Scratch to reveal!', type: 'promo', pressure: 10 },
         
         // Day 38 - Jan 12
@@ -430,14 +451,13 @@
         
         // Day 41 - Jan 15
         { date: '2026-01-15', channel: 'email', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
-        { date: '2026-01-15', channel: 'sms', subject: '🎰 CROWNCOINS WEEK: Daily gifts all week!', type: 'promo', pressure: 10 },
         
-        // Day 44 - Jan 18 (Today)
-        { date: '2026-01-18', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18 },
+        // Day 44 - Jan 18
+        { date: '2026-01-18', channel: 'user', subject: 'You opened the app today', type: 'action', pressure: -3, isUser: true },
+        { date: '2026-01-18', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18, trigger: 'app_open' },
         { date: '2026-01-18', channel: 'email', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
-        { date: '2026-01-18', channel: 'sms', subject: '🚨 FINAL: 200% bonus ends tonight!', type: 'urgency', pressure: 16 },
-        { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14 },
-        { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16 },
+        { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16, trigger: 'app_open' },
         { date: '2026-01-18', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
     ];
 
@@ -483,6 +503,8 @@
         popup: { icon: '🖥️', color: 'channel-popup', label: 'Popup' },
         badge: { icon: '🏷️', color: 'channel-badge', label: 'Badge' },
         chat: { icon: '💭', color: 'channel-chat', label: 'Chat' },
+        // User actions (shown differently)
+        user: { icon: '👤', color: 'channel-user', label: 'You' },
     };
 
     function formatDate(dateStr) {
@@ -540,6 +562,17 @@
         if (state.visibleEvents.has(key)) return;
         state.visibleEvents.add(key);
         
+        const isUser = card.dataset.isUser === 'true';
+        
+        if (isUser) {
+            // User actions - just update pressure (can be negative = relief)
+            state.pressure = Math.max(0, state.pressure + event.pressure);
+            card.classList.add('visible');
+            updatePressure();
+            updateStats();
+            return;
+        }
+        
         const blocked = shouldBlock(event);
         
         if (blocked) {
@@ -547,7 +580,9 @@
             card.classList.add('blocked');
             state.pressure = Math.max(0, state.pressure - 3);
         } else {
-            state.counts[event.channel]++;
+            if (state.counts[event.channel] !== undefined) {
+                state.counts[event.channel]++;
+            }
             state.totalTouches++;
             state.pressure += event.pressure;
         }
@@ -575,27 +610,56 @@
                     <div class="space-y-3">
             `;
             
-            dayEvents.forEach(event => {
+                    dayEvents.forEach(event => {
                 const cfg = channelConfig[event.channel];
-                html += `
-                    <div class="pressure-card relative bg-surface rounded-xl p-4 border-l-4 ${cfg.color} border border-white/5"
-                         data-date="${event.date}" 
-                         data-channel="${event.channel}"
-                         data-subject="${event.subject}"
-                         data-type="${event.type}"
-                         data-pressure="${event.pressure}">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center text-lg flex-shrink-0">${cfg.icon}</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
-                                    <span class="text-[10px] text-slate-600">+${event.pressure} pressure</span>
+                const isUser = event.isUser;
+                const hasTrigger = event.trigger;
+                
+                if (isUser) {
+                    // User action card - styled differently
+                    html += `
+                        <div class="pressure-card user-action relative rounded-xl p-4 border-l-4 ${cfg.color}"
+                             data-date="${event.date}" 
+                             data-channel="${event.channel}"
+                             data-subject="${event.subject}"
+                             data-type="${event.type}"
+                             data-pressure="${event.pressure}"
+                             data-is-user="true">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 bg-accent-green/20 rounded-lg flex items-center justify-center text-lg flex-shrink-0">👤</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] text-accent-green uppercase font-bold">YOUR ACTION</span>
+                                        ${event.pressure !== 0 ? `<span class="text-[10px] ${event.pressure < 0 ? 'text-accent-green' : 'text-accent-red'}">${event.pressure > 0 ? '+' : ''}${event.pressure} pressure</span>` : ''}
+                                    </div>
+                                    <div class="font-semibold text-sm text-accent-green/90">${event.subject}</div>
                                 </div>
-                                <div class="font-semibold text-sm">${event.subject}</div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Platform pressure card
+                    html += `
+                        <div class="pressure-card relative bg-surface rounded-xl p-4 border-l-4 ${cfg.color} border border-white/5"
+                             data-date="${event.date}" 
+                             data-channel="${event.channel}"
+                             data-subject="${event.subject}"
+                             data-type="${event.type}"
+                             data-pressure="${event.pressure}">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center text-lg flex-shrink-0">${cfg.icon}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
+                                        <span class="text-[10px] text-slate-600">+${event.pressure} pressure</span>
+                                        ${hasTrigger ? `<span class="text-[10px] bg-accent-orange/20 text-accent-orange px-1.5 py-0.5 rounded">← triggered by: ${event.trigger.replace('_', ' ')}</span>` : ''}
+                                    </div>
+                                    <div class="font-semibold text-sm">${event.subject}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
             });
             
             html += `</div></div>`;
