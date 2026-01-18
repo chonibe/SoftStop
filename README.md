@@ -20,6 +20,7 @@ Governor is a control layer that stops automated systems from over-pushing users
 ## Vercel deployment
 - The demo is served at `/demo`.
 - API routes are available at `/api/check` and `/api/record`.
+- The demo includes a decision panel showing allow/deny reasons.
 
 ## References
 - Implementation: [governor/api/src/server.ts](governor/api/src/server.ts)

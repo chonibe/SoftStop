@@ -1,6 +1,10 @@
 const logEl = document.getElementById("log");
 const userIdEl = document.getElementById("userId");
 const dismissedEl = document.getElementById("dismissed");
+const statusValue = document.getElementById("statusValue");
+const reasonValue = document.getElementById("reasonValue");
+const cooldownValue = document.getElementById("cooldownValue");
+const suggestValue = document.getElementById("suggestValue");
 
 const log = (message) => {
   const time = new Date().toLocaleTimeString();
@@ -9,6 +13,18 @@ const log = (message) => {
 
 const getMode = () =>
   document.querySelector('input[name="mode"]:checked').value;
+
+const setDecision = ({
+  status = "Waiting",
+  reason = "-",
+  cooldown = "-",
+  suggestion = "-"
+} = {}) => {
+  statusValue.textContent = status;
+  reasonValue.textContent = reason;
+  cooldownValue.textContent = cooldown;
+  suggestValue.textContent = suggestion;
+};
 
 const basePath =
   window.location.hostname === "localhost" ? "/v1" : "/api";
@@ -31,11 +47,17 @@ const handleAction = async (actionType) => {
   const mode = getMode();
   if (!userId) {
     log("Enter a user id.");
+    setDecision({ status: "Missing user" });
     return;
   }
 
   if (mode === "no-governor") {
     log(`No Governor: executed ${actionType}.`);
+    setDecision({
+      status: "Allowed",
+      reason: "baseline",
+      suggestion: "-"
+    });
     return;
   }
 
@@ -48,6 +70,12 @@ const handleAction = async (actionType) => {
             ? ` Suggest: ${decision.suggestedActionType}.`
             : "")
       );
+      setDecision({
+        status: "Blocked",
+        reason: decision.reason,
+        cooldown: decision.cooldownUntil ?? "-",
+        suggestion: decision.suggestedActionType ?? "-"
+      });
       await callApi(`${basePath}/record`, {
         userId,
         actionType,
@@ -62,6 +90,12 @@ const handleAction = async (actionType) => {
       `Governor allowed ${actionType}.` +
         (dismissed ? " User dismissed." : "")
     );
+    setDecision({
+      status: "Allowed",
+      reason: decision.reason,
+      cooldown: decision.cooldownUntil ?? "-",
+      suggestion: decision.suggestedActionType ?? "-"
+    });
 
     await callApi(`${basePath}/record`, {
       userId,
@@ -72,6 +106,7 @@ const handleAction = async (actionType) => {
     });
   } catch (error) {
     log(`Error: ${error.message}`);
+    setDecision({ status: "Error", reason: "request_failed" });
   }
 };
 
@@ -81,4 +116,7 @@ document.querySelectorAll("[data-action]").forEach((button) => {
 
 document.getElementById("clearLog").addEventListener("click", () => {
   logEl.textContent = "";
+  setDecision({});
 });
+
+setDecision({});

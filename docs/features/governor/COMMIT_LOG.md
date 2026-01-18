@@ -18,6 +18,11 @@
 ## Entry: Vercel output directory
 - [x] Added Vercel output configuration: [vercel.json](../../../vercel.json)
 
+## Entry: Demo UI redesign
+- [x] Refined demo layout and visuals: [demo/index.html](../../../demo/index.html), [demo/styles.css](../../../demo/styles.css)
+- [x] Added decision panel updates: [demo/demo.js](../../../demo/demo.js)
+- [x] Updated demo note in README: [README.md](../../../README.md)
+
 ## References
 - Implementation: [governor/api/src/server.ts](../../../governor/api/src/server.ts)
 - Tests: [governor/tests/rules.test.ts](../../../governor/tests/rules.test.ts)

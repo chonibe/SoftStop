@@ -8,49 +8,91 @@
   </head>
   <body>
     <main class="container">
-      <header>
-        <h1>Governor Demo</h1>
-        <p>
-          This demo shows how escalation attempts behave without Governor vs
-          with Governor.
-        </p>
+      <header class="hero">
+        <div>
+          <span class="badge">Governor Demo</span>
+          <h1>Stop escalation when users hesitate</h1>
+          <p>
+            A simple side-by-side test: escalate without a gate, then repeat
+            with Governor. The same user behavior triggers very different
+            outcomes.
+          </p>
+        </div>
+        <div class="hero-card">
+          <h3>Scenario</h3>
+          <p>User tries to publish a site, sees an upgrade prompt, and closes it.</p>
+          <p>Without Governor: urgency, discount, and reminder stack.</p>
+          <p>With Governor: pressure cools down.</p>
+        </div>
       </header>
 
       <section class="panel">
         <h2>Mode</h2>
-        <label>
-          <input type="radio" name="mode" value="no-governor" checked />
-          No Governor (baseline)
-        </label>
-        <label>
-          <input type="radio" name="mode" value="governor" />
-          With Governor gate
-        </label>
-      </section>
-
-      <section class="panel">
-        <h2>User</h2>
-        <input id="userId" type="text" value="user_123" />
-      </section>
-
-      <section class="panel">
-        <h2>Escalation actions</h2>
-        <div class="actions">
-          <button data-action="urgency">Urgency message</button>
-          <button data-action="discount">Discount offer</button>
-          <button data-action="interruption">Upgrade modal</button>
-          <button data-action="reminder">Reminder</button>
+        <div class="toggle">
+          <label>
+            <input type="radio" name="mode" value="no-governor" checked />
+            No Governor (baseline)
+          </label>
+          <label>
+            <input type="radio" name="mode" value="governor" />
+            With Governor gate
+          </label>
         </div>
-        <label class="checkbox">
-          <input id="dismissed" type="checkbox" />
-          User dismissed / hesitated
-        </label>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>User + Signals</h2>
+          <label class="field">
+            User ID
+            <input id="userId" type="text" value="user_123" />
+          </label>
+          <label class="checkbox">
+            <input id="dismissed" type="checkbox" />
+            User dismissed / hesitated
+          </label>
+
+          <h2>Escalation actions</h2>
+          <div class="actions">
+            <button data-action="urgency">Urgency message</button>
+            <button data-action="discount">Discount offer</button>
+            <button data-action="interruption">Upgrade modal</button>
+            <button data-action="reminder">Reminder</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Decision</h2>
+          <div class="decision">
+            <div>
+              <span class="label">Status</span>
+              <span id="statusValue" class="value">Waiting</span>
+            </div>
+            <div>
+              <span class="label">Reason</span>
+              <span id="reasonValue" class="value">-</span>
+            </div>
+            <div>
+              <span class="label">Cooldown</span>
+              <span id="cooldownValue" class="value">-</span>
+            </div>
+            <div>
+              <span class="label">Suggestion</span>
+              <span id="suggestValue" class="value">-</span>
+            </div>
+          </div>
+          <p class="hint">
+            Tip: check "User dismissed" and click "Upgrade modal" twice.
+          </p>
+        </div>
       </section>
 
       <section class="panel">
-        <h2>Log</h2>
+        <div class="panel-header">
+          <h2>Log</h2>
+          <button id="clearLog" class="ghost">Clear log</button>
+        </div>
         <div id="log" class="log"></div>
-        <button id="clearLog">Clear log</button>
       </section>
     </main>
 
