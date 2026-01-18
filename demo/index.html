@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Governor Demo</title>
+    <link rel="stylesheet" href="/demo/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Governor Demo</h1>
+        <p>
+          This demo shows how escalation attempts behave without Governor vs
+          with Governor.
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>Mode</h2>
+        <label>
+          <input type="radio" name="mode" value="no-governor" checked />
+          No Governor (baseline)
+        </label>
+        <label>
+          <input type="radio" name="mode" value="governor" />
+          With Governor gate
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2>User</h2>
+        <input id="userId" type="text" value="user_123" />
+      </section>
+
+      <section class="panel">
+        <h2>Escalation actions</h2>
+        <div class="actions">
+          <button data-action="urgency">Urgency message</button>
+          <button data-action="discount">Discount offer</button>
+          <button data-action="interruption">Upgrade modal</button>
+          <button data-action="reminder">Reminder</button>
+        </div>
+        <label class="checkbox">
+          <input id="dismissed" type="checkbox" />
+          User dismissed / hesitated
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2>Log</h2>
+        <div id="log" class="log"></div>
+        <button id="clearLog">Clear log</button>
+      </section>
+    </main>
+
+    <script src="/demo/demo.js"></script>
+  </body>
+</html>
