@@ -272,7 +272,7 @@
         </div>
         
         <!-- Governor Toggle -->
-        <div class="p-6">
+        <div class="p-6 border-b border-white/5">
             <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Governor</div>
             <button id="governorBtn" class="w-full bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-xl p-4 transition-all text-left group">
                 <div class="flex items-center justify-between">
@@ -286,6 +286,17 @@
             <p id="governorHint" class="text-xs text-slate-600 mt-3 hidden">
                 Feeling overwhelmed? Toggle Governor ON
             </p>
+        </div>
+        
+        <!-- Decision History (for internal teams) -->
+        <div class="p-6 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Decision Log</div>
+                <span class="text-[10px] text-slate-600">For internal review</span>
+            </div>
+            <div id="decisionLog" class="flex-1 overflow-y-auto space-y-2 text-xs max-h-48">
+                <div class="text-slate-600 italic">Scroll through timeline to see decisions...</div>
+            </div>
         </div>
     </aside>
 
@@ -755,6 +766,84 @@
         updateTemperament();
     }
 
+    // Decision log for internal teams
+    const decisionLog = [];
+    
+    function logDecision(event, decision, blockResult = null) {
+        const entry = {
+            timestamp: new Date().toISOString().substr(11, 8),
+            date: event.date,
+            channel: event.channel,
+            type: event.type,
+            decision: decision,
+            pressure: state.pressure,
+            rule: blockResult?.rule || null,
+            reason: blockResult?.reason || null
+        };
+        decisionLog.unshift(entry); // Add to top
+        
+        // Keep only last 50 entries
+        if (decisionLog.length > 50) decisionLog.pop();
+        
+        // Update UI
+        renderDecisionLog();
+    }
+    
+    function renderDecisionLog() {
+        const logEl = document.getElementById('decisionLog');
+        if (!logEl) return;
+        
+        if (decisionLog.length === 0) {
+            logEl.innerHTML = '<div class="text-slate-600 italic">Scroll through timeline to see decisions...</div>';
+            return;
+        }
+        
+        logEl.innerHTML = decisionLog.map(entry => {
+            const channelIcon = channelConfig[entry.channel]?.icon || '📨';
+            const isBlocked = entry.decision === 'BLOCKED';
+            const isUser = entry.decision === 'USER_ACTION';
+            const isAllowed = entry.decision === 'ALLOWED';
+            
+            if (isUser) {
+                return `
+                    <div class="bg-accent-green/10 border border-accent-green/20 rounded p-2">
+                        <div class="flex items-center gap-2">
+                            <span>👤</span>
+                            <span class="text-accent-green font-medium">USER</span>
+                            <span class="text-slate-500">${entry.date}</span>
+                        </div>
+                        <div class="text-slate-400 mt-1">Pressure: ${entry.pressure}</div>
+                    </div>
+                `;
+            }
+            
+            if (isBlocked) {
+                return `
+                    <div class="bg-accent-red/10 border border-accent-red/20 rounded p-2">
+                        <div class="flex items-center gap-2">
+                            <span>${channelIcon}</span>
+                            <span class="text-accent-red font-medium">BLOCKED</span>
+                            <span class="font-mono text-[10px] bg-accent-red/20 px-1 rounded">${entry.rule}</span>
+                        </div>
+                        <div class="text-slate-400 mt-1">${entry.reason}</div>
+                        <div class="text-slate-600 mt-1">${entry.date} • Pressure: ${entry.pressure}</div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="bg-surface-2 border border-white/5 rounded p-2">
+                    <div class="flex items-center gap-2">
+                        <span>${channelIcon}</span>
+                        <span class="text-slate-400 font-medium">ALLOWED</span>
+                        <span class="text-[10px] text-slate-500">${entry.type}</span>
+                    </div>
+                    <div class="text-slate-600 mt-1">${entry.date} • Pressure: ${entry.pressure}</div>
+                </div>
+            `;
+        }).join('');
+    }
+    
     function updateStats() {
         els.countEmail.textContent = state.counts.email;
         els.countSms.textContent = state.counts.sms;
@@ -822,6 +911,7 @@
             // User actions - just update pressure (can be negative = relief)
             state.pressure = Math.max(0, state.pressure + event.pressure);
             card.classList.add('visible');
+            logDecision(event, 'USER_ACTION');
             updatePressure();
             updateStats();
             return;
@@ -841,6 +931,9 @@
             if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
             if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
             
+            // Log the blocked decision
+            logDecision(event, 'BLOCKED', blockResult);
+            
             // Blocking prevents new pressure AND provides relief
             state.pressure = Math.max(0, state.pressure - 5);
         } else {
@@ -849,6 +942,9 @@
             }
             state.totalTouches++;
             state.pressure += event.pressure;
+            
+            // Log allowed decision
+            logDecision(event, 'ALLOWED');
         }
         
         card.classList.add('visible');
@@ -1080,6 +1176,10 @@
         state.counts = { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 };
         state.visibleEvents = new Set();
         state.currentDay = 1;
+        
+        // Clear decision log
+        decisionLog.length = 0;
+        renderDecisionLog();
         
         // Rebuild timeline
         buildTimeline();
