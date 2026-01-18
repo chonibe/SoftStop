@@ -1,122 +1,134 @@
-const logEl = document.getElementById("log");
-const userIdEl = document.getElementById("userId");
-const dismissedEl = document.getElementById("dismissed");
-const statusValue = document.getElementById("statusValue");
-const reasonValue = document.getElementById("reasonValue");
-const cooldownValue = document.getElementById("cooldownValue");
-const suggestValue = document.getElementById("suggestValue");
+const monitorLog = document.getElementById("monitorLog");
+const governorToggle = document.getElementById("governorToggle");
+const modeStatus = document.getElementById("modeStatus");
+const pressureFill = document.getElementById("pressureFill");
+const pressureValue = document.getElementById("pressureValue");
 
-const log = (message) => {
-  const time = new Date().toLocaleTimeString();
-  logEl.textContent = `[${time}] ${message}\n` + logEl.textContent;
+const userId = "user_123";
+let currentPressure = 0;
+
+const basePath = window.location.hostname === "localhost" ? "/v1" : "/api";
+
+const addLog = (type, message) => {
+    const time = new Date().toLocaleTimeString([], { hour12: false });
+    const entry = document.createElement("div");
+    entry.className = `log-entry ${type}`;
+    entry.innerHTML = `<span class="time">${time}</span> ${message}`;
+    monitorLog.prepend(entry);
 };
 
-const getMode = () =>
-  document.querySelector('input[name="mode"]:checked').value;
-
-const setDecision = ({
-  status = "Waiting",
-  reason = "-",
-  cooldown = "-",
-  suggestion = "-"
-} = {}) => {
-  statusValue.textContent = status;
-  reasonValue.textContent = reason;
-  cooldownValue.textContent = cooldown;
-  suggestValue.textContent = suggestion;
+const updatePressure = (val) => {
+    currentPressure = Math.min(100, Math.max(0, val));
+    pressureFill.style.width = `${currentPressure}%`;
+    pressureValue.textContent = `${currentPressure}%`;
+    
+    if (currentPressure > 70) {
+        document.body.classList.add("high-pressure");
+    } else {
+        document.body.classList.remove("high-pressure");
+    }
 };
-
-const basePath =
-  window.location.hostname === "localhost" ? "/v1" : "/api";
 
 const callApi = async (path, payload) => {
-  const res = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ? JSON.stringify(body.error) : res.statusText);
-  }
-  return res.json();
+    const res = await fetch(`${basePath}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ? JSON.stringify(body.error) : res.statusText);
+    }
+    return res.json();
 };
 
-const handleAction = async (actionType) => {
-  const userId = userIdEl.value.trim();
-  const mode = getMode();
-  if (!userId) {
-    log("Enter a user id.");
-    setDecision({ status: "Missing user" });
-    return;
-  }
-
-  if (mode === "no-governor") {
-    log(`No Governor: executed ${actionType}.`);
-    setDecision({
-      status: "Allowed",
-      reason: "baseline",
-      suggestion: "-"
-    });
-    return;
-  }
-
-  try {
-    const decision = await callApi(`${basePath}/check`, { userId, actionType });
-    if (!decision.allowed) {
-      log(
-        `Governor blocked ${actionType}. Reason: ${decision.reason}.` +
-          (decision.suggestedActionType
-            ? ` Suggest: ${decision.suggestedActionType}.`
-            : "")
-      );
-      setDecision({
-        status: "Blocked",
-        reason: decision.reason,
-        cooldown: decision.cooldownUntil ?? "-",
-        suggestion: decision.suggestedActionType ?? "-"
-      });
-      await callApi(`${basePath}/record`, {
-        userId,
-        actionType,
-        outcome: "blocked",
-        decisionId: decision.decisionId
-      });
-      return;
+const runDecisionFlow = async (actionType, nudgeElId) => {
+    const isGovernorOn = governorToggle.checked;
+    addLog("check", `Propose action: <strong>${actionType}</strong>`);
+    
+    if (!isGovernorOn) {
+        addLog("allow", `Governor OFF: Action <strong>${actionType}</strong> executed automatically.`);
+        if (nudgeElId) {
+            const el = document.getElementById(nudgeElId);
+            if (el) el.classList.add("active");
+        }
+        updatePressure(currentPressure + 20);
+        return;
     }
 
-    const dismissed = dismissedEl.checked;
-    log(
-      `Governor allowed ${actionType}.` +
-        (dismissed ? " User dismissed." : "")
-    );
-    setDecision({
-      status: "Allowed",
-      reason: decision.reason,
-      cooldown: decision.cooldownUntil ?? "-",
-      suggestion: decision.suggestedActionType ?? "-"
-    });
+    try {
+        const decision = await callApi("/check", { userId, actionType });
+        if (!decision.allowed) {
+            addLog("block", `Governor BLOCKED <strong>${actionType}</strong>. Reason: ${decision.reason}`);
+            updatePressure(currentPressure - 5);
+            return;
+        }
 
-    await callApi(`${basePath}/record`, {
-      userId,
-      actionType,
-      outcome: "executed",
-      decisionId: decision.decisionId,
-      signals: dismissed ? { dismissed: true } : undefined
-    });
-  } catch (error) {
-    log(`Error: ${error.message}`);
-    setDecision({ status: "Error", reason: "request_failed" });
-  }
+        addLog("allow", `Governor ALLOWED <strong>${actionType}</strong>. Reason: ${decision.reason}`);
+        if (nudgeElId) {
+            const el = document.getElementById(nudgeElId);
+            if (el) el.classList.add("active");
+        }
+        updatePressure(currentPressure + 10);
+
+        await callApi("/record", {
+            userId,
+            actionType,
+            outcome: "executed",
+            decisionId: decision.decisionId
+        });
+    } catch (e) {
+        addLog("system", `Error: ${e.message}`);
+    }
 };
 
-document.querySelectorAll("[data-action]").forEach((button) => {
-  button.addEventListener("click", () => handleAction(button.dataset.action));
+// Toggle handler
+governorToggle.addEventListener("change", () => {
+    const isOn = governorToggle.checked;
+    document.body.classList.toggle("mode-governor", isOn);
+    modeStatus.textContent = isOn ? "Governor ON" : "Governor OFF";
+    addLog("system", `Governor mode switched to: ${isOn ? "ON" : "OFF"}`);
 });
 
-document.getElementById("clearLog").addEventListener("click", () => {
-  logEl.textContent = "";
-  setDecision({});
+// Scenario Handlers
+document.querySelectorAll("[data-scenario]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const scenario = btn.dataset.scenario;
+        
+        if (scenario === "publish") {
+            addLog("system", "Scenario: User attempts to publish site...");
+            await runDecisionFlow("interruption", "upgradeBanner");
+        } else if (scenario === "stats") {
+            addLog("system", "Scenario: User viewing dashboard stats...");
+            await runDecisionFlow("urgency", "conversionNudge");
+            setTimeout(() => runDecisionFlow("reminder", "seoBadge"), 1000);
+            setTimeout(() => runDecisionFlow("discount", "analyticsBadge"), 2000);
+        } else if (scenario === "reset") {
+            addLog("system", "Resetting user state and pressure...");
+            updatePressure(0);
+            document.querySelectorAll(".active").forEach(el => el.classList.remove("active"));
+            monitorLog.innerHTML = `<div class="log-entry system">System reset.</div>`;
+        }
+    });
 });
 
-setDecision({});
+// Nudge Dismissals
+document.getElementById("closeBanner")?.addEventListener("click", async () => {
+    document.getElementById("upgradeBanner").classList.remove("active");
+    addLog("system", "User dismissed upgrade banner (Hesitation signal)");
+    
+    try {
+        await callApi("/record", {
+            userId,
+            actionType: "interruption",
+            outcome: "blocked", // Mark as blocked/dismissed for cooldown
+            signals: { dismissed: true }
+        });
+    } catch (e) {
+        console.error("Failed to record dismissal", e);
+    }
+});
+
+document.getElementById("clearMonitor").addEventListener("click", () => {
+    monitorLog.innerHTML = "";
+});

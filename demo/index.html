@@ -1,101 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Governor Demo</title>
-    <link rel="stylesheet" href="/demo/styles.css" />
-  </head>
-  <body>
-    <main class="container">
-      <header class="hero">
-        <div>
-          <span class="badge">Governor Demo</span>
-          <h1>Stop escalation when users hesitate</h1>
-          <p>
-            A simple side-by-side test: escalate without a gate, then repeat
-            with Governor. The same user behavior triggers very different
-            outcomes.
-          </p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Governor | Platform Safety Engine</title>
+    <link rel="stylesheet" href="/demo/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-layout">
+    <!-- Sidebar: Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">G</div>
+            <span>Governor</span>
         </div>
-        <div class="hero-card">
-          <h3>Scenario</h3>
-          <p>User tries to publish a site, sees an upgrade prompt, and closes it.</p>
-          <p>Without Governor: urgency, discount, and reminder stack.</p>
-          <p>With Governor: pressure cools down.</p>
-        </div>
-      </header>
-
-      <section class="panel">
-        <h2>Mode</h2>
-        <div class="toggle">
-          <label>
-            <input type="radio" name="mode" value="no-governor" checked />
-            No Governor (baseline)
-          </label>
-          <label>
-            <input type="radio" name="mode" value="governor" />
-            With Governor gate
-          </label>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="panel">
-          <h2>User + Signals</h2>
-          <label class="field">
-            User ID
-            <input id="userId" type="text" value="user_123" />
-          </label>
-          <label class="checkbox">
-            <input id="dismissed" type="checkbox" />
-            User dismissed / hesitated
-          </label>
-
-          <h2>Escalation actions</h2>
-          <div class="actions">
-            <button data-action="urgency">Urgency message</button>
-            <button data-action="discount">Discount offer</button>
-            <button data-action="interruption">Upgrade modal</button>
-            <button data-action="reminder">Reminder</button>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h2>Decision</h2>
-          <div class="decision">
-            <div>
-              <span class="label">Status</span>
-              <span id="statusValue" class="value">Waiting</span>
+        <nav>
+            <div class="nav-group">Workspace</div>
+            <a href="#" class="nav-item active">Dashboard</a>
+            <a href="#" class="nav-item">Pages</a>
+            <a href="#" class="nav-item">Products</a>
+            <a href="#" class="nav-item has-badge" data-nudge="seo_badge">
+                SEO <span class="nudge-badge" id="seoBadge">PRO</span>
+            </a>
+            <div class="nav-group">Growth</div>
+            <a href="#" class="nav-item">Marketing</a>
+            <a href="#" class="nav-item has-badge" data-nudge="analytics_badge">
+                Analytics <span class="nudge-badge" id="analyticsBadge">PRO</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="avatar">U</div>
+                <span>user_123</span>
             </div>
-            <div>
-              <span class="label">Reason</span>
-              <span id="reasonValue" class="value">-</span>
-            </div>
-            <div>
-              <span class="label">Cooldown</span>
-              <span id="cooldownValue" class="value">-</span>
-            </div>
-            <div>
-              <span class="label">Suggestion</span>
-              <span id="suggestValue" class="value">-</span>
-            </div>
-          </div>
-          <p class="hint">
-            Tip: check "User dismissed" and click "Upgrade modal" twice.
-          </p>
         </div>
-      </section>
+    </aside>
 
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Log</h2>
-          <button id="clearLog" class="ghost">Clear log</button>
+    <!-- Main Content: SaaS App -->
+    <main class="content">
+        <header class="content-header">
+            <div class="breadcrumb">Workspace / Dashboard</div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="previewBtn">Preview</button>
+                <button class="btn btn-primary" id="publishBtn">Publish Site</button>
+            </div>
+        </header>
+
+        <div class="dashboard-view">
+            <div class="welcome-card">
+                <h1>Welcome back, user_123</h1>
+                <p>Your site is currently live and performing well.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Visitors</span>
+                    <span class="stat-value">1,240</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Sales</span>
+                    <span class="stat-value">$4,200</span>
+                </div>
+                <div class="stat-card nudge-container" id="interactionNudge">
+                    <span class="stat-label">Conversion Rate</span>
+                    <span class="stat-value">3.2%</span>
+                    <div class="nudge-overlay" id="conversionNudge">
+                        <p>Boost this by 20% with AI Optimization</p>
+                        <button class="btn-sm">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In-Situ Nudge: Upgrade Banner -->
+            <div class="promo-banner" id="upgradeBanner">
+                <div class="promo-content">
+                    <h3>Unlock Advanced Analytics</h3>
+                    <p>Get deeper insights into your customers with our Pro plan.</p>
+                </div>
+                <div class="promo-buttons">
+                    <button class="btn btn-white">Upgrade Now</button>
+                    <button class="btn-close" id="closeBanner">&times;</button>
+                </div>
+            </div>
         </div>
-        <div id="log" class="log"></div>
-      </section>
     </main>
 
+    <!-- Right Sidebar: Governor Console -->
+    <aside class="console">
+        <div class="console-header">
+            <h3>Governor Console</h3>
+            <div class="mode-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="governorToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span id="modeStatus">Governor OFF</span>
+            </div>
+        </div>
+
+        <div class="console-section">
+            <div class="section-label">Pressure Index</div>
+            <div class="pressure-meter">
+                <div class="pressure-fill" id="pressureFill" style="width: 0%"></div>
+            </div>
+            <div class="pressure-labels">
+                <span>Calm</span>
+                <span id="pressureValue">0%</span>
+                <span>Stressed</span>
+            </div>
+        </div>
+
+        <div class="console-section logs">
+            <div class="section-label">Decision Stream</div>
+            <div id="monitorLog" class="monitor-log">
+                <div class="log-entry system">System initialized. Waiting for actions...</div>
+            </div>
+            <button id="clearMonitor" class="btn-link">Clear Feed</button>
+        </div>
+
+        <div class="console-footer">
+            <p class="scenario-title">Demo Scenarios:</p>
+            <div class="scenario-buttons">
+                <button class="btn-scenario" data-scenario="publish">Try to Publish</button>
+                <button class="btn-scenario" data-scenario="stats">Check Stats</button>
+                <button class="btn-scenario" data-scenario="reset">Reset User</button>
+            </div>
+        </div>
+    </aside>
+
     <script src="/demo/demo.js"></script>
-  </body>
+</body>
 </html>
