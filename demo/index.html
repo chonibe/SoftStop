@@ -3,132 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Platform Safety Engine</title>
+    <title>Governor | Escalation control for AI agents</title>
     <link rel="stylesheet" href="/demo/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body class="dashboard-layout">
-    <!-- Sidebar: Navigation -->
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">G</div>
-            <span>Governor</span>
-        </div>
-        <nav>
-            <div class="nav-group">Workspace</div>
-            <a href="#" class="nav-item active">Dashboard</a>
-            <a href="#" class="nav-item">Pages</a>
-            <a href="#" class="nav-item">Products</a>
-            <a href="#" class="nav-item has-badge" data-nudge="seo_badge">
-                SEO <span class="nudge-badge" id="seoBadge">PRO</span>
-            </a>
-            <div class="nav-group">Growth</div>
-            <a href="#" class="nav-item">Marketing</a>
-            <a href="#" class="nav-item has-badge" data-nudge="analytics_badge">
-                Analytics <span class="nudge-badge" id="analyticsBadge">PRO</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="user-pill">
-                <div class="avatar">U</div>
-                <span>user_123</span>
+<body>
+    <!-- 1. Hero Section -->
+    <header class="lp-hero">
+        <div class="container">
+            <div class="status-badge">
+                <span class="shield-icon">🛡️</span> Protected
             </div>
-        </div>
-    </aside>
-
-    <!-- Main Content: SaaS App -->
-    <main class="content">
-        <header class="content-header">
-            <div class="breadcrumb">Workspace / Dashboard</div>
-            <div class="header-actions">
-                <button class="btn btn-secondary" id="previewBtn">Preview</button>
-                <button class="btn btn-primary" id="publishBtn">Publish Site</button>
-            </div>
-        </header>
-
-        <div class="dashboard-view">
-            <div class="welcome-card">
-                <h1>Welcome back, user_123</h1>
-                <p>Your site is currently live and performing well.</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-label">Visitors</span>
-                    <span class="stat-value">1,240</span>
+            <h1>Escalation control<br><span class="gradient-text">for AI agents</span></h1>
+            <p class="hero-sub">Governor is now blocking manipulative UI patterns.<br><span id="totalBlockedCount">13</span> manipulations blocked.</p>
+            
+            <div class="agent-grid">
+                <div class="agent-card">
+                    <div class="agent-avatar s">S</div>
+                    <div class="agent-info">
+                        <span class="agent-name">Sales</span>
+                        <span class="agent-stat">3</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Sales</span>
-                    <span class="stat-value">$4,200</span>
+                <div class="agent-card">
+                    <div class="agent-avatar o">O</div>
+                    <div class="agent-info">
+                        <span class="agent-name">Onboarding</span>
+                        <span class="agent-stat">--</span>
+                    </div>
                 </div>
-                <div class="stat-card nudge-container" id="interactionNudge">
-                    <span class="stat-label">Conversion Rate</span>
-                    <span class="stat-value">3.2%</span>
-                    <div class="nudge-overlay" id="conversionNudge">
-                        <p>Boost this by 20% with AI Optimization</p>
-                        <button class="btn-sm">Learn More</button>
+                <div class="agent-card">
+                    <div class="agent-avatar r">R</div>
+                    <div class="agent-info">
+                        <span class="agent-name">Retention</span>
+                        <span class="agent-stat">5</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-avatar m">M</div>
+                    <div class="agent-info">
+                        <span class="agent-name">Marketing</span>
+                        <span class="agent-stat">5</span>
                     </div>
                 </div>
             </div>
 
-            <!-- In-Situ Nudge: Upgrade Banner -->
-            <div class="promo-banner" id="upgradeBanner">
-                <div class="promo-content">
-                    <h3>Unlock Advanced Analytics</h3>
-                    <p>Get deeper insights into your customers with our Pro plan.</p>
+            <div class="scroll-hint">
+                Scroll to see the demo
+                <div class="arrow-down">↓</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Live Demo Section -->
+    <section class="lp-demo" id="demo">
+        <div class="container">
+            <div class="demo-header">
+                <h2>Live Demo</h2>
+                <div class="demo-controls">
+                    <span class="control-label">Notice the difference?</span>
+                    <div class="mode-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="governorToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span id="modeStatus">Governor ENABLED</span>
+                    </div>
                 </div>
-                <div class="promo-buttons">
-                    <button class="btn btn-white">Upgrade Now</button>
-                    <button class="btn-close" id="closeBanner">&times;</button>
+                <p class="demo-desc">With Governor enabled, the interface stays calm. No fake urgency, no inflated numbers, no manipulative nudges.</p>
+            </div>
+
+            <div class="mock-app-container" id="mockApp">
+                <!-- Pressure Level Overlay -->
+                <div class="pressure-overlay">
+                    <div class="pressure-label">User pressure level</div>
+                    <div class="pressure-bar"><div class="pressure-fill" id="pressureFill" style="width: 20%"></div></div>
+                    <div class="pressure-percent" id="pressureValue">20%</div>
+                </div>
+
+                <div class="mock-app">
+                    <aside class="mock-sidebar">
+                        <div class="mock-brand">Acme Dashboard</div>
+                        <nav>
+                            <div class="mock-nav-item active">Dashboard</div>
+                            <div class="mock-nav-item">Analytics</div>
+                            <div class="mock-nav-item">Team</div>
+                            <div class="mock-nav-item">Settings</div>
+                        </nav>
+                    </aside>
+                    <main class="mock-main">
+                        <header class="mock-header">
+                            <input type="text" placeholder="Search..." class="mock-search">
+                            <div class="mock-user">Welcome back, Alex</div>
+                        </header>
+                        <div class="mock-content">
+                            <div class="social-proof" id="socialProof">12,861 teams trust Governor</div>
+                            
+                            <div class="feature-grid">
+                                <div class="feature-card">
+                                    <h3>Basic Analytics</h3>
+                                    <p>Track page views and user sessions with simple charts.</p>
+                                </div>
+                                <div class="feature-card nudge-target" data-nudge="ai_insights">
+                                    <span class="pro-badge">PRO</span>
+                                    <h3>AI Insights</h3>
+                                    <p>Get AI-powered recommendations for your business.</p>
+                                </div>
+                                <div class="feature-card nudge-target" data-nudge="multi_region">
+                                    <span class="pro-badge">PRO</span>
+                                    <h3>Multi-region</h3>
+                                    <p>Deploy to multiple regions for better latency.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h3>Basic Workflows</h3>
+                                    <p>Create simple automation workflows.</p>
+                                </div>
+                                <div class="feature-card nudge-target" data-nudge="sso">
+                                    <span class="pro-badge">PRO</span>
+                                    <h3>SSO Authentication</h3>
+                                    <p>Enterprise single sign-on integration.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h3>API Access</h3>
+                                    <p>Full REST API with 1000 requests/day.</p>
+                                </div>
+                            </div>
+
+                            <div class="pricing-card nudge-target" data-nudge="pricing_push">
+                                <div class="pricing-header">
+                                    <span class="plan-name">Pro Plan</span>
+                                    <span class="plan-tag">Everything you need</span>
+                                </div>
+                                <div class="price">$49/mo</div>
+                                <ul class="plan-features">
+                                    <li>Unlimited projects</li>
+                                    <li>Priority support</li>
+                                    <li>Advanced analytics</li>
+                                    <li>Custom integrations</li>
+                                </ul>
+                                <button class="btn-primary">Get Started</button>
+                            </div>
+
+                            <div class="testimonial-card">
+                                <div class="testimonial-content">
+                                    "Governor reduced our user complaints by 73%. Our AI agents now feel helpful, not pushy."
+                                </div>
+                                <div class="testimonial-author">
+                                    <strong>Sarah Chen</strong>
+                                    <span>VP Engineering, Acme</span>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
                 </div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- Right Sidebar: Governor Console -->
-    <aside class="console">
-        <div class="console-header">
-            <h3>Governor Console</h3>
-            <div class="mode-toggle">
-                <label class="switch">
-                    <input type="checkbox" id="governorToggle">
-                    <span class="slider round"></span>
-                </label>
-                <span id="modeStatus">Governor OFF</span>
+    <!-- 3. How it Works Section -->
+    <section class="lp-how">
+        <div class="container">
+            <h2>How Governor Works</h2>
+            <p class="section-sub">A single permission check between intent and action.</p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">Step 1</div>
+                    <h3>Agent Proposes</h3>
+                    <p>Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
+                    <div class="code-block">
+                        <div class="code-header">Agent request</div>
+                        <pre><code>escalate(userId, "popup")</code></pre>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">Step 2</div>
+                    <h3>Governor Checks</h3>
+                    <p>One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
+                    <div class="code-block">
+                        <div class="code-header">Governor response</div>
+                        <pre><code>{ 
+  allowed: true | false, 
+  reason: "..." 
+}</code></pre>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">Step 3</div>
+                    <h3>Execute or Block</h3>
+                    <p>Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
+                    <div class="execution-visual">
+                        <div class="v-item allowed">Allowed</div>
+                        <div class="v-item blocked">Blocked</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="limits-grid">
+                <div class="limit-card">
+                    <h4>Pressure Limits</h4>
+                    <p>Per-user pressure cannot exceed threshold. Agents must wait.</p>
+                </div>
+                <div class="limit-card">
+                    <h4>Cooldown Periods</h4>
+                    <p>Same escalation type has minimum interval. No rapid fire.</p>
+                </div>
+                <div class="limit-card">
+                    <h4>Mutual Exclusion</h4>
+                    <p>Only one popup at a time. Only one banner at a time. Coordinated.</p>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="console-section">
-            <div class="section-label">Pressure Index</div>
-            <div class="pressure-meter">
-                <div class="pressure-fill" id="pressureFill" style="width: 0%"></div>
+    <!-- 4. API Section -->
+    <section class="lp-api">
+        <div class="container">
+            <h2>One API. Total Control.</h2>
+            <p class="section-sub">Governor integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
+
+            <div class="api-grid">
+                <div class="api-tabs">
+                    <div class="api-tab active">Permission Check</div>
+                    <div class="api-tab">Configuration</div>
+                    <div class="api-tab">Events</div>
+                </div>
+                <div class="api-content">
+                    <div class="code-window">
+                        <div class="code-window-header">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <pre><code>// Before any escalation
+const decision = await governor.check({
+  userId: "user_123",
+  agentId: "sales-agent",
+  escalationType: "popup",
+  pressure: 25
+});
+
+if (decision.allowed) {
+  showPopup(user);
+} else {
+  // Agent must wait or downgrade
+  console.log(decision.reason);
+  // "Cooldown active for popup"
+  // "Would exceed pressure limit"
+}</code></pre>
+                    </div>
+                </div>
             </div>
-            <div class="pressure-labels">
-                <span>Calm</span>
-                <span id="pressureValue">0%</span>
-                <span>Stressed</span>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">&lt;10ms</div>
+                    <div class="kpi-label">Permission check latency</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">1 line</div>
+                    <div class="kpi-label">To integrate any agent</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">100%</div>
+                    <div class="kpi-label">Escalations tracked</div>
+                </div>
+            </div>
+
+            <div class="api-footer">
+                <p>"Governor doesn't make software smarter. It makes it stop when it should."</p>
+                <div class="footer-note">The missing safety primitive for multi-agent platforms.</div>
             </div>
         </div>
+    </section>
 
-        <div class="console-section logs">
-            <div class="section-label">Decision Stream</div>
-            <div id="monitorLog" class="monitor-log">
-                <div class="log-entry system">System initialized. Waiting for actions...</div>
+    <!-- 5. Session Footer -->
+    <footer class="lp-footer">
+        <div class="container footer-content">
+            <div class="session-stats">
+                <span class="stats-title">Your session on this page:</span>
+                <div class="stat-item">
+                    <span class="stat-num" id="sessionAttempts">0</span>
+                    <span class="stat-label">Escalation Attempts</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="sessionBlocked">0</span>
+                    <span class="stat-label">Blocked by Governor</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="sessionRate">0%</span>
+                    <span class="stat-label">Block Rate</span>
+                </div>
             </div>
-            <button id="clearMonitor" class="btn-link">Clear Feed</button>
-        </div>
-
-        <div class="console-footer">
-            <p class="scenario-title">Demo Scenarios:</p>
-            <div class="scenario-buttons">
-                <button class="btn-scenario" data-scenario="publish">Try to Publish</button>
-                <button class="btn-scenario" data-scenario="stats">Check Stats</button>
-                <button class="btn-scenario" data-scenario="reset">Reset User</button>
+            <div class="footer-actions">
+                <button class="btn-primary">Request Access</button>
+                <button class="btn-secondary">View Documentation</button>
             </div>
         </div>
-    </aside>
+        <div class="footer-bottom">
+            <div class="container">
+                <span class="brand-footer">Governor</span>
+                <span class="tagline-footer">· Escalation control for AI agent platforms</span>
+            </div>
+        </div>
+    </footer>
 
     <script src="/demo/demo.js"></script>
 </body>

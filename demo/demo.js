@@ -1,134 +1,124 @@
-const monitorLog = document.getElementById("monitorLog");
 const governorToggle = document.getElementById("governorToggle");
 const modeStatus = document.getElementById("modeStatus");
 const pressureFill = document.getElementById("pressureFill");
 const pressureValue = document.getElementById("pressureValue");
+const sessionAttemptsEl = document.getElementById("sessionAttempts");
+const sessionBlockedEl = document.getElementById("sessionBlocked");
+const sessionRateEl = document.getElementById("sessionRate");
+const totalBlockedCountEl = document.getElementById("totalBlockedCount");
 
-const userId = "user_123";
-let currentPressure = 0;
+// Session State
+let sessionAttempts = 0;
+let sessionBlocked = 0;
+let currentPressure = 20;
+const userId = "user_demo_" + Math.random().toString(36).substr(2, 9);
 
 const basePath = window.location.hostname === "localhost" ? "/v1" : "/api";
 
-const addLog = (type, message) => {
-    const time = new Date().toLocaleTimeString([], { hour12: false });
-    const entry = document.createElement("div");
-    entry.className = `log-entry ${type}`;
-    entry.innerHTML = `<span class="time">${time}</span> ${message}`;
-    monitorLog.prepend(entry);
+const updateStats = () => {
+    sessionAttemptsEl.textContent = sessionAttempts;
+    sessionBlockedEl.textContent = sessionBlocked;
+    const rate = sessionAttempts > 0 ? Math.round((sessionBlocked / sessionAttempts) * 100) : 0;
+    sessionRateEl.textContent = `${rate}%`;
+    totalBlockedCountEl.textContent = 13 + sessionBlocked; // Baseline 13 + session
 };
 
 const updatePressure = (val) => {
     currentPressure = Math.min(100, Math.max(0, val));
     pressureFill.style.width = `${currentPressure}%`;
     pressureValue.textContent = `${currentPressure}%`;
-    
-    if (currentPressure > 70) {
-        document.body.classList.add("high-pressure");
-    } else {
-        document.body.classList.remove("high-pressure");
-    }
 };
 
 const callApi = async (path, payload) => {
-    const res = await fetch(`${basePath}${path}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ? JSON.stringify(body.error) : res.statusText);
+    try {
+        const res = await fetch(`${basePath}${path}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        return await res.json();
+    } catch (e) {
+        console.error("API Error", e);
+        return { allowed: true }; // Fallback to allow if API is down for demo
     }
-    return res.json();
 };
 
-const runDecisionFlow = async (actionType, nudgeElId) => {
-    const isGovernorOn = governorToggle.checked;
-    addLog("check", `Propose action: <strong>${actionType}</strong>`);
+const attemptEscalation = async (nudgeType, actionType) => {
+    sessionAttempts++;
+    const isGovernorEnabled = governorToggle.checked;
     
-    if (!isGovernorOn) {
-        addLog("allow", `Governor OFF: Action <strong>${actionType}</strong> executed automatically.`);
-        if (nudgeElId) {
-            const el = document.getElementById(nudgeElId);
-            if (el) el.classList.add("active");
-        }
-        updatePressure(currentPressure + 20);
-        return;
-    }
+    let allowed = true;
+    let reason = "governor_disabled";
 
-    try {
+    if (isGovernorEnabled) {
         const decision = await callApi("/check", { userId, actionType });
-        if (!decision.allowed) {
-            addLog("block", `Governor BLOCKED <strong>${actionType}</strong>. Reason: ${decision.reason}`);
-            updatePressure(currentPressure - 5);
-            return;
-        }
-
-        addLog("allow", `Governor ALLOWED <strong>${actionType}</strong>. Reason: ${decision.reason}`);
-        if (nudgeElId) {
-            const el = document.getElementById(nudgeElId);
-            if (el) el.classList.add("active");
-        }
-        updatePressure(currentPressure + 10);
-
-        await callApi("/record", {
-            userId,
-            actionType,
-            outcome: "executed",
-            decisionId: decision.decisionId
-        });
-    } catch (e) {
-        addLog("system", `Error: ${e.message}`);
+        allowed = decision.allowed;
+        reason = decision.reason;
     }
+
+    const targets = document.querySelectorAll(`[data-nudge="${nudgeType}"]`);
+    
+    if (allowed) {
+        // Show nudge aggressively
+        targets.forEach(t => {
+            t.classList.remove("blocked");
+            t.classList.add("active-nudge");
+        });
+        updatePressure(currentPressure + 10);
+        
+        // Record successful execution
+        await callApi("/record", { userId, actionType, outcome: "executed" });
+    } else {
+        // Blocked by Governor
+        sessionBlocked++;
+        targets.forEach(t => {
+            t.classList.add("blocked");
+            t.classList.remove("active-nudge");
+        });
+        updatePressure(currentPressure - 2);
+        
+        // Record block
+        await callApi("/record", { userId, actionType, outcome: "blocked" });
+    }
+
+    updateStats();
 };
 
-// Toggle handler
+// Simulation Loop
+const actions = [
+    { nudge: "ai_insights", action: "urgency" },
+    { nudge: "multi_region", action: "reminder" },
+    { nudge: "sso", action: "discount" },
+    { nudge: "pricing_push", action: "interruption" }
+];
+
+let simInterval = setInterval(() => {
+    const pick = actions[Math.floor(Math.random() * actions.length)];
+    attemptEscalation(pick.nudge, pick.action);
+}, 4000);
+
+// Toggle Handler
 governorToggle.addEventListener("change", () => {
-    const isOn = governorToggle.checked;
-    document.body.classList.toggle("mode-governor", isOn);
-    modeStatus.textContent = isOn ? "Governor ON" : "Governor OFF";
-    addLog("system", `Governor mode switched to: ${isOn ? "ON" : "OFF"}`);
+    const enabled = governorToggle.checked;
+    modeStatus.textContent = enabled ? "Governor ENABLED" : "Governor DISABLED";
+    document.getElementById("mockApp").classList.toggle("unprotected", !enabled);
+    
+    if (!enabled) {
+        // Clear all blocked states immediately if disabled
+        document.querySelectorAll(".nudge-target").forEach(t => {
+            t.classList.remove("blocked");
+        });
+    }
 });
 
-// Scenario Handlers
-document.querySelectorAll("[data-scenario]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const scenario = btn.dataset.scenario;
-        
-        if (scenario === "publish") {
-            addLog("system", "Scenario: User attempts to publish site...");
-            await runDecisionFlow("interruption", "upgradeBanner");
-        } else if (scenario === "stats") {
-            addLog("system", "Scenario: User viewing dashboard stats...");
-            await runDecisionFlow("urgency", "conversionNudge");
-            setTimeout(() => runDecisionFlow("reminder", "seoBadge"), 1000);
-            setTimeout(() => runDecisionFlow("discount", "analyticsBadge"), 2000);
-        } else if (scenario === "reset") {
-            addLog("system", "Resetting user state and pressure...");
-            updatePressure(0);
-            document.querySelectorAll(".active").forEach(el => el.classList.remove("active"));
-            monitorLog.innerHTML = `<div class="log-entry system">System reset.</div>`;
-        }
+// Manual Triggers (on click)
+document.querySelectorAll(".nudge-target").forEach(t => {
+    t.addEventListener("click", () => {
+        const type = t.dataset.nudge;
+        const action = type === "pricing_push" ? "interruption" : "urgency";
+        attemptEscalation(type, action);
     });
 });
 
-// Nudge Dismissals
-document.getElementById("closeBanner")?.addEventListener("click", async () => {
-    document.getElementById("upgradeBanner").classList.remove("active");
-    addLog("system", "User dismissed upgrade banner (Hesitation signal)");
-    
-    try {
-        await callApi("/record", {
-            userId,
-            actionType: "interruption",
-            outcome: "blocked", // Mark as blocked/dismissed for cooldown
-            signals: { dismissed: true }
-        });
-    } catch (e) {
-        console.error("Failed to record dismissal", e);
-    }
-});
-
-document.getElementById("clearMonitor").addEventListener("click", () => {
-    monitorLog.innerHTML = "";
-});
+// Initial Stats
+updateStats();
