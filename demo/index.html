@@ -344,6 +344,38 @@
                 <p id="endText" class="text-xl text-slate-400 mb-8">
                     This is what multi-channel automation looks like without coordination.
                 </p>
+                
+                <!-- Outcome comparison -->
+                <div id="outcomeComparison" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
+                    <!-- Without Governor -->
+                    <div id="outcomeWithout" class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6 text-left">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">❌</span>
+                            <span class="font-bold text-accent-red">Without Governor</span>
+                        </div>
+                        <div id="outcomeWithoutText" class="text-sm text-slate-400 space-y-2">
+                            <div>💀 User churned</div>
+                            <div>📧 Marked as spam</div>
+                            <div>💸 $0 lifetime value</div>
+                            <div>⚠️ Damaged brand reputation</div>
+                        </div>
+                    </div>
+                    
+                    <!-- With Governor -->
+                    <div id="outcomeWith" class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6 text-left">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">✅</span>
+                            <span class="font-bold text-accent-green">With Governor</span>
+                        </div>
+                        <div id="outcomeWithText" class="text-sm text-slate-400 space-y-2">
+                            <div>😊 User retained</div>
+                            <div>📬 Healthy engagement</div>
+                            <div>💰 $247 lifetime value</div>
+                            <div>❤️ Positive brand sentiment</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-xl mx-auto mb-8">
                     <div class="bg-surface rounded-xl p-4">
                         <div class="text-2xl font-black text-accent-red" id="finalTotal">0</div>
@@ -358,7 +390,7 @@
                         <div class="text-xs text-slate-500">Peak Pressure</div>
                     </div>
                     <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-purple" id="finalChannels">6</div>
+                        <div class="text-2xl font-black text-accent-purple" id="finalChannels">8</div>
                         <div class="text-xs text-slate-500">Channels Used</div>
                     </div>
                 </div>
@@ -559,7 +591,8 @@
         { date: '2026-01-18', channel: 'social', subject: '[WhatsApp] "Hey it\'s CrownCoins support, quick question..."', type: 'outreach', pressure: 16, trigger: 'app_open' },
     ];
     
-    // SARAH's Journey - VIP user with low tolerance, unsubscribes early
+    // SARAH's Journey - VIP user with low tolerance
+    // Events have 'requiresGovernorOff' or 'requiresGovernorOn' flags for conditional display
     const sarahEvents = [
         { date: '2025-12-06', channel: 'user', subject: 'Sarah signed up (VIP tier from referral)', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-06', channel: 'email', subject: 'Welcome VIP! Exclusive 500% bonus inside 🎁', type: 'onboarding', pressure: 5 },
@@ -570,21 +603,38 @@
         { date: '2025-12-07', channel: 'sms', subject: '🎰 VIP: Your bonus spins are ready!', type: 'promo', pressure: 10 },
         { date: '2025-12-07', channel: 'push', subject: 'Spin now before bonus expires!', type: 'urgency', pressure: 12 },
         
-        { date: '2025-12-08', channel: 'user', subject: 'Sarah unsubscribed from SMS immediately', type: 'action', pressure: -15, isUser: true },
-        { date: '2025-12-08', channel: 'email', subject: 'We noticed you unsubscribed - 100 free coins!', type: 'winback', pressure: 15, trigger: 'sms_unsub' },
-        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Come back Sarah! VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'sms_unsub' },
+        // WITHOUT GOVERNOR: Sarah gets overwhelmed
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah unsubscribed from SMS immediately', type: 'action', pressure: -15, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-08', channel: 'email', subject: 'We noticed you unsubscribed - 100 free coins!', type: 'winback', pressure: 15, trigger: 'sms_unsub', requiresGovernorOff: true },
+        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Come back Sarah! VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'sms_unsub', requiresGovernorOff: true },
         
-        { date: '2025-12-09', channel: 'email', subject: 'Sarah, exclusive VIP jackpot tonight!', type: 'promo', pressure: 12 },
-        { date: '2025-12-09', channel: 'popup', subject: 'VIP EXCLUSIVE: Triple deposit bonus!', type: 'urgency', pressure: 18 },
+        // WITH GOVERNOR: Sarah has a good experience
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah played slots for 20 minutes', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Your weekly VIP digest 💎', type: 'digest', pressure: 3, requiresGovernorOn: true },
         
-        { date: '2025-12-10', channel: 'user', subject: 'Sarah marked 2 emails as spam', type: 'action', pressure: -20, isUser: true },
-        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Sarah, we miss you! 🎁"', type: 'retarget', pressure: 14, trigger: 'low_engagement' },
-        { date: '2025-12-10', channel: 'social', subject: '[Instagram DM] "Hi Sarah, any issues with your account?"', type: 'outreach', pressure: 18, trigger: 'low_engagement' },
+        // WITHOUT GOVERNOR: More pressure
+        { date: '2025-12-09', channel: 'email', subject: 'Sarah, exclusive VIP jackpot tonight!', type: 'promo', pressure: 12, requiresGovernorOff: true },
+        { date: '2025-12-09', channel: 'popup', subject: 'VIP EXCLUSIVE: Triple deposit bonus!', type: 'urgency', pressure: 18, requiresGovernorOff: true },
         
-        { date: '2025-12-11', channel: 'user', subject: 'Sarah deleted her account', type: 'action', pressure: 0, isUser: true },
+        // WITH GOVERNOR: Respectful engagement
+        { date: '2025-12-09', channel: 'user', subject: 'Sarah won $25 on slots!', type: 'action', pressure: -8, isUser: true, requiresGovernorOn: true },
+        
+        // WITHOUT GOVERNOR: Sarah churns
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah marked 2 emails as spam', type: 'action', pressure: -20, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Sarah, we miss you! 🎁"', type: 'retarget', pressure: 14, trigger: 'low_engagement', requiresGovernorOff: true },
+        { date: '2025-12-10', channel: 'social', subject: '[Instagram DM] "Hi Sarah, any issues with your account?"', type: 'outreach', pressure: 18, trigger: 'low_engagement', requiresGovernorOff: true },
+        { date: '2025-12-11', channel: 'user', subject: 'Sarah deleted her account', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        
+        // WITH GOVERNOR: Sarah becomes loyal
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah made another $50 deposit', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-10', channel: 'email', subject: 'Thanks VIP! Your balance is ready', type: 'transactional', pressure: 2, requiresGovernorOn: true },
+        { date: '2025-12-12', channel: 'user', subject: 'Sarah referred a friend', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Referral bonus credited! 🎉', type: 'transactional', pressure: 2, requiresGovernorOn: true },
+        { date: '2025-12-15', channel: 'email', subject: 'Your weekly VIP update', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        { date: '2025-12-15', channel: 'user', subject: 'Sarah upgraded to VIP Plus tier', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
     ];
     
-    // MIKE's Journey - New user, light engagement, responds well to Governor
+    // MIKE's Journey - New user, light engagement
     const mikeEvents = [
         { date: '2025-12-06', channel: 'user', subject: 'Mike signed up to try the platform', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins! Start with 100 free coins', type: 'onboarding', pressure: 5 },
@@ -595,28 +645,44 @@
         { date: '2025-12-10', channel: 'email', subject: 'Weekend bonus: 50 free spins!', type: 'promo', pressure: 6 },
         { date: '2025-12-10', channel: 'push', subject: 'Free spins waiting for you!', type: 'promo', pressure: 6 },
         
+        // WITHOUT GOVERNOR: Mike gets overwhelmed with follow-ups
         { date: '2025-12-12', channel: 'user', subject: 'Mike opened the app but didn\'t play', type: 'action', pressure: -2, isUser: true },
-        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8 },
+        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresGovernorOff: true },
+        { date: '2025-12-12', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-12', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
         
-        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10 },
-        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8 },
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresGovernorOff: true },
         
-        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true },
-        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 6, trigger: 'email_click' },
+        { date: '2025-12-18', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresGovernorOff: true },
         
-        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 10 },
+        { date: '2025-12-25', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-28', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresGovernorOff: true },
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year! We miss you...', type: 'winback', pressure: 6, requiresGovernorOff: true },
+        { date: '2026-01-05', channel: 'user', subject: 'Mike hasn\'t logged in for 2 weeks', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
         
-        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true },
-        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 3, trigger: 'purchase' },
+        // WITH GOVERNOR: Mike has a good steady experience
+        { date: '2025-12-12', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresGovernorOn: true },
         
-        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 5 },
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresGovernorOn: true },
         
-        { date: '2025-12-28', channel: 'email', subject: 'New games just added!', type: 'feature', pressure: 4 },
+        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresGovernorOn: true },
         
-        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 5 },
+        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresGovernorOn: true },
         
-        { date: '2026-01-05', channel: 'user', subject: 'Mike plays regularly now', type: 'action', pressure: -10, isUser: true },
-        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 3, trigger: 'engagement' },
+        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 4, requiresGovernorOn: true },
+        
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 3, requiresGovernorOn: true },
+        { date: '2026-01-01', channel: 'user', subject: 'Mike shared the app with a friend', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        
+        { date: '2026-01-05', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresGovernorOn: true },
     ];
     
     // All user journeys
@@ -624,6 +690,82 @@
         choni: choniEvents,
         sarah: sarahEvents,
         mike: mikeEvents
+    };
+    
+    // User outcomes - what happens without vs with Governor
+    const userOutcomes = {
+        choni: {
+            without: {
+                icon: '💀',
+                title: 'Choni Churned',
+                subtitle: 'Overwhelmed after 44 days of pressure',
+                items: [
+                    '💀 Unsubscribed from all channels',
+                    '📧 Marked 5 emails as spam',
+                    '💸 $0 future revenue',
+                    '⚠️ Left negative review'
+                ]
+            },
+            with: {
+                icon: '😊',
+                title: 'Choni Retained',
+                subtitle: 'Healthy engagement maintained',
+                items: [
+                    '😊 Still active user',
+                    '📬 Opens 40% of emails',
+                    '💰 $380 lifetime value',
+                    '❤️ Referred 2 friends'
+                ]
+            }
+        },
+        sarah: {
+            without: {
+                icon: '😡',
+                title: 'Sarah Deleted Account',
+                subtitle: 'VIP lost in just 5 days',
+                items: [
+                    '💀 Deleted account permanently',
+                    '📧 Reported to spam authorities',
+                    '💸 Lost $500+ potential LTV',
+                    '⚠️ Posted complaint on Twitter'
+                ]
+            },
+            with: {
+                icon: '💎',
+                title: 'Sarah is VIP for Life',
+                subtitle: 'Governor protected her experience',
+                items: [
+                    '💎 Upgraded to VIP Plus',
+                    '📬 Prefers email once weekly',
+                    '💰 $1,200 lifetime value',
+                    '❤️ Brand ambassador'
+                ]
+            }
+        },
+        mike: {
+            without: {
+                icon: '😐',
+                title: 'Mike Went Dormant',
+                subtitle: 'Lost interest, stopped opening emails',
+                items: [
+                    '😴 Inactive for 6 months',
+                    '📧 0% open rate',
+                    '💸 $12 total revenue',
+                    '⚠️ Wasted marketing spend'
+                ]
+            },
+            with: {
+                icon: '🎮',
+                title: 'Mike Became Regular',
+                subtitle: 'Right pace of engagement',
+                items: [
+                    '🎮 Plays weekly',
+                    '📬 Opens 60% of emails',
+                    '💰 $95 lifetime value',
+                    '❤️ Steady, sustainable user'
+                ]
+            }
+        }
     };
     
     // Get current user's events
@@ -684,8 +826,17 @@
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
+    function getFilteredEvents() {
+        return pressureEvents.filter(event => {
+            // Filter based on Governor state for conditional events
+            if (event.requiresGovernorOff && state.governorEnabled) return false;
+            if (event.requiresGovernorOn && !state.governorEnabled) return false;
+            return true;
+        });
+    }
+    
     function getUniqueDates() {
-        return [...new Set(pressureEvents.map(e => e.date))].sort();
+        return [...new Set(getFilteredEvents().map(e => e.date))].sort();
     }
 
     // Mood configurations
@@ -787,6 +938,45 @@
         
         // Update UI
         renderDecisionLog();
+    }
+    
+    function updateOutcomes() {
+        const outcomes = userOutcomes[currentUser];
+        if (!outcomes) return;
+        
+        const withoutEl = document.getElementById('outcomeWithoutText');
+        const withEl = document.getElementById('outcomeWithText');
+        const endIcon = document.getElementById('endIcon');
+        const endTitle = document.getElementById('endTitle');
+        const endText = document.getElementById('endText');
+        
+        if (withoutEl) {
+            withoutEl.innerHTML = outcomes.without.items.map(item => `<div>${item}</div>`).join('');
+        }
+        if (withEl) {
+            withEl.innerHTML = outcomes.with.items.map(item => `<div>${item}</div>`).join('');
+        }
+        
+        // Update main message based on Governor state
+        if (state.governorEnabled) {
+            endIcon.textContent = outcomes.with.icon;
+            endTitle.textContent = outcomes.with.title;
+            endTitle.className = 'text-4xl font-black mb-4 text-accent-green';
+            endText.textContent = outcomes.with.subtitle;
+            
+            // Highlight the "With Governor" panel
+            document.getElementById('outcomeWithout').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
+            document.getElementById('outcomeWith').className = 'bg-accent-green/10 border border-accent-green/50 rounded-xl p-6 text-left ring-2 ring-accent-green/50';
+        } else {
+            endIcon.textContent = outcomes.without.icon;
+            endTitle.textContent = outcomes.without.title;
+            endTitle.className = 'text-4xl font-black mb-4 text-accent-red';
+            endText.textContent = outcomes.without.subtitle;
+            
+            // Highlight the "Without Governor" panel
+            document.getElementById('outcomeWithout').className = 'bg-accent-red/10 border border-accent-red/50 rounded-xl p-6 text-left ring-2 ring-accent-red/50';
+            document.getElementById('outcomeWith').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
+        }
     }
     
     function renderDecisionLog() {
@@ -956,8 +1146,10 @@
         const dates = getUniqueDates();
         let html = '';
         
+        const filteredEvents = getFilteredEvents();
+        
         dates.forEach((date, dayIndex) => {
-            const dayEvents = pressureEvents.filter(e => e.date === date);
+            const dayEvents = filteredEvents.filter(e => e.date === date);
             const formattedDate = formatDate(date);
             
             html += `
@@ -1100,58 +1292,41 @@
     els.governorBtn.addEventListener('click', () => {
         state.governorEnabled = !state.governorEnabled;
         
+        // Reset state for fresh playthrough with new Governor setting
+        state.pressure = 0;
+        state.maxPressure = 0;
+        state.blocked = 0;
+        state.totalTouches = 0;
+        state.counts = { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 };
+        state.visibleEvents = new Set();
+        state.currentDay = 1;
+        decisionLog.length = 0;
+        
         if (state.governorEnabled) {
             els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
             els.governorLabel.textContent = 'ON';
             els.governorBtn.classList.add('border-accent-green/50', 'glow');
-            els.governorHint.textContent = 'Governor is now protecting you.';
-            
-            // Re-evaluate visible cards
-            document.querySelectorAll('.pressure-card.visible:not(.blocked)').forEach(card => {
-                const isUser = card.dataset.isUser === 'true';
-                if (isUser) return; // Don't block user actions
-                
-                const event = {
-                    date: card.dataset.date,
-                    channel: card.dataset.channel,
-                    subject: card.dataset.subject,
-                    type: card.dataset.type,
-                    pressure: parseInt(card.dataset.pressure)
-                };
-                const blockResult = shouldBlock(event);
-                if (blockResult && blockResult.blocked) {
-                    card.classList.add('blocked');
-                    state.blocked++;
-                    
-                    // Populate block reason
-                    const ruleEl = card.querySelector('.block-rule');
-                    const reasonEl = card.querySelector('.block-reason-text');
-                    const suggestionEl = card.querySelector('.block-suggestion');
-                    if (ruleEl) ruleEl.textContent = blockResult.rule;
-                    if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
-                    if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
-                    
-                    if (state.counts[event.channel] !== undefined) {
-                        state.counts[event.channel]--;
-                    }
-                    state.totalTouches--;
-                    state.pressure = Math.max(0, state.pressure - event.pressure);
-                }
-            });
-            
-            // Additional relief when Governor is enabled - user feels protected
-            state.pressure = Math.max(0, Math.floor(state.pressure * 0.5));
-            
-            updatePressure();
-            updateStats();
-            updateTemperament();
+            els.governorHint.textContent = 'Governor is protecting this user. The story changes!';
+            els.governorHint.classList.remove('hidden');
         } else {
             els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
             els.governorLabel.textContent = 'OFF';
             els.governorBtn.classList.remove('border-accent-green/50', 'glow');
-            els.governorHint.classList.add('hidden');
-            updateTemperament();
+            els.governorHint.textContent = 'Governor OFF. See what happens without protection.';
+            els.governorHint.classList.remove('hidden');
         }
+        
+        // Rebuild timeline with different events based on Governor state
+        buildTimeline();
+        setupObservers();
+        updatePressure();
+        updateStats();
+        updateTemperament();
+        updateOutcomes();
+        renderDecisionLog();
+        
+        // Scroll to top to see the new story
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // User switching function
@@ -1189,6 +1364,7 @@
         updatePressure();
         updateStats();
         updateTemperament();
+        updateOutcomes();
         
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
