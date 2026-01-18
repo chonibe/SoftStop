@@ -15,6 +15,9 @@
 ## Entry: Fix Vercel build typing
 - [x] Removed unsupported insert count option: [governor/api/src/storage/supabaseStorage.ts](../../../governor/api/src/storage/supabaseStorage.ts)
 
+## Entry: Vercel output directory
+- [x] Added Vercel output configuration: [vercel.json](../../../vercel.json)
+
 ## References
 - Implementation: [governor/api/src/server.ts](../../../governor/api/src/server.ts)
 - Tests: [governor/tests/rules.test.ts](../../../governor/tests/rules.test.ts)
