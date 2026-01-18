@@ -102,6 +102,8 @@
         .channel-popup { border-left-color: #ec4899; }
         .channel-badge { border-left-color: #eab308; }
         .channel-chat { border-left-color: #06b6d4; }
+        .channel-ad { border-left-color: #3b82f6; }
+        .channel-social { border-left-color: #a855f7; }
         .channel-user { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
         
         /* User action card styling */
@@ -314,6 +316,7 @@
         { date: '2025-12-08', channel: 'user', subject: 'You visited the site for 30 seconds', type: 'action', pressure: -3, isUser: true },
         { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12, trigger: 'browse_abandon' },
         { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15, trigger: 'browse_abandon' },
+        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Choni, your coins are waiting!" 🎰', type: 'retarget', pressure: 8, trigger: 'browse_abandon' },
         
         // Day 4 - Dec 9
         { date: '2025-12-09', channel: 'email', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
@@ -336,6 +339,8 @@
         { date: '2025-12-13', channel: 'email', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
         { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15, trigger: 'viewed_pricing' },
         { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'ad', subject: '[Instagram] "300% BONUS - Today Only!" 🔥', type: 'retarget', pressure: 10, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'ad', subject: '[YouTube Pre-roll] "CrownCoins: Win Big Today"', type: 'retarget', pressure: 8, trigger: 'viewed_pricing' },
         
         // Day 9 - Dec 14: User closed popup without action
         { date: '2025-12-14', channel: 'user', subject: 'You closed the popup (no purchase)', type: 'action', pressure: 0, isUser: true },
@@ -375,6 +380,8 @@
         { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'sms_unsub' },
         { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12, trigger: 'sms_unsub' },
         { date: '2025-12-20', channel: 'push', subject: 'We noticed you unsubscribed - here\'s 50 free coins', type: 'winback', pressure: 10, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'ad', subject: '[Instagram Story] "Miss us? Here\'s 100 FREE coins" 🎁', type: 'retarget', pressure: 12, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'social', subject: '[Instagram DM] "Hey! We have a special offer for you..."', type: 'outreach', pressure: 14, trigger: 'sms_unsub' },
         
         // Day 16 - Dec 21
         { date: '2025-12-21', channel: 'email', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
@@ -391,6 +398,9 @@
         { date: '2025-12-23', channel: 'email', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
         { date: '2025-12-23', channel: 'push', subject: 'Your cart is waiting! Complete purchase for bonus', type: 'urgency', pressure: 16, trigger: 'cart_abandon' },
         { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[Facebook] "Choni, you left coins in your cart!" 🛒', type: 'retarget', pressure: 12, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[TikTok] "Complete your purchase - 20% OFF!" 💰', type: 'retarget', pressure: 10, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[Google Display] "Your CrownCoins cart expires soon"', type: 'retarget', pressure: 8, trigger: 'cart_abandon' },
         
         // Day 19 - Dec 24
         { date: '2025-12-24', channel: 'email', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
@@ -436,6 +446,9 @@
         { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16, trigger: 'inactivity' },
         { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12, trigger: 'inactivity' },
         { date: '2026-01-11', channel: 'popup', subject: 'MYSTERY DEAL: Scratch to reveal!', type: 'promo', pressure: 10 },
+        { date: '2026-01-11', channel: 'ad', subject: '[Facebook] "We miss you, Choni! Come back for 500 FREE coins" 😢', type: 'retarget', pressure: 12, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'ad', subject: '[Google Search] "CrownCoins - Your account has rewards waiting"', type: 'retarget', pressure: 8, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'social', subject: '[Facebook Messenger] "Choni! You have unclaimed rewards 🎁"', type: 'outreach', pressure: 14, trigger: 'inactivity' },
         
         // Day 38 - Jan 12
         { date: '2026-01-12', channel: 'email', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
@@ -459,6 +472,10 @@
         { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14, trigger: 'app_open' },
         { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16, trigger: 'app_open' },
         { date: '2026-01-18', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
+        { date: '2026-01-18', channel: 'ad', subject: '[Every website you visit] "CrownCoins: 200% Bonus Ends Tonight!"', type: 'retarget', pressure: 14, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'ad', subject: '[YouTube] "Don\'t let your free spins expire!"', type: 'retarget', pressure: 10, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'ad', subject: '[Spotify] Audio ad between songs 🔊', type: 'retarget', pressure: 12, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'social', subject: '[WhatsApp] "Hey it\'s CrownCoins support, quick question..."', type: 'outreach', pressure: 16, trigger: 'app_open' },
     ];
 
     // State
@@ -467,7 +484,7 @@
         pressure: 0,
         maxPressure: 0,
         blocked: 0,
-        counts: { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0 },
+        counts: { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 },
         totalTouches: 0,
         currentDay: 0,
         visibleEvents: new Set()
@@ -503,6 +520,8 @@
         popup: { icon: '🖥️', color: 'channel-popup', label: 'Popup' },
         badge: { icon: '🏷️', color: 'channel-badge', label: 'Badge' },
         chat: { icon: '💭', color: 'channel-chat', label: 'Chat' },
+        ad: { icon: '📢', color: 'channel-ad', label: 'Retargeting Ad' },
+        social: { icon: '📱', color: 'channel-social', label: 'Social DM' },
         // User actions (shown differently)
         user: { icon: '👤', color: 'channel-user', label: 'You' },
     };
