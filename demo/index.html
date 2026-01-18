@@ -112,10 +112,23 @@
                 <span class="text-accent-red">overwhelming</span> <span class="gradient-text">your users.</span>
             </h1>
             
-            <p class="text-xl md:text-2xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+            <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
                 Sales, marketing, retention, support — all pushing at once. 
                 <strong class="text-white">Governor is the control layer that stops the chaos.</strong>
             </p>
+            
+            <!-- Per-User Key Point -->
+            <div class="inline-flex items-center gap-3 bg-surface border border-white/10 rounded-xl px-6 py-3 mb-12">
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">A</div>
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">B</div>
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">C</div>
+                </div>
+                <div class="text-left">
+                    <div class="text-sm font-bold text-white">Per-user intelligence</div>
+                    <div class="text-xs text-slate-500">Same campaign → different decision for each user</div>
+                </div>
+            </div>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
                 <a href="#problem" class="bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-accent/25 transition-all text-lg">
@@ -280,18 +293,32 @@
                 
                 <!-- Governor Brain Visual -->
                 <div class="bg-surface-2 rounded-2xl border border-accent-green/20 p-6 glow">
-                    <div class="flex items-center gap-3 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
                         <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl">🧠</div>
                         <div>
                             <h3 class="font-bold text-lg">Governor Brain</h3>
-                            <p class="text-xs text-slate-500">Real-time user context + policy enforcement</p>
+                            <p class="text-xs text-slate-500">State tracked <strong class="text-accent-green">per user</strong></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Per-User Emphasis -->
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-3 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center text-lg">👤</div>
+                            <div>
+                                <div class="font-mono text-sm font-bold text-accent">user_choni_2024</div>
+                                <div class="text-[10px] text-slate-500">Each user has their own state. Same campaign → different decision per user.</div>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="space-y-4">
                         <!-- User Memory -->
                         <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-xs text-slate-500 uppercase font-bold mb-3">User Memory</div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-slate-500 uppercase font-bold">This User's State</span>
+                                <span class="text-[10px] text-accent font-mono">user_choni_2024</span>
+                            </div>
                             <div class="grid grid-cols-2 gap-3 text-sm font-mono">
                                 <div class="flex justify-between">
                                     <span class="text-slate-400">emails_24h:</span>
@@ -312,29 +339,34 @@
                             </div>
                         </div>
                         
-                        <!-- Active Policy -->
+                        <!-- Same Campaign, Different Users -->
                         <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-xs text-slate-500 uppercase font-bold mb-3">Active Policy</div>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-accent-green">✓</span>
-                                    <span class="text-slate-400">Email cooldown:</span>
-                                    <span class="text-white font-mono">5 min</span>
+                            <div class="text-xs text-slate-500 uppercase font-bold mb-3">Same Campaign → Different Decisions</div>
+                            <div class="text-[10px] text-slate-600 mb-3 font-mono">"50% off - Last chance!"</div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center justify-between bg-accent-green/10 rounded-lg px-3 py-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-[10px] font-bold">A</div>
+                                        <span class="text-slate-400">user_alex</span>
+                                    </div>
+                                    <span class="text-accent-green font-bold">ALLOW</span>
+                                    <span class="text-slate-500">pressure: 20</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-accent-green">✓</span>
-                                    <span class="text-slate-400">Max pressure:</span>
-                                    <span class="text-white font-mono">80</span>
+                                <div class="flex items-center justify-between bg-accent-red/10 rounded-lg px-3 py-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-[10px] font-bold">B</div>
+                                        <span class="text-slate-400">user_bella</span>
+                                    </div>
+                                    <span class="text-accent-red font-bold">DENY</span>
+                                    <span class="text-slate-500">pressure: 85</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-accent-green">✓</span>
-                                    <span class="text-slate-400">Daily limit:</span>
-                                    <span class="text-white font-mono">5 emails</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-accent-green">✓</span>
-                                    <span class="text-slate-400">Urgency cap:</span>
-                                    <span class="text-white font-mono">1/day</span>
+                                <div class="flex items-center justify-between bg-accent-red/10 rounded-lg px-3 py-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-[10px] font-bold">C</div>
+                                        <span class="text-slate-400">user_choni</span>
+                                    </div>
+                                    <span class="text-accent-red font-bold">DENY</span>
+                                    <span class="text-slate-500">urgency: 1/1</span>
                                 </div>
                             </div>
                         </div>
@@ -349,35 +381,61 @@
                     </div>
                 </div>
 
-                <!-- Explanation -->
-                <div class="space-y-8">
-                    <div class="flex gap-4">
-                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">1</div>
-                        <div>
-                            <h4 class="font-bold text-lg mb-2">Agent requests escalation</h4>
-                            <p class="text-slate-400">Sales, marketing, or any AI agent wants to reach the user via email, SMS, push, or in-app.</p>
+                <!-- Explanation - Governor is just a gate -->
+                <div class="space-y-6">
+                    <div class="bg-surface rounded-xl p-4 border border-white/5">
+                        <div class="text-xs text-accent uppercase font-bold mb-3">How it works</div>
+                        <div class="flex items-center gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-xl mb-2">🤖</div>
+                                <div class="text-slate-400">Agent</div>
+                            </div>
+                            <div class="text-slate-600">→</div>
+                            <div class="text-center flex-1">
+                                <div class="bg-surface-2 rounded-lg px-4 py-2 font-mono text-xs text-slate-400">
+                                    "Can I send this?"
+                                </div>
+                            </div>
+                            <div class="text-slate-600">→</div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-xl mb-2">🛡️</div>
+                                <div class="text-slate-400">Governor</div>
+                            </div>
+                            <div class="text-slate-600">→</div>
+                            <div class="text-center flex-1">
+                                <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg px-4 py-2 font-mono text-xs text-accent-green">
+                                    allow / deny
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">2</div>
-                        <div>
-                            <h4 class="font-bold text-lg mb-2">Governor checks context</h4>
-                            <p class="text-slate-400">What has this user seen recently? How much pressure are they under? What does policy allow?</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-surface rounded-xl p-4 border border-white/5">
+                            <div class="text-accent-green font-bold mb-2">Governor IS</div>
+                            <ul class="text-sm text-slate-400 space-y-1">
+                                <li>✓ A permission gate</li>
+                                <li>✓ Stateless check</li>
+                                <li>✓ Returns allow/deny</li>
+                                <li>✓ Sits upstream</li>
+                            </ul>
                         </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">3</div>
-                        <div>
-                            <h4 class="font-bold text-lg mb-2">Allow or block</h4>
-                            <p class="text-slate-400">Governor returns <code class="bg-surface-2 px-2 py-0.5 rounded text-accent-green font-mono text-sm">allow</code> or <code class="bg-surface-2 px-2 py-0.5 rounded text-accent-red font-mono text-sm">deny</code> with the reason.</p>
+                        <div class="bg-surface rounded-xl p-4 border border-white/5">
+                            <div class="text-accent-red font-bold mb-2">Governor is NOT</div>
+                            <ul class="text-sm text-slate-400 space-y-1">
+                                <li>✗ An email sender</li>
+                                <li>✗ A scheduler</li>
+                                <li>✗ Message content</li>
+                                <li>✗ Execution layer</li>
+                            </ul>
                         </div>
                     </div>
                     
                     <div class="bg-surface-2 rounded-xl p-4 border border-white/5">
-                        <div class="text-xs text-slate-500 uppercase font-bold mb-2">Blocked: 12 escalations today</div>
+                        <div class="text-xs text-slate-500 uppercase font-bold mb-2">Denied requests today</div>
                         <div class="flex items-center gap-2">
                             <span class="text-accent-green text-2xl font-black" id="blockedCounter">0</span>
-                            <span class="text-slate-400">interruptions prevented</span>
+                            <span class="text-slate-400">agents told "no"</span>
                         </div>
                     </div>
                 </div>
