@@ -10,6 +10,9 @@ const log = (message) => {
 const getMode = () =>
   document.querySelector('input[name="mode"]:checked').value;
 
+const basePath =
+  window.location.hostname === "localhost" ? "/v1" : "/api";
+
 const callApi = async (path, payload) => {
   const res = await fetch(path, {
     method: "POST",
@@ -37,7 +40,7 @@ const handleAction = async (actionType) => {
   }
 
   try {
-    const decision = await callApi("/v1/check", { userId, actionType });
+    const decision = await callApi(`${basePath}/check`, { userId, actionType });
     if (!decision.allowed) {
       log(
         `Governor blocked ${actionType}. Reason: ${decision.reason}.` +
@@ -45,7 +48,7 @@ const handleAction = async (actionType) => {
             ? ` Suggest: ${decision.suggestedActionType}.`
             : "")
       );
-      await callApi("/v1/record", {
+      await callApi(`${basePath}/record`, {
         userId,
         actionType,
         outcome: "blocked",
@@ -60,7 +63,7 @@ const handleAction = async (actionType) => {
         (dismissed ? " User dismissed." : "")
     );
 
-    await callApi("/v1/record", {
+    await callApi(`${basePath}/record`, {
       userId,
       actionType,
       outcome: "executed",

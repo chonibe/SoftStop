@@ -17,6 +17,10 @@ Governor is a control layer that stops automated systems from over-pushing users
 3. Start the API + demo: `npm run dev`
 4. Open the demo at `http://localhost:3000/demo`
 
+## Vercel deployment
+- The demo is served at `/demo`.
+- API routes are available at `/api/check` and `/api/record`.
+
 ## References
 - Implementation: [governor/api/src/server.ts](governor/api/src/server.ts)
 - Tests: [governor/tests/rules.test.ts](governor/tests/rules.test.ts)

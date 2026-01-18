@@ -4,7 +4,7 @@
 Governor is a tiny control layer that answers a single question before any system escalates pressure on a user: **is escalation allowed right now?** It stores a small per-user state (what pressure was applied, how often, and how recently) and applies deterministic rules (no ML).
 
 ## API contract (v1)
-**POST `/v1/check`**  
+**POST `/v1/check` (local) / `/api/check` (Vercel)**  
 Request:
 ```
 { "userId": "user_123", "actionType": "urgency" }
@@ -14,7 +14,7 @@ Response:
 { "allowed": false, "reason": "cooldown_active", "decisionId": "..." }
 ```
 
-**POST `/v1/record`**  
+**POST `/v1/record` (local) / `/api/record` (Vercel)**  
 Request:
 ```
 { "decisionId": "...", "userId": "user_123", "actionType": "urgency", "outcome": "executed", "signals": { "dismissed": true } }

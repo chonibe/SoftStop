@@ -9,11 +9,11 @@ Governor is a gate that decides if automated escalation toward an end user is al
 - Deterministic rules engine (no ML)
 
 ## API endpoints and usage
-**POST `/v1/check`**
+**POST `/v1/check` (local) / `/api/check` (Vercel)**
 ```
 { "userId": "user_123", "actionType": "urgency" }
 ```
-**POST `/v1/record`**
+**POST `/v1/record` (local) / `/api/record` (Vercel)**
 ```
 { "decisionId": "...", "userId": "user_123", "actionType": "urgency", "outcome": "executed", "signals": { "dismissed": true } }
 ```
