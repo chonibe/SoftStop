@@ -126,19 +126,22 @@
                 </a>
             </div>
             
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-8 max-w-lg mx-auto">
+            <!-- Stats - Real Data -->
+            <div class="grid grid-cols-3 gap-8 max-w-xl mx-auto">
                 <div class="text-center">
-                    <div class="text-3xl font-black text-accent mb-1">73%</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Users feel overwhelmed</div>
+                    <div class="text-3xl font-black text-accent-red mb-1">46</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider">Emails in 44 days</div>
+                    <div class="text-[10px] text-slate-600 mt-1">From one casino app</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-black text-accent-orange mb-1">5-8x</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Daily AI touches</div>
+                    <div class="text-3xl font-black text-accent-orange mb-1">~1/day</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider">Average frequency</div>
+                    <div class="text-[10px] text-slate-600 mt-1">Every. Single. Day.</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-black text-accent-red mb-1">40%</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Higher churn risk</div>
+                    <div class="text-3xl font-black text-accent mb-1">70%</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider">Urgency tactics</div>
+                    <div class="text-[10px] text-slate-600 mt-1">"Last chance" "48 hours"</div>
                 </div>
             </div>
         </div>
@@ -152,8 +155,9 @@
                     <span class="text-accent-red">Feel</span> what your users feel.
                 </h2>
                 <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-                    Click the button below. Watch the chaos unfold across email, SMS, chat, and in-app. 
-                    <strong class="text-white">This happens every single day.</strong>
+                    These are <strong class="text-white">real emails</strong> from real companies. 
+                    We're compressing <strong class="text-white">44 days of emails</strong> into 1 minute. 
+                    Watch how pressure builds over time.
                 </p>
             </div>
 
@@ -571,49 +575,75 @@
     // GOVERNOR LANDING PAGE - INTERACTIVE DEMO
     // =====================================================
 
-    // ---- Real Email Data ----
+    // ---- Real Email Data with Actual Dates ----
+    // CrownCoins: 46 emails over 44 days (Dec 6 - Jan 18) = ~1/day
+    // This is REAL data showing the problem
     const emailData = {
         wix: [
-            { subject: 'Choni, build a mobile app—no code required.', type: 'feature', wouldBlock: false },
-            { subject: 'Last chance: 50% off Wix App Market!', type: 'urgency', wouldBlock: true },
-            { subject: 'Registration Ends: Wix Israel Meetup.', type: 'urgency', wouldBlock: true },
-            { subject: 'Black Friday: Launch marketing campaign.', type: 'urgency', wouldBlock: true },
-            { subject: '50% off during pre-holiday sale.', type: 'discount', wouldBlock: true },
-            { subject: 'Boost sales with Facebook Ads by Wix.', type: 'upsell', wouldBlock: false },
-            { subject: "Don't miss your Holiday Guide.", type: 'urgency', wouldBlock: true },
-            { subject: 'SEO Meetup 2021 - Register now!', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance: SEO + seoClarity Webinar.', type: 'urgency', wouldBlock: true },
-            { subject: 'Your sites got high performance scores.', type: 'feature', wouldBlock: false },
-            { subject: 'Velo Monthly: Site performance update.', type: 'newsletter', wouldBlock: false },
-            { subject: 'Introducing Velo Dark Theme.', type: 'feature', wouldBlock: false },
+            { subject: 'Choni, build a mobile app—no code required.', date: 'Jan 15', type: 'feature', wouldBlock: false },
+            { subject: 'Last chance: 50% off Wix App Market!', date: 'Jan 12', type: 'urgency', wouldBlock: true },
+            { subject: 'Registration Ends: Wix Israel Meetup.', date: 'Jan 10', type: 'urgency', wouldBlock: true },
+            { subject: 'Black Friday: Launch marketing campaign.', date: 'Nov 22', type: 'urgency', wouldBlock: true },
+            { subject: '50% off during pre-holiday sale.', date: 'Dec 18', type: 'discount', wouldBlock: true },
+            { subject: 'Boost sales with Facebook Ads by Wix.', date: 'Dec 5', type: 'upsell', wouldBlock: false },
+            { subject: "Don't miss your Holiday Guide.", date: 'Dec 1', type: 'urgency', wouldBlock: true },
+            { subject: 'SEO Meetup 2021 - Register now!', date: 'Oct 15', type: 'urgency', wouldBlock: true },
+            { subject: 'Last Chance: SEO + seoClarity Webinar.', date: 'Sep 28', type: 'urgency', wouldBlock: true },
+            { subject: 'Your sites got high performance scores.', date: 'Aug 10', type: 'feature', wouldBlock: false },
+            { subject: 'Velo Monthly: Site performance update.', date: 'Jul 5', type: 'newsletter', wouldBlock: false },
+            { subject: 'Introducing Velo Dark Theme.', date: 'Jun 20', type: 'feature', wouldBlock: false },
         ],
         crown: [
-            { subject: 'Free Spins - 48 Hours Only! 🎁', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', wouldBlock: true },
-            { subject: '$10 Million. Secure Your Spot! 🤯', type: 'urgency', wouldBlock: true },
-            { subject: 'Your Shot at $10M Continues! 😱', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance, Choni! ⏳', type: 'urgency', wouldBlock: true },
-            { subject: '$10,000,000 Top Prize Tonight! 🤯', type: 'urgency', wouldBlock: true },
-            { subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', wouldBlock: true },
-            { subject: "Didn't You Forget Something? 😮", type: 'urgency', wouldBlock: true },
-            { subject: 'Did You See THIS?! 😱', type: 'urgency', wouldBlock: true },
-            { subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', wouldBlock: false },
-            { subject: 'Gift For You Choni 🎁', type: 'promo', wouldBlock: false },
-            { subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', wouldBlock: false },
+            // Real dates from CrownCoins - 46 emails in 44 days
+            { subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', date: 'Today 7:02 PM', type: 'urgency', wouldBlock: true },
+            { subject: 'Last Chance for 200% More Coins! 😧', date: 'Today 5:49 PM', type: 'urgency', wouldBlock: true },
+            { subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', date: 'Jan 15', type: 'promo', wouldBlock: false },
+            { subject: "Joker's Deal: Pick Your Chaos! 🃏", date: 'Jan 14', type: 'game', wouldBlock: false },
+            { subject: 'Gift Inside - Big News, Choni! 🎁🎙', date: 'Jan 14', type: 'promo', wouldBlock: true },
+            { subject: 'Exclusive FREE Bingo Card! 🎁', date: 'Jan 13', type: 'promo', wouldBlock: false },
+            { subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', date: 'Jan 12', type: 'urgency', wouldBlock: true },
+            { subject: 'Your Triple Boost Is Waiting! ⏳', date: 'Jan 11', type: 'urgency', wouldBlock: true },
+            { subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', date: 'Jan 11', type: 'urgency', wouldBlock: true },
+            { subject: "Don't Miss Your Exclusive Choice! 🤩", date: 'Jan 7', type: 'urgency', wouldBlock: true },
+            { subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', date: 'Jan 4', type: 'urgency', wouldBlock: true },
+            { subject: 'Ready to TRIPLE the Fun, Choni? 🎉', date: 'Jan 4', type: 'promo', wouldBlock: true },
+            { subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', date: 'Jan 1', type: 'feature', wouldBlock: false },
+            { subject: 'FREE Spins Deal to Kick Off 2026! 🎉', date: 'Dec 31', type: 'promo', wouldBlock: false },
+            { subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', date: 'Dec 31', type: 'promo', wouldBlock: true },
+            { subject: '40K CC + 2 SC FREE Gift and a 2,000 SC Raffle!? 🎁🤯', date: 'Dec 29', type: 'promo', wouldBlock: false },
+            { subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', date: 'Dec 28', type: 'promo', wouldBlock: false },
+            { subject: 'Your FREE Coins Await, Choni! 🎁❄️', date: 'Dec 26', type: 'promo', wouldBlock: false },
+            { subject: 'Claim Your Free Social Welcome Bonus 🎁', date: 'Dec 26', type: 'promo', wouldBlock: true },
+            { subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', date: 'Dec 25', type: 'promo', wouldBlock: false },
+            { subject: 'Scratch to Reveal Your Holiday Surprise! ✨', date: 'Dec 24', type: 'game', wouldBlock: false },
+            { subject: "Don't Miss Your Last SC Gift! 🎁", date: 'Dec 23', type: 'urgency', wouldBlock: true },
+            { subject: 'Last Chance, Choni! ⏳', date: 'Dec 23', type: 'urgency', wouldBlock: true },
+            { subject: 'Claim Your FREE Bingo Card! 🎁🎟️', date: 'Dec 23', type: 'promo', wouldBlock: true },
+            { subject: 'Another Gift Just for You, Choni! 🎁', date: 'Dec 22', type: 'promo', wouldBlock: false },
+            { subject: 'Unwrap Your Exclusive FREE Gift, Choni! 🎁', date: 'Dec 21', type: 'promo', wouldBlock: false },
+            { subject: 'Your Shot at $10M Continues, Choni! 😱', date: 'Dec 20', type: 'urgency', wouldBlock: true },
+            { subject: "Don't Miss Today's Gift, Choni! 🎁", date: 'Dec 20', type: 'urgency', wouldBlock: true },
+            { subject: 'Exclusive FREE Gift Inside - Join the Holiday Fun! 🎁🎅', date: 'Dec 19', type: 'promo', wouldBlock: false },
+            { subject: 'Tonight: $10,000,000 Top Prize! 🤯', date: 'Dec 18', type: 'urgency', wouldBlock: true },
+            { subject: 'A New Day, a New SC Gift! 🎁', date: 'Dec 18', type: 'promo', wouldBlock: true },
+            { subject: 'Surprise, Choni! Mystery Deal Inside 🎁', date: 'Dec 17', type: 'promo', wouldBlock: false },
+            { subject: '$10,000,000 Is on the Line. Are You In? 🤑', date: 'Dec 16', type: 'urgency', wouldBlock: true },
+            { subject: "Free SC, Don't Miss It Choni! 🎁", date: 'Dec 16', type: 'urgency', wouldBlock: true },
+            { subject: "Didn't You Forget Something, Choni? 😮", date: 'Dec 16', type: 'urgency', wouldBlock: true },
         ],
         crm: [
-            { subject: 'Just checking in...', type: 'follow-up', wouldBlock: false },
-            { subject: 'Did you see my last email?', type: 'follow-up', wouldBlock: true },
-            { subject: "Haven't responded - everything okay?", type: 'urgency', wouldBlock: true },
-            { subject: 'Your free trial ends in 3 days', type: 'urgency', wouldBlock: true },
-            { subject: "Last attempt to reach you", type: 'urgency', wouldBlock: true },
-            { subject: 'Re: Re: Following up on demo', type: 'follow-up', wouldBlock: true },
-            { subject: 'URGENT: Action required', type: 'urgency', wouldBlock: true },
-            { subject: 'Proposal expires tomorrow', type: 'urgency', wouldBlock: true },
-            { subject: 'Viewed pricing page 3 times...', type: 'ai-tracking', wouldBlock: true },
-            { subject: "Your competitor just switched to us", type: 'fomo', wouldBlock: true },
-            { subject: 'Quick question about your pipeline', type: 'sales', wouldBlock: false },
-            { subject: 'Thought of you - case study inside', type: 'nurture', wouldBlock: false },
+            { subject: 'Just checking in...', date: 'Today', type: 'follow-up', wouldBlock: false },
+            { subject: 'Did you see my last email?', date: 'Yesterday', type: 'follow-up', wouldBlock: true },
+            { subject: "Haven't responded - everything okay?", date: 'Jan 15', type: 'urgency', wouldBlock: true },
+            { subject: 'Your free trial ends in 3 days', date: 'Jan 14', type: 'urgency', wouldBlock: true },
+            { subject: "Last attempt to reach you", date: 'Jan 12', type: 'urgency', wouldBlock: true },
+            { subject: 'Re: Re: Following up on demo', date: 'Jan 10', type: 'follow-up', wouldBlock: true },
+            { subject: 'URGENT: Action required', date: 'Jan 8', type: 'urgency', wouldBlock: true },
+            { subject: 'Proposal expires tomorrow', date: 'Jan 5', type: 'urgency', wouldBlock: true },
+            { subject: 'Viewed pricing page 3 times...', date: 'Jan 3', type: 'ai-tracking', wouldBlock: true },
+            { subject: "Your competitor just switched to us", date: 'Dec 28', type: 'fomo', wouldBlock: true },
+            { subject: 'Quick question about your pipeline', date: 'Dec 20', type: 'sales', wouldBlock: false },
+            { subject: 'Thought of you - case study inside', date: 'Dec 15', type: 'nurture', wouldBlock: false },
         ]
     };
 
@@ -674,13 +704,15 @@
 
     function addChaosEmail() {
         const emails = emailData[state.currentCompany];
-        const email = emails[Math.floor(Math.random() * emails.length)];
+        // Go through emails in order to show realistic timeline
+        const emailIndex = state.emailCount % emails.length;
+        const email = emails[emailIndex];
         
         // Governor check
         if (state.governorActive && (state.pressure > 50 || email.wouldBlock)) {
             state.blocked++;
             els.blockedCounter.textContent = state.blocked;
-            addDecision(`📧 ${email.subject.slice(0, 30)}...`, true, 'Pressure limit / Policy');
+            addDecision(`📧 ${email.subject.slice(0, 30)}...`, true, email.wouldBlock ? 'Policy violation' : 'Pressure limit');
             updatePressure(-5);
             return;
         }
@@ -690,7 +722,7 @@
         els.emailBadge.classList.remove('hidden');
         document.getElementById('statEmails').textContent = state.emailCount;
         els.brainEmails.textContent = state.emailCount;
-        els.brainLastTouch.textContent = 'just now';
+        els.brainLastTouch.textContent = email.date;
         
         if (els.emailList.querySelector('.text-slate-600')) {
             els.emailList.innerHTML = '';
@@ -701,16 +733,18 @@
             'discount': 'bg-yellow-500/20 text-yellow-400',
             'feature': 'bg-blue-500/20 text-blue-400',
             'upsell': 'bg-pink-500/20 text-pink-400',
+            'promo': 'bg-purple-500/20 text-purple-400',
+            'game': 'bg-cyan-500/20 text-cyan-400',
         };
         
         const item = document.createElement('div');
         item.className = 'email-item px-4 py-3 border-b border-white/5 slide-in';
         item.innerHTML = `
-            <div class="font-semibold text-sm truncate">${email.subject}</div>
-            <div class="flex items-center gap-2 mt-1">
+            <div class="flex items-center justify-between mb-1">
                 <span class="text-[10px] px-1.5 py-0.5 rounded ${typeColors[email.type] || 'bg-slate-500/20 text-slate-400'} uppercase font-bold">${email.type}</span>
-                <span class="text-[10px] text-slate-600">just now</span>
+                <span class="text-[10px] text-slate-500">${email.date}</span>
             </div>
+            <div class="font-semibold text-sm truncate">${email.subject}</div>
         `;
         els.emailList.prepend(item);
         els.emailList.classList.add('active');
@@ -808,13 +842,13 @@
         els.activateGovernorBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         els.chaosStats.classList.remove('hidden');
         
-        // Rapid fire chaos
+        // Simulate timeline - 1 email every 1.5s = 44 days of emails in ~1 minute
         state.intervalId = setInterval(() => {
-            const rand = Math.random();
-            if (rand < 0.5) addChaosEmail();
-            else if (rand < 0.75) addChaosSMS();
-            else addChaosPopup();
-        }, state.governorActive ? 1500 : 600);
+            addChaosEmail();
+            // Occasionally add SMS/popup to show multi-channel
+            if (Math.random() < 0.2) addChaosSMS();
+            if (Math.random() < 0.15) addChaosPopup();
+        }, state.governorActive ? 2500 : 1500);
     }
 
     function activateGovernor() {
@@ -853,12 +887,13 @@
         
         els.exampleEmails.innerHTML = emails.map(email => `
             <div class="bg-surface rounded-xl p-4 border ${email.wouldBlock ? 'border-accent-red/30' : 'border-white/5'}">
-                <div class="font-semibold text-sm mb-2">${email.subject}</div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] text-slate-500">${email.date}</span>
                     <span class="text-[10px] px-2 py-0.5 rounded ${email.wouldBlock ? 'bg-accent-red/20 text-accent-red' : 'bg-slate-500/20 text-slate-400'} uppercase font-bold">
-                        ${email.wouldBlock ? '🛡️ Would Block' : email.type}
+                        ${email.wouldBlock ? '🛡️ Block' : email.type}
                     </span>
                 </div>
+                <div class="font-semibold text-sm">${email.subject}</div>
             </div>
         `).join('');
     }
