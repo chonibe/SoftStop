@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Escalation control for AI agents</title>
+    <title>Governor | Immersive Experience</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,13 +18,9 @@
                     },
                     colors: {
                         deep: '#020617',
-                        'card-bg': '#1e293b',
                         'accent-blue': '#3b82f6',
                         'accent-green': '#10b981',
                         'accent-red': '#ef4444',
-                    },
-                    backgroundImage: {
-                        'brand-gradient': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                     }
                 }
             }
@@ -32,205 +28,221 @@
     </script>
     <style type="text/tailwindcss">
         @layer components {
-            .btn-primary {
-                @apply bg-accent-blue hover:bg-blue-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-lg shadow-blue-500/20 active:scale-95;
+            .mac-notification {
+                @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl w-80 mb-3 transition-all duration-500 transform translate-x-full;
             }
-            .btn-secondary {
-                @apply bg-transparent border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 active:scale-95;
+            .mac-notification.active { @apply translate-x-0; }
+            
+            .nudge-badge {
+                @apply bg-accent-blue text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-lg animate-pulse;
             }
-            .mock-nav-item {
-                @apply flex items-center px-3 py-2 text-sm font-medium text-slate-400 rounded-lg transition-colors hover:bg-slate-800/50 hover:text-white;
+            
+            .jitter { animation: jitter 0.2s infinite; }
+            @keyframes jitter {
+                0% { transform: translate(0,0); }
+                25% { transform: translate(1px, 1px); }
+                50% { transform: translate(-1px, -1px); }
+                75% { transform: translate(1px, -1px); }
+                100% { transform: translate(0,0); }
             }
-            .mock-nav-item.active {
-                @apply bg-slate-800 text-white;
+
+            .shield-overlay {
+                @apply absolute inset-0 bg-accent-green/5 border-2 border-accent-green/30 rounded-xl flex items-center justify-center z-50 pointer-events-none opacity-0 transition-opacity duration-500;
             }
-            .feature-card {
-                @apply bg-slate-800/50 border border-slate-700/50 p-6 rounded-xl relative transition-all duration-300;
+            .shield-active .shield-overlay { @apply opacity-100; }
+
+            .control-panel {
+                @apply fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 p-6 rounded-3xl shadow-2xl z-[100] flex items-center gap-12 min-w-[800px];
             }
-            .feature-card.active-nudge {
-                @apply ring-2 ring-accent-red ring-offset-2 ring-offset-slate-900 shadow-xl shadow-red-500/20;
-            }
-            .feature-card.blocked {
-                @apply opacity-40 grayscale pointer-events-none;
-            }
-            .code-block {
-                @apply bg-slate-950 rounded-xl overflow-hidden font-mono text-sm;
-            }
-            .code-header {
-                @apply bg-slate-800/50 px-4 py-2 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50 flex justify-between items-center;
-            }
-        }
-        @keyframes shield-pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 0.5; }
-        }
-        .shield-active {
-            animation: shield-pulse 2s infinite;
         }
     </style>
 </head>
 <body class="bg-deep text-slate-200 antialiased overflow-x-hidden">
-    <!-- Hero -->
-    <section class="relative pt-32 pb-20 overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-accent-blue/5 blur-[120px] rounded-full pointer-events-none"></div>
-        <div class="container mx-auto px-6 relative z-10 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-sm font-semibold mb-8">
-                <span class="text-base">🛡️</span> Protected
-            </div>
-            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-                Escalation control<br>
-                <span class="bg-brand-gradient bg-clip-text text-transparent">for AI agents</span>
-            </h1>
-            <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-12">
-                Governor is now blocking manipulative UI patterns.<br>
-                <span class="text-white font-semibold" id="totalBlockedCount">13</span> manipulations blocked.
-            </p>
 
-            <div class="flex flex-wrap justify-center gap-4 mb-20">
-                <!-- Agent Cards -->
-                <div class="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl flex items-center gap-4 min-w-[180px] group hover:-translate-y-1 transition-transform">
-                    <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-lg text-white">S</div>
-                    <div class="text-left">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Sales</div>
-                        <div class="text-lg font-bold">3</div>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl flex items-center gap-4 min-w-[180px] group hover:-translate-y-1 transition-transform">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center font-bold text-lg text-white">O</div>
-                    <div class="text-left">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Onboarding</div>
-                        <div class="text-lg font-bold text-slate-600">--</div>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl flex items-center gap-4 min-w-[180px] group hover:-translate-y-1 transition-transform">
-                    <div class="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center font-bold text-lg text-white">R</div>
-                    <div class="text-left">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Retention</div>
-                        <div class="text-lg font-bold">5</div>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl flex items-center gap-4 min-w-[180px] group hover:-translate-y-1 transition-transform">
-                    <div class="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center font-bold text-lg text-white">M</div>
-                    <div class="text-left">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Marketing</div>
-                        <div class="text-lg font-bold">5</div>
-                    </div>
-                </div>
+    <!-- 1. Intro Modal -->
+    <div id="introModal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm transition-opacity duration-700">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-10 rounded-3xl text-center shadow-2xl">
+            <div class="w-20 h-20 bg-accent-blue/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-4xl">🛡️</span>
             </div>
-
-            <a href="#demo" class="text-slate-500 hover:text-white transition-colors flex flex-col items-center gap-2 text-sm font-medium group">
-                Scroll to see the demo
-                <span class="text-xl animate-bounce">↓</span>
-            </a>
+            <h2 class="text-3xl font-bold mb-4">Experience Governor</h2>
+            <p class="text-slate-400 mb-8">This is an immersive demo. You will experience the actual pressures of an ungoverned agent platform. Scroll to start.</p>
+            <button id="startExperience" class="w-full bg-accent-blue hover:bg-blue-600 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-xl shadow-blue-500/20">Enter Experience</button>
         </div>
-    </section>
+    </div>
 
-    <!-- Demo -->
-    <section id="demo" class="py-24 bg-slate-900/50 border-y border-slate-800/50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Live Demo</h2>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
-                    <span class="text-lg font-medium">Notice the difference?</span>
-                    <div class="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700/50">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="governorToggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue"></div>
-                        </label>
-                        <span id="modeStatus" class="text-sm font-bold w-36 text-left">Governor ENABLED</span>
-                    </div>
-                </div>
-                <p class="text-slate-400 max-w-2xl mx-auto">With Governor enabled, the interface stays calm. No fake urgency, no inflated numbers, no manipulative nudges.</p>
+    <!-- 2. Floating Experience Console -->
+    <div class="control-panel translate-y-32 transition-transform duration-700" id="experienceConsole">
+        <!-- Mode -->
+        <div class="flex items-center gap-4 border-r border-slate-800 pr-12">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="governorToggle" class="sr-only peer">
+                <div class="w-14 h-7 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-accent-green shadow-inner"></div>
+            </label>
+            <div class="flex flex-col">
+                <span id="modeStatus" class="text-xs font-black uppercase tracking-widest text-accent-red">Governor OFF</span>
+                <span class="text-[10px] text-slate-500 font-medium">Toggle safety layer</span>
             </div>
+        </div>
 
-            <div class="relative max-w-5xl mx-auto rounded-3xl border border-slate-700 shadow-2xl overflow-hidden bg-slate-950" id="mockApp">
-                <!-- Pressure HUD -->
-                <div class="absolute top-6 right-6 z-50 w-64 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 p-4 rounded-2xl shadow-xl">
-                    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3 flex justify-between">
-                        <span>User Pressure</span>
-                        <span id="pressureValue">20%</span>
-                    </div>
-                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div id="pressureFill" class="h-full bg-accent-blue transition-all duration-500 ease-out" style="width: 20%"></div>
-                    </div>
+        <!-- Pressure -->
+        <div class="flex-1 px-4">
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">User Pressure</span>
+                <span id="pressureValue" class="text-xl font-black">20%</span>
+            </div>
+            <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div id="pressureFill" class="h-full bg-accent-blue transition-all duration-500" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <!-- Monitoring Stream -->
+        <div class="w-64 bg-black/40 rounded-xl p-3 border border-white/5 font-mono text-[10px] h-16 overflow-hidden relative">
+            <div id="decisionStream" class="flex flex-col gap-1 transition-transform duration-300">
+                <div class="text-slate-500">Waiting for agent activity...</div>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+        </div>
+
+        <!-- Blocked Count -->
+        <div class="flex flex-col items-center border-l border-slate-800 pl-12">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Blocked</span>
+            <span id="totalBlocked" class="text-2xl font-black text-accent-green">0</span>
+        </div>
+    </div>
+
+    <!-- 3. Notification Container (Top Right) -->
+    <div id="notificationStack" class="fixed top-8 right-8 z-[150] pointer-events-none flex flex-col items-end">
+        <!-- Notifications will be injected here -->
+    </div>
+
+    <!-- 4. Hero & Content -->
+    <header class="lp-hero pt-40 pb-20 text-center relative">
+        <div class="container mx-auto px-6">
+            <div class="status-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-sm font-semibold mb-8">
+                🛡️ Protected by Governor
+            </div>
+            <h1 class="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-none" id="heroTitle">
+                Control the<br><span class="bg-gradient-to-r from-accent-blue to-purple-500 bg-clip-text text-transparent">escalation</span>
+            </h1>
+            <p class="text-2xl text-slate-400 max-w-3xl mx-auto mb-16 font-medium">
+                AI agents optimize for goals. Governor optimizes for humans.<br>
+                Experience the difference as you scroll.
+            </p>
+            
+            <!-- Agent Personas -->
+            <div class="flex justify-center gap-6" id="agentGrid">
+                <div class="w-24 group">
+                    <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center font-black text-2xl mx-auto mb-3 shadow-lg shadow-orange-500/20 group-hover:-translate-y-1 transition-transform">S</div>
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Sales</span>
+                </div>
+                <div class="w-24 group">
+                    <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center font-black text-2xl mx-auto mb-3 shadow-lg shadow-blue-500/20 group-hover:-translate-y-1 transition-transform opacity-40">O</div>
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest opacity-40">Onboarding</span>
+                </div>
+                <div class="w-24 group">
+                    <div class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center font-black text-2xl mx-auto mb-3 shadow-lg shadow-purple-500/20 group-hover:-translate-y-1 transition-transform">R</div>
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Retention</span>
+                </div>
+                <div class="w-24 group">
+                    <div class="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center font-black text-2xl mx-auto mb-3 shadow-lg shadow-red-500/20 group-hover:-translate-y-1 transition-transform">M</div>
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Marketing</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 5. Interactive Mock Dashboard -->
+    <section class="py-20 relative" id="demoSection">
+        <div class="container mx-auto px-6">
+            <div class="relative max-w-6xl mx-auto rounded-[2.5rem] border border-slate-800 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden bg-slate-950 transition-all duration-700" id="acmeDashboard">
+                
+                <!-- Shield Lines (Visual Gate) -->
+                <div class="absolute inset-0 z-40 pointer-events-none overflow-hidden opacity-0 transition-opacity duration-500" id="shieldEffect">
+                    <div class="absolute inset-0 bg-accent-green/5"></div>
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-accent-green shadow-[0_0_20px_#10b981] animate-[pulse_1s_infinite]"></div>
                 </div>
 
-                <!-- App Layout -->
-                <div class="flex h-[600px]">
+                <div class="flex h-[700px]">
                     <!-- Sidebar -->
-                    <aside class="w-56 bg-slate-900 border-right border-slate-800 p-6 hidden md:flex flex-col">
-                        <div class="text-lg font-bold mb-8 flex items-center gap-2">
-                            <div class="w-6 h-6 bg-accent-blue rounded flex items-center justify-center text-xs">A</div>
+                    <aside class="w-64 bg-slate-900 p-8 hidden lg:flex flex-col">
+                        <div class="text-xl font-black mb-12 flex items-center gap-3">
+                            <div class="w-8 h-8 bg-accent-blue rounded-xl flex items-center justify-center text-sm">A</div>
                             Acme
                         </div>
-                        <nav class="space-y-1">
-                            <a href="#" class="mock-nav-item active">Dashboard</a>
-                            <a href="#" class="mock-nav-item">Analytics</a>
-                            <a href="#" class="mock-nav-item">Team</a>
-                            <a href="#" class="mock-nav-item">Settings</a>
+                        <nav class="space-y-4">
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-xl font-semibold">Dashboard</a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white transition-colors">Analytics</a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white transition-colors relative group" data-nudge="seo_badge">
+                                SEO <span id="seoBadge" class="hidden absolute right-4 nudge-badge">PRO</span>
+                            </a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white transition-colors">Settings</a>
                         </nav>
                     </aside>
 
-                    <!-- Main -->
-                    <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
-                        <header class="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-slate-900/50">
-                            <div class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-500 w-64">Search...</div>
-                            <div class="text-sm font-medium">Welcome back, Alex</div>
+                    <!-- Main Content -->
+                    <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+                        <header class="h-20 border-b border-slate-900 flex items-center justify-between px-10 bg-slate-900/30">
+                            <div class="bg-slate-800/50 px-4 py-2 rounded-xl text-xs text-slate-500 w-80">Search...</div>
+                            <div class="text-sm font-semibold flex items-center gap-3">
+                                Welcome, Alex
+                                <div class="w-8 h-8 bg-slate-800 rounded-full border border-slate-700"></div>
+                            </div>
                         </header>
-                        
-                        <div class="flex-1 overflow-y-auto p-8 space-y-8">
-                            <div class="text-accent-blue text-sm font-semibold" id="socialProof">12,861 teams trust Governor</div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div class="feature-card">
-                                    <h3 class="font-bold mb-2">Basic Analytics</h3>
-                                    <p class="text-xs text-slate-500">Track page views and user sessions with simple charts.</p>
+
+                        <div class="flex-1 overflow-y-auto p-10 space-y-10">
+                            <!-- Social Proof -->
+                            <div class="text-accent-blue text-sm font-bold tracking-wide transition-all" id="socialProof">12,861 teams trust Governor</div>
+
+                            <!-- Feature Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl relative overflow-hidden h-40 group">
+                                    <h3 class="font-bold text-lg mb-2">Basic Analytics</h3>
+                                    <p class="text-sm text-slate-500">Real-time visitor tracking and session recording.</p>
                                 </div>
-                                <div class="feature-card nudge-target" data-nudge="ai_insights">
-                                    <span class="absolute top-4 right-4 text-[10px] font-extrabold bg-accent-blue px-1.5 py-0.5 rounded text-white">PRO</span>
-                                    <h3 class="font-bold mb-2">AI Insights</h3>
-                                    <p class="text-xs text-slate-500">Get AI-powered recommendations for your business.</p>
+                                <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl relative overflow-hidden h-40 group" data-nudge="ai_insights">
+                                    <div class="shield-overlay"><span class="bg-accent-green text-white text-[8px] font-black px-2 py-1 rounded shadow-xl">🛡️ GOVERNED</span></div>
+                                    <span id="aiBadge" class="hidden absolute top-6 right-6 nudge-badge">PRO</span>
+                                    <h3 class="font-bold text-lg mb-2">AI Insights</h3>
+                                    <p class="text-sm text-slate-500">Predictive growth models powered by LLMs.</p>
                                 </div>
-                                <div class="feature-card nudge-target" data-nudge="multi_region">
-                                    <span class="absolute top-4 right-4 text-[10px] font-extrabold bg-accent-blue px-1.5 py-0.5 rounded text-white">PRO</span>
-                                    <h3 class="font-bold mb-2">Multi-region</h3>
-                                    <p class="text-xs text-slate-500">Deploy to multiple regions for better latency.</p>
-                                </div>
-                                <div class="feature-card">
-                                    <h3 class="font-bold mb-2">Basic Workflows</h3>
-                                    <p class="text-xs text-slate-500">Create simple automation workflows.</p>
-                                </div>
-                                <div class="feature-card nudge-target" data-nudge="sso">
-                                    <span class="absolute top-4 right-4 text-[10px] font-extrabold bg-accent-blue px-1.5 py-0.5 rounded text-white">PRO</span>
-                                    <h3 class="font-bold mb-2">SSO Auth</h3>
-                                    <p class="text-xs text-slate-500">Enterprise single sign-on integration.</p>
-                                </div>
-                                <div class="feature-card">
-                                    <h3 class="font-bold mb-2">API Access</h3>
-                                    <p class="text-xs text-slate-500">Full REST API with 1000 requests/day.</p>
+                                <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl relative overflow-hidden h-40 group" data-nudge="multi_region">
+                                    <div class="shield-overlay"><span class="bg-accent-green text-white text-[8px] font-black px-2 py-1 rounded shadow-xl">🛡️ GOVERNED</span></div>
+                                    <span id="regionBadge" class="hidden absolute top-6 right-6 nudge-badge">PRO</span>
+                                    <h3 class="font-bold text-lg mb-2">Multi-Region</h3>
+                                    <p class="text-sm text-slate-500">Deploy your workspace to global clusters.</p>
                                 </div>
                             </div>
 
-                            <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-accent-blue/30 rounded-2xl p-8 flex items-center justify-between nudge-target" data-nudge="pricing_push">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-xl font-bold">Pro Plan</span>
-                                        <span class="text-[10px] bg-accent-blue/20 text-accent-blue px-2 py-0.5 rounded-full font-bold">Recommended</span>
+                            <!-- Pricing -->
+                            <div class="bg-gradient-to-br from-slate-800 to-slate-950 border border-accent-blue/20 rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden transition-all duration-500" data-nudge="pricing_push">
+                                <div class="shield-overlay"><span class="bg-accent-green text-white text-xs font-black px-4 py-2 rounded-xl shadow-2xl">🛡️ GOVERNED: ESCALATION BLOCKED</span></div>
+                                <div class="relative z-10">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h2 class="text-3xl font-black">Pro Plan</h2>
+                                        <span class="text-[10px] bg-accent-blue/20 text-accent-blue px-3 py-1 rounded-full font-black uppercase tracking-widest">Limited Offer</span>
                                     </div>
-                                    <p class="text-sm text-slate-400">Everything you need to scale.</p>
+                                    <p class="text-slate-400">Everything you need to scale your agent platform.</p>
+                                    <div id="fakeViewers" class="mt-4 text-xs font-bold text-accent-red flex items-center gap-2 transition-all opacity-0">
+                                        <span class="w-2 h-2 bg-accent-red rounded-full animate-ping"></span>
+                                        47 people are currently viewing this plan
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-8">
-                                    <div class="text-3xl font-bold">$49<span class="text-sm font-normal text-slate-500">/mo</span></div>
-                                    <button class="btn-primary">Get Started</button>
+                                <div class="flex flex-col items-center gap-4 relative z-10">
+                                    <div class="text-5xl font-black">$49<span class="text-base font-medium text-slate-500 ml-1">/mo</span></div>
+                                    <button class="btn-primary w-full px-12 py-4">Get Started</button>
                                 </div>
                             </div>
 
-                            <div class="border-l-2 border-slate-800 pl-6 py-2">
-                                <p class="text-lg italic text-slate-300 mb-4 text-balance">"Governor reduced our user complaints by 73%. Our AI agents now feel helpful, not pushy."</p>
-                                <div class="text-sm">
-                                    <span class="font-bold text-white block">Sarah Chen</span>
-                                    <span class="text-slate-500">VP Engineering, Acme</span>
+                            <!-- Testimonial -->
+                            <div class="p-10 bg-white/5 rounded-3xl border border-white/5">
+                                <p class="text-xl italic text-slate-300 leading-relaxed">"Governor reduced our user complaints by 73%. Our AI agents now feel helpful, not pushy."</p>
+                                <div class="mt-6 flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-slate-800 rounded-full"></div>
+                                    <div>
+                                        <span class="font-bold block">Sarah Chen</span>
+                                        <span class="text-xs text-slate-500">VP Engineering, Acme</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -240,156 +252,85 @@
         </div>
     </section>
 
-    <!-- How it works -->
-    <section class="py-24">
+    <!-- 6. How it works -->
+    <section class="py-32 bg-slate-950/50">
         <div class="container mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl font-bold mb-4">How Governor Works</h2>
-                <p class="text-lg text-slate-400">A single permission check between intent and action.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                    <div class="text-[10px] font-bold text-accent-blue uppercase tracking-[0.2em] mb-4">Step 1</div>
-                    <h3 class="text-xl font-bold mb-4">Agent Proposes</h3>
-                    <p class="text-slate-400 text-sm mb-8">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
+            <h2 class="text-5xl font-black text-center mb-24">How it works</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Step 1 -->
+                <div class="space-y-8">
+                    <div class="text-xs font-black text-accent-blue uppercase tracking-[0.3em]">Step 1</div>
+                    <h3 class="text-3xl font-bold">Agent Proposes</h3>
+                    <p class="text-slate-400">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
                     <div class="code-block">
-                        <div class="code-header"><span>Agent request</span></div>
-                        <pre class="p-4 text-slate-300"><code>escalate(userId, "popup")</code></pre>
+                        <div class="code-header"><span>Agent Request</span></div>
+                        <pre class="p-6 text-slate-400"><code>escalate(userId, "popup")</code></pre>
                     </div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                    <div class="text-[10px] font-bold text-accent-blue uppercase tracking-[0.2em] mb-4">Step 2</div>
-                    <h3 class="text-xl font-bold mb-4">Governor Checks</h3>
-                    <p class="text-slate-400 text-sm mb-8">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
+                <!-- Step 2 -->
+                <div class="space-y-8">
+                    <div class="text-xs font-black text-accent-blue uppercase tracking-[0.3em]">Step 2</div>
+                    <h3 class="text-3xl font-bold">Governor Checks</h3>
+                    <p class="text-slate-400">One question: "Is escalation allowed for this user right now?" No reasoning. Just enforcement.</p>
                     <div class="code-block">
-                        <div class="code-header"><span>Governor response</span></div>
-                        <pre class="p-4 text-slate-300"><code>{ 
+                        <div class="code-header"><span>Governor Logic</span></div>
+                        <pre class="p-6 text-slate-400"><code>{ 
   allowed: true | false, 
   reason: "..." 
 }</code></pre>
                     </div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                    <div class="text-[10px] font-bold text-accent-blue uppercase tracking-[0.2em] mb-4">Step 3</div>
-                    <h3 class="text-xl font-bold mb-4">Execute or Block</h3>
-                    <p class="text-slate-400 text-sm mb-8">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
-                    <div class="space-y-3">
-                        <div class="bg-accent-green/10 border border-accent-green text-accent-green font-bold py-3 rounded-xl text-center">Allowed</div>
-                        <div class="bg-accent-red/10 border border-accent-red text-accent-red font-bold py-3 rounded-xl text-center">Blocked</div>
+                <!-- Step 3 -->
+                <div class="space-y-8">
+                    <div class="text-xs font-black text-accent-blue uppercase tracking-[0.3em]">Step 3</div>
+                    <h3 class="text-3xl font-bold">Execute or Block</h3>
+                    <p class="text-slate-400">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
+                    <div class="flex flex-col gap-4">
+                        <div class="bg-accent-green/10 border border-accent-green text-accent-green font-black py-4 rounded-2xl text-center">ALLOWED</div>
+                        <div class="bg-accent-red/10 border border-accent-red text-accent-red font-black py-4 rounded-2xl text-center">BLOCKED</div>
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="p-6 border-t-2 border-accent-blue bg-accent-blue/5 rounded-b-xl">
-                    <h4 class="font-bold mb-2">Pressure Limits</h4>
-                    <p class="text-xs text-slate-400">Per-user pressure cannot exceed threshold. Agents must wait.</p>
-                </div>
-                <div class="p-6 border-t-2 border-accent-blue bg-accent-blue/5 rounded-b-xl">
-                    <h4 class="font-bold mb-2">Cooldown Periods</h4>
-                    <p class="text-xs text-slate-400">Same escalation type has minimum interval. No rapid fire.</p>
-                </div>
-                <div class="p-6 border-t-2 border-accent-blue bg-accent-blue/5 rounded-b-xl">
-                    <h4 class="font-bold mb-2">Mutual Exclusion</h4>
-                    <p class="text-xs text-slate-400">Only one popup at a time. Only one banner at a time. Coordinated.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- API -->
-    <section class="py-24 bg-slate-900/50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">One API. Total Control.</h2>
-                <p class="text-lg text-slate-400">Governor integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 max-w-5xl mx-auto mb-24">
-                <div class="space-y-2">
-                    <button class="w-full text-left px-6 py-4 rounded-xl bg-slate-800 border border-slate-700 font-semibold text-white">Permission Check</button>
-                    <button class="w-full text-left px-6 py-4 rounded-xl text-slate-500 hover:bg-slate-800 transition-colors font-semibold">Configuration</button>
-                    <button class="w-full text-left px-6 py-4 rounded-xl text-slate-500 hover:bg-slate-800 transition-colors font-semibold">Events</button>
+    <!-- 7. Session Footer Analysis -->
+    <footer class="bg-deep border-t border-slate-900 pt-24 pb-12 overflow-hidden relative">
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-96 bg-accent-blue/5 blur-[150px] rounded-full pointer-events-none"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col lg:flex-row justify-between items-start gap-20 mb-20">
+                <div>
+                    <h2 class="text-4xl font-black mb-6">Experience the stop.</h2>
+                    <p class="text-slate-500 max-w-md">Governor is the missing safety primitive for multi-agent platforms. Enforce restraint, preserve trust.</p>
                 </div>
-                <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                    <div class="bg-slate-800/50 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex gap-1.5">
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex-1 w-full max-w-3xl">
+                    <div class="text-xs font-black text-slate-500 uppercase tracking-widest mb-10">Session Live Analysis</div>
+                    <div class="flex flex-wrap gap-12 lg:gap-20">
+                        <div class="flex flex-col">
+                            <span class="text-5xl font-black" id="footerAttempts">0</span>
+                            <span class="text-xs font-bold text-slate-500 uppercase mt-2">Attempts</span>
                         </div>
-                        <button class="text-[10px] uppercase font-bold text-slate-500 hover:text-white transition-colors">Copy</button>
-                    </div>
-                    <pre class="p-8 text-sm leading-relaxed text-slate-300"><code><span class="text-slate-500">// Before any escalation</span>
-const decision = <span class="text-accent-blue">await</span> governor.check({
-  userId: <span class="text-accent-green">"user_123"</span>,
-  agentId: <span class="text-accent-green">"sales-agent"</span>,
-  escalationType: <span class="text-accent-green">"popup"</span>,
-  pressure: <span class="text-purple-400">25</span>
-});
-
-<span class="text-accent-blue">if</span> (decision.allowed) {
-  showPopup(user);
-} <span class="text-accent-blue">else</span> {
-  <span class="text-slate-500">// Agent must wait or downgrade</span>
-  console.log(decision.reason);
-  <span class="text-slate-500">// "Cooldown active for popup"</span>
-  <span class="text-slate-500">// "Would exceed pressure limit"</span>
-}</code></pre>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-slate-800 pb-24 text-center">
-                <div>
-                    <div class="text-6xl font-bold mb-2">&lt;10ms</div>
-                    <div class="text-slate-500 text-sm uppercase tracking-widest font-bold">Latency</div>
-                </div>
-                <div>
-                    <div class="text-6xl font-bold mb-2">1 line</div>
-                    <div class="text-slate-500 text-sm uppercase tracking-widest font-bold">To integrate</div>
-                </div>
-                <div>
-                    <div class="text-6xl font-bold mb-2">100%</div>
-                    <div class="text-slate-500 text-sm uppercase tracking-widest font-bold">Tracked</div>
-                </div>
-            </div>
-
-            <div class="pt-24 text-center max-w-2xl mx-auto">
-                <p class="text-3xl font-bold italic mb-4 leading-tight">"Governor doesn't make software smarter. It makes it stop when it should."</p>
-                <p class="text-accent-blue font-bold uppercase tracking-widest text-sm">The missing safety primitive for multi-agent platforms.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer Stats -->
-    <footer class="bg-slate-950 border-t border-slate-800 pt-16 pb-12">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col lg:flex-row justify-between items-center gap-12 mb-16">
-                <div class="flex flex-wrap items-center gap-12 text-center lg:text-left">
-                    <div class="text-[10px] uppercase font-bold text-slate-500 tracking-widest w-full lg:w-auto">Session Analysis:</div>
-                    <div>
-                        <div class="text-2xl font-bold" id="sessionAttempts">0</div>
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Attempts</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-accent-green" id="sessionBlocked">0</div>
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Blocked</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold" id="sessionRate">0%</div>
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Block Rate</div>
+                        <div class="flex flex-col">
+                            <span class="text-5xl font-black text-accent-green" id="footerBlocked">0</span>
+                            <span class="text-xs font-bold text-slate-500 uppercase mt-2">Blocked</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-5xl font-black" id="footerRate">0%</span>
+                            <span class="text-xs font-bold text-slate-500 uppercase mt-2">Block Rate</span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-4">
-                    <button class="btn-primary">Request Access</button>
-                    <button class="btn-secondary">View Documentation</button>
-                </div>
             </div>
-            <div class="pt-8 border-t border-slate-900 flex justify-between items-center text-slate-600 text-xs font-medium">
-                <div>&copy; 2026 Governor Inc.</div>
-                <div class="flex gap-6 italic">
-                    <span>Escalation control for AI agent platforms</span>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8 border-t border-slate-900 pt-12">
+                <div class="flex items-center gap-4">
+                    <div class="text-2xl font-black">Governor</div>
+                    <span class="text-slate-700">|</span>
+                    <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Escalation Control</span>
+                </div>
+                <div class="flex gap-8">
+                    <button class="text-sm font-bold hover:text-accent-blue transition-colors">Documentation</button>
+                    <button class="text-sm font-bold hover:text-accent-blue transition-colors">Request Access</button>
                 </div>
             </div>
         </div>
