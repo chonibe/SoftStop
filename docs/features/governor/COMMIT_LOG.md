@@ -12,6 +12,9 @@
 - [x] Updated demo to pick local vs Vercel routes: [demo/demo.js](../../../demo/demo.js)
 - [x] Updated docs for Vercel routes: [README.md](../../../README.md), [governor/README.md](../../../governor/README.md), [docs/CONCEPT.md](../../CONCEPT.md)
 
+## Entry: Fix Vercel build typing
+- [x] Removed unsupported insert count option: [governor/api/src/storage/supabaseStorage.ts](../../../governor/api/src/storage/supabaseStorage.ts)
+
 ## References
 - Implementation: [governor/api/src/server.ts](../../../governor/api/src/server.ts)
 - Tests: [governor/tests/rules.test.ts](../../../governor/tests/rules.test.ts)

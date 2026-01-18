@@ -50,17 +50,14 @@ export class SupabaseStorage implements Storage {
   }
 
   async insertEvent(event: GovernorEvent): Promise<void> {
-    const { error } = await this.client.from("governor_events").insert(
-      {
-        user_id: event.userId,
-        action_type: event.actionType,
-        event_type: event.eventType,
-        decision_id: event.decisionId ?? null,
-        context: event.context ?? null,
-        created_at: event.createdAt ?? new Date().toISOString()
-      },
-      { count: "none" }
-    );
+    const { error } = await this.client.from("governor_events").insert({
+      user_id: event.userId,
+      action_type: event.actionType,
+      event_type: event.eventType,
+      decision_id: event.decisionId ?? null,
+      context: event.context ?? null,
+      created_at: event.createdAt ?? new Date().toISOString()
+    });
 
     if (error) {
       throw new Error(`Failed to insert event: ${error.message}`);
