@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Timeline Demo</title>
-    <meta name="description" content="Scroll through 44 days of emails. Feel the pressure build. Then see Governor stop it.">
+    <title>Governor | Multi-Channel Timeline Demo</title>
+    <meta name="description" content="Scroll through 44 days of pressure across email, SMS, push, and in-app. Feel the chaos. Then see Governor stop it.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +28,8 @@
                         'accent-orange': '#f97316',
                         'accent-purple': '#8b5cf6',
                         'accent-yellow': '#eab308',
+                        'accent-pink': '#ec4899',
+                        'accent-cyan': '#06b6d4',
                     }
                 }
             }
@@ -38,19 +40,22 @@
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
         @keyframes slide-in { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-down { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+        @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
         
         .slide-in { animation: slide-in 0.5s ease-out forwards; }
+        .slide-down { animation: slide-down 0.4s ease-out forwards; }
         .pulse { animation: pulse 1.5s ease-in-out infinite; }
         .glow { animation: glow 2s ease-in-out infinite; }
         .shake { animation: shake 0.3s ease-in-out; }
         
-        .email-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
-        .email-card.visible { opacity: 1; transform: translateX(0); }
-        .email-card.blocked { opacity: 0.4; }
-        .email-card.blocked::after {
+        .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
+        .pressure-card.visible { opacity: 1; transform: translateX(0); }
+        .pressure-card.blocked { opacity: 0.4; }
+        .pressure-card.blocked::after {
             content: 'BLOCKED';
             position: absolute;
             top: 50%;
@@ -89,10 +94,14 @@
             border-color: #3b82f6;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
-        .timeline-dot.blocked {
-            background: #10b981;
-            border-color: #10b981;
-        }
+        
+        /* Channel-specific styling */
+        .channel-email { border-left-color: #ef4444; }
+        .channel-sms { border-left-color: #8b5cf6; }
+        .channel-push { border-left-color: #f97316; }
+        .channel-popup { border-left-color: #ec4899; }
+        .channel-badge { border-left-color: #eab308; }
+        .channel-chat { border-left-color: #06b6d4; }
         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #111118; }
@@ -102,17 +111,17 @@
 <body class="bg-deep text-white antialiased">
 
     <!-- Fixed Sidebar -->
-    <aside class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col">
+    <aside class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto">
         <!-- Logo -->
         <div class="p-6 border-b border-white/5">
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black">G</div>
                 <div>
                     <div class="font-bold text-lg">Governor</div>
-                    <div class="text-xs text-slate-500">Timeline Demo</div>
+                    <div class="text-xs text-slate-500">Multi-Channel Demo</div>
                 </div>
             </div>
-            <p class="text-sm text-slate-400">Scroll through <strong class="text-white">44 days</strong> of real emails. Feel the pressure build.</p>
+            <p class="text-sm text-slate-400">Scroll through <strong class="text-white">44 days</strong> of pressure across <strong class="text-white">all channels</strong>.</p>
         </div>
         
         <!-- Current Date -->
@@ -134,12 +143,49 @@
             <div id="pressureStatus" class="text-xs text-slate-500">Relaxed</div>
         </div>
         
-        <!-- Stats -->
+        <!-- Channel Stats -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Touches by Channel</div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">📧</div>
+                    <div id="countEmail" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">Email</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">💬</div>
+                    <div id="countSms" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">SMS</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🔔</div>
+                    <div id="countPush" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">Push</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🖥️</div>
+                    <div id="countPopup" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">Popup</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🏷️</div>
+                    <div id="countBadge" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">Badge</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">💭</div>
+                    <div id="countChat" class="font-bold font-mono">0</div>
+                    <div class="text-[10px] text-slate-500">Chat</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Totals -->
         <div class="p-6 border-b border-white/5">
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <div class="text-xs text-slate-500 uppercase font-bold">Emails</div>
-                    <div id="emailCount" class="text-2xl font-black font-mono">0</div>
+                    <div class="text-xs text-slate-500 uppercase font-bold">Total Touches</div>
+                    <div id="totalCount" class="text-2xl font-black font-mono">0</div>
                 </div>
                 <div>
                     <div class="text-xs text-slate-500 uppercase font-bold">Blocked</div>
@@ -149,7 +195,7 @@
         </div>
         
         <!-- Governor Toggle -->
-        <div class="p-6 flex-1">
+        <div class="p-6">
             <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Governor</div>
             <button id="governorBtn" class="w-full bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-xl p-4 transition-all text-left group">
                 <div class="flex items-center justify-between">
@@ -161,27 +207,8 @@
                 </div>
             </button>
             <p id="governorHint" class="text-xs text-slate-600 mt-3 hidden">
-                Keep scrolling to see Governor in action...
+                Feeling overwhelmed? Toggle Governor ON
             </p>
-        </div>
-        
-        <!-- User State (Governor Brain) -->
-        <div class="p-6 border-t border-white/5 bg-surface-2">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">User State</div>
-            <div class="space-y-2 text-xs font-mono">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">emails_24h:</span>
-                    <span id="stateEmails" class="text-white">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">urgency_count:</span>
-                    <span id="stateUrgency" class="text-white">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">last_touch:</span>
-                    <span id="stateLastTouch" class="text-slate-400">—</span>
-                </div>
-            </div>
         </div>
     </aside>
 
@@ -191,12 +218,22 @@
         <!-- Hero Section -->
         <section class="h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep">
             <div class="text-center px-12 max-w-2xl">
-                <div class="text-6xl mb-6">📧</div>
-                <h1 class="text-4xl font-black mb-4">44 Days of Emails</h1>
-                <p class="text-xl text-slate-400 mb-8">
-                    These are <strong class="text-white">real emails</strong> from CrownCoins Casino.<br>
-                    Scroll down to travel through time.
+                <div class="flex justify-center gap-3 text-4xl mb-6">
+                    <span>📧</span><span>💬</span><span>🔔</span><span>🖥️</span><span>💭</span>
+                </div>
+                <h1 class="text-4xl font-black mb-4">Multi-Channel Pressure</h1>
+                <p class="text-xl text-slate-400 mb-4">
+                    Platforms don't just send emails. They hit you from <strong class="text-white">every direction</strong>:
                 </p>
+                <div class="flex flex-wrap justify-center gap-2 mb-8 text-sm">
+                    <span class="bg-accent-red/20 text-accent-red px-3 py-1 rounded-full">Email</span>
+                    <span class="bg-accent-purple/20 text-accent-purple px-3 py-1 rounded-full">SMS</span>
+                    <span class="bg-accent-orange/20 text-accent-orange px-3 py-1 rounded-full">Push Notifications</span>
+                    <span class="bg-accent-pink/20 text-accent-pink px-3 py-1 rounded-full">In-App Popups</span>
+                    <span class="bg-accent-yellow/20 text-accent-yellow px-3 py-1 rounded-full">Badges</span>
+                    <span class="bg-accent-cyan/20 text-accent-cyan px-3 py-1 rounded-full">Chat</span>
+                </div>
+                <p class="text-slate-500 mb-8">Scroll to experience 44 days of real cross-channel pressure.</p>
                 <div class="flex items-center justify-center gap-2 text-slate-500">
                     <span class="animate-bounce">↓</span>
                     <span class="text-sm">Start scrolling</span>
@@ -208,23 +245,21 @@
         <!-- Timeline Container -->
         <div id="timeline" class="relative px-12 py-24">
             <div class="timeline-line"></div>
-            
-            <!-- Timeline entries will be generated by JS -->
             <div id="timelineEntries"></div>
         </div>
 
         <!-- End Section -->
         <section id="endSection" class="h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000">
-            <div class="text-center px-12 max-w-2xl">
+            <div class="text-center px-12 max-w-3xl">
                 <div id="endIcon" class="text-6xl mb-6">😵</div>
-                <h2 id="endTitle" class="text-4xl font-black mb-4">46 Emails in 44 Days</h2>
+                <h2 id="endTitle" class="text-4xl font-black mb-4">Death by a Thousand Touches</h2>
                 <p id="endText" class="text-xl text-slate-400 mb-8">
-                    That's more than 1 email per day. From just ONE company.
+                    This is what multi-channel automation looks like without coordination.
                 </p>
-                <div id="endStats" class="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
+                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-xl mx-auto mb-8">
                     <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-red" id="finalEmails">0</div>
-                        <div class="text-xs text-slate-500">Emails</div>
+                        <div class="text-2xl font-black text-accent-red" id="finalTotal">0</div>
+                        <div class="text-xs text-slate-500">Total Touches</div>
                     </div>
                     <div class="bg-surface rounded-xl p-4">
                         <div class="text-2xl font-black text-accent-green" id="finalBlocked">0</div>
@@ -234,9 +269,13 @@
                         <div class="text-2xl font-black text-accent-orange" id="finalPressure">0</div>
                         <div class="text-xs text-slate-500">Peak Pressure</div>
                     </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-purple" id="finalChannels">6</div>
+                        <div class="text-xs text-slate-500">Channels Used</div>
+                    </div>
                 </div>
-                <a href="#top" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
-                    Try Again with Governor
+                <a href="#" onclick="location.reload()" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
+                    Try Again with Governor ON
                 </a>
             </div>
         </section>
@@ -244,58 +283,162 @@
 
     <script>
     // =====================================================
-    // GOVERNOR TIMELINE SCROLL DEMO
-    // Real emails from CrownCoins Casino (Dec 6 - Jan 18)
+    // GOVERNOR MULTI-CHANNEL TIMELINE DEMO
+    // Real pressure from multiple channels
     // =====================================================
 
-    // Real email data with actual dates
-    const emails = [
-        { date: '2025-12-06', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5 },
-        { date: '2025-12-07', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8 },
-        { date: '2025-12-08', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12 },
-        { date: '2025-12-09', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
-        { date: '2025-12-10', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-10', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
-        { date: '2025-12-11', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-13', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
-        { date: '2025-12-13', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15 },
-        { date: '2025-12-14', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-15', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-16', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
-        { date: '2025-12-16', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-16', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
-        { date: '2025-12-17', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-18', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18 },
-        { date: '2025-12-18', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-19', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
-        { date: '2025-12-20', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
-        { date: '2025-12-20', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-21', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-22', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
-        { date: '2025-12-23', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-23', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18 },
-        { date: '2025-12-23', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
-        { date: '2025-12-24', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
-        { date: '2025-12-25', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
-        { date: '2025-12-26', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
-        { date: '2025-12-26', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-28', subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promo', pressure: 10 },
-        { date: '2025-12-29', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
-        { date: '2025-12-31', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10 },
-        { date: '2025-12-31', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
-        { date: '2026-01-01', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
-        { date: '2026-01-04', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
-        { date: '2026-01-04', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
-        { date: '2026-01-07', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
-        { date: '2026-01-11', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16 },
-        { date: '2026-01-11', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
-        { date: '2026-01-12', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
-        { date: '2026-01-13', subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promo', pressure: 10 },
-        { date: '2026-01-14', subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 8 },
-        { date: '2026-01-14', subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promo', pressure: 10 },
-        { date: '2026-01-15', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
-        { date: '2026-01-18', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18 },
-        { date: '2026-01-18', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+    // Multi-channel pressure data
+    const pressureEvents = [
+        // Day 1 - Dec 6
+        { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5 },
+        { date: '2025-12-06', channel: 'push', subject: 'Your account is ready! Claim your bonus', type: 'promo', pressure: 8 },
+        
+        // Day 2 - Dec 7
+        { date: '2025-12-07', channel: 'email', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8 },
+        { date: '2025-12-07', channel: 'sms', subject: '🎰 Your FREE coins are waiting! Tap to claim', type: 'promo', pressure: 10 },
+        
+        // Day 3 - Dec 8
+        { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12 },
+        { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15 },
+        
+        // Day 4 - Dec 9
+        { date: '2025-12-09', channel: 'email', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
+        { date: '2025-12-09', channel: 'badge', subject: 'NEW: 3 unclaimed bonuses waiting', type: 'fomo', pressure: 6 },
+        
+        // Day 5 - Dec 10
+        { date: '2025-12-10', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-10', channel: 'email', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-10', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14 },
+        { date: '2025-12-10', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16 },
+        
+        // Day 6 - Dec 11
+        { date: '2025-12-11', channel: 'email', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-11', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12 },
+        
+        // Day 8 - Dec 13
+        { date: '2025-12-13', channel: 'email', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
+        { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15 },
+        { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18 },
+        
+        // Day 9 - Dec 14
+        { date: '2025-12-14', channel: 'email', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-14', channel: 'push', subject: 'Your gift expires in 3 hours!', type: 'urgency', pressure: 12 },
+        
+        // Day 10 - Dec 15
+        { date: '2025-12-15', channel: 'email', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-15', channel: 'badge', subject: 'VIP status unlocked - claim rewards', type: 'fomo', pressure: 8 },
+        
+        // Day 11 - Dec 16 (Heavy day)
+        { date: '2025-12-16', channel: 'email', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
+        { date: '2025-12-16', channel: 'email', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-16', channel: 'email', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
+        { date: '2025-12-16', channel: 'sms', subject: '🚨 3 EMAILS WAITING - open now!', type: 'meta', pressure: 10 },
+        { date: '2025-12-16', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6 },
+        { date: '2025-12-16', channel: 'popup', subject: '47 players viewing this jackpot RIGHT NOW', type: 'fomo', pressure: 14 },
+        
+        // Day 12 - Dec 17
+        { date: '2025-12-17', channel: 'email', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-17', channel: 'chat', subject: 'Quick question - did you see the mystery deal?', type: 'sales', pressure: 10 },
+        
+        // Day 13 - Dec 18
+        { date: '2025-12-18', channel: 'email', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-18', channel: 'email', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-18', channel: 'push', subject: 'JACKPOT ALERT: Drawing starts in 1 hour', type: 'urgency', pressure: 14 },
+        { date: '2025-12-18', channel: 'sms', subject: '🎰 $10M drawing TONIGHT. Are you in?', type: 'urgency', pressure: 14 },
+        
+        // Day 14 - Dec 19
+        { date: '2025-12-19', channel: 'email', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
+        
+        // Day 15 - Dec 20
+        { date: '2025-12-20', channel: 'email', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
+        { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12 },
+        
+        // Day 16 - Dec 21
+        { date: '2025-12-21', channel: 'email', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-21', channel: 'badge', subject: 'WEEKEND DEAL expires in 12h', type: 'urgency', pressure: 10 },
+        
+        // Day 17 - Dec 22
+        { date: '2025-12-22', channel: 'email', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
+        { date: '2025-12-22', channel: 'chat', subject: 'Happy holidays! Any questions about our promos?', type: 'sales', pressure: 8 },
+        
+        // Day 18 - Dec 23 (Heavy day)
+        { date: '2025-12-23', channel: 'email', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-23', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18 },
+        { date: '2025-12-23', channel: 'email', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
+        { date: '2025-12-23', channel: 'sms', subject: '⏰ FINAL HOURS: Holiday bonus ends midnight', type: 'urgency', pressure: 16 },
+        { date: '2025-12-23', channel: 'push', subject: 'Only 6 hours left on your bonus!', type: 'urgency', pressure: 12 },
+        { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14 },
+        
+        // Day 19 - Dec 24
+        { date: '2025-12-24', channel: 'email', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
+        { date: '2025-12-24', channel: 'push', subject: 'Christmas Eve surprise waiting for you!', type: 'promo', pressure: 8 },
+        
+        // Day 20 - Dec 25
+        { date: '2025-12-25', channel: 'email', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
+        { date: '2025-12-25', channel: 'sms', subject: '🎄 Merry Christmas! Your gift is inside', type: 'promo', pressure: 8 },
+        
+        // Day 21 - Dec 26
+        { date: '2025-12-26', channel: 'email', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
+        { date: '2025-12-26', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-26', channel: 'popup', subject: 'POST-CHRISTMAS SALE: 400% bonus today only!', type: 'urgency', pressure: 16 },
+        
+        // Day 23 - Dec 28
+        { date: '2025-12-28', channel: 'email', subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promo', pressure: 10 },
+        
+        // Day 24 - Dec 29
+        { date: '2025-12-29', channel: 'email', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
+        { date: '2025-12-29', channel: 'badge', subject: 'RAFFLE ENTRY: 2 hours remaining', type: 'urgency', pressure: 10 },
+        
+        // Day 26 - Dec 31 (New Year's Eve)
+        { date: '2025-12-31', channel: 'email', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', channel: 'email', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', channel: 'sms', subject: '🎆 NYE SPECIAL: 500% bonus until midnight!', type: 'urgency', pressure: 16 },
+        { date: '2025-12-31', channel: 'push', subject: 'Ring in 2026 with FREE SPINS!', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', channel: 'popup', subject: 'NEW YEAR COUNTDOWN: Claim before midnight!', type: 'urgency', pressure: 14 },
+        
+        // Day 27 - Jan 1
+        { date: '2026-01-01', channel: 'email', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
+        { date: '2026-01-01', channel: 'push', subject: 'Happy 2026! See your year in review', type: 'feature', pressure: 5 },
+        
+        // Day 30 - Jan 4
+        { date: '2026-01-04', channel: 'email', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
+        { date: '2026-01-04', channel: 'email', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
+        { date: '2026-01-04', channel: 'sms', subject: '⏰ 48HR FLASH: 26 free spins expire soon!', type: 'urgency', pressure: 14 },
+        
+        // Day 33 - Jan 7
+        { date: '2026-01-07', channel: 'email', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
+        { date: '2026-01-07', channel: 'chat', subject: 'Hey! Did you make your choice yet?', type: 'sales', pressure: 10 },
+        
+        // Day 37 - Jan 11
+        { date: '2026-01-11', channel: 'email', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16 },
+        { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+        { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12 },
+        { date: '2026-01-11', channel: 'popup', subject: 'MYSTERY DEAL: Scratch to reveal!', type: 'promo', pressure: 10 },
+        
+        // Day 38 - Jan 12
+        { date: '2026-01-12', channel: 'email', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
+        
+        // Day 39 - Jan 13
+        { date: '2026-01-13', channel: 'email', subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promo', pressure: 10 },
+        { date: '2026-01-13', channel: 'badge', subject: 'BINGO: 1 free card unclaimed', type: 'fomo', pressure: 6 },
+        
+        // Day 40 - Jan 14
+        { date: '2026-01-14', channel: 'email', subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 8 },
+        { date: '2026-01-14', channel: 'email', subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promo', pressure: 10 },
+        { date: '2026-01-14', channel: 'push', subject: 'NEW GAME: Joker\'s Deal is live!', type: 'feature', pressure: 8 },
+        
+        // Day 41 - Jan 15
+        { date: '2026-01-15', channel: 'email', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
+        { date: '2026-01-15', channel: 'sms', subject: '🎰 CROWNCOINS WEEK: Daily gifts all week!', type: 'promo', pressure: 10 },
+        
+        // Day 44 - Jan 18 (Today)
+        { date: '2026-01-18', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18 },
+        { date: '2026-01-18', channel: 'email', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+        { date: '2026-01-18', channel: 'sms', subject: '🚨 FINAL: 200% bonus ends tonight!', type: 'urgency', pressure: 16 },
+        { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14 },
+        { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16 },
+        { date: '2026-01-18', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
     ];
 
     // State
@@ -303,12 +446,11 @@
         governorEnabled: false,
         pressure: 0,
         maxPressure: 0,
-        emailsReceived: 0,
-        emailsBlocked: 0,
+        blocked: 0,
+        counts: { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0 },
+        totalTouches: 0,
         currentDay: 0,
-        urgencyCount: 0,
-        lastEmailDate: null,
-        visibleEmails: new Set()
+        visibleEvents: new Set()
     };
 
     // DOM Elements
@@ -318,44 +460,51 @@
         pressureBar: document.getElementById('pressureBar'),
         pressureValue: document.getElementById('pressureValue'),
         pressureStatus: document.getElementById('pressureStatus'),
-        emailCount: document.getElementById('emailCount'),
+        countEmail: document.getElementById('countEmail'),
+        countSms: document.getElementById('countSms'),
+        countPush: document.getElementById('countPush'),
+        countPopup: document.getElementById('countPopup'),
+        countBadge: document.getElementById('countBadge'),
+        countChat: document.getElementById('countChat'),
+        totalCount: document.getElementById('totalCount'),
         blockedCount: document.getElementById('blockedCount'),
         governorBtn: document.getElementById('governorBtn'),
         governorIndicator: document.getElementById('governorIndicator'),
         governorLabel: document.getElementById('governorLabel'),
         governorHint: document.getElementById('governorHint'),
-        stateEmails: document.getElementById('stateEmails'),
-        stateUrgency: document.getElementById('stateUrgency'),
-        stateLastTouch: document.getElementById('stateLastTouch'),
         timelineEntries: document.getElementById('timelineEntries'),
         endSection: document.getElementById('endSection'),
     };
 
-    // Format date for display
+    const channelConfig = {
+        email: { icon: '📧', color: 'channel-email', label: 'Email' },
+        sms: { icon: '💬', color: 'channel-sms', label: 'SMS' },
+        push: { icon: '🔔', color: 'channel-push', label: 'Push' },
+        popup: { icon: '🖥️', color: 'channel-popup', label: 'Popup' },
+        badge: { icon: '🏷️', color: 'channel-badge', label: 'Badge' },
+        chat: { icon: '💭', color: 'channel-chat', label: 'Chat' },
+    };
+
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    // Get unique dates
     function getUniqueDates() {
-        return [...new Set(emails.map(e => e.date))].sort();
+        return [...new Set(pressureEvents.map(e => e.date))].sort();
     }
 
-    // Update pressure display
     function updatePressure() {
         const pct = Math.min(100, state.pressure);
         els.pressureBar.style.width = `${pct}%`;
         els.pressureValue.textContent = state.pressure;
         
-        if (state.pressure > state.maxPressure) {
-            state.maxPressure = state.pressure;
-        }
+        if (state.pressure > state.maxPressure) state.maxPressure = state.pressure;
         
         if (state.pressure > 70) {
             els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
             els.pressureStatus.textContent = 'OVERWHELMED';
-            els.pressureStatus.className = 'text-xs text-accent-red font-bold';
+            els.pressureStatus.className = 'text-xs text-accent-red font-bold shake';
         } else if (state.pressure > 40) {
             els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
             els.pressureStatus.textContent = 'Stressed';
@@ -367,47 +516,40 @@
         }
     }
 
-    // Update stats display
     function updateStats() {
-        els.emailCount.textContent = state.emailsReceived;
-        els.blockedCount.textContent = state.emailsBlocked;
-        els.stateEmails.textContent = state.emailsReceived;
-        els.stateUrgency.textContent = state.urgencyCount;
-        els.stateLastTouch.textContent = state.lastEmailDate ? formatDate(state.lastEmailDate) : '—';
+        els.countEmail.textContent = state.counts.email;
+        els.countSms.textContent = state.counts.sms;
+        els.countPush.textContent = state.counts.push;
+        els.countPopup.textContent = state.counts.popup;
+        els.countBadge.textContent = state.counts.badge;
+        els.countChat.textContent = state.counts.chat;
+        els.totalCount.textContent = state.totalTouches;
+        els.blockedCount.textContent = state.blocked;
     }
 
-    // Governor decision logic
-    function shouldBlock(email) {
+    function shouldBlock(event) {
         if (!state.governorEnabled) return false;
-        
-        // Pressure limit
-        if (state.pressure > 60) return true;
-        
-        // Urgency limit (max 1 per day)
-        if (email.type === 'urgency' && state.urgencyCount >= 1) return true;
-        
-        // High pressure email when already elevated
-        if (email.pressure > 12 && state.pressure > 40) return true;
-        
+        if (state.pressure > 50) return true;
+        if (event.type === 'urgency' && state.pressure > 30) return true;
+        if (event.pressure > 14) return true;
         return false;
     }
 
-    // Process email (called when email becomes visible)
-    function processEmail(email, card) {
-        if (state.visibleEmails.has(email.date + email.subject)) return;
-        state.visibleEmails.add(email.date + email.subject);
+    function processEvent(event, card) {
+        const key = event.date + event.channel + event.subject;
+        if (state.visibleEvents.has(key)) return;
+        state.visibleEvents.add(key);
         
-        const blocked = shouldBlock(email);
+        const blocked = shouldBlock(event);
         
         if (blocked) {
-            state.emailsBlocked++;
+            state.blocked++;
             card.classList.add('blocked');
-            state.pressure = Math.max(0, state.pressure - 5); // Relief when blocked
+            state.pressure = Math.max(0, state.pressure - 3);
         } else {
-            state.emailsReceived++;
-            state.pressure += email.pressure;
-            if (email.type === 'urgency') state.urgencyCount++;
-            state.lastEmailDate = email.date;
+            state.counts[event.channel]++;
+            state.totalTouches++;
+            state.pressure += event.pressure;
         }
         
         card.classList.add('visible');
@@ -415,65 +557,54 @@
         updateStats();
     }
 
-    // Build timeline
     function buildTimeline() {
         const dates = getUniqueDates();
         let html = '';
         
         dates.forEach((date, dayIndex) => {
-            const dayEmails = emails.filter(e => e.date === date);
+            const dayEvents = pressureEvents.filter(e => e.date === date);
             const formattedDate = formatDate(date);
             
             html += `
-                <div class="day-section mb-16 relative pl-16" data-date="${date}" data-day="${dayIndex + 1}">
+                <div class="day-section mb-12 relative pl-16" data-date="${date}" data-day="${dayIndex + 1}">
                     <div class="timeline-dot" data-day="${dayIndex + 1}"></div>
-                    <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-4">${formattedDate}</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">${formattedDate}</span>
+                        <span class="text-xs text-slate-600">${dayEvents.length} touch${dayEvents.length > 1 ? 'es' : ''}</span>
+                    </div>
                     <div class="space-y-3">
             `;
             
-            dayEmails.forEach((email, emailIndex) => {
-                const typeColors = {
-                    'urgency': 'border-l-accent-red',
-                    'promo': 'border-l-accent-purple',
-                    'feature': 'border-l-accent',
-                    'game': 'border-l-accent-yellow',
-                    'onboarding': 'border-l-accent-green',
-                };
-                const borderColor = typeColors[email.type] || 'border-l-slate-500';
-                
+            dayEvents.forEach(event => {
+                const cfg = channelConfig[event.channel];
                 html += `
-                    <div class="email-card relative bg-surface rounded-xl p-4 border-l-4 ${borderColor} border border-white/5"
-                         data-date="${date}" 
-                         data-subject="${email.subject}"
-                         data-type="${email.type}"
-                         data-pressure="${email.pressure}">
+                    <div class="pressure-card relative bg-surface rounded-xl p-4 border-l-4 ${cfg.color} border border-white/5"
+                         data-date="${event.date}" 
+                         data-channel="${event.channel}"
+                         data-subject="${event.subject}"
+                         data-type="${event.type}"
+                         data-pressure="${event.pressure}">
                         <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-accent-yellow rounded-lg flex items-center justify-center text-lg flex-shrink-0">🎰</div>
+                            <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center text-lg flex-shrink-0">${cfg.icon}</div>
                             <div class="flex-1 min-w-0">
-                                <div class="text-xs text-slate-500 mb-1">CrownCoins Casino</div>
-                                <div class="font-semibold text-sm">${email.subject}</div>
-                                <div class="flex items-center gap-3 mt-2 text-[10px]">
-                                    <span class="text-slate-600">${email.type}</span>
-                                    <span class="text-slate-600">+${email.pressure} pressure</span>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
+                                    <span class="text-[10px] text-slate-600">+${event.pressure} pressure</span>
                                 </div>
+                                <div class="font-semibold text-sm">${event.subject}</div>
                             </div>
                         </div>
                     </div>
                 `;
             });
             
-            html += `
-                    </div>
-                </div>
-            `;
+            html += `</div></div>`;
         });
         
         els.timelineEntries.innerHTML = html;
     }
 
-    // Setup Intersection Observer
     function setupObservers() {
-        // Day section observer
         const dayObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -484,65 +615,55 @@
                     els.dayCount.textContent = `Day ${day} of 44`;
                     state.currentDay = day;
                     
-                    // Activate timeline dot
                     document.querySelectorAll('.timeline-dot').forEach(dot => {
-                        dot.classList.remove('active');
-                        if (parseInt(dot.dataset.day) === day) {
-                            dot.classList.add('active');
-                            if (state.governorEnabled) dot.classList.add('blocked');
-                        }
+                        dot.classList.toggle('active', parseInt(dot.dataset.day) === day);
                     });
                     
-                    // Show governor hint after day 15
-                    if (day >= 15 && !state.governorEnabled) {
+                    if (day >= 10 && !state.governorEnabled) {
                         els.governorHint.classList.remove('hidden');
-                        els.governorHint.textContent = 'Feeling overwhelmed? Try toggling Governor ON →';
                     }
                 }
             });
         }, { threshold: 0.3 });
 
-        // Email card observer
-        const emailObserver = new IntersectionObserver((entries) => {
+        const eventObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const card = entry.target;
-                    const email = {
+                    const event = {
                         date: card.dataset.date,
+                        channel: card.dataset.channel,
                         subject: card.dataset.subject,
                         type: card.dataset.type,
                         pressure: parseInt(card.dataset.pressure)
                     };
-                    processEmail(email, card);
+                    processEvent(event, card);
                 }
             });
         }, { threshold: 0.5 });
 
-        // End section observer
         const endObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     els.endSection.style.opacity = '1';
-                    document.getElementById('finalEmails').textContent = state.emailsReceived;
-                    document.getElementById('finalBlocked').textContent = state.emailsBlocked;
+                    document.getElementById('finalTotal').textContent = state.totalTouches;
+                    document.getElementById('finalBlocked').textContent = state.blocked;
                     document.getElementById('finalPressure').textContent = state.maxPressure;
                     
-                    if (state.governorEnabled) {
+                    if (state.governorEnabled && state.blocked > 0) {
                         document.getElementById('endIcon').textContent = '😊';
                         document.getElementById('endTitle').textContent = 'Governor Protected You';
-                        document.getElementById('endText').textContent = `${state.emailsBlocked} emails blocked. Your pressure stayed manageable.`;
+                        document.getElementById('endText').textContent = `${state.blocked} touches blocked across all channels.`;
                     }
                 }
             });
         }, { threshold: 0.3 });
 
-        // Observe all elements
         document.querySelectorAll('.day-section').forEach(el => dayObserver.observe(el));
-        document.querySelectorAll('.email-card').forEach(el => emailObserver.observe(el));
+        document.querySelectorAll('.pressure-card').forEach(el => eventObserver.observe(el));
         endObserver.observe(els.endSection);
     }
 
-    // Governor toggle
     els.governorBtn.addEventListener('click', () => {
         state.governorEnabled = !state.governorEnabled;
         
@@ -550,24 +671,25 @@
             els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
             els.governorLabel.textContent = 'ON';
             els.governorBtn.classList.add('border-accent-green/50', 'glow');
-            els.governorHint.textContent = 'Governor is now protecting you from overwhelm.';
+            els.governorHint.textContent = 'Governor is now protecting you.';
             
-            // Re-process visible emails as blocked
-            document.querySelectorAll('.email-card.visible:not(.blocked)').forEach(card => {
-                const email = {
+            // Re-evaluate visible cards
+            document.querySelectorAll('.pressure-card.visible:not(.blocked)').forEach(card => {
+                const event = {
                     date: card.dataset.date,
+                    channel: card.dataset.channel,
                     subject: card.dataset.subject,
                     type: card.dataset.type,
                     pressure: parseInt(card.dataset.pressure)
                 };
-                if (shouldBlock(email)) {
+                if (shouldBlock(event)) {
                     card.classList.add('blocked');
-                    state.emailsBlocked++;
-                    state.emailsReceived--;
-                    state.pressure = Math.max(0, state.pressure - email.pressure - 5);
+                    state.blocked++;
+                    state.counts[event.channel]--;
+                    state.totalTouches--;
+                    state.pressure = Math.max(0, state.pressure - event.pressure);
                 }
             });
-            
             updatePressure();
             updateStats();
         } else {
@@ -578,7 +700,6 @@
         }
     });
 
-    // Initialize
     buildTimeline();
     setupObservers();
     </script>
