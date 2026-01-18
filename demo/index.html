@@ -288,6 +288,169 @@
                 </p>
             </div>
 
+            <!-- System Architecture Diagram -->
+            <div class="bg-surface-2 rounded-3xl border border-white/5 p-8 mb-16">
+                <div class="text-center mb-6">
+                    <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">System Architecture</div>
+                </div>
+                
+                <!-- Flowchart -->
+                <div class="flex flex-col items-center gap-4">
+                    
+                    <!-- AI Agents Layer -->
+                    <div class="flex items-center gap-4">
+                        <div class="bg-orange-500/20 border border-orange-500/30 rounded-xl px-4 py-3 text-center">
+                            <div class="text-lg mb-1">🤖</div>
+                            <div class="text-xs font-bold text-orange-400">Sales AI</div>
+                        </div>
+                        <div class="bg-red-500/20 border border-red-500/30 rounded-xl px-4 py-3 text-center">
+                            <div class="text-lg mb-1">📣</div>
+                            <div class="text-xs font-bold text-red-400">Marketing AI</div>
+                        </div>
+                        <div class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 py-3 text-center">
+                            <div class="text-lg mb-1">🔄</div>
+                            <div class="text-xs font-bold text-purple-400">Retention AI</div>
+                        </div>
+                        <div class="bg-blue-500/20 border border-blue-500/30 rounded-xl px-4 py-3 text-center">
+                            <div class="text-lg mb-1">🎯</div>
+                            <div class="text-xs font-bold text-blue-400">Support AI</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow Down -->
+                    <div class="flex flex-col items-center text-slate-600">
+                        <div class="text-xs font-mono mb-1">"Can I reach user X?"</div>
+                        <div class="text-2xl">↓</div>
+                    </div>
+                    
+                    <!-- GOVERNOR LAYER -->
+                    <div class="w-full max-w-3xl bg-accent-green/10 border-2 border-accent-green/30 rounded-2xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="inline-flex items-center gap-2 bg-accent-green/20 rounded-full px-4 py-1">
+                                <span class="text-xl">🛡️</span>
+                                <span class="font-bold text-accent-green">GOVERNOR</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Per-User States -->
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <!-- User A -->
+                            <div class="bg-surface rounded-xl p-4 border border-white/10">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-bold text-sm">A</div>
+                                    <div>
+                                        <div class="text-xs font-bold">user_alex</div>
+                                        <div class="text-[10px] text-slate-500">Last touch: 3 days ago</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1 text-[10px] font-mono mb-3">
+                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-green">20</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span>0</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span>0/1</span></div>
+                                </div>
+                                <div class="bg-accent-green/20 text-accent-green text-center py-2 rounded-lg text-xs font-bold">
+                                    ✓ ALLOW
+                                </div>
+                            </div>
+                            
+                            <!-- User B -->
+                            <div class="bg-surface rounded-xl p-4 border border-white/10">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center font-bold text-sm">B</div>
+                                    <div>
+                                        <div class="text-xs font-bold">user_bella</div>
+                                        <div class="text-[10px] text-slate-500">Last touch: 2 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1 text-[10px] font-mono mb-3">
+                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-red">85</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span class="text-accent-orange">4</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span class="text-accent-red">1/1</span></div>
+                                </div>
+                                <div class="bg-accent-red/20 text-accent-red text-center py-2 rounded-lg text-xs font-bold">
+                                    ✗ DENY
+                                </div>
+                            </div>
+                            
+                            <!-- User C -->
+                            <div class="bg-surface rounded-xl p-4 border border-white/10">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-sm text-deep">C</div>
+                                    <div>
+                                        <div class="text-xs font-bold">user_choni</div>
+                                        <div class="text-[10px] text-slate-500">Last touch: 1 day ago</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1 text-[10px] font-mono mb-3">
+                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-orange">58</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span>2</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span class="text-accent-red">1/1</span></div>
+                                </div>
+                                <div class="bg-accent-red/20 text-accent-red text-center py-2 rounded-lg text-xs font-bold">
+                                    ✗ DENY
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center text-[10px] text-slate-500">
+                            Same campaign request → Different decision based on each user's state
+                        </div>
+                    </div>
+                    
+                    <!-- Arrows Down -->
+                    <div class="flex justify-center gap-32 text-slate-600">
+                        <div class="flex flex-col items-center">
+                            <div class="text-2xl text-accent-green">↓</div>
+                            <div class="text-[10px] font-mono text-accent-green">proceed</div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="text-2xl text-accent-red">✗</div>
+                            <div class="text-[10px] font-mono text-accent-red">stopped</div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="text-2xl text-accent-red">✗</div>
+                            <div class="text-[10px] font-mono text-accent-red">stopped</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Channels Layer -->
+                    <div class="flex items-center gap-6">
+                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
+                            <div class="text-lg mb-1">📧</div>
+                            <div class="text-[10px] text-slate-500">Email</div>
+                        </div>
+                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
+                            <div class="text-lg mb-1">💬</div>
+                            <div class="text-[10px] text-slate-500">SMS</div>
+                        </div>
+                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
+                            <div class="text-lg mb-1">🔔</div>
+                            <div class="text-[10px] text-slate-500">Push</div>
+                        </div>
+                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
+                            <div class="text-lg mb-1">🖥️</div>
+                            <div class="text-[10px] text-slate-500">In-App</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Users -->
+                    <div class="flex items-center gap-8 mt-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-lg border-4 border-accent-green">A</div>
+                            <div class="text-[10px] text-slate-500 mt-1">Gets email ✓</div>
+                        </div>
+                        <div class="flex flex-col items-center opacity-40">
+                            <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center font-bold text-lg border-4 border-accent-red">B</div>
+                            <div class="text-[10px] text-slate-500 mt-1">Protected 🛡️</div>
+                        </div>
+                        <div class="flex flex-col items-center opacity-40">
+                            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-lg text-deep border-4 border-accent-red">C</div>
+                            <div class="text-[10px] text-slate-500 mt-1">Protected 🛡️</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- How Governor Works -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
                 
