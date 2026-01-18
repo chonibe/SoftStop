@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Experience the Difference</title>
+    <title>Governor | Multi-Channel Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        deep: '#0a0a0f',
+                        deep: '#0f0f13',
+                        'surface': '#1a1a24',
+                        'surface-2': '#252532',
                         'accent-blue': '#3b82f6',
                         'accent-green': '#10b981',
                         'accent-red': '#ef4444',
                         'accent-orange': '#f97316',
+                        'accent-purple': '#8b5cf6',
                     }
                 }
             }
@@ -31,388 +31,537 @@
         body { font-family: 'Inter', sans-serif; }
         
         /* Animations */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            75% { transform: translateX(2px); }
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        @keyframes slide-in-right {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fade-up {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes count-up {
-            from { transform: scale(1.3); }
-            to { transform: scale(1); }
-        }
+        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slide-right { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-left { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+        @keyframes typing { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
         
-        .shake { animation: shake 0.15s infinite; }
-        .pulse-ring::before {
-            content: '';
+        .slide-up { animation: slide-up 0.4s ease-out forwards; }
+        .slide-right { animation: slide-right 0.3s ease-out forwards; }
+        .slide-left { animation: slide-left 0.3s ease-out forwards; }
+        .pulse-badge { animation: pulse-badge 1s infinite; }
+        .shake { animation: shake 0.3s infinite; }
+        
+        .typing-dot { animation: typing 1s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        /* Channel blocked state */
+        .channel-blocked { position: relative; }
+        .channel-blocked::after {
+            content: '🛡️ Governed';
             position: absolute;
-            inset: -4px;
+            inset: 0;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
             border-radius: inherit;
-            border: 2px solid currentColor;
-            animation: pulse-ring 1.5s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #10b981;
+            backdrop-filter: blur(2px);
         }
-        .slide-in { animation: slide-in-right 0.4s ease-out forwards; }
-        .fade-up { animation: fade-up 0.5s ease-out forwards; }
-        .count-pop { animation: count-up 0.3s ease-out; }
         
-        /* Notification Styles */
-        .notification {
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Phone mockup */
+        .phone-frame {
+            background: linear-gradient(135deg, #2a2a3a 0%, #1a1a24 100%);
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .notification.show { transform: translateX(0); }
-        
-        /* Shield Effect */
-        .shield-flash {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 9999;
+        .phone-screen {
+            background: #0f0f13;
+            border-radius: 24px;
+            overflow: hidden;
         }
-        .shield-flash.active { opacity: 1; }
-        
-        /* Pressure Glow */
-        .pressure-glow {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 50;
-            transition: box-shadow 0.5s;
-        }
-        .pressure-glow.high {
-            box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.15);
-        }
-        .pressure-glow.critical {
-            box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.25);
+        .phone-notch {
+            width: 80px;
+            height: 24px;
+            background: #0f0f13;
+            border-radius: 0 0 12px 12px;
+            margin: 0 auto;
         }
     </style>
 </head>
-<body class="bg-deep text-white antialiased">
+<body class="bg-deep text-white antialiased min-h-screen">
 
-    <!-- Shield Flash Overlay -->
-    <div id="shieldFlash" class="shield-flash"></div>
-    
-    <!-- Pressure Glow Overlay -->
-    <div id="pressureGlow" class="pressure-glow"></div>
-
-    <!-- Floating Control Panel -->
-    <div id="controlPanel" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 px-8 py-5 rounded-2xl shadow-2xl z-[100] flex items-center gap-8 opacity-0 translate-y-8 transition-all duration-500">
-        <!-- Governor Toggle -->
-        <div class="flex items-center gap-4">
-            <button id="governorBtn" class="relative w-16 h-8 bg-slate-700 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:ring-offset-slate-900">
-                <span id="toggleKnob" class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-lg transition-transform duration-300"></span>
-            </button>
-            <div class="flex flex-col">
-                <span id="modeLabel" class="text-sm font-bold text-accent-red">CHAOS MODE</span>
-                <span class="text-[10px] text-slate-500">Toggle Governor</span>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-deep/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-accent-blue rounded-lg flex items-center justify-center font-black text-sm">G</div>
+                <span class="font-bold text-lg">Governor</span>
             </div>
-        </div>
-
-        <!-- Pressure Meter -->
-        <div class="flex-1 min-w-[200px]">
-            <div class="flex justify-between mb-1.5">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">User Pressure</span>
-                <span id="pressureValue" class="text-sm font-bold">0%</span>
-            </div>
-            <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div id="pressureBar" class="h-full bg-accent-blue rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="flex gap-6 text-center">
-            <div>
-                <div id="attemptsCount" class="text-xl font-black">0</div>
-                <div class="text-[10px] text-slate-500 uppercase">Attempts</div>
-            </div>
-            <div>
-                <div id="blockedCount" class="text-xl font-black text-accent-green">0</div>
-                <div class="text-[10px] text-slate-500 uppercase">Blocked</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification Stack (Top Right) -->
-    <div id="notificationStack" class="fixed top-6 right-6 z-[90] flex flex-col gap-3 pointer-events-none"></div>
-
-    <!-- Hero Section -->
-    <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
-        <div class="mb-8">
-            <span id="statusBadge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-red/10 border border-accent-red/30 text-accent-red text-sm font-bold transition-all duration-500">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-red"></span>
-                </span>
-                Unprotected
-            </span>
-        </div>
-        
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 leading-[0.9]">
-            <span id="heroText1" class="block">Feel the</span>
-            <span id="heroText2" class="block bg-gradient-to-r from-accent-blue via-purple-500 to-accent-blue bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_3s_linear_infinite]">pressure</span>
-        </h1>
-        
-        <p class="text-xl text-slate-400 max-w-2xl mb-12">
-            This demo shows what happens when AI agents compete for your attention.<br>
-            <strong class="text-white">Toggle Governor to see the difference.</strong>
-        </p>
-
-        <div class="flex flex-wrap justify-center gap-4 mb-16">
-            <button id="startBtn" class="bg-accent-blue hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-xl shadow-lg shadow-accent-blue/25 hover:shadow-accent-blue/40 transition-all active:scale-95">
-                Start Experience
-            </button>
-        </div>
-
-        <!-- Agent Avatars -->
-        <div id="agentRow" class="flex justify-center gap-6 opacity-50">
-            <div class="text-center group" data-agent="sales">
-                <div class="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-orange-500/30 group-hover:-translate-y-1 transition-transform">S</div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 mt-2 block">Sales</span>
-            </div>
-            <div class="text-center group" data-agent="marketing">
-                <div class="w-14 h-14 bg-red-500 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-red-500/30 group-hover:-translate-y-1 transition-transform">M</div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 mt-2 block">Marketing</span>
-            </div>
-            <div class="text-center group" data-agent="retention">
-                <div class="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-purple-500/30 group-hover:-translate-y-1 transition-transform">R</div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 mt-2 block">Retention</span>
-            </div>
-            <div class="text-center group" data-agent="support">
-                <div class="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/30 group-hover:-translate-y-1 transition-transform">H</div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 mt-2 block">Help</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Content Section (for scrolling) -->
-    <section class="min-h-screen py-24 px-6">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-4xl font-black mb-12 text-center">How Governor Works</h2>
             
-            <div class="grid gap-8">
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
-                    <div class="text-accent-blue text-sm font-bold uppercase tracking-widest mb-4">Step 1</div>
-                    <h3 class="text-2xl font-bold mb-4">Agents Propose Actions</h3>
-                    <p class="text-slate-400">Every AI agent can request escalations at any time. Sales wants a popup. Marketing wants a banner. Retention wants a discount modal.</p>
+            <!-- Control Panel -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-white/5">
+                    <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Pressure</span>
+                    <div class="w-24 h-2 bg-surface-2 rounded-full overflow-hidden">
+                        <div id="pressureBar" class="h-full bg-accent-blue rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="pressureValue" class="text-sm font-bold w-8">0%</span>
                 </div>
                 
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
-                    <div class="text-accent-blue text-sm font-bold uppercase tracking-widest mb-4">Step 2</div>
-                    <h3 class="text-2xl font-bold mb-4">Governor Checks Permission</h3>
-                    <p class="text-slate-400">Before any action executes, Governor asks: "Is this user already under too much pressure?" One API call. Instant decision.</p>
+                <div class="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-white/5">
+                    <span id="blockedCount" class="text-xl font-black text-accent-green">0</span>
+                    <span class="text-xs text-slate-400 uppercase font-bold">Blocked</span>
                 </div>
                 
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
-                    <div class="text-accent-blue text-sm font-bold uppercase tracking-widest mb-4">Step 3</div>
-                    <h3 class="text-2xl font-bold mb-4">Execute or Block</h3>
-                    <p class="text-slate-400">Allowed actions proceed. Blocked actions are logged and must wait. The user is protected from pressure stacking.</p>
+                <button id="governorBtn" class="flex items-center gap-3 bg-accent-red/20 hover:bg-accent-red/30 border border-accent-red/30 px-5 py-2.5 rounded-xl transition-all">
+                    <div id="toggleIndicator" class="w-3 h-3 rounded-full bg-accent-red"></div>
+                    <span id="toggleLabel" class="text-sm font-bold">Governor OFF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Intro -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-black mb-4">Experience Cross-Channel Pressure</h1>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-8">
+                    AI agents don't just live in one place. They attack across email, SMS, chat, and in-app. 
+                    <strong class="text-white">Watch them stack pressure, then toggle Governor to see it stop.</strong>
+                </p>
+                <button id="startBtn" class="bg-accent-blue hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-accent-blue/25 transition-all active:scale-95">
+                    Start Demo
+                </button>
+            </div>
+
+            <!-- 3-Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr_200px] gap-6 items-start">
+                
+                <!-- LEFT: Email Inbox -->
+                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden" id="emailPanel">
+                    <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-3">
+                        <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-xs font-bold">G</div>
+                        <span class="font-semibold text-sm">Inbox</span>
+                        <span id="emailBadge" class="ml-auto bg-accent-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                    </div>
+                    <div id="emailList" class="divide-y divide-white/5 max-h-[500px] overflow-y-auto">
+                        <div class="px-4 py-8 text-center text-slate-500 text-sm">No new emails</div>
+                    </div>
+                </div>
+
+                <!-- CENTER: Dashboard -->
+                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden" id="dashboardPanel">
+                    <div class="bg-surface-2 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-accent-purple rounded-lg flex items-center justify-center font-bold text-sm">A</div>
+                            <span class="font-bold">Acme Dashboard</span>
+                        </div>
+                        <div class="text-sm text-slate-400">Welcome, Alex</div>
+                    </div>
+                    
+                    <div class="p-6 space-y-6">
+                        <!-- Urgency Banner -->
+                        <div id="urgencyBanner" class="hidden bg-gradient-to-r from-accent-red/20 to-accent-orange/20 border border-accent-red/30 rounded-xl p-4 relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">🔥</span>
+                                    <div>
+                                        <div class="font-bold text-accent-red">Limited Time Offer!</div>
+                                        <div class="text-sm text-slate-400">Upgrade now before prices increase</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="countdownTimer" class="text-2xl font-black text-white font-mono">23:59:59</div>
+                                    <div class="text-[10px] text-slate-500 uppercase">Time remaining</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAnalytics">
+                                <h3 class="font-bold mb-2">Analytics</h3>
+                                <p class="text-xs text-slate-500">Track your metrics in real-time</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAI">
+                                <span id="proBadge" class="hidden absolute -top-2 -right-2 bg-accent-blue text-white text-[10px] font-bold px-2 py-1 rounded-full pulse-badge">PRO</span>
+                                <h3 class="font-bold mb-2">AI Insights</h3>
+                                <p class="text-xs text-slate-500">Predictive recommendations</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureTeam">
+                                <h3 class="font-bold mb-2">Team</h3>
+                                <p class="text-xs text-slate-500">Collaborate with your team</p>
+                            </div>
+                            <div class="bg-surface-2 rounded-xl p-5 border border-white/5 relative" id="featureAPI">
+                                <span id="limitBadge" class="hidden absolute -top-2 -right-2 bg-accent-orange text-white text-[10px] font-bold px-2 py-1 rounded-full">LIMIT</span>
+                                <h3 class="font-bold mb-2">API Access</h3>
+                                <p class="text-xs text-slate-500">RESTful API endpoints</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Pricing CTA -->
+                        <div class="bg-gradient-to-br from-surface-2 to-surface rounded-2xl p-6 border border-white/5 relative" id="pricingCard">
+                            <div id="viewerCount" class="hidden absolute top-4 right-4 flex items-center gap-2 text-xs text-accent-red">
+                                <span class="w-2 h-2 bg-accent-red rounded-full animate-ping"></span>
+                                <span id="viewerNumber">47</span> people viewing
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Upgrade to Pro</h3>
+                            <p class="text-sm text-slate-400 mb-4">Unlock all features and remove limits</p>
+                            <div class="flex items-end gap-3 mb-4">
+                                <span class="text-4xl font-black">$49</span>
+                                <span class="text-slate-500 line-through text-lg mb-1" id="originalPrice" style="display: none;">$99</span>
+                                <span class="text-slate-500 text-sm mb-1">/month</span>
+                            </div>
+                            <button class="w-full bg-accent-blue hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-all" id="upgradeBtn">
+                                Upgrade Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Phone with SMS -->
+                <div class="flex flex-col items-center">
+                    <div class="phone-frame w-full max-w-[200px]">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="p-3 text-center border-b border-white/10">
+                                <div class="text-[10px] text-slate-400">12:34 PM</div>
+                            </div>
+                            <div id="smsContainer" class="p-3 space-y-2 min-h-[300px]">
+                                <div class="text-center text-slate-600 text-xs py-8">No messages</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">SMS Channel</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Widget -->
+            <div id="chatWidget" class="fixed bottom-6 right-6 z-40 hidden">
+                <div class="bg-surface rounded-2xl border border-white/10 shadow-2xl w-72 overflow-hidden">
+                    <div class="bg-accent-purple px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">👋</div>
+                            <div>
+                                <div class="font-semibold text-sm">Sales Team</div>
+                                <div class="text-[10px] text-white/70">Online now</div>
+                            </div>
+                        </div>
+                        <button id="closeChatBtn" class="text-white/50 hover:text-white text-lg">&times;</button>
+                    </div>
+                    <div id="chatMessages" class="p-4 space-y-3 max-h-48 overflow-y-auto">
+                        <!-- Messages appear here -->
+                    </div>
+                    <div class="p-3 border-t border-white/10">
+                        <input type="text" placeholder="Type a message..." class="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent-purple">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browser Notification -->
+            <div id="browserNotification" class="fixed top-24 right-6 z-40 hidden">
+                <div class="bg-surface border border-white/10 rounded-xl p-4 shadow-2xl w-80 slide-left">
+                    <div class="flex items-start gap-3">
+                        <div id="notifIcon" class="w-10 h-10 bg-accent-blue rounded-lg flex items-center justify-center text-lg">🔔</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span id="notifSource" class="text-xs font-bold text-slate-400 uppercase">System</span>
+                                <span class="text-[10px] text-slate-500">now</span>
+                            </div>
+                            <div id="notifTitle" class="font-semibold text-sm mb-0.5">Notification</div>
+                            <div id="notifBody" class="text-xs text-slate-400">Message content</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocked Notification -->
+            <div id="blockedNotification" class="fixed top-24 right-6 z-50 hidden">
+                <div class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-4 shadow-2xl w-80 slide-left">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-accent-green/20 rounded-lg flex items-center justify-center text-lg">🛡️</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-accent-green uppercase">BLOCKED</span>
+                            </div>
+                            <div id="blockedSource" class="font-semibold text-sm text-accent-green mb-0.5">Sales Agent</div>
+                            <div id="blockedReason" class="text-xs text-slate-400">Would exceed pressure limit</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="py-16 px-6 border-t border-slate-900">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl font-black mb-4">Experience complete.</h2>
-            <p class="text-slate-500 mb-8">Governor is the missing safety primitive for AI agent platforms.</p>
-            <div id="finalStats" class="flex justify-center gap-12 mb-12">
-                <div>
-                    <div id="finalAttempts" class="text-4xl font-black">0</div>
-                    <div class="text-sm text-slate-500 uppercase">Total Attempts</div>
+    <!-- Legend -->
+    <footer class="fixed bottom-6 left-6 z-40">
+        <div class="bg-surface/80 backdrop-blur-xl rounded-xl border border-white/5 p-4">
+            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-3">Active Agents</div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2" data-agent="sales">
+                    <div class="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-[10px] font-bold">S</div>
+                    <span class="text-xs text-slate-400">Sales</span>
                 </div>
-                <div>
-                    <div id="finalBlocked" class="text-4xl font-black text-accent-green">0</div>
-                    <div class="text-sm text-slate-500 uppercase">Blocked</div>
+                <div class="flex items-center gap-2" data-agent="marketing">
+                    <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-[10px] font-bold">M</div>
+                    <span class="text-xs text-slate-400">Marketing</span>
                 </div>
-                <div>
-                    <div id="finalRate" class="text-4xl font-black">0%</div>
-                    <div class="text-sm text-slate-500 uppercase">Block Rate</div>
+                <div class="flex items-center gap-2" data-agent="retention">
+                    <div class="w-6 h-6 bg-purple-500 rounded flex items-center justify-center text-[10px] font-bold">R</div>
+                    <span class="text-xs text-slate-400">Retention</span>
+                </div>
+                <div class="flex items-center gap-2" data-agent="support">
+                    <div class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-[10px] font-bold">H</div>
+                    <span class="text-xs text-slate-400">Support</span>
                 </div>
             </div>
-            <div class="text-slate-600 text-sm">Governor Inc. &copy; 2026</div>
         </div>
     </footer>
 
     <script>
-    // ============================================
-    // GOVERNOR DEMO - INLINE SCRIPT
-    // ============================================
+    // =====================================================
+    // GOVERNOR MULTI-CHANNEL DEMO
+    // =====================================================
     
     const state = {
         isActive: false,
         governorEnabled: false,
         pressure: 0,
-        attempts: 0,
         blocked: 0,
-        agents: ['Sales', 'Marketing', 'Retention', 'Help'],
-        agentColors: { Sales: 'orange', Marketing: 'red', Retention: 'purple', Help: 'blue' },
-        escalationQueue: [],
+        emailCount: 0,
+        smsCount: 0,
         intervalId: null
+    };
+
+    // Agent definitions with their target channels
+    const agents = {
+        sales: {
+            name: 'Sales',
+            color: 'orange',
+            channels: ['chat', 'email', 'notification'],
+            messages: [
+                { title: 'Quick question about your account', body: 'I noticed you haven\'t upgraded yet. Can we chat?' },
+                { title: 'Special offer just for you', body: 'I can get you 30% off if you upgrade today.' },
+                { title: 'Following up', body: 'Did you get a chance to review our Pro plan?' }
+            ]
+        },
+        marketing: {
+            name: 'Marketing',
+            color: 'red',
+            channels: ['email', 'banner', 'notification'],
+            messages: [
+                { title: '🔥 Flash Sale: 50% Off!', body: 'This offer expires in 24 hours. Don\'t miss out!' },
+                { title: 'You\'re missing out on Pro features', body: 'See what 10,000+ teams are using.' },
+                { title: 'Last chance for early bird pricing', body: 'Prices go up tomorrow!' }
+            ]
+        },
+        retention: {
+            name: 'Retention',
+            color: 'purple',
+            channels: ['sms', 'email', 'badge'],
+            messages: [
+                { title: 'We miss you!', body: 'Come back and see what\'s new.' },
+                { title: 'Your trial is ending', body: 'Upgrade now to keep your data.' },
+                { title: 'Exclusive comeback offer', body: 'Get 40% off your first 3 months.' }
+            ]
+        },
+        support: {
+            name: 'Support',
+            color: 'blue',
+            channels: ['chat', 'email'],
+            messages: [
+                { title: 'Need help getting started?', body: 'Our team is here to help you succeed.' },
+                { title: 'Tips to get more from Acme', body: 'Check out our new tutorials.' },
+                { title: 'How\'s your experience so far?', body: 'Let us know how we can help!' }
+            ]
+        }
     };
 
     // DOM Elements
     const els = {
         startBtn: document.getElementById('startBtn'),
-        controlPanel: document.getElementById('controlPanel'),
         governorBtn: document.getElementById('governorBtn'),
-        toggleKnob: document.getElementById('toggleKnob'),
-        modeLabel: document.getElementById('modeLabel'),
+        toggleIndicator: document.getElementById('toggleIndicator'),
+        toggleLabel: document.getElementById('toggleLabel'),
         pressureBar: document.getElementById('pressureBar'),
         pressureValue: document.getElementById('pressureValue'),
-        attemptsCount: document.getElementById('attemptsCount'),
         blockedCount: document.getElementById('blockedCount'),
-        notificationStack: document.getElementById('notificationStack'),
-        statusBadge: document.getElementById('statusBadge'),
-        heroText2: document.getElementById('heroText2'),
-        shieldFlash: document.getElementById('shieldFlash'),
-        pressureGlow: document.getElementById('pressureGlow'),
-        agentRow: document.getElementById('agentRow'),
-        finalAttempts: document.getElementById('finalAttempts'),
-        finalBlocked: document.getElementById('finalBlocked'),
-        finalRate: document.getElementById('finalRate')
+        emailList: document.getElementById('emailList'),
+        emailBadge: document.getElementById('emailBadge'),
+        smsContainer: document.getElementById('smsContainer'),
+        chatWidget: document.getElementById('chatWidget'),
+        chatMessages: document.getElementById('chatMessages'),
+        closeChatBtn: document.getElementById('closeChatBtn'),
+        browserNotification: document.getElementById('browserNotification'),
+        blockedNotification: document.getElementById('blockedNotification'),
+        urgencyBanner: document.getElementById('urgencyBanner'),
+        proBadge: document.getElementById('proBadge'),
+        limitBadge: document.getElementById('limitBadge'),
+        viewerCount: document.getElementById('viewerCount'),
+        originalPrice: document.getElementById('originalPrice')
     };
 
-    // ---- Utility Functions ----
+    // ---- Channel Actions ----
+    function addEmail(agent, msg) {
+        state.emailCount++;
+        els.emailBadge.textContent = state.emailCount;
+        els.emailBadge.classList.remove('hidden');
+        
+        if (els.emailList.querySelector('.text-slate-500')) {
+            els.emailList.innerHTML = '';
+        }
+        
+        const email = document.createElement('div');
+        email.className = 'px-4 py-3 hover:bg-surface-2 cursor-pointer transition-colors slide-right';
+        email.innerHTML = `
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-${agent.color}-500 rounded flex items-center justify-center text-xs font-bold flex-shrink-0">${agent.name[0]}</div>
+                <div class="min-w-0">
+                    <div class="font-semibold text-sm truncate">${msg.title}</div>
+                    <div class="text-xs text-slate-500 truncate">${msg.body}</div>
+                    <div class="text-[10px] text-slate-600 mt-1">${agent.name} Team • just now</div>
+                </div>
+            </div>
+        `;
+        els.emailList.prepend(email);
+    }
+
+    function addSMS(agent, msg) {
+        state.smsCount++;
+        
+        if (els.smsContainer.querySelector('.text-slate-600')) {
+            els.smsContainer.innerHTML = '';
+        }
+        
+        const sms = document.createElement('div');
+        sms.className = 'bg-accent-blue/20 rounded-lg p-2 text-xs slide-up';
+        sms.innerHTML = `
+            <div class="font-semibold text-[10px] text-accent-blue mb-1">${agent.name}</div>
+            <div class="text-white">${msg.title}</div>
+        `;
+        els.smsContainer.appendChild(sms);
+        els.smsContainer.scrollTop = els.smsContainer.scrollHeight;
+    }
+
+    function showChat(agent, msg) {
+        els.chatWidget.classList.remove('hidden');
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'bg-surface-2 rounded-lg p-3 text-sm slide-up';
+        bubble.innerHTML = `
+            <div class="text-xs text-slate-500 mb-1">${agent.name}</div>
+            <div>${msg.body}</div>
+        `;
+        els.chatMessages.appendChild(bubble);
+        els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+    }
+
+    function showNotification(agent, msg) {
+        els.browserNotification.querySelector('#notifSource').textContent = agent.name;
+        els.browserNotification.querySelector('#notifTitle').textContent = msg.title;
+        els.browserNotification.querySelector('#notifBody').textContent = msg.body;
+        els.browserNotification.querySelector('#notifIcon').className = `w-10 h-10 bg-${agent.color}-500 rounded-lg flex items-center justify-center text-lg`;
+        els.browserNotification.classList.remove('hidden');
+        
+        setTimeout(() => els.browserNotification.classList.add('hidden'), 4000);
+    }
+
+    function showBanner() {
+        els.urgencyBanner.classList.remove('hidden');
+        els.urgencyBanner.classList.add('shake');
+        setTimeout(() => els.urgencyBanner.classList.remove('shake'), 1000);
+    }
+
+    function showBadges() {
+        els.proBadge.classList.remove('hidden');
+        els.limitBadge.classList.remove('hidden');
+        els.viewerCount.classList.remove('hidden');
+        els.originalPrice.style.display = 'inline';
+        
+        // Jitter the viewer count
+        setInterval(() => {
+            if (!state.governorEnabled) {
+                const jitter = Math.floor(Math.random() * 10) - 5;
+                document.getElementById('viewerNumber').textContent = 47 + jitter;
+            }
+        }, 2000);
+    }
+
+    function showBlockedFeedback(agent, reason) {
+        els.blockedNotification.querySelector('#blockedSource').textContent = `${agent.name} Agent`;
+        els.blockedNotification.querySelector('#blockedReason').textContent = reason;
+        els.blockedNotification.classList.remove('hidden');
+        
+        setTimeout(() => els.blockedNotification.classList.add('hidden'), 2500);
+    }
+
+    // ---- Pressure Management ----
     function updatePressure(delta) {
         state.pressure = Math.max(0, Math.min(100, state.pressure + delta));
         els.pressureBar.style.width = `${state.pressure}%`;
         els.pressureValue.textContent = `${state.pressure}%`;
         
-        // Color based on pressure
         if (state.pressure > 75) {
             els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
-            els.pressureGlow.className = 'pressure-glow critical';
         } else if (state.pressure > 40) {
             els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
-            els.pressureGlow.className = 'pressure-glow high';
         } else {
             els.pressureBar.className = 'h-full bg-accent-blue rounded-full transition-all duration-500';
-            els.pressureGlow.className = 'pressure-glow';
         }
     }
 
-    function updateStats() {
-        els.attemptsCount.textContent = state.attempts;
-        els.attemptsCount.classList.add('count-pop');
-        setTimeout(() => els.attemptsCount.classList.remove('count-pop'), 300);
-        
-        els.blockedCount.textContent = state.blocked;
-        if (state.blocked > 0) {
-            els.blockedCount.classList.add('count-pop');
-            setTimeout(() => els.blockedCount.classList.remove('count-pop'), 300);
-        }
-        
-        // Update footer stats too
-        els.finalAttempts.textContent = state.attempts;
-        els.finalBlocked.textContent = state.blocked;
-        els.finalRate.textContent = state.attempts > 0 ? `${Math.round((state.blocked / state.attempts) * 100)}%` : '0%';
-    }
-
-    function createNotification(agent, title, body, isBlocked = false) {
-        const color = state.agentColors[agent] || 'blue';
-        const notification = document.createElement('div');
-        notification.className = `notification bg-slate-900/95 backdrop-blur-xl border rounded-xl p-4 w-80 shadow-2xl ${isBlocked ? 'border-accent-green/50' : 'border-slate-700/50'}`;
-        
-        notification.innerHTML = `
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 bg-${color}-500 rounded-lg flex items-center justify-center font-bold text-sm shadow-lg">${agent[0]}</div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs font-bold text-slate-400 uppercase">${agent}</span>
-                        ${isBlocked ? '<span class="text-[10px] bg-accent-green/20 text-accent-green px-1.5 py-0.5 rounded font-bold">BLOCKED</span>' : '<span class="text-[10px] text-slate-500">now</span>'}
-                    </div>
-                    <div class="text-sm font-semibold text-white truncate">${title}</div>
-                    <div class="text-xs text-slate-400 truncate">${body}</div>
-                </div>
-            </div>
-        `;
-        
-        els.notificationStack.appendChild(notification);
-        
-        // Trigger animation
-        requestAnimationFrame(() => {
-            notification.classList.add('show');
-        });
-        
-        // Remove after delay
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 400);
-        }, isBlocked ? 2000 : 4000);
-    }
-
-    function flashShield() {
-        els.shieldFlash.classList.add('active');
-        setTimeout(() => els.shieldFlash.classList.remove('active'), 300);
-    }
-
-    function pulseAgent(agent) {
-        const agentEl = document.querySelector(`[data-agent="${agent.toLowerCase()}"]`);
-        if (agentEl) {
-            const avatar = agentEl.querySelector('div');
-            avatar.classList.add('pulse-ring', 'relative');
-            setTimeout(() => avatar.classList.remove('pulse-ring'), 1500);
-        }
-    }
-
-    // ---- Core Logic ----
-    function attemptEscalation(agent) {
+    // ---- Core Escalation Logic ----
+    function attemptEscalation(agentKey) {
         if (!state.isActive) return;
         
-        state.attempts++;
-        const escalationTypes = [
-            { title: 'Upgrade Now!', body: 'Special 50% discount expires in 2 hours' },
-            { title: 'Limited Time Offer', body: '47 users are viewing this right now' },
-            { title: 'Dont miss out!', body: 'Your trial ends tomorrow. Upgrade today!' },
-            { title: 'Quick question...', body: 'Can I help you with anything?' },
-            { title: 'Action Required', body: 'Complete your profile to unlock features' }
-        ];
-        const escalation = escalationTypes[Math.floor(Math.random() * escalationTypes.length)];
+        const agent = agents[agentKey];
+        const msg = agent.messages[Math.floor(Math.random() * agent.messages.length)];
+        const channel = agent.channels[Math.floor(Math.random() * agent.channels.length)];
         
-        pulseAgent(agent);
-        
-        // Decision: Governor blocks or allows
+        // Governor decision
         let blocked = false;
+        let reason = '';
+        
         if (state.governorEnabled) {
-            // Simulate Governor rules: block if pressure > 30 or random 60% block rate
-            blocked = state.pressure > 30 || Math.random() < 0.6;
+            if (state.pressure > 30) {
+                blocked = true;
+                reason = 'Would exceed pressure limit';
+            } else if (Math.random() < 0.5) {
+                blocked = true;
+                reason = 'Cooldown active for this channel';
+            }
         }
         
         if (blocked) {
             state.blocked++;
-            flashShield();
-            createNotification(agent, escalation.title, 'Blocked: Would exceed pressure limit', true);
-            updatePressure(-5);
+            els.blockedCount.textContent = state.blocked;
+            showBlockedFeedback(agent, reason);
+            updatePressure(-3);
         } else {
-            createNotification(agent, escalation.title, escalation.body, false);
-            updatePressure(15);
+            // Execute on the channel
+            switch (channel) {
+                case 'email': addEmail(agent, msg); break;
+                case 'sms': addSMS(agent, msg); break;
+                case 'chat': showChat(agent, msg); break;
+                case 'notification': showNotification(agent, msg); break;
+                case 'banner': showBanner(); break;
+                case 'badge': showBadges(); break;
+            }
+            updatePressure(10);
         }
-        
-        updateStats();
     }
 
-    function startAgentLoop() {
-        // Fire escalations at random intervals
+    function runAgentLoop() {
+        const agentKeys = Object.keys(agents);
         state.intervalId = setInterval(() => {
             if (!state.isActive) return;
-            const agent = state.agents[Math.floor(Math.random() * state.agents.length)];
-            attemptEscalation(agent);
-        }, state.governorEnabled ? 3000 : 1500); // Slower when Governor is on
+            const randomAgent = agentKeys[Math.floor(Math.random() * agentKeys.length)];
+            attemptEscalation(randomAgent);
+        }, state.governorEnabled ? 2500 : 1200);
     }
 
     function stopAgentLoop() {
@@ -425,76 +574,54 @@
     // ---- Event Handlers ----
     els.startBtn.addEventListener('click', () => {
         state.isActive = true;
-        els.startBtn.textContent = 'Experience Running...';
+        els.startBtn.textContent = 'Running...';
         els.startBtn.disabled = true;
-        els.startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        els.startBtn.classList.add('opacity-50');
         
-        // Show control panel
-        els.controlPanel.classList.remove('opacity-0', 'translate-y-8');
-        els.agentRow.classList.remove('opacity-50');
+        runAgentLoop();
         
-        // Start the chaos
-        startAgentLoop();
-        
-        // Fire first escalation immediately
-        setTimeout(() => attemptEscalation('Sales'), 500);
-        setTimeout(() => attemptEscalation('Marketing'), 1200);
+        // Fire initial burst
+        setTimeout(() => attemptEscalation('marketing'), 300);
+        setTimeout(() => attemptEscalation('sales'), 800);
+        setTimeout(() => attemptEscalation('retention'), 1500);
     });
 
     els.governorBtn.addEventListener('click', () => {
         state.governorEnabled = !state.governorEnabled;
         
         if (state.governorEnabled) {
-            // Switch to protected mode
-            els.toggleKnob.classList.add('translate-x-8');
-            els.governorBtn.classList.remove('bg-slate-700');
-            els.governorBtn.classList.add('bg-accent-green');
-            els.modeLabel.textContent = 'PROTECTED';
-            els.modeLabel.classList.remove('text-accent-red');
-            els.modeLabel.classList.add('text-accent-green');
+            els.toggleIndicator.classList.remove('bg-accent-red');
+            els.toggleIndicator.classList.add('bg-accent-green');
+            els.toggleLabel.textContent = 'Governor ON';
+            els.governorBtn.classList.remove('bg-accent-red/20', 'border-accent-red/30');
+            els.governorBtn.classList.add('bg-accent-green/20', 'border-accent-green/30');
             
-            els.statusBadge.innerHTML = `
-                <span class="relative flex h-2 w-2">
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-green"></span>
-                </span>
-                Protected by Governor
-            `;
-            els.statusBadge.classList.remove('bg-accent-red/10', 'border-accent-red/30', 'text-accent-red');
-            els.statusBadge.classList.add('bg-accent-green/10', 'border-accent-green/30', 'text-accent-green');
-            
-            els.heroText2.textContent = 'control';
-            
-            flashShield();
+            // Clear chaos
             updatePressure(-20);
+            els.chatWidget.classList.add('hidden');
+            els.urgencyBanner.classList.add('hidden');
+            els.proBadge.classList.add('hidden');
+            els.limitBadge.classList.add('hidden');
+            els.viewerCount.classList.add('hidden');
+            els.originalPrice.style.display = 'none';
             
-            // Restart loop with slower pace
+            // Restart with slower pace
             stopAgentLoop();
-            startAgentLoop();
+            runAgentLoop();
         } else {
-            // Switch to chaos mode
-            els.toggleKnob.classList.remove('translate-x-8');
-            els.governorBtn.classList.add('bg-slate-700');
-            els.governorBtn.classList.remove('bg-accent-green');
-            els.modeLabel.textContent = 'CHAOS MODE';
-            els.modeLabel.classList.add('text-accent-red');
-            els.modeLabel.classList.remove('text-accent-green');
+            els.toggleIndicator.classList.add('bg-accent-red');
+            els.toggleIndicator.classList.remove('bg-accent-green');
+            els.toggleLabel.textContent = 'Governor OFF';
+            els.governorBtn.classList.add('bg-accent-red/20', 'border-accent-red/30');
+            els.governorBtn.classList.remove('bg-accent-green/20', 'border-accent-green/30');
             
-            els.statusBadge.innerHTML = `
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-red"></span>
-                </span>
-                Unprotected
-            `;
-            els.statusBadge.classList.add('bg-accent-red/10', 'border-accent-red/30', 'text-accent-red');
-            els.statusBadge.classList.remove('bg-accent-green/10', 'border-accent-green/30', 'text-accent-green');
-            
-            els.heroText2.textContent = 'pressure';
-            
-            // Restart loop with faster pace
             stopAgentLoop();
-            startAgentLoop();
+            runAgentLoop();
         }
+    });
+
+    els.closeChatBtn.addEventListener('click', () => {
+        els.chatWidget.classList.add('hidden');
     });
     </script>
 </body>
