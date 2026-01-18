@@ -697,7 +697,27 @@
         { emoji: '💀', label: 'Churned', desc: 'User lost forever', color: 'text-slate-500', stepColor: 'bg-slate-500' },
     ];
     
+    // Protected mood when Governor is ON
+    const protectedMood = { emoji: '😌', label: 'Protected', desc: 'Governor is shielding this user', color: 'text-accent-green', stepColor: 'bg-accent-green' };
+    const recoveringMood = { emoji: '🙂', label: 'Recovering', desc: 'Pressure decreasing, trust rebuilding', color: 'text-accent-cyan', stepColor: 'bg-accent-cyan' };
+    
     function updateTemperament() {
+        // When Governor is ON, show protected/recovering state
+        if (state.governorEnabled) {
+            const mood = state.blocked > 0 ? protectedMood : recoveringMood;
+            document.getElementById('moodEmoji').textContent = mood.emoji;
+            document.getElementById('moodLabel').textContent = mood.label;
+            document.getElementById('moodLabel').className = `font-bold text-lg ${mood.color}`;
+            document.getElementById('moodDesc').textContent = `${state.blocked} messages blocked`;
+            
+            // Show all steps as green (protected)
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`mood-${i}`);
+                step.className = `mood-step flex-1 h-2 rounded-full ${mood.stepColor}`;
+            }
+            return;
+        }
+        
         let moodIndex = 0;
         if (state.pressure >= 90) moodIndex = 4;
         else if (state.pressure >= 70) moodIndex = 3;
@@ -788,7 +808,8 @@
         if (blocked) {
             state.blocked++;
             card.classList.add('blocked');
-            state.pressure = Math.max(0, state.pressure - 3);
+            // Blocking prevents new pressure AND provides relief
+            state.pressure = Math.max(0, state.pressure - 5);
         } else {
             if (state.counts[event.channel] !== undefined) {
                 state.counts[event.channel]++;
@@ -949,6 +970,9 @@
             
             // Re-evaluate visible cards
             document.querySelectorAll('.pressure-card.visible:not(.blocked)').forEach(card => {
+                const isUser = card.dataset.isUser === 'true';
+                if (isUser) return; // Don't block user actions
+                
                 const event = {
                     date: card.dataset.date,
                     channel: card.dataset.channel,
@@ -959,18 +983,26 @@
                 if (shouldBlock(event)) {
                     card.classList.add('blocked');
                     state.blocked++;
-                    state.counts[event.channel]--;
+                    if (state.counts[event.channel] !== undefined) {
+                        state.counts[event.channel]--;
+                    }
                     state.totalTouches--;
                     state.pressure = Math.max(0, state.pressure - event.pressure);
                 }
             });
+            
+            // Additional relief when Governor is enabled - user feels protected
+            state.pressure = Math.max(0, Math.floor(state.pressure * 0.5));
+            
             updatePressure();
             updateStats();
+            updateTemperament();
         } else {
             els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
             els.governorLabel.textContent = 'OFF';
             els.governorBtn.classList.remove('border-accent-green/50', 'glow');
             els.governorHint.classList.add('hidden');
+            updateTemperament();
         }
     });
 
