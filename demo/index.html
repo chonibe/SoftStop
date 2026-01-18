@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Stop AI Agents From Overwhelming Your Users</title>
-    <meta name="description" content="Governor is the control layer that prevents automated systems from over-pushing users. One API. All channels. Intelligent coordination.">
+    <title>Governor | Timeline Demo</title>
+    <meta name="description" content="Scroll through 44 days of emails. Feel the pressure build. Then see Governor stop it.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,1243 +27,560 @@
                         'accent-red': '#ef4444',
                         'accent-orange': '#f97316',
                         'accent-purple': '#8b5cf6',
+                        'accent-yellow': '#eab308',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slide-in { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.2); } 50% { box-shadow: 0 0 60px rgba(16, 185, 129, 0.4); } }
-        @keyframes ping-slow { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes slide-in { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
         
-        .float { animation: float 3s ease-in-out infinite; }
-        .pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
-        .slide-up { animation: slide-up 0.4s ease-out forwards; }
-        .slide-in { animation: slide-in 0.3s ease-out forwards; }
-        .shake { animation: shake 0.4s ease-in-out; }
+        .slide-in { animation: slide-in 0.5s ease-out forwards; }
+        .pulse { animation: pulse 1.5s ease-in-out infinite; }
         .glow { animation: glow 2s ease-in-out infinite; }
+        .shake { animation: shake 0.3s ease-in-out; }
         
-        .gradient-text {
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .email-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
+        .email-card.visible { opacity: 1; transform: translateX(0); }
+        .email-card.blocked { opacity: 0.4; }
+        .email-card.blocked::after {
+            content: 'BLOCKED';
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #10b981;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
         
-        .hero-gradient {
-            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+        .timeline-line { 
+            position: absolute; 
+            left: 24px; 
+            top: 0; 
+            bottom: 0; 
+            width: 2px; 
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
         }
         
-        .section-gradient {
-            background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.03) 50%, transparent 100%);
+        .timeline-dot {
+            position: absolute;
+            left: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            transition: all 0.3s;
+        }
+        .timeline-dot.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .timeline-dot.blocked {
+            background: #10b981;
+            border-color: #10b981;
         }
         
-        .card-glow:hover {
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Email chaos animation */
-        .email-flood .email-item { opacity: 0; transform: translateX(-20px); }
-        .email-flood.active .email-item { animation: slide-in 0.3s ease-out forwards; }
-        
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #111118; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #444; }
     </style>
 </head>
 <body class="bg-deep text-white antialiased">
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-deep/80 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black text-sm shadow-lg shadow-accent/20">G</div>
-                <span class="font-bold text-xl tracking-tight">Governor</span>
+    <!-- Fixed Sidebar -->
+    <aside class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col">
+        <!-- Logo -->
+        <div class="p-6 border-b border-white/5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black">G</div>
+                <div>
+                    <div class="font-bold text-lg">Governor</div>
+                    <div class="text-xs text-slate-500">Timeline Demo</div>
+                </div>
             </div>
-            <div class="flex items-center gap-6">
-                <a href="#problem" class="text-sm text-slate-400 hover:text-white transition-colors">Problem</a>
-                <a href="#solution" class="text-sm text-slate-400 hover:text-white transition-colors">Solution</a>
-                <a href="#examples" class="text-sm text-slate-400 hover:text-white transition-colors">Examples</a>
-                <a href="#contact" class="bg-accent hover:bg-blue-600 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-all">Get in Touch</a>
+            <p class="text-sm text-slate-400">Scroll through <strong class="text-white">44 days</strong> of real emails. Feel the pressure build.</p>
+        </div>
+        
+        <!-- Current Date -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Current Date</div>
+            <div id="currentDate" class="text-2xl font-black font-mono">Dec 6, 2025</div>
+            <div id="dayCount" class="text-sm text-slate-500">Day 1 of 44</div>
+        </div>
+        
+        <!-- Pressure Meter -->
+        <div class="p-6 border-b border-white/5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">User Pressure</span>
+                <span id="pressureValue" class="text-sm font-mono font-bold text-accent">0</span>
+            </div>
+            <div class="h-4 bg-surface-2 rounded-full overflow-hidden mb-2">
+                <div id="pressureBar" class="h-full bg-accent rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div id="pressureStatus" class="text-xs text-slate-500">Relaxed</div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="p-6 border-b border-white/5">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="text-xs text-slate-500 uppercase font-bold">Emails</div>
+                    <div id="emailCount" class="text-2xl font-black font-mono">0</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 uppercase font-bold">Blocked</div>
+                    <div id="blockedCount" class="text-2xl font-black font-mono text-accent-green">0</div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <section class="min-h-screen flex items-center justify-center hero-gradient pt-16">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <div class="inline-flex items-center gap-2 bg-surface border border-white/10 rounded-full px-4 py-2 mb-8">
-                <span class="w-2 h-2 bg-accent-green rounded-full pulse-slow"></span>
-                <span class="text-sm text-slate-400">Platform Infrastructure for the AI Era</span>
-            </div>
-            
-            <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                <span class="gradient-text">Your AI agents are</span><br>
-                <span class="text-accent-red">overwhelming</span> <span class="gradient-text">your users.</span>
-            </h1>
-            
-            <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Sales, marketing, retention, support — all pushing at once. 
-                <strong class="text-white">Governor is the control layer that stops the chaos.</strong>
+        
+        <!-- Governor Toggle -->
+        <div class="p-6 flex-1">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Governor</div>
+            <button id="governorBtn" class="w-full bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-xl p-4 transition-all text-left group">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="governorIndicator" class="w-4 h-4 rounded-full bg-accent-red"></div>
+                        <span id="governorLabel" class="font-bold">OFF</span>
+                    </div>
+                    <span class="text-xs text-slate-500 group-hover:text-white transition-colors">Click to toggle</span>
+                </div>
+            </button>
+            <p id="governorHint" class="text-xs text-slate-600 mt-3 hidden">
+                Keep scrolling to see Governor in action...
             </p>
-            
-            <!-- Per-User Key Point -->
-            <div class="inline-flex items-center gap-3 bg-surface border border-white/10 rounded-xl px-6 py-3 mb-12">
-                <div class="flex -space-x-2">
-                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">A</div>
-                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">B</div>
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-deep">C</div>
+        </div>
+        
+        <!-- User State (Governor Brain) -->
+        <div class="p-6 border-t border-white/5 bg-surface-2">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">User State</div>
+            <div class="space-y-2 text-xs font-mono">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">emails_24h:</span>
+                    <span id="stateEmails" class="text-white">0</span>
                 </div>
-                <div class="text-left">
-                    <div class="text-sm font-bold text-white">Per-user intelligence</div>
-                    <div class="text-xs text-slate-500">Same campaign → different decision for each user</div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">urgency_count:</span>
+                    <span id="stateUrgency" class="text-white">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">last_touch:</span>
+                    <span id="stateLastTouch" class="text-slate-400">—</span>
                 </div>
             </div>
+        </div>
+    </aside>
+
+    <!-- Main Content - Scrollable Timeline -->
+    <main class="ml-80 min-h-screen">
+        
+        <!-- Hero Section -->
+        <section class="h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep">
+            <div class="text-center px-12 max-w-2xl">
+                <div class="text-6xl mb-6">📧</div>
+                <h1 class="text-4xl font-black mb-4">44 Days of Emails</h1>
+                <p class="text-xl text-slate-400 mb-8">
+                    These are <strong class="text-white">real emails</strong> from CrownCoins Casino.<br>
+                    Scroll down to travel through time.
+                </p>
+                <div class="flex items-center justify-center gap-2 text-slate-500">
+                    <span class="animate-bounce">↓</span>
+                    <span class="text-sm">Start scrolling</span>
+                    <span class="animate-bounce">↓</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline Container -->
+        <div id="timeline" class="relative px-12 py-24">
+            <div class="timeline-line"></div>
             
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <a href="#problem" class="bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-accent/25 transition-all text-lg">
-                    Experience the Problem ↓
+            <!-- Timeline entries will be generated by JS -->
+            <div id="timelineEntries"></div>
+        </div>
+
+        <!-- End Section -->
+        <section id="endSection" class="h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000">
+            <div class="text-center px-12 max-w-2xl">
+                <div id="endIcon" class="text-6xl mb-6">😵</div>
+                <h2 id="endTitle" class="text-4xl font-black mb-4">46 Emails in 44 Days</h2>
+                <p id="endText" class="text-xl text-slate-400 mb-8">
+                    That's more than 1 email per day. From just ONE company.
+                </p>
+                <div id="endStats" class="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-red" id="finalEmails">0</div>
+                        <div class="text-xs text-slate-500">Emails</div>
+                    </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-green" id="finalBlocked">0</div>
+                        <div class="text-xs text-slate-500">Blocked</div>
+                    </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-orange" id="finalPressure">0</div>
+                        <div class="text-xs text-slate-500">Peak Pressure</div>
+                    </div>
+                </div>
+                <a href="#top" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
+                    Try Again with Governor
                 </a>
-                <a href="#solution" class="bg-surface hover:bg-surface-2 border border-white/10 text-white font-bold py-4 px-8 rounded-xl transition-all text-lg">
-                    See the Solution
-                </a>
             </div>
-            
-            <!-- Stats - Real Data -->
-            <div class="grid grid-cols-3 gap-8 max-w-xl mx-auto">
-                <div class="text-center">
-                    <div class="text-3xl font-black text-accent-red mb-1">46</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Emails in 44 days</div>
-                    <div class="text-[10px] text-slate-600 mt-1">From one casino app</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-black text-accent-orange mb-1">~1/day</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Average frequency</div>
-                    <div class="text-[10px] text-slate-600 mt-1">Every. Single. Day.</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-black text-accent mb-1">70%</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider">Urgency tactics</div>
-                    <div class="text-[10px] text-slate-600 mt-1">"Last chance" "48 hours"</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 1: FEEL THE PROBLEM -->
-    <section id="problem" class="py-24 section-gradient">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl md:text-5xl font-black mb-4">
-                    <span class="text-accent-red">Feel</span> what your users feel.
-                </h2>
-                <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-                    These are <strong class="text-white">real emails</strong> from real companies. 
-                    We're compressing <strong class="text-white">44 days of emails</strong> into 1 minute. 
-                    Watch how pressure builds over time.
-                </p>
-            </div>
-
-            <!-- Demo Controls -->
-            <div class="flex justify-center gap-4 mb-8">
-                <button id="startChaosBtn" class="bg-accent-red hover:bg-red-600 text-white font-bold py-3 px-8 rounded-xl transition-all flex items-center gap-3">
-                    <span class="text-xl">💥</span> Start the Chaos
-                </button>
-                <button id="activateGovernorBtn" class="bg-surface border border-accent-green/30 text-accent-green font-bold py-3 px-8 rounded-xl transition-all flex items-center gap-3 opacity-50 cursor-not-allowed" disabled>
-                    <span class="text-xl">🛡️</span> Activate Governor
-                </button>
-            </div>
-
-            <!-- Chaos Meter -->
-            <div class="max-w-md mx-auto mb-8">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-slate-400">User Pressure Level</span>
-                    <span id="pressureLabel" class="text-sm font-bold text-accent">0%</span>
-                </div>
-                <div class="h-3 bg-surface-2 rounded-full overflow-hidden">
-                    <div id="pressureBar" class="h-full bg-accent rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-                <div id="pressureWarning" class="text-center text-xs text-accent-red mt-2 hidden">⚠️ User is overwhelmed! Churn risk: HIGH</div>
-            </div>
-
-            <!-- Multi-Channel Demo -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Email Inbox -->
-                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden">
-                    <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-3">
-                        <span class="text-lg">📧</span>
-                        <span class="font-semibold">Email Inbox</span>
-                        <span id="emailBadge" class="ml-auto bg-accent-red text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
-                    </div>
-                    <div id="emailList" class="email-flood divide-y divide-white/5 h-80 overflow-y-auto">
-                        <div class="px-4 py-12 text-center text-slate-600 text-sm">
-                            <div class="text-3xl mb-2">📭</div>
-                            Inbox empty... for now
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dashboard -->
-                <div class="bg-surface rounded-2xl border border-white/5 overflow-hidden">
-                    <div class="bg-surface-2 px-4 py-3 border-b border-white/5 flex items-center gap-3">
-                        <span class="text-lg">🖥️</span>
-                        <span class="font-semibold">Your Dashboard</span>
-                    </div>
-                    <div class="p-4 h-80 overflow-y-auto space-y-3" id="dashboardArea">
-                        <div class="bg-surface-2 rounded-xl p-4 border border-white/5">
-                            <h4 class="font-bold mb-1">Welcome back!</h4>
-                            <p class="text-xs text-slate-500">Your dashboard is ready.</p>
-                        </div>
-                        <div id="dashboardChaos"></div>
-                    </div>
-                </div>
-
-                <!-- Phone -->
-                <div class="flex flex-col items-center">
-                    <div class="bg-gradient-to-b from-surface-2 to-surface rounded-[2rem] p-2 border border-white/10 w-52">
-                        <div class="bg-deep rounded-[1.5rem] overflow-hidden">
-                            <div class="h-6 bg-deep flex items-center justify-center">
-                                <div class="w-16 h-4 bg-surface-2 rounded-full"></div>
-                            </div>
-                            <div class="p-3 space-y-2 h-72 overflow-y-auto" id="phoneScreen">
-                                <div class="text-center text-slate-600 text-xs py-8">
-                                    <div class="text-2xl mb-2">📱</div>
-                                    No notifications
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-xs text-slate-500 uppercase font-bold tracking-wider">SMS & Push</div>
-                </div>
-            </div>
-
-            <!-- Chaos Stats -->
-            <div id="chaosStats" class="mt-8 bg-surface-2 rounded-xl p-6 hidden">
-                <div class="grid grid-cols-4 gap-6 text-center">
-                    <div>
-                        <div id="statEmails" class="text-3xl font-black text-accent-red">0</div>
-                        <div class="text-xs text-slate-500 uppercase">Emails</div>
-                    </div>
-                    <div>
-                        <div id="statSMS" class="text-3xl font-black text-accent-orange">0</div>
-                        <div class="text-xs text-slate-500 uppercase">SMS</div>
-                    </div>
-                    <div>
-                        <div id="statPopups" class="text-3xl font-black text-accent-purple">0</div>
-                        <div class="text-xs text-slate-500 uppercase">Popups</div>
-                    </div>
-                    <div>
-                        <div id="statPressure" class="text-3xl font-black text-white">0%</div>
-                        <div class="text-xs text-slate-500 uppercase">Pressure</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 2: THE SOLUTION -->
-    <section id="solution" class="py-24 bg-surface">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 bg-accent-green/10 border border-accent-green/20 rounded-full px-4 py-2 mb-6">
-                    <span class="text-lg">🛡️</span>
-                    <span class="text-sm text-accent-green font-semibold">The Solution</span>
-                </div>
-                <h2 class="text-4xl md:text-5xl font-black mb-4">
-                    One layer. <span class="text-accent-green">All channels.</span> Intelligent control.
-                </h2>
-                <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-                    Governor sits between your AI agents and your users. It knows their history, enforces your policies, and prevents overwhelm.
-                </p>
-            </div>
-
-            <!-- Before/After Comparison -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
-                <!-- WITHOUT Governor -->
-                <div class="bg-accent-red/5 rounded-3xl border border-accent-red/20 p-8">
-                    <div class="text-center mb-6">
-                        <div class="inline-flex items-center gap-2 bg-accent-red/20 rounded-full px-4 py-1 mb-3">
-                            <span class="text-accent-red font-bold text-sm">❌ WITHOUT GOVERNOR</span>
-                        </div>
-                        <div class="text-xs text-slate-500">Current state at most companies</div>
-                    </div>
-                    
-                    <!-- Chaos Diagram -->
-                    <div class="space-y-4">
-                        <!-- Agents firing independently -->
-                        <div class="flex justify-center gap-3">
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">🤖</div>
-                                <div class="text-[10px] text-slate-500">Sales</div>
-                            </div>
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">📣</div>
-                                <div class="text-[10px] text-slate-500">Marketing</div>
-                            </div>
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">🔄</div>
-                                <div class="text-[10px] text-slate-500">Retention</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrows all pointing down -->
-                        <div class="flex justify-center gap-6 text-accent-red text-xl">
-                            <span>↓</span><span>↓</span><span>↓</span>
-                        </div>
-                        
-                        <!-- No coordination -->
-                        <div class="bg-surface rounded-xl p-4 border border-accent-red/30">
-                            <div class="text-center text-xs text-accent-red font-bold mb-2">NO COORDINATION</div>
-                            <div class="text-[10px] text-slate-500 text-center">Each agent acts independently. No shared view of user state.</div>
-                        </div>
-                        
-                        <!-- All arrows down -->
-                        <div class="flex justify-center gap-6 text-accent-red text-xl">
-                            <span>↓</span><span>↓</span><span>↓</span>
-                        </div>
-                        
-                        <!-- Overwhelmed User -->
-                        <div class="bg-surface rounded-xl p-4 border border-white/10 text-center">
-                            <div class="text-3xl mb-2">😵</div>
-                            <div class="font-bold text-accent-red">User Overwhelmed</div>
-                            <div class="text-[10px] text-slate-500 mt-1">3 emails + 2 SMS + popup in one day</div>
-                        </div>
-                        
-                        <!-- Results -->
-                        <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
-                            <div class="bg-accent-red/10 rounded-lg p-2">
-                                <div class="text-accent-red font-bold">Unsubscribe</div>
-                            </div>
-                            <div class="bg-accent-red/10 rounded-lg p-2">
-                                <div class="text-accent-red font-bold">Churn</div>
-                            </div>
-                            <div class="bg-accent-red/10 rounded-lg p-2">
-                                <div class="text-accent-red font-bold">Complaints</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- WITH Governor -->
-                <div class="bg-accent-green/5 rounded-3xl border border-accent-green/20 p-8">
-                    <div class="text-center mb-6">
-                        <div class="inline-flex items-center gap-2 bg-accent-green/20 rounded-full px-4 py-1 mb-3">
-                            <span class="text-accent-green font-bold text-sm">✓ WITH GOVERNOR</span>
-                        </div>
-                        <div class="text-xs text-slate-500">Intelligent coordination layer</div>
-                    </div>
-                    
-                    <!-- Controlled Diagram -->
-                    <div class="space-y-4">
-                        <!-- Agents asking permission -->
-                        <div class="flex justify-center gap-3">
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">🤖</div>
-                                <div class="text-[10px] text-slate-500">Sales</div>
-                            </div>
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">📣</div>
-                                <div class="text-[10px] text-slate-500">Marketing</div>
-                            </div>
-                            <div class="bg-surface rounded-lg px-3 py-2 text-center">
-                                <div class="text-sm">🔄</div>
-                                <div class="text-[10px] text-slate-500">Retention</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrows to Governor -->
-                        <div class="flex justify-center gap-6 text-slate-600 text-xl">
-                            <span>↓</span><span>↓</span><span>↓</span>
-                        </div>
-                        
-                        <!-- Governor Gate -->
-                        <div class="bg-accent-green/20 rounded-xl p-4 border border-accent-green/30">
-                            <div class="text-center text-xs text-accent-green font-bold mb-2">🛡️ GOVERNOR</div>
-                            <div class="text-[10px] text-slate-500 text-center">Checks user state. Enforces policy. Returns allow/deny.</div>
-                        </div>
-                        
-                        <!-- Mixed arrows -->
-                        <div class="flex justify-center gap-6 text-xl">
-                            <span class="text-accent-green">↓</span>
-                            <span class="text-accent-red">✗</span>
-                            <span class="text-accent-red">✗</span>
-                        </div>
-                        
-                        <!-- Happy User -->
-                        <div class="bg-surface rounded-xl p-4 border border-white/10 text-center">
-                            <div class="text-3xl mb-2">😊</div>
-                            <div class="font-bold text-accent-green">User Protected</div>
-                            <div class="text-[10px] text-slate-500 mt-1">1 relevant email. No overwhelm.</div>
-                        </div>
-                        
-                        <!-- Results -->
-                        <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
-                            <div class="bg-accent-green/10 rounded-lg p-2">
-                                <div class="text-accent-green font-bold">Engaged</div>
-                            </div>
-                            <div class="bg-accent-green/10 rounded-lg p-2">
-                                <div class="text-accent-green font-bold">Retained</div>
-                            </div>
-                            <div class="bg-accent-green/10 rounded-lg p-2">
-                                <div class="text-accent-green font-bold">Happy</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Architecture Diagram -->
-            <div class="bg-surface-2 rounded-3xl border border-white/5 p-8 mb-16">
-                <div class="text-center mb-6">
-                    <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Detailed System Architecture</div>
-                </div>
-                
-                <!-- Flowchart -->
-                <div class="flex flex-col items-center gap-4">
-                    
-                    <!-- AI Agents Layer -->
-                    <div class="flex items-center gap-4">
-                        <div class="bg-orange-500/20 border border-orange-500/30 rounded-xl px-4 py-3 text-center">
-                            <div class="text-lg mb-1">🤖</div>
-                            <div class="text-xs font-bold text-orange-400">Sales AI</div>
-                        </div>
-                        <div class="bg-red-500/20 border border-red-500/30 rounded-xl px-4 py-3 text-center">
-                            <div class="text-lg mb-1">📣</div>
-                            <div class="text-xs font-bold text-red-400">Marketing AI</div>
-                        </div>
-                        <div class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 py-3 text-center">
-                            <div class="text-lg mb-1">🔄</div>
-                            <div class="text-xs font-bold text-purple-400">Retention AI</div>
-                        </div>
-                        <div class="bg-blue-500/20 border border-blue-500/30 rounded-xl px-4 py-3 text-center">
-                            <div class="text-lg mb-1">🎯</div>
-                            <div class="text-xs font-bold text-blue-400">Support AI</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Arrow Down -->
-                    <div class="flex flex-col items-center text-slate-600">
-                        <div class="text-xs font-mono mb-1">"Can I reach user X?"</div>
-                        <div class="text-2xl">↓</div>
-                    </div>
-                    
-                    <!-- GOVERNOR LAYER -->
-                    <div class="w-full max-w-3xl bg-accent-green/10 border-2 border-accent-green/30 rounded-2xl p-6">
-                        <div class="text-center mb-4">
-                            <div class="inline-flex items-center gap-2 bg-accent-green/20 rounded-full px-4 py-1">
-                                <span class="text-xl">🛡️</span>
-                                <span class="font-bold text-accent-green">GOVERNOR</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Per-User States -->
-                        <div class="grid grid-cols-3 gap-4 mb-4">
-                            <!-- User A -->
-                            <div class="bg-surface rounded-xl p-4 border border-white/10">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-bold text-sm">A</div>
-                                    <div>
-                                        <div class="text-xs font-bold">user_alex</div>
-                                        <div class="text-[10px] text-slate-500">Last touch: 3 days ago</div>
-                                    </div>
-                                </div>
-                                <div class="space-y-1 text-[10px] font-mono mb-3">
-                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-green">20</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span>0</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span>0/1</span></div>
-                                </div>
-                                <div class="bg-accent-green/20 text-accent-green text-center py-2 rounded-lg text-xs font-bold">
-                                    ✓ ALLOW
-                                </div>
-                            </div>
-                            
-                            <!-- User B -->
-                            <div class="bg-surface rounded-xl p-4 border border-white/10">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center font-bold text-sm">B</div>
-                                    <div>
-                                        <div class="text-xs font-bold">user_bella</div>
-                                        <div class="text-[10px] text-slate-500">Last touch: 2 hours ago</div>
-                                    </div>
-                                </div>
-                                <div class="space-y-1 text-[10px] font-mono mb-3">
-                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-red">85</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span class="text-accent-orange">4</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span class="text-accent-red">1/1</span></div>
-                                </div>
-                                <div class="bg-accent-red/20 text-accent-red text-center py-2 rounded-lg text-xs font-bold">
-                                    ✗ DENY
-                                </div>
-                            </div>
-                            
-                            <!-- User C -->
-                            <div class="bg-surface rounded-xl p-4 border border-white/10">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-sm text-deep">C</div>
-                                    <div>
-                                        <div class="text-xs font-bold">user_choni</div>
-                                        <div class="text-[10px] text-slate-500">Last touch: 1 day ago</div>
-                                    </div>
-                                </div>
-                                <div class="space-y-1 text-[10px] font-mono mb-3">
-                                    <div class="flex justify-between"><span class="text-slate-500">pressure:</span><span class="text-accent-orange">58</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">emails_24h:</span><span>2</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">urgency:</span><span class="text-accent-red">1/1</span></div>
-                                </div>
-                                <div class="bg-accent-red/20 text-accent-red text-center py-2 rounded-lg text-xs font-bold">
-                                    ✗ DENY
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center text-[10px] text-slate-500">
-                            Same campaign request → Different decision based on each user's state
-                        </div>
-                    </div>
-                    
-                    <!-- Arrows Down -->
-                    <div class="flex justify-center gap-32 text-slate-600">
-                        <div class="flex flex-col items-center">
-                            <div class="text-2xl text-accent-green">↓</div>
-                            <div class="text-[10px] font-mono text-accent-green">proceed</div>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="text-2xl text-accent-red">✗</div>
-                            <div class="text-[10px] font-mono text-accent-red">stopped</div>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="text-2xl text-accent-red">✗</div>
-                            <div class="text-[10px] font-mono text-accent-red">stopped</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Channels Layer -->
-                    <div class="flex items-center gap-6">
-                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
-                            <div class="text-lg mb-1">📧</div>
-                            <div class="text-[10px] text-slate-500">Email</div>
-                        </div>
-                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
-                            <div class="text-lg mb-1">💬</div>
-                            <div class="text-[10px] text-slate-500">SMS</div>
-                        </div>
-                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
-                            <div class="text-lg mb-1">🔔</div>
-                            <div class="text-[10px] text-slate-500">Push</div>
-                        </div>
-                        <div class="bg-surface rounded-xl px-4 py-3 border border-white/10 text-center">
-                            <div class="text-lg mb-1">🖥️</div>
-                            <div class="text-[10px] text-slate-500">In-App</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Users -->
-                    <div class="flex items-center gap-8 mt-4">
-                        <div class="flex flex-col items-center">
-                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-lg border-4 border-accent-green">A</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Gets email ✓</div>
-                        </div>
-                        <div class="flex flex-col items-center opacity-40">
-                            <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center font-bold text-lg border-4 border-accent-red">B</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Protected 🛡️</div>
-                        </div>
-                        <div class="flex flex-col items-center opacity-40">
-                            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-lg text-deep border-4 border-accent-red">C</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Protected 🛡️</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- How Governor Works -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-                
-                <!-- Governor Brain Visual -->
-                <div class="bg-surface-2 rounded-2xl border border-accent-green/20 p-6 glow">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl">🧠</div>
-                        <div>
-                            <h3 class="font-bold text-lg">Governor Brain</h3>
-                            <p class="text-xs text-slate-500">State tracked <strong class="text-accent-green">per user</strong></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Per-User Emphasis -->
-                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-3 mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center text-lg">👤</div>
-                            <div>
-                                <div class="font-mono text-sm font-bold text-accent">user_choni_2024</div>
-                                <div class="text-[10px] text-slate-500">Each user has their own state. Same campaign → different decision per user.</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <!-- User Memory -->
-                        <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-xs text-slate-500 uppercase font-bold">This User's State</span>
-                                <span class="text-[10px] text-accent font-mono">user_choni_2024</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 text-sm font-mono">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">emails_24h:</span>
-                                    <span id="brainEmails" class="text-white">0</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">last_touch:</span>
-                                    <span id="brainLastTouch" class="text-white">—</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">discounts:</span>
-                                    <span id="brainDiscounts" class="text-white">0</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">pressure:</span>
-                                    <span id="brainPressure" class="text-accent">0</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Same Campaign, Different Users -->
-                        <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-xs text-slate-500 uppercase font-bold mb-3">Same Campaign → Different Decisions</div>
-                            <div class="text-[10px] text-slate-600 mb-3 font-mono">"50% off - Last chance!"</div>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex items-center justify-between bg-accent-green/10 rounded-lg px-3 py-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-[10px] font-bold">A</div>
-                                        <span class="text-slate-400">user_alex</span>
-                                    </div>
-                                    <span class="text-accent-green font-bold">ALLOW</span>
-                                    <span class="text-slate-500">pressure: 20</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-accent-red/10 rounded-lg px-3 py-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-[10px] font-bold">B</div>
-                                        <span class="text-slate-400">user_bella</span>
-                                    </div>
-                                    <span class="text-accent-red font-bold">DENY</span>
-                                    <span class="text-slate-500">pressure: 85</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-accent-red/10 rounded-lg px-3 py-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-[10px] font-bold">C</div>
-                                        <span class="text-slate-400">user_choni</span>
-                                    </div>
-                                    <span class="text-accent-red font-bold">DENY</span>
-                                    <span class="text-slate-500">urgency: 1/1</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Decision Log -->
-                        <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-xs text-slate-500 uppercase font-bold mb-3">Decision Log</div>
-                            <div id="decisionLog" class="space-y-2 text-xs max-h-32 overflow-y-auto">
-                                <div class="text-slate-600 text-center py-2">Waiting for requests...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Explanation - Governor is just a gate -->
-                <div class="space-y-6">
-                    <div class="bg-surface rounded-xl p-4 border border-white/5">
-                        <div class="text-xs text-accent uppercase font-bold mb-3">How it works</div>
-                        <div class="flex items-center gap-4 text-sm">
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-xl mb-2">🤖</div>
-                                <div class="text-slate-400">Agent</div>
-                            </div>
-                            <div class="text-slate-600">→</div>
-                            <div class="text-center flex-1">
-                                <div class="bg-surface-2 rounded-lg px-4 py-2 font-mono text-xs text-slate-400">
-                                    "Can I send this?"
-                                </div>
-                            </div>
-                            <div class="text-slate-600">→</div>
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-xl mb-2">🛡️</div>
-                                <div class="text-slate-400">Governor</div>
-                            </div>
-                            <div class="text-slate-600">→</div>
-                            <div class="text-center flex-1">
-                                <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg px-4 py-2 font-mono text-xs text-accent-green">
-                                    allow / deny
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-accent-green font-bold mb-2">Governor IS</div>
-                            <ul class="text-sm text-slate-400 space-y-1">
-                                <li>✓ A permission gate</li>
-                                <li>✓ Stateless check</li>
-                                <li>✓ Returns allow/deny</li>
-                                <li>✓ Sits upstream</li>
-                            </ul>
-                        </div>
-                        <div class="bg-surface rounded-xl p-4 border border-white/5">
-                            <div class="text-accent-red font-bold mb-2">Governor is NOT</div>
-                            <ul class="text-sm text-slate-400 space-y-1">
-                                <li>✗ An email sender</li>
-                                <li>✗ A scheduler</li>
-                                <li>✗ Message content</li>
-                                <li>✗ Execution layer</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-surface-2 rounded-xl p-4 border border-white/5">
-                        <div class="text-xs text-slate-500 uppercase font-bold mb-2">Denied requests today</div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-accent-green text-2xl font-black" id="blockedCounter">0</span>
-                            <span class="text-slate-400">agents told "no"</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 3: REAL EXAMPLES -->
-    <section id="examples" class="py-24">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl md:text-5xl font-black mb-4">
-                    Real examples. <span class="text-accent-orange">Real problem.</span>
-                </h2>
-                <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-                    These are actual emails from real companies. See the patterns Governor would catch.
-                </p>
-            </div>
-
-            <!-- Company Tabs -->
-            <div class="flex justify-center gap-4 mb-8">
-                <button class="company-tab bg-accent/20 border border-accent/50 px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-3" data-company="wix">
-                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold">W</div>
-                    Wix
-                </button>
-                <button class="company-tab bg-surface border border-white/10 px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-3 hover:bg-surface-2" data-company="crown">
-                    <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">🎰</div>
-                    CrownCoins
-                </button>
-                <button class="company-tab bg-surface border border-white/10 px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-3 hover:bg-surface-2" data-company="crm">
-                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center font-bold">AI</div>
-                    AI CRM
-                </button>
-            </div>
-
-            <!-- Email Examples Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="exampleEmails">
-                <!-- Filled by JS -->
-            </div>
-
-            <div class="mt-8 text-center">
-                <p class="text-slate-500 text-sm">
-                    <span class="text-accent-red font-bold">Red tags</span> = Governor would block due to policy violation
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 4: HOW IT WORKS (API) -->
-    <section class="py-24 bg-surface">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl md:text-5xl font-black mb-4">
-                    Simple API. <span class="text-accent">Instant integration.</span>
-                </h2>
-                <p class="text-xl text-slate-400">
-                    Two endpoints. That's all you need.
-                </p>
-            </div>
-
-            <div class="space-y-6">
-                <!-- Check Endpoint -->
-                <div class="bg-surface-2 rounded-2xl border border-white/5 overflow-hidden">
-                    <div class="bg-surface-3 px-6 py-4 border-b border-white/5 flex items-center gap-3">
-                        <span class="bg-accent-green text-white text-xs font-bold px-2 py-1 rounded">POST</span>
-                        <code class="font-mono text-sm">/v1/check</code>
-                        <span class="text-slate-500 text-sm ml-auto">Ask permission before escalating</span>
-                    </div>
-                    <div class="p-6">
-                        <pre class="font-mono text-sm text-slate-300 overflow-x-auto"><code>{
-  "user_id": "user_123",
-  "action_type": "urgency",
-  "channel": "email",
-  "context": {
-    "subject": "Last chance: 50% off expires tonight!",
-    "agent": "marketing"
-  }
-}</code></pre>
-                        <div class="mt-4 pt-4 border-t border-white/5">
-                            <div class="text-xs text-slate-500 uppercase font-bold mb-2">Response</div>
-                            <pre class="font-mono text-sm overflow-x-auto"><code class="text-accent-green">{
-  "decision": "deny",
-  "reason": "urgency_limit_exceeded",
-  "user_state": { "pressure": 72, "urgency_count": 1 }
-}</code></pre>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Record Endpoint -->
-                <div class="bg-surface-2 rounded-2xl border border-white/5 overflow-hidden">
-                    <div class="bg-surface-3 px-6 py-4 border-b border-white/5 flex items-center gap-3">
-                        <span class="bg-accent text-white text-xs font-bold px-2 py-1 rounded">POST</span>
-                        <code class="font-mono text-sm">/v1/record</code>
-                        <span class="text-slate-500 text-sm ml-auto">Log what actually happened</span>
-                    </div>
-                    <div class="p-6">
-                        <pre class="font-mono text-sm text-slate-300 overflow-x-auto"><code>{
-  "decision_id": "dec_abc123",
-  "event_type": "delivered" | "opened" | "clicked" | "ignored"
-}</code></pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 5: FOR PLATFORMS -->
-    <section class="py-24">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <div class="inline-flex items-center gap-2 bg-accent-purple/10 border border-accent-purple/20 rounded-full px-4 py-2 mb-6">
-                <span class="text-lg">🏢</span>
-                <span class="text-sm text-accent-purple font-semibold">For Platforms</span>
-            </div>
-            <h2 class="text-4xl md:text-5xl font-black mb-6">
-                Built for platforms with <span class="text-accent-purple">multiple AI agents.</span>
-            </h2>
-            <p class="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
-                Wix, HubSpot, Salesforce, Shopify — any platform where multiple automated systems compete for user attention.
-            </p>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-                <div class="bg-surface rounded-xl p-6 border border-white/5 card-glow transition-all">
-                    <div class="text-3xl mb-3">📧</div>
-                    <div class="font-bold">Email</div>
-                </div>
-                <div class="bg-surface rounded-xl p-6 border border-white/5 card-glow transition-all">
-                    <div class="text-3xl mb-3">💬</div>
-                    <div class="font-bold">SMS</div>
-                </div>
-                <div class="bg-surface rounded-xl p-6 border border-white/5 card-glow transition-all">
-                    <div class="text-3xl mb-3">🔔</div>
-                    <div class="font-bold">Push</div>
-                </div>
-                <div class="bg-surface rounded-xl p-6 border border-white/5 card-glow transition-all">
-                    <div class="text-3xl mb-3">🖥️</div>
-                    <div class="font-bold">In-App</div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-r from-accent-purple/10 to-accent/10 rounded-2xl p-8 border border-accent-purple/20">
-                <h3 class="text-2xl font-bold mb-4">Why platforms need Governor</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                    <div>
-                        <div class="text-accent-green font-bold mb-2">Reduce Churn</div>
-                        <p class="text-sm text-slate-400">Stop AI agents from driving users away with pressure fatigue.</p>
-                    </div>
-                    <div>
-                        <div class="text-accent font-bold mb-2">Unified Control</div>
-                        <p class="text-sm text-slate-400">One policy layer across all channels and all agents.</p>
-                    </div>
-                    <div>
-                        <div class="text-accent-purple font-bold mb-2">User Trust</div>
-                        <p class="text-sm text-slate-400">Build trust by respecting user attention and preferences.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA SECTION -->
-    <section id="contact" class="py-24 bg-surface">
-        <div class="max-w-2xl mx-auto px-6 text-center">
-            <div class="text-6xl mb-6">🛡️</div>
-            <h2 class="text-4xl md:text-5xl font-black mb-6">
-                Ready to protect your users?
-            </h2>
-            <p class="text-xl text-slate-400 mb-8">
-                Governor is the missing layer between your AI agents and your users. Let's talk about how it fits your platform.
-            </p>
-            <a href="mailto:hello@governor.dev" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-accent/25 transition-all text-lg">
-                Get in Touch
-            </a>
-            <p class="text-sm text-slate-500 mt-6">
-                Built for acquisition by platforms like Wix, HubSpot, Salesforce.
-            </p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-8 border-t border-white/5">
-        <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-accent to-accent-purple rounded-lg flex items-center justify-center font-black text-sm">G</div>
-                <span class="font-bold">Governor</span>
-            </div>
-            <div class="text-sm text-slate-500">
-                © 2026 Governor. Control layer for the AI era.
-            </div>
-        </div>
-    </footer>
+        </section>
+    </main>
 
     <script>
     // =====================================================
-    // GOVERNOR LANDING PAGE - INTERACTIVE DEMO
+    // GOVERNOR TIMELINE SCROLL DEMO
+    // Real emails from CrownCoins Casino (Dec 6 - Jan 18)
     // =====================================================
 
-    // ---- Real Email Data with Actual Dates ----
-    // CrownCoins: 46 emails over 44 days (Dec 6 - Jan 18) = ~1/day
-    // This is REAL data showing the problem
-    const emailData = {
-        wix: [
-            { subject: 'Choni, build a mobile app—no code required.', date: 'Jan 15', type: 'feature', wouldBlock: false },
-            { subject: 'Last chance: 50% off Wix App Market!', date: 'Jan 12', type: 'urgency', wouldBlock: true },
-            { subject: 'Registration Ends: Wix Israel Meetup.', date: 'Jan 10', type: 'urgency', wouldBlock: true },
-            { subject: 'Black Friday: Launch marketing campaign.', date: 'Nov 22', type: 'urgency', wouldBlock: true },
-            { subject: '50% off during pre-holiday sale.', date: 'Dec 18', type: 'discount', wouldBlock: true },
-            { subject: 'Boost sales with Facebook Ads by Wix.', date: 'Dec 5', type: 'upsell', wouldBlock: false },
-            { subject: "Don't miss your Holiday Guide.", date: 'Dec 1', type: 'urgency', wouldBlock: true },
-            { subject: 'SEO Meetup 2021 - Register now!', date: 'Oct 15', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance: SEO + seoClarity Webinar.', date: 'Sep 28', type: 'urgency', wouldBlock: true },
-            { subject: 'Your sites got high performance scores.', date: 'Aug 10', type: 'feature', wouldBlock: false },
-            { subject: 'Velo Monthly: Site performance update.', date: 'Jul 5', type: 'newsletter', wouldBlock: false },
-            { subject: 'Introducing Velo Dark Theme.', date: 'Jun 20', type: 'feature', wouldBlock: false },
-        ],
-        crown: [
-            // Real dates from CrownCoins - 46 emails in 44 days
-            { subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', date: 'Today 7:02 PM', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance for 200% More Coins! 😧', date: 'Today 5:49 PM', type: 'urgency', wouldBlock: true },
-            { subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', date: 'Jan 15', type: 'promo', wouldBlock: false },
-            { subject: "Joker's Deal: Pick Your Chaos! 🃏", date: 'Jan 14', type: 'game', wouldBlock: false },
-            { subject: 'Gift Inside - Big News, Choni! 🎁🎙', date: 'Jan 14', type: 'promo', wouldBlock: true },
-            { subject: 'Exclusive FREE Bingo Card! 🎁', date: 'Jan 13', type: 'promo', wouldBlock: false },
-            { subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', date: 'Jan 12', type: 'urgency', wouldBlock: true },
-            { subject: 'Your Triple Boost Is Waiting! ⏳', date: 'Jan 11', type: 'urgency', wouldBlock: true },
-            { subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', date: 'Jan 11', type: 'urgency', wouldBlock: true },
-            { subject: "Don't Miss Your Exclusive Choice! 🤩", date: 'Jan 7', type: 'urgency', wouldBlock: true },
-            { subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', date: 'Jan 4', type: 'urgency', wouldBlock: true },
-            { subject: 'Ready to TRIPLE the Fun, Choni? 🎉', date: 'Jan 4', type: 'promo', wouldBlock: true },
-            { subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', date: 'Jan 1', type: 'feature', wouldBlock: false },
-            { subject: 'FREE Spins Deal to Kick Off 2026! 🎉', date: 'Dec 31', type: 'promo', wouldBlock: false },
-            { subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', date: 'Dec 31', type: 'promo', wouldBlock: true },
-            { subject: '40K CC + 2 SC FREE Gift and a 2,000 SC Raffle!? 🎁🤯', date: 'Dec 29', type: 'promo', wouldBlock: false },
-            { subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', date: 'Dec 28', type: 'promo', wouldBlock: false },
-            { subject: 'Your FREE Coins Await, Choni! 🎁❄️', date: 'Dec 26', type: 'promo', wouldBlock: false },
-            { subject: 'Claim Your Free Social Welcome Bonus 🎁', date: 'Dec 26', type: 'promo', wouldBlock: true },
-            { subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', date: 'Dec 25', type: 'promo', wouldBlock: false },
-            { subject: 'Scratch to Reveal Your Holiday Surprise! ✨', date: 'Dec 24', type: 'game', wouldBlock: false },
-            { subject: "Don't Miss Your Last SC Gift! 🎁", date: 'Dec 23', type: 'urgency', wouldBlock: true },
-            { subject: 'Last Chance, Choni! ⏳', date: 'Dec 23', type: 'urgency', wouldBlock: true },
-            { subject: 'Claim Your FREE Bingo Card! 🎁🎟️', date: 'Dec 23', type: 'promo', wouldBlock: true },
-            { subject: 'Another Gift Just for You, Choni! 🎁', date: 'Dec 22', type: 'promo', wouldBlock: false },
-            { subject: 'Unwrap Your Exclusive FREE Gift, Choni! 🎁', date: 'Dec 21', type: 'promo', wouldBlock: false },
-            { subject: 'Your Shot at $10M Continues, Choni! 😱', date: 'Dec 20', type: 'urgency', wouldBlock: true },
-            { subject: "Don't Miss Today's Gift, Choni! 🎁", date: 'Dec 20', type: 'urgency', wouldBlock: true },
-            { subject: 'Exclusive FREE Gift Inside - Join the Holiday Fun! 🎁🎅', date: 'Dec 19', type: 'promo', wouldBlock: false },
-            { subject: 'Tonight: $10,000,000 Top Prize! 🤯', date: 'Dec 18', type: 'urgency', wouldBlock: true },
-            { subject: 'A New Day, a New SC Gift! 🎁', date: 'Dec 18', type: 'promo', wouldBlock: true },
-            { subject: 'Surprise, Choni! Mystery Deal Inside 🎁', date: 'Dec 17', type: 'promo', wouldBlock: false },
-            { subject: '$10,000,000 Is on the Line. Are You In? 🤑', date: 'Dec 16', type: 'urgency', wouldBlock: true },
-            { subject: "Free SC, Don't Miss It Choni! 🎁", date: 'Dec 16', type: 'urgency', wouldBlock: true },
-            { subject: "Didn't You Forget Something, Choni? 😮", date: 'Dec 16', type: 'urgency', wouldBlock: true },
-        ],
-        crm: [
-            { subject: 'Just checking in...', date: 'Today', type: 'follow-up', wouldBlock: false },
-            { subject: 'Did you see my last email?', date: 'Yesterday', type: 'follow-up', wouldBlock: true },
-            { subject: "Haven't responded - everything okay?", date: 'Jan 15', type: 'urgency', wouldBlock: true },
-            { subject: 'Your free trial ends in 3 days', date: 'Jan 14', type: 'urgency', wouldBlock: true },
-            { subject: "Last attempt to reach you", date: 'Jan 12', type: 'urgency', wouldBlock: true },
-            { subject: 'Re: Re: Following up on demo', date: 'Jan 10', type: 'follow-up', wouldBlock: true },
-            { subject: 'URGENT: Action required', date: 'Jan 8', type: 'urgency', wouldBlock: true },
-            { subject: 'Proposal expires tomorrow', date: 'Jan 5', type: 'urgency', wouldBlock: true },
-            { subject: 'Viewed pricing page 3 times...', date: 'Jan 3', type: 'ai-tracking', wouldBlock: true },
-            { subject: "Your competitor just switched to us", date: 'Dec 28', type: 'fomo', wouldBlock: true },
-            { subject: 'Quick question about your pipeline', date: 'Dec 20', type: 'sales', wouldBlock: false },
-            { subject: 'Thought of you - case study inside', date: 'Dec 15', type: 'nurture', wouldBlock: false },
-        ]
-    };
+    // Real email data with actual dates
+    const emails = [
+        { date: '2025-12-06', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5 },
+        { date: '2025-12-07', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8 },
+        { date: '2025-12-08', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12 },
+        { date: '2025-12-09', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
+        { date: '2025-12-10', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-10', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-11', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-13', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
+        { date: '2025-12-13', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15 },
+        { date: '2025-12-14', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-15', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-16', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
+        { date: '2025-12-16', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-16', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
+        { date: '2025-12-17', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-18', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-18', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-19', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
+        { date: '2025-12-20', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
+        { date: '2025-12-20', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-21', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-22', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
+        { date: '2025-12-23', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-23', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18 },
+        { date: '2025-12-23', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
+        { date: '2025-12-24', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
+        { date: '2025-12-25', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
+        { date: '2025-12-26', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
+        { date: '2025-12-26', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-28', subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promo', pressure: 10 },
+        { date: '2025-12-29', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
+        { date: '2025-12-31', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
+        { date: '2026-01-01', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
+        { date: '2026-01-04', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
+        { date: '2026-01-04', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
+        { date: '2026-01-07', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
+        { date: '2026-01-11', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16 },
+        { date: '2026-01-11', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+        { date: '2026-01-12', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
+        { date: '2026-01-13', subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promo', pressure: 10 },
+        { date: '2026-01-14', subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 8 },
+        { date: '2026-01-14', subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promo', pressure: 10 },
+        { date: '2026-01-15', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
+        { date: '2026-01-18', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18 },
+        { date: '2026-01-18', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+    ];
 
-    // ---- State ----
+    // State
     const state = {
-        chaosRunning: false,
-        governorActive: false,
+        governorEnabled: false,
         pressure: 0,
-        emailCount: 0,
-        smsCount: 0,
-        popupCount: 0,
-        blocked: 0,
-        intervalId: null,
-        currentCompany: 'wix'
+        maxPressure: 0,
+        emailsReceived: 0,
+        emailsBlocked: 0,
+        currentDay: 0,
+        urgencyCount: 0,
+        lastEmailDate: null,
+        visibleEmails: new Set()
     };
 
-    // ---- DOM Elements ----
+    // DOM Elements
     const els = {
-        startChaosBtn: document.getElementById('startChaosBtn'),
-        activateGovernorBtn: document.getElementById('activateGovernorBtn'),
+        currentDate: document.getElementById('currentDate'),
+        dayCount: document.getElementById('dayCount'),
         pressureBar: document.getElementById('pressureBar'),
-        pressureLabel: document.getElementById('pressureLabel'),
-        pressureWarning: document.getElementById('pressureWarning'),
-        emailList: document.getElementById('emailList'),
-        emailBadge: document.getElementById('emailBadge'),
-        phoneScreen: document.getElementById('phoneScreen'),
-        dashboardChaos: document.getElementById('dashboardChaos'),
-        chaosStats: document.getElementById('chaosStats'),
-        decisionLog: document.getElementById('decisionLog'),
-        exampleEmails: document.getElementById('exampleEmails'),
-        blockedCounter: document.getElementById('blockedCounter'),
-        brainEmails: document.getElementById('brainEmails'),
-        brainLastTouch: document.getElementById('brainLastTouch'),
-        brainDiscounts: document.getElementById('brainDiscounts'),
-        brainPressure: document.getElementById('brainPressure'),
+        pressureValue: document.getElementById('pressureValue'),
+        pressureStatus: document.getElementById('pressureStatus'),
+        emailCount: document.getElementById('emailCount'),
+        blockedCount: document.getElementById('blockedCount'),
+        governorBtn: document.getElementById('governorBtn'),
+        governorIndicator: document.getElementById('governorIndicator'),
+        governorLabel: document.getElementById('governorLabel'),
+        governorHint: document.getElementById('governorHint'),
+        stateEmails: document.getElementById('stateEmails'),
+        stateUrgency: document.getElementById('stateUrgency'),
+        stateLastTouch: document.getElementById('stateLastTouch'),
+        timelineEntries: document.getElementById('timelineEntries'),
+        endSection: document.getElementById('endSection'),
     };
 
-    // ---- Chaos Demo Functions ----
-    function updatePressure(delta) {
-        state.pressure = Math.max(0, Math.min(100, state.pressure + delta));
-        els.pressureBar.style.width = `${state.pressure}%`;
-        els.pressureLabel.textContent = `${state.pressure}%`;
-        els.brainPressure.textContent = state.pressure;
+    // Format date for display
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Get unique dates
+    function getUniqueDates() {
+        return [...new Set(emails.map(e => e.date))].sort();
+    }
+
+    // Update pressure display
+    function updatePressure() {
+        const pct = Math.min(100, state.pressure);
+        els.pressureBar.style.width = `${pct}%`;
+        els.pressureValue.textContent = state.pressure;
+        
+        if (state.pressure > state.maxPressure) {
+            state.maxPressure = state.pressure;
+        }
         
         if (state.pressure > 70) {
-            els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-300';
-            els.pressureWarning.classList.remove('hidden');
+            els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'OVERWHELMED';
+            els.pressureStatus.className = 'text-xs text-accent-red font-bold';
         } else if (state.pressure > 40) {
-            els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-300';
-            els.pressureWarning.classList.add('hidden');
+            els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'Stressed';
+            els.pressureStatus.className = 'text-xs text-accent-orange';
         } else {
-            els.pressureBar.className = 'h-full bg-accent rounded-full transition-all duration-300';
-            els.pressureWarning.classList.add('hidden');
-        }
-        
-        document.getElementById('statPressure').textContent = `${state.pressure}%`;
-    }
-
-    function addChaosEmail() {
-        const emails = emailData[state.currentCompany];
-        // Go through emails in order to show realistic timeline
-        const emailIndex = state.emailCount % emails.length;
-        const email = emails[emailIndex];
-        
-        // Governor check
-        if (state.governorActive && (state.pressure > 50 || email.wouldBlock)) {
-            state.blocked++;
-            els.blockedCounter.textContent = state.blocked;
-            addDecision(`📧 ${email.subject.slice(0, 30)}...`, true, email.wouldBlock ? 'Policy violation' : 'Pressure limit');
-            updatePressure(-5);
-            return;
-        }
-        
-        state.emailCount++;
-        els.emailBadge.textContent = state.emailCount;
-        els.emailBadge.classList.remove('hidden');
-        document.getElementById('statEmails').textContent = state.emailCount;
-        els.brainEmails.textContent = state.emailCount;
-        els.brainLastTouch.textContent = email.date;
-        
-        if (els.emailList.querySelector('.text-slate-600')) {
-            els.emailList.innerHTML = '';
-        }
-        
-        const typeColors = {
-            'urgency': 'bg-red-500/20 text-red-400',
-            'discount': 'bg-yellow-500/20 text-yellow-400',
-            'feature': 'bg-blue-500/20 text-blue-400',
-            'upsell': 'bg-pink-500/20 text-pink-400',
-            'promo': 'bg-purple-500/20 text-purple-400',
-            'game': 'bg-cyan-500/20 text-cyan-400',
-        };
-        
-        const item = document.createElement('div');
-        item.className = 'email-item px-4 py-3 border-b border-white/5 slide-in';
-        item.innerHTML = `
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] px-1.5 py-0.5 rounded ${typeColors[email.type] || 'bg-slate-500/20 text-slate-400'} uppercase font-bold">${email.type}</span>
-                <span class="text-[10px] text-slate-500">${email.date}</span>
-            </div>
-            <div class="font-semibold text-sm truncate">${email.subject}</div>
-        `;
-        els.emailList.prepend(item);
-        els.emailList.classList.add('active');
-        
-        updatePressure(8);
-        addDecision(`📧 ${email.subject.slice(0, 25)}...`, false);
-    }
-
-    function addChaosSMS() {
-        const messages = [
-            "🔥 Flash sale ends in 2 hours!",
-            "Don't forget your cart!",
-            "Exclusive offer just for you",
-            "Your trial expires tomorrow",
-            "Someone viewed your profile"
-        ];
-        
-        if (state.governorActive && state.pressure > 40) {
-            state.blocked++;
-            els.blockedCounter.textContent = state.blocked;
-            addDecision('💬 SMS blocked', true, 'Channel cooldown');
-            return;
-        }
-        
-        state.smsCount++;
-        document.getElementById('statSMS').textContent = state.smsCount;
-        
-        if (els.phoneScreen.querySelector('.text-slate-600')) {
-            els.phoneScreen.innerHTML = '';
-        }
-        
-        const sms = document.createElement('div');
-        sms.className = 'bg-accent/20 rounded-xl p-3 text-xs slide-up';
-        sms.innerHTML = `<div class="font-bold mb-1">Marketing</div><div>${messages[Math.floor(Math.random() * messages.length)]}</div>`;
-        els.phoneScreen.appendChild(sms);
-        
-        updatePressure(10);
-    }
-
-    function addChaosPopup() {
-        const popups = [
-            { title: '🔥 Limited Time!', body: 'Upgrade now for 50% off' },
-            { title: '⚡ Pro Feature', body: 'Unlock AI insights today' },
-            { title: '👀 47 people viewing', body: 'Complete your purchase' },
-        ];
-        
-        if (state.governorActive) {
-            state.blocked++;
-            els.blockedCounter.textContent = state.blocked;
-            addDecision('🖥️ Popup blocked', true, 'Interruption limit');
-            return;
-        }
-        
-        state.popupCount++;
-        document.getElementById('statPopups').textContent = state.popupCount;
-        
-        const popup = popups[Math.floor(Math.random() * popups.length)];
-        const div = document.createElement('div');
-        div.className = 'bg-gradient-to-r from-accent-red/20 to-accent-orange/20 border border-accent-red/30 rounded-xl p-4 slide-up shake';
-        div.innerHTML = `
-            <div class="font-bold text-accent-red">${popup.title}</div>
-            <div class="text-sm text-slate-400">${popup.body}</div>
-        `;
-        els.dashboardChaos.appendChild(div);
-        
-        updatePressure(15);
-    }
-
-    function addDecision(action, blocked, reason = '') {
-        const log = document.getElementById('decisionLog');
-        if (log.querySelector('.text-slate-600')) {
-            log.innerHTML = '';
-        }
-        
-        const item = document.createElement('div');
-        item.className = `p-2 rounded text-xs ${blocked ? 'bg-accent-green/10 border-l-2 border-accent-green' : 'bg-red-500/5 border-l-2 border-red-500/30'}`;
-        item.innerHTML = `
-            <span class="font-bold ${blocked ? 'text-accent-green' : 'text-slate-400'}">${blocked ? '🛡️ BLOCKED' : '📨 ALLOWED'}</span>
-            <div class="text-slate-500 truncate">${action}</div>
-            ${blocked ? `<div class="text-accent-green/70">↳ ${reason}</div>` : ''}
-        `;
-        log.prepend(item);
-        
-        while (log.children.length > 6) {
-            log.removeChild(log.lastChild);
+            els.pressureBar.className = 'h-full bg-accent rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'Relaxed';
+            els.pressureStatus.className = 'text-xs text-slate-500';
         }
     }
 
-    function startChaos() {
-        state.chaosRunning = true;
-        els.startChaosBtn.disabled = true;
-        els.startChaosBtn.classList.add('opacity-50');
-        els.startChaosBtn.innerHTML = '<span class="pulse-slow">●</span> Chaos Running...';
-        els.activateGovernorBtn.disabled = false;
-        els.activateGovernorBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        els.chaosStats.classList.remove('hidden');
-        
-        // Simulate timeline - 1 email every 1.5s = 44 days of emails in ~1 minute
-        state.intervalId = setInterval(() => {
-            addChaosEmail();
-            // Occasionally add SMS/popup to show multi-channel
-            if (Math.random() < 0.2) addChaosSMS();
-            if (Math.random() < 0.15) addChaosPopup();
-        }, state.governorActive ? 2500 : 1500);
+    // Update stats display
+    function updateStats() {
+        els.emailCount.textContent = state.emailsReceived;
+        els.blockedCount.textContent = state.emailsBlocked;
+        els.stateEmails.textContent = state.emailsReceived;
+        els.stateUrgency.textContent = state.urgencyCount;
+        els.stateLastTouch.textContent = state.lastEmailDate ? formatDate(state.lastEmailDate) : '—';
     }
 
-    function activateGovernor() {
-        state.governorActive = true;
-        els.activateGovernorBtn.classList.add('bg-accent-green/20', 'border-accent-green');
-        els.activateGovernorBtn.innerHTML = '<span class="text-xl">🛡️</span> Governor Active';
+    // Governor decision logic
+    function shouldBlock(email) {
+        if (!state.governorEnabled) return false;
         
-        // Slow down and start blocking
-        clearInterval(state.intervalId);
-        state.intervalId = setInterval(() => {
-            const rand = Math.random();
-            if (rand < 0.5) addChaosEmail();
-            else if (rand < 0.75) addChaosSMS();
-            else addChaosPopup();
-        }, 1500);
+        // Pressure limit
+        if (state.pressure > 60) return true;
         
-        // Clear some visual chaos
-        updatePressure(-20);
-        els.dashboardChaos.innerHTML = '';
+        // Urgency limit (max 1 per day)
+        if (email.type === 'urgency' && state.urgencyCount >= 1) return true;
+        
+        // High pressure email when already elevated
+        if (email.pressure > 12 && state.pressure > 40) return true;
+        
+        return false;
     }
 
-    // ---- Example Emails Display ----
-    function showExamples(company) {
-        state.currentCompany = company;
-        const emails = emailData[company];
+    // Process email (called when email becomes visible)
+    function processEmail(email, card) {
+        if (state.visibleEmails.has(email.date + email.subject)) return;
+        state.visibleEmails.add(email.date + email.subject);
         
-        document.querySelectorAll('.company-tab').forEach(tab => {
-            if (tab.dataset.company === company) {
-                tab.classList.add('bg-accent/20', 'border-accent/50');
-                tab.classList.remove('bg-surface', 'border-white/10');
-            } else {
-                tab.classList.remove('bg-accent/20', 'border-accent/50');
-                tab.classList.add('bg-surface', 'border-white/10');
-            }
+        const blocked = shouldBlock(email);
+        
+        if (blocked) {
+            state.emailsBlocked++;
+            card.classList.add('blocked');
+            state.pressure = Math.max(0, state.pressure - 5); // Relief when blocked
+        } else {
+            state.emailsReceived++;
+            state.pressure += email.pressure;
+            if (email.type === 'urgency') state.urgencyCount++;
+            state.lastEmailDate = email.date;
+        }
+        
+        card.classList.add('visible');
+        updatePressure();
+        updateStats();
+    }
+
+    // Build timeline
+    function buildTimeline() {
+        const dates = getUniqueDates();
+        let html = '';
+        
+        dates.forEach((date, dayIndex) => {
+            const dayEmails = emails.filter(e => e.date === date);
+            const formattedDate = formatDate(date);
+            
+            html += `
+                <div class="day-section mb-16 relative pl-16" data-date="${date}" data-day="${dayIndex + 1}">
+                    <div class="timeline-dot" data-day="${dayIndex + 1}"></div>
+                    <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-4">${formattedDate}</div>
+                    <div class="space-y-3">
+            `;
+            
+            dayEmails.forEach((email, emailIndex) => {
+                const typeColors = {
+                    'urgency': 'border-l-accent-red',
+                    'promo': 'border-l-accent-purple',
+                    'feature': 'border-l-accent',
+                    'game': 'border-l-accent-yellow',
+                    'onboarding': 'border-l-accent-green',
+                };
+                const borderColor = typeColors[email.type] || 'border-l-slate-500';
+                
+                html += `
+                    <div class="email-card relative bg-surface rounded-xl p-4 border-l-4 ${borderColor} border border-white/5"
+                         data-date="${date}" 
+                         data-subject="${email.subject}"
+                         data-type="${email.type}"
+                         data-pressure="${email.pressure}">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-accent-yellow rounded-lg flex items-center justify-center text-lg flex-shrink-0">🎰</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-slate-500 mb-1">CrownCoins Casino</div>
+                                <div class="font-semibold text-sm">${email.subject}</div>
+                                <div class="flex items-center gap-3 mt-2 text-[10px]">
+                                    <span class="text-slate-600">${email.type}</span>
+                                    <span class="text-slate-600">+${email.pressure} pressure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
         });
         
-        els.exampleEmails.innerHTML = emails.map(email => `
-            <div class="bg-surface rounded-xl p-4 border ${email.wouldBlock ? 'border-accent-red/30' : 'border-white/5'}">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] text-slate-500">${email.date}</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded ${email.wouldBlock ? 'bg-accent-red/20 text-accent-red' : 'bg-slate-500/20 text-slate-400'} uppercase font-bold">
-                        ${email.wouldBlock ? '🛡️ Block' : email.type}
-                    </span>
-                </div>
-                <div class="font-semibold text-sm">${email.subject}</div>
-            </div>
-        `).join('');
+        els.timelineEntries.innerHTML = html;
     }
 
-    // ---- Event Listeners ----
-    els.startChaosBtn.addEventListener('click', startChaos);
-    els.activateGovernorBtn.addEventListener('click', activateGovernor);
-    
-    document.querySelectorAll('.company-tab').forEach(tab => {
-        tab.addEventListener('click', () => showExamples(tab.dataset.company));
+    // Setup Intersection Observer
+    function setupObservers() {
+        // Day section observer
+        const dayObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const date = entry.target.dataset.date;
+                    const day = parseInt(entry.target.dataset.day);
+                    
+                    els.currentDate.textContent = formatDate(date);
+                    els.dayCount.textContent = `Day ${day} of 44`;
+                    state.currentDay = day;
+                    
+                    // Activate timeline dot
+                    document.querySelectorAll('.timeline-dot').forEach(dot => {
+                        dot.classList.remove('active');
+                        if (parseInt(dot.dataset.day) === day) {
+                            dot.classList.add('active');
+                            if (state.governorEnabled) dot.classList.add('blocked');
+                        }
+                    });
+                    
+                    // Show governor hint after day 15
+                    if (day >= 15 && !state.governorEnabled) {
+                        els.governorHint.classList.remove('hidden');
+                        els.governorHint.textContent = 'Feeling overwhelmed? Try toggling Governor ON →';
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        // Email card observer
+        const emailObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const email = {
+                        date: card.dataset.date,
+                        subject: card.dataset.subject,
+                        type: card.dataset.type,
+                        pressure: parseInt(card.dataset.pressure)
+                    };
+                    processEmail(email, card);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // End section observer
+        const endObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    els.endSection.style.opacity = '1';
+                    document.getElementById('finalEmails').textContent = state.emailsReceived;
+                    document.getElementById('finalBlocked').textContent = state.emailsBlocked;
+                    document.getElementById('finalPressure').textContent = state.maxPressure;
+                    
+                    if (state.governorEnabled) {
+                        document.getElementById('endIcon').textContent = '😊';
+                        document.getElementById('endTitle').textContent = 'Governor Protected You';
+                        document.getElementById('endText').textContent = `${state.emailsBlocked} emails blocked. Your pressure stayed manageable.`;
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        // Observe all elements
+        document.querySelectorAll('.day-section').forEach(el => dayObserver.observe(el));
+        document.querySelectorAll('.email-card').forEach(el => emailObserver.observe(el));
+        endObserver.observe(els.endSection);
+    }
+
+    // Governor toggle
+    els.governorBtn.addEventListener('click', () => {
+        state.governorEnabled = !state.governorEnabled;
+        
+        if (state.governorEnabled) {
+            els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
+            els.governorLabel.textContent = 'ON';
+            els.governorBtn.classList.add('border-accent-green/50', 'glow');
+            els.governorHint.textContent = 'Governor is now protecting you from overwhelm.';
+            
+            // Re-process visible emails as blocked
+            document.querySelectorAll('.email-card.visible:not(.blocked)').forEach(card => {
+                const email = {
+                    date: card.dataset.date,
+                    subject: card.dataset.subject,
+                    type: card.dataset.type,
+                    pressure: parseInt(card.dataset.pressure)
+                };
+                if (shouldBlock(email)) {
+                    card.classList.add('blocked');
+                    state.emailsBlocked++;
+                    state.emailsReceived--;
+                    state.pressure = Math.max(0, state.pressure - email.pressure - 5);
+                }
+            });
+            
+            updatePressure();
+            updateStats();
+        } else {
+            els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
+            els.governorLabel.textContent = 'OFF';
+            els.governorBtn.classList.remove('border-accent-green/50', 'glow');
+            els.governorHint.classList.add('hidden');
+        }
     });
 
-    // Initialize examples
-    showExamples('wix');
+    // Initialize
+    buildTimeline();
+    setupObservers();
     </script>
 </body>
 </html>
