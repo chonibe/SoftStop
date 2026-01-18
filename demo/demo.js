@@ -1,3 +1,16 @@
+// Reset styles
+const styles = document.createElement('style');
+styles.textContent = `
+    .nudge-target { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .active-nudge { animation: nudge-pulse 2s infinite; }
+    @keyframes nudge-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+`;
+document.head.appendChild(styles);
+
 const governorToggle = document.getElementById("governorToggle");
 const modeStatus = document.getElementById("modeStatus");
 const pressureFill = document.getElementById("pressureFill");
@@ -20,13 +33,21 @@ const updateStats = () => {
     sessionBlockedEl.textContent = sessionBlocked;
     const rate = sessionAttempts > 0 ? Math.round((sessionBlocked / sessionAttempts) * 100) : 0;
     sessionRateEl.textContent = `${rate}%`;
-    totalBlockedCountEl.textContent = 13 + sessionBlocked; // Baseline 13 + session
+    totalBlockedCountEl.textContent = 13 + sessionBlocked;
 };
 
 const updatePressure = (val) => {
     currentPressure = Math.min(100, Math.max(0, val));
     pressureFill.style.width = `${currentPressure}%`;
     pressureValue.textContent = `${currentPressure}%`;
+    
+    // Visual feedback for high pressure
+    const app = document.getElementById("mockApp");
+    if (currentPressure > 70) {
+        app.style.boxShadow = "0 0 50px rgba(239, 68, 68, 0.2)";
+    } else {
+        app.style.boxShadow = "0 40px 100px rgba(0,0,0,0.5)";
+    }
 };
 
 const callApi = async (path, payload) => {
@@ -39,7 +60,7 @@ const callApi = async (path, payload) => {
         return await res.json();
     } catch (e) {
         console.error("API Error", e);
-        return { allowed: true }; // Fallback to allow if API is down for demo
+        return { allowed: true };
     }
 };
 
@@ -59,25 +80,27 @@ const attemptEscalation = async (nudgeType, actionType) => {
     const targets = document.querySelectorAll(`[data-nudge="${nudgeType}"]`);
     
     if (allowed) {
-        // Show nudge aggressively
         targets.forEach(t => {
             t.classList.remove("blocked");
             t.classList.add("active-nudge");
         });
-        updatePressure(currentPressure + 10);
-        
-        // Record successful execution
+        updatePressure(currentPressure + 12);
         await callApi("/record", { userId, actionType, outcome: "executed" });
     } else {
-        // Blocked by Governor
         sessionBlocked++;
         targets.forEach(t => {
             t.classList.add("blocked");
             t.classList.remove("active-nudge");
+            
+            // Add a temporary shield effect
+            const shield = document.createElement('div');
+            shield.className = "absolute inset-0 bg-accent-green/5 border-2 border-accent-green/30 rounded-xl flex items-center justify-center z-10 pointer-events-none transition-opacity duration-1000";
+            shield.innerHTML = `<span class="bg-accent-green text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-lg">🛡️ GOVERNED</span>`;
+            t.style.position = "relative";
+            t.appendChild(shield);
+            setTimeout(() => { shield.style.opacity = "0"; setTimeout(() => shield.remove(), 1000); }, 2000);
         });
-        updatePressure(currentPressure - 2);
-        
-        // Record block
+        updatePressure(currentPressure - 4);
         await callApi("/record", { userId, actionType, outcome: "blocked" });
     }
 
@@ -95,23 +118,23 @@ const actions = [
 let simInterval = setInterval(() => {
     const pick = actions[Math.floor(Math.random() * actions.length)];
     attemptEscalation(pick.nudge, pick.action);
-}, 4000);
+}, 5000);
 
 // Toggle Handler
 governorToggle.addEventListener("change", () => {
     const enabled = governorToggle.checked;
     modeStatus.textContent = enabled ? "Governor ENABLED" : "Governor DISABLED";
-    document.getElementById("mockApp").classList.toggle("unprotected", !enabled);
+    modeStatus.classList.toggle("text-accent-blue", enabled);
+    modeStatus.classList.toggle("text-accent-red", !enabled);
     
     if (!enabled) {
-        // Clear all blocked states immediately if disabled
         document.querySelectorAll(".nudge-target").forEach(t => {
             t.classList.remove("blocked");
         });
     }
 });
 
-// Manual Triggers (on click)
+// Manual interactions
 document.querySelectorAll(".nudge-target").forEach(t => {
     t.addEventListener("click", () => {
         const type = t.dataset.nudge;
@@ -120,5 +143,5 @@ document.querySelectorAll(".nudge-target").forEach(t => {
     });
 });
 
-// Initial Stats
 updateStats();
+updatePressure(20);
