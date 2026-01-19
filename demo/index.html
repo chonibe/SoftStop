@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Governor | Multi-Channel Timeline Demo</title>
     <meta name="description" content="Scroll through 44 days of pressure across email, SMS, push, and in-app. Feel the chaos. Then see Governor stop it.">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -61,16 +61,22 @@
         
         .timeline-line { 
             position: absolute; 
-            left: 24px; 
+            left: 12px; 
             top: 0; 
             bottom: 0; 
             width: 2px; 
             background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
         }
         
+        @media (min-width: 768px) {
+            .timeline-line {
+                left: 24px;
+            }
+        }
+        
         .timeline-dot {
             position: absolute;
-            left: 20px;
+            left: 8px;
             width: 10px;
             height: 10px;
             border-radius: 50%;
@@ -78,6 +84,13 @@
             border: 2px solid #555;
             transition: all 0.3s;
         }
+        
+        @media (min-width: 768px) {
+            .timeline-dot {
+                left: 20px;
+            }
+        }
+        
         .timeline-dot.active {
             background: #3b82f6;
             border-color: #3b82f6;
@@ -119,12 +132,44 @@
         #moodEmoji { 
             filter: drop-shadow(0 0 10px currentColor);
         }
+        
+        /* Mobile overlay when sidebar is open */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        
+        @media (max-width: 1023px) {
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+        
+        /* Touch improvements */
+        @media (hover: none) {
+            button, a {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
     </style>
 </head>
 <body class="bg-deep text-white antialiased">
 
+    <!-- Mobile overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    
+    <!-- Mobile Menu Toggle -->
+    <button id="mobileMenuToggle" class="fixed top-4 left-4 z-[60] lg:hidden bg-surface border border-white/20 rounded-lg p-3 hover:bg-surface-2 transition-all shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+    
     <!-- Fixed Sidebar -->
-    <aside class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto">
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0">
         <!-- Logo -->
         <div class="p-6 border-b border-white/5">
             <div class="flex items-center gap-3 mb-4">
@@ -301,16 +346,16 @@
     </aside>
 
     <!-- Main Content - Scrollable Timeline -->
-    <main class="ml-80 min-h-screen">
+    <main class="lg:ml-80 min-h-screen">
         
         <!-- Hero Section -->
-        <section class="h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep">
-            <div class="text-center px-12 max-w-2xl">
-                <div class="flex justify-center gap-3 text-4xl mb-6">
+        <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep pt-20 lg:pt-0">
+            <div class="text-center px-6 md:px-12 max-w-2xl">
+                <div class="flex justify-center gap-2 md:gap-3 text-3xl md:text-4xl mb-6">
                     <span>📧</span><span>💬</span><span>🔔</span><span>🖥️</span><span>💭</span>
                 </div>
-                <h1 class="text-4xl font-black mb-4">Multi-Channel Pressure</h1>
-                <p class="text-xl text-slate-400 mb-4">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-black mb-4">Multi-Channel Pressure</h1>
+                <p class="text-lg md:text-xl text-slate-400 mb-4">
                     Platforms don't just send emails. They hit you from <strong class="text-white">every direction</strong>:
                 </p>
                 <div class="flex flex-wrap justify-center gap-2 mb-8 text-sm">
@@ -331,17 +376,17 @@
         </section>
 
         <!-- Timeline Container -->
-        <div id="timeline" class="relative px-12 py-24">
+        <div id="timeline" class="relative px-4 md:px-8 lg:px-12 py-12 md:py-24">
             <div class="timeline-line"></div>
             <div id="timelineEntries"></div>
         </div>
 
         <!-- End Section -->
-        <section id="endSection" class="h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000">
-            <div class="text-center px-12 max-w-3xl">
-                <div id="endIcon" class="text-6xl mb-6">😵</div>
-                <h2 id="endTitle" class="text-4xl font-black mb-4">Death by a Thousand Touches</h2>
-                <p id="endText" class="text-xl text-slate-400 mb-8">
+        <section id="endSection" class="min-h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000 py-12">
+            <div class="text-center px-6 md:px-12 max-w-3xl">
+                <div id="endIcon" class="text-5xl md:text-6xl mb-6">😵</div>
+                <h2 id="endTitle" class="text-3xl md:text-4xl font-black mb-4">Death by a Thousand Touches</h2>
+                <p id="endText" class="text-lg md:text-xl text-slate-400 mb-8">
                     This is what multi-channel automation looks like without coordination.
                 </p>
                 
@@ -376,7 +421,7 @@
                     </div>
                 </div>
                 
-                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-xl mx-auto mb-8">
+                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-xl mx-auto mb-8">
                     <div class="bg-surface rounded-xl p-4">
                         <div class="text-2xl font-black text-accent-red" id="finalTotal">0</div>
                         <div class="text-xs text-slate-500">Total Touches</div>
@@ -1198,9 +1243,9 @@
             const formattedDate = formatDate(date);
             
             html += `
-                <div class="day-section mb-12 relative pl-16" data-date="${date}" data-day="${dayIndex + 1}">
+                <div class="day-section mb-8 md:mb-12 relative pl-8 md:pl-16" data-date="${date}" data-day="${dayIndex + 1}">
                     <div class="timeline-dot" data-day="${dayIndex + 1}"></div>
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-2 md:gap-3 mb-4">
                         <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">${formattedDate}</span>
                         <span class="text-xs text-slate-600">${dayEvents.length} touch${dayEvents.length > 1 ? 'es' : ''}</span>
                     </div>
@@ -1215,7 +1260,7 @@
                 if (isUser) {
                     // User action card - styled differently
                     html += `
-                        <div class="pressure-card user-action relative rounded-xl p-4 border-l-4 ${cfg.color}"
+                        <div class="pressure-card user-action relative rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color}"
                              data-date="${event.date}" 
                              data-channel="${event.channel}"
                              data-subject="${event.subject}"
@@ -1237,7 +1282,7 @@
                 } else {
                     // Platform pressure card
                     html += `
-                        <div class="pressure-card relative bg-surface rounded-xl p-4 border-l-4 ${cfg.color} border border-white/5"
+                        <div class="pressure-card relative bg-surface rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color} border border-white/5"
                              data-date="${event.date}" 
                              data-channel="${event.channel}"
                              data-subject="${event.subject}"
@@ -1417,6 +1462,37 @@
     
     // Make switchUser available globally
     window.switchUser = switchUser;
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    function toggleSidebar() {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('active');
+        }
+    }
+    
+    function closeSidebar() {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.remove('active');
+        }
+    }
+    
+    if (mobileMenuToggle && sidebar && sidebarOverlay) {
+        mobileMenuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+    }
     
     buildTimeline();
     setupObservers();
