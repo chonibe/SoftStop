@@ -235,6 +235,32 @@
         </svg>
     </button>
     
+    <!-- Fixed Mobile User Info (only visible in demo section on mobile) -->
+    <div id="mobileUserInfo" class="fixed top-4 left-4 right-4 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-surface-2/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div id="mobileUserAvatar" class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">🎰</div>
+                    <div>
+                        <div id="mobileUserName" class="font-bold text-sm">Choni</div>
+                        <div class="text-xs text-slate-500">Day <span id="mobileDayCount">1</span> of 44</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="flex items-center gap-2">
+                            <div id="mobileMoodEmoji" class="text-2xl">😊</div>
+                            <div>
+                                <div id="mobileMoodLabel" class="font-bold text-xs text-accent-green">Happy</div>
+                                <div id="mobilePressureValue" class="text-xs text-slate-500">0% pressure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Fixed Governor Toggle Button -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70]">
         <button id="governorBtnFixed" class="bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-6 py-4 transition-all text-left group shadow-2xl backdrop-blur-sm">
@@ -1878,6 +1904,15 @@
             document.getElementById('moodLabel').className = `font-bold text-lg ${mood.color}`;
             document.getElementById('moodDesc').textContent = `${state.blocked} messages blocked`;
             
+            // Update mobile mood
+            const mobileMoodEmoji = document.getElementById('mobileMoodEmoji');
+            const mobileMoodLabel = document.getElementById('mobileMoodLabel');
+            if (mobileMoodEmoji) mobileMoodEmoji.textContent = mood.emoji;
+            if (mobileMoodLabel) {
+                mobileMoodLabel.textContent = mood.label;
+                mobileMoodLabel.className = `font-bold text-xs ${mood.color}`;
+            }
+            
             // Show all steps as green (protected)
             for (let i = 1; i <= 5; i++) {
                 const step = document.getElementById(`mood-${i}`);
@@ -1897,6 +1932,15 @@
         document.getElementById('moodLabel').textContent = mood.label;
         document.getElementById('moodLabel').className = `font-bold text-lg ${mood.color}`;
         document.getElementById('moodDesc').textContent = mood.desc;
+        
+        // Update mobile mood
+        const mobileMoodEmoji = document.getElementById('mobileMoodEmoji');
+        const mobileMoodLabel = document.getElementById('mobileMoodLabel');
+        if (mobileMoodEmoji) mobileMoodEmoji.textContent = mood.emoji;
+        if (mobileMoodLabel) {
+            mobileMoodLabel.textContent = mood.label;
+            mobileMoodLabel.className = `font-bold text-xs ${mood.color}`;
+        }
         
         // Update mood steps
         for (let i = 1; i <= 5; i++) {
@@ -2380,6 +2424,26 @@
         document.getElementById(`user-${userId}`).classList.add('active-user');
         document.getElementById(`user-${userId}`).classList.remove('opacity-60');
         
+        // Update mobile user info
+        const mobileUserAvatar = document.getElementById('mobileUserAvatar');
+        const mobileUserName = document.getElementById('mobileUserName');
+        
+        if (mobileUserAvatar && mobileUserName) {
+            if (userId === 'choni') {
+                mobileUserAvatar.innerHTML = '🎰';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Choni';
+            } else if (userId === 'sarah') {
+                mobileUserAvatar.innerHTML = '💎';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-green/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Sarah';
+            } else if (userId === 'mike') {
+                mobileUserAvatar.innerHTML = '🆕';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Mike';
+            }
+        }
+        
         // Reset state
         state.pressure = 0;
         state.maxPressure = 0;
@@ -2443,6 +2507,58 @@
     
     buildTimeline();
     setupObservers();
+    
+    // Mobile User Info - show/hide based on scroll position
+    const mobileUserInfo = document.getElementById('mobileUserInfo');
+    const demoSection = document.getElementById('demo');
+    const mobilePressureValue = document.getElementById('mobilePressureValue');
+    const mobileDayCount = document.getElementById('mobileDayCount');
+    
+    // Update mobile user info
+    function updateMobileUserInfo() {
+        if (mobilePressureValue) {
+            mobilePressureValue.textContent = `${state.pressure}% pressure`;
+        }
+        if (mobileDayCount) {
+            mobileDayCount.textContent = state.currentDay;
+        }
+    }
+    
+    // Show/hide mobile user info based on scroll
+    function checkMobileUserInfoVisibility() {
+        if (!mobileUserInfo || !demoSection || window.innerWidth >= 1024) {
+            if (mobileUserInfo) {
+                mobileUserInfo.style.opacity = '0';
+                mobileUserInfo.style.pointerEvents = 'none';
+            }
+            return;
+        }
+        
+        const demoRect = demoSection.getBoundingClientRect();
+        const isInDemo = demoRect.top < window.innerHeight && demoRect.bottom > 0;
+        
+        if (isInDemo) {
+            mobileUserInfo.style.opacity = '1';
+            mobileUserInfo.style.pointerEvents = 'auto';
+        } else {
+            mobileUserInfo.style.opacity = '0';
+            mobileUserInfo.style.pointerEvents = 'none';
+        }
+    }
+    
+    // Update mobile info when pressure changes
+    const originalUpdatePressure = updatePressure;
+    updatePressure = function() {
+        originalUpdatePressure();
+        updateMobileUserInfo();
+    };
+    
+    // Listen for scroll
+    window.addEventListener('scroll', checkMobileUserInfoVisibility);
+    window.addEventListener('resize', checkMobileUserInfoVisibility);
+    
+    // Check initially
+    checkMobileUserInfoVisibility();
     </script>
 </body>
 </html>
