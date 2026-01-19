@@ -724,6 +724,68 @@
                 </div>
             </div>
         </section>
+
+        <!-- How Governor Decides "Appropriate" -->
+        <section class="py-24 bg-deep">
+            <div class="max-w-5xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Decides “Appropriate”</h2>
+                    <p class="text-xl text-slate-400">
+                        Governor doesn’t “know” in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4">What Governor Checks</h3>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li><span class="text-white font-medium">Pressure history</span> — counts, types, recency, surfaces</li>
+                            <li><span class="text-white font-medium">Resistance signals</span> — dismissed popup, ignored CTA, opted out</li>
+                            <li><span class="text-white font-medium">Cooldowns</span> — time-based pauses after rejections</li>
+                            <li><span class="text-white font-medium">Hard caps</span> — absolute limits per type and window</li>
+                        </ul>
+                    </div>
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">What Governor Does NOT Use</h3>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li>• Funnel stage</li>
+                            <li>• Persona or personalization</li>
+                            <li>• Predicted conversion likelihood</li>
+                            <li>• LLM reasoning or “intent” scores</li>
+                        </ul>
+                        <div class="text-xs text-slate-500 mt-3">Those belong to optimization systems, not Governor.</div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-2 border border-white/10 rounded-2xl p-6 mb-10">
+                    <h3 class="font-bold text-lg mb-3">Decision Logic (Deterministic)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-400">
+                        <div class="bg-deep rounded-lg p-4 font-mono">
+                            <div>1. Identify escalation type</div>
+                            <div>2. Fetch user pressure state</div>
+                            <div>3. Apply rules in order:</div>
+                            <div class="pl-4">a. Hard block?</div>
+                            <div class="pl-4">b. Cooldown active?</div>
+                            <div class="pl-4">c. Cap exceeded?</div>
+                            <div>4. Return ALLOWED / BLOCKED + reason</div>
+                        </div>
+                        <div class="bg-deep rounded-lg p-4 font-mono">
+                            <div>// Example result</div>
+                            <div class="text-accent-red">allowed: false</div>
+                            <div>reason: "urgency_cap_reached"</div>
+                            <div>retry_after: "7d"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                    <div class="text-sm text-slate-400">
+                        <span class="text-white font-bold">Key mental model:</span> Appropriateness is not inferred — it is enforced.
+                        Governor reads what already happened and applies limits.
+                    </div>
+                </div>
+            </div>
+        </section>
         
         <!-- Features -->
         <section class="py-24 bg-surface">
