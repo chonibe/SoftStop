@@ -804,30 +804,109 @@
                         <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold mb-2">
                             ❌ Without Governor
                         </div>
-                        <p class="text-sm text-slate-400">Optimization goes straight to execution</p>
+                        <p class="text-sm text-slate-400">Each agent acts independently — chaos</p>
                     </div>
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-                        <div class="bg-surface border border-white/10 rounded-xl p-6 w-full md:w-64">
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">🧠</div>
-                                <div class="font-bold mb-1">Optimization Systems</div>
-                                <div class="text-xs text-slate-500">Funnel logic, ML, personalization</div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                        <!-- Multiple Agents (uncoordinated) -->
+                        <div class="space-y-3">
+                            <div class="bg-surface border border-purple-500/30 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🤖</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Sales AI</div>
+                                        <div class="text-xs text-accent-red">No coordination</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-pink-500/30 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">📧</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Marketing</div>
+                                        <div class="text-xs text-accent-red">No coordination</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-cyan-500/30 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">💬</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Support Bot</div>
+                                        <div class="text-xs text-accent-red">No coordination</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-orange-500/30 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🎯</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Retention</div>
+                                        <div class="text-xs text-accent-red">No coordination</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-3xl text-accent-red">→</div>
-                        <div class="bg-surface border border-white/10 rounded-xl p-6 w-full md:w-64">
+                        
+                        <!-- Direct execution arrows -->
+                        <div class="hidden lg:flex items-center justify-center">
                             <div class="text-center">
-                                <div class="text-3xl mb-2">📢</div>
-                                <div class="font-bold mb-1">Direct Execution</div>
-                                <div class="text-xs text-slate-500">Email, SMS, popup, notification</div>
+                                <div class="text-4xl text-accent-red mb-2">⚠️</div>
+                                <div class="text-sm font-bold text-accent-red mb-1">Direct Access</div>
+                                <div class="text-xs text-slate-500">No gate, no limits</div>
                             </div>
                         </div>
-                        <div class="text-3xl text-accent-red">→</div>
-                        <div class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6 w-full md:w-64">
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">😡</div>
-                                <div class="font-bold text-accent-red mb-1">Overwhelmed User</div>
-                                <div class="text-xs text-slate-400">No coordination, no limits</div>
+                        
+                        <!-- All channels firing -->
+                        <div class="space-y-3">
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">📧</div>
+                                    <div>
+                                        <div class="font-bold text-sm">3 Emails</div>
+                                        <div class="text-xs text-slate-500">All sent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.1s;">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">💬</div>
+                                    <div>
+                                        <div class="font-bold text-sm">2 SMS</div>
+                                        <div class="text-xs text-slate-500">All sent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.2s;">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🔔</div>
+                                    <div>
+                                        <div class="font-bold text-sm">4 Push</div>
+                                        <div class="text-xs text-slate-500">All sent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.3s;">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🖥️</div>
+                                    <div>
+                                        <div class="font-bold text-sm">2 Popups</div>
+                                        <div class="text-xs text-slate-500">All shown</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Result -->
+                    <div class="mt-8 text-center">
+                        <div class="inline-block bg-accent-red/10 border border-accent-red/30 rounded-xl px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="text-3xl">😡</div>
+                                <div class="text-left">
+                                    <div class="font-bold text-accent-red">Overwhelmed User</div>
+                                    <div class="text-xs text-slate-400">11 messages in one hour • No coordination • Trust broken</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -839,41 +918,139 @@
                         <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold mb-2">
                             ✅ With Governor
                         </div>
-                        <p class="text-sm text-slate-400">Governor adds a permission layer</p>
+                        <p class="text-sm text-slate-400">Governor coordinates all agents and systems</p>
                     </div>
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-                        <div class="bg-surface border border-white/10 rounded-xl p-6 w-full md:w-48">
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">🧠</div>
-                                <div class="font-bold mb-1">Optimization</div>
-                                <div class="text-xs text-slate-500">Decides WHAT</div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                        <!-- Multiple Agents/Systems -->
+                        <div class="space-y-3">
+                            <div class="bg-surface border border-purple-500/30 rounded-xl p-4 interactive-card">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🤖</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Sales AI</div>
+                                        <div class="text-xs text-slate-500">Upgrade flows</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-pink-500/30 rounded-xl p-4 interactive-card">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">📧</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Marketing</div>
+                                        <div class="text-xs text-slate-500">Campaigns</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-cyan-500/30 rounded-xl p-4 interactive-card">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">💬</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Support Bot</div>
+                                        <div class="text-xs text-slate-500">Help flows</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-orange-500/30 rounded-xl p-4 interactive-card">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🎯</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Retention</div>
+                                        <div class="text-xs text-slate-500">Win-back</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-3xl text-accent">→</div>
-                        <div class="bg-accent/10 border border-accent/30 rounded-xl p-6 w-full md:w-48 relative">
-                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full">
-                                GATE
+                        
+                        <!-- Arrows pointing to Governor -->
+                        <div class="hidden lg:flex flex-col items-center justify-center">
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                        </div>
+                        
+                        <!-- Governor (Central Gate) -->
+                        <div class="bg-accent/10 border-2 border-accent rounded-2xl p-6 relative">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+                                PERMISSION GATE
                             </div>
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">🛡️</div>
-                                <div class="font-bold mb-1">Governor</div>
-                                <div class="text-xs text-slate-500">Decides WHEN TO STOP</div>
+                            <div class="text-center mt-2">
+                                <div class="text-5xl mb-3">🛡️</div>
+                                <div class="font-black text-xl mb-2">Governor</div>
+                                <div class="text-xs text-slate-400 mb-3">Checks per-user state</div>
+                                <div class="space-y-1 text-xs text-left">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-green rounded-full"></div>
+                                        <span class="text-slate-400">Pressure: 35%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-orange rounded-full"></div>
+                                        <span class="text-slate-400">Cooldowns active</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-purple rounded-full"></div>
+                                        <span class="text-slate-400">Limits enforced</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-3xl text-accent">→</div>
-                        <div class="bg-surface border border-white/10 rounded-xl p-6 w-full md:w-48">
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">📢</div>
-                                <div class="font-bold mb-1">Execution</div>
-                                <div class="text-xs text-slate-500">If allowed</div>
+                        
+                        <!-- Arrow to Execution -->
+                        <div class="hidden lg:flex items-center justify-center">
+                            <div class="text-4xl text-accent-green">→</div>
+                        </div>
+                        
+                        <!-- Execution Channels -->
+                        <div class="space-y-3">
+                            <div class="bg-surface border border-white/10 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">📧</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Email</div>
+                                        <div class="text-xs text-accent-green">✓ Allowed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 opacity-50">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">💬</div>
+                                    <div>
+                                        <div class="font-bold text-sm">SMS</div>
+                                        <div class="text-xs text-accent-red">✗ Blocked</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🔔</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Push</div>
+                                        <div class="text-xs text-accent-green">✓ Allowed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-surface border border-white/10 rounded-xl p-4 opacity-50">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-2xl">🖥️</div>
+                                    <div>
+                                        <div class="font-bold text-sm">Popup</div>
+                                        <div class="text-xs text-accent-red">✗ Blocked</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-3xl text-accent-green">→</div>
-                        <div class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6 w-full md:w-48">
-                            <div class="text-center">
-                                <div class="text-3xl mb-2">😊</div>
-                                <div class="font-bold text-accent-green mb-1">Protected User</div>
-                                <div class="text-xs text-slate-400">Coordinated, limited</div>
+                    </div>
+                    
+                    <!-- Result -->
+                    <div class="mt-8 text-center">
+                        <div class="inline-block bg-accent-green/10 border border-accent-green/30 rounded-xl px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="text-3xl">😊</div>
+                                <div class="text-left">
+                                    <div class="font-bold text-accent-green">Protected User</div>
+                                    <div class="text-xs text-slate-400">All agents coordinated • Limits respected • Pressure managed</div>
+                                </div>
                             </div>
                         </div>
                     </div>
