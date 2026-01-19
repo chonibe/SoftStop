@@ -729,35 +729,39 @@
         <section class="py-24 bg-deep">
             <div class="max-w-5xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Decides “Appropriate”</h2>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Decides "Appropriate"</h2>
                     <p class="text-xl text-slate-400">
-                        Governor doesn’t “know” in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
+                        Governor doesn't "know" in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
                     </p>
+                    <div class="mt-6 max-w-3xl mx-auto bg-surface-2 border border-accent/20 rounded-xl p-4">
+                        <div class="text-sm text-white font-bold mb-2">The ONLY question Governor asks:</div>
+                        <div class="text-lg text-accent">"Has this user already received enough pressure of this type within the defined limits?"</div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                     <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-green">Allowed Signals</h3>
-                        <p class="text-sm text-slate-400 mb-3">Explicit, observable, binary facts.</p>
+                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ Allowed Signals</h3>
+                        <p class="text-xs text-slate-400 mb-4">Explicit, observable, binary facts.</p>
                         <ul class="space-y-3 text-sm text-slate-400">
                             <li><span class="text-white font-medium">Pressure events</span> — urgency shown, discount applied, modal displayed</li>
-                            <li><span class="text-white font-medium">Resistance signals</span> — dismissed popup, ignored CTA, unsubscribed</li>
+                            <li><span class="text-white font-medium">User resistance</span> — dismissed popup, ignored CTA, unsubscribed</li>
                             <li><span class="text-white font-medium">Time</span> — last escalation, cooldown expiry, session window</li>
-                            <li><span class="text-white font-medium">Surface metadata</span> — checkout, pricing page, email channel</li>
-                            <li><span class="text-white font-medium">Hard policy</span> — max 1 discount / 30 days, caps per session</li>
+                            <li><span class="text-white font-medium">Surface metadata</span> — checkout page, email channel, pricing view</li>
+                            <li><span class="text-white font-medium">Hard policy</span> — max 1 discount/30d, caps per session</li>
                         </ul>
                     </div>
                     <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-red">Banned Signals</h3>
-                        <p class="text-sm text-slate-400 mb-3">These turn Governor into an optimizer.</p>
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">🚫 Banned Signals</h3>
+                        <p class="text-xs text-slate-400 mb-4">These turn Governor into an optimizer.</p>
                         <ul class="space-y-3 text-sm text-slate-400">
-                            <li>• Funnel stage labels</li>
-                            <li>• Intent scores or predictions</li>
-                            <li>• Personalization / segmentation data</li>
-                            <li>• LLM reasoning or confidence outputs</li>
-                            <li>• Business goals or KPIs</li>
+                            <li><span class="text-white font-medium">Funnel stage</span> — awareness, consideration, conversion labels</li>
+                            <li><span class="text-white font-medium">Intent scores</span> — high intent, conversion likelihood, propensity</li>
+                            <li><span class="text-white font-medium">Personalization</span> — personas, demographics, cohort, LTV</li>
+                            <li><span class="text-white font-medium">AI reasoning</span> — confidence scores, agent justifications</li>
+                            <li><span class="text-white font-medium">Business goals</span> — revenue targets, conversion KPIs</li>
                         </ul>
-                        <div class="text-xs text-slate-500 mt-3">If interpretation is required, it’s banned.</div>
+                        <div class="text-xs text-slate-500 mt-3">If interpretation is required, it's banned.</div>
                     </div>
                 </div>
 
@@ -782,13 +786,31 @@
                     </div>
                 </div>
 
-                <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                    <div class="text-sm text-slate-400">
-                        <span class="text-white font-bold">Key mental model:</span> Appropriateness is not inferred — it is enforced.
-                        Governor reads what already happened and applies limits.
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-3 text-accent-red">❌ What Governor Does NOT Do</h3>
+                        <div class="bg-deep rounded-lg p-4 text-sm text-slate-400 italic">
+                            "User is highly engaged, so a discount would help them convert."
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">This is optimization logic. Not Governor's job.</div>
                     </div>
-                    <div class="text-xs text-slate-500 mt-3">
-                        Litmus test: Would two engineers interpret this signal the same way? If no, it’s banned.
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-3 text-accent-green">✅ What Governor DOES Do</h3>
+                        <div class="bg-deep rounded-lg p-4 text-sm text-white">
+                            "A discount was already shown 3 days ago. Policy allows max 1 per 14 days. Block."
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">Pure enforcement. No interpretation.</div>
+                    </div>
+                </div>
+
+                <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                    <div class="text-sm text-slate-400 mb-3">
+                        <span class="text-white font-bold">Signal boundary litmus test:</span>
+                    </div>
+                    <div class="text-base text-white mb-2">"Would two engineers always interpret this signal the same way?"</div>
+                    <div class="flex gap-8 text-sm">
+                        <div><span class="text-accent-green font-bold">Yes</span> → Allowed</div>
+                        <div><span class="text-accent-red font-bold">No</span> → Banned</div>
                     </div>
                 </div>
             </div>
