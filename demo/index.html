@@ -45,6 +45,58 @@
         @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
         @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .interactive-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .code-typing {
+            overflow: hidden;
+            border-right: 2px solid #3b82f6;
+            white-space: nowrap;
+            animation: typing 2s steps(40) forwards, blink 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .gradient-border:hover::before {
+            opacity: 1;
+        }
         
         .slide-in { animation: slide-in 0.5s ease-out forwards; }
         .slide-down { animation: slide-down 0.4s ease-out forwards; }
@@ -400,15 +452,15 @@
                 
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-12">
-                    <div>
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
                         <div class="text-3xl md:text-4xl font-black text-accent-green">&lt;10ms</div>
                         <div class="text-xs md:text-sm text-slate-500">Permission check</div>
                     </div>
-                    <div>
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
                         <div class="text-3xl md:text-4xl font-black text-accent-purple">1 line</div>
                         <div class="text-xs md:text-sm text-slate-500">To integrate</div>
                     </div>
-                    <div>
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
                         <div class="text-3xl md:text-4xl font-black text-accent-cyan">100%</div>
                         <div class="text-xs md:text-sm text-slate-500">Tracked</div>
                     </div>
@@ -493,9 +545,9 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
                         <!-- User 1: Sarah -->
-                        <div class="p-6">
+                        <div class="p-6 interactive-card gradient-border">
                             <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">💎</div>
+                                <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">💎</div>
                                 <div>
                                     <div class="font-bold">Sarah</div>
                                     <div class="text-xs text-slate-500">VIP User</div>
@@ -515,7 +567,7 @@
                                     <span class="text-slate-300">Positive</span>
                                 </div>
                             </div>
-                            <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg p-3">
+                            <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg p-3 transition-all hover:bg-accent-green/20">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="text-accent-green font-bold text-sm">✓ ALLOWED</span>
                                 </div>
@@ -524,9 +576,9 @@
                         </div>
                         
                         <!-- User 2: Mike -->
-                        <div class="p-6">
+                        <div class="p-6 interactive-card gradient-border">
                             <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg">🆕</div>
+                                <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">🆕</div>
                                 <div>
                                     <div class="font-bold">Mike</div>
                                     <div class="text-xs text-slate-500">New User</div>
@@ -546,7 +598,7 @@
                                     <span class="text-slate-300">Ignored</span>
                                 </div>
                             </div>
-                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3">
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
                                 </div>
@@ -555,9 +607,9 @@
                         </div>
                         
                         <!-- User 3: Emma -->
-                        <div class="p-6">
+                        <div class="p-6 interactive-card gradient-border">
                             <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-red/20 rounded-full flex items-center justify-center text-lg">😤</div>
+                                <div class="w-10 h-10 bg-accent-red/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">😤</div>
                                 <div>
                                     <div class="font-bold">Emma</div>
                                     <div class="text-xs text-slate-500">At Risk</div>
@@ -577,7 +629,7 @@
                                     <span class="text-slate-300">Unsubscribed SMS</span>
                                 </div>
                             </div>
-                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3">
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
                                 </div>
@@ -686,45 +738,101 @@
                     <p class="text-xl text-slate-400">A single permission check between intent and action.</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Step 1 -->
-                    <div class="bg-surface border border-white/10 rounded-2xl p-8">
-                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent mb-4">1</div>
-                        <h3 class="text-2xl font-bold mb-3">Agent Proposes</h3>
-                        <p class="text-slate-400 mb-6">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
-                        <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                            <div class="text-slate-500">// Agent request</div>
-                            <div class="text-accent-green">escalate</div><span class="text-white">(userId, </span><span class="text-accent-yellow">"popup"</span><span class="text-white">)</span>
-                        </div>
+                <div class="relative">
+                    <!-- Flow arrows -->
+                    <div class="hidden md:flex absolute top-1/3 left-0 right-0 items-center justify-center gap-4 pointer-events-none">
+                        <div class="flex-1"></div>
+                        <div class="text-4xl text-accent animate-pulse">→</div>
+                        <div class="flex-1"></div>
+                        <div class="text-4xl text-accent animate-pulse" style="animation-delay: 0.3s;">→</div>
+                        <div class="flex-1"></div>
                     </div>
                     
-                    <!-- Step 2 -->
-                    <div class="bg-surface border border-white/10 rounded-2xl p-8">
-                        <div class="w-12 h-12 bg-accent-purple/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-purple mb-4">2</div>
-                        <h3 class="text-2xl font-bold mb-3">Governor Checks</h3>
-                        <p class="text-slate-400 mb-6">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
-                        <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                            <div class="text-slate-500">// Governor response</div>
-                            <div class="text-accent-red">BLOCKED</div>
-                            <div class="text-slate-500 text-xs mt-1">reason: "Pressure limit"</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Step 1 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent mb-4 transition-all hover:scale-110">1</div>
+                            <h3 class="text-2xl font-bold mb-3">Agent Proposes</h3>
+                            <p class="text-slate-400 mb-6">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-slate-500">// Agent request</div>
+                                <div class="text-accent-green">escalate</div><span class="text-white">(userId, </span><span class="text-accent-yellow">"popup"</span><span class="text-white">)</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Step 3 -->
-                    <div class="bg-surface border border-white/10 rounded-2xl p-8">
-                        <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-green mb-4">3</div>
-                        <h3 class="text-2xl font-bold mb-3">Execute or Block</h3>
-                        <p class="text-slate-400 mb-6">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
-                        <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                            <div class="text-accent-green">✓ ALLOWED</div>
-                            <div class="text-slate-500 text-xs mt-1">or</div>
-                            <div class="text-accent-red">✗ BLOCKED</div>
+                        
+                        <!-- Step 2 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent-purple/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-purple mb-4 transition-all hover:scale-110">2</div>
+                            <h3 class="text-2xl font-bold mb-3">Governor Checks</h3>
+                            <p class="text-slate-400 mb-6">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-slate-500">// Governor response</div>
+                                <div class="text-accent-red">BLOCKED</div>
+                                <div class="text-slate-500 text-xs mt-1">reason: "Pressure limit"</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-green mb-4 transition-all hover:scale-110">3</div>
+                            <h3 class="text-2xl font-bold mb-3">Execute or Block</h3>
+                            <p class="text-slate-400 mb-6">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-accent-green">✓ ALLOWED</div>
+                                <div class="text-slate-500 text-xs mt-1">or</div>
+                                <div class="text-accent-red">✗ BLOCKED</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- Interactive Decision Simulator -->
+        <section class="py-24 bg-gradient-to-b from-surface to-deep">
+            <div class="max-w-4xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">Try It Live</h2>
+                    <p class="text-xl text-slate-400">See Governor's decision logic in action</p>
+                </div>
+                
+                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden">
+                    <!-- Simulator Controls -->
+                    <div class="bg-surface-2 p-6 border-b border-white/10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">User Pressure</label>
+                                <input type="range" id="sim-pressure" min="0" max="100" value="30" class="w-full h-2 bg-surface-3 rounded-lg appearance-none cursor-pointer accent-accent">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>0%</span>
+                                    <span id="sim-pressure-val" class="text-accent font-bold">30%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Escalation Type</label>
+                                <select id="sim-type" class="w-full bg-surface-3 border border-white/10 rounded-lg px-4 py-2 text-white">
+                                    <option value="promo">Promo</option>
+                                    <option value="urgency">Urgency</option>
+                                    <option value="discount">Discount</option>
+                                    <option value="popup">Popup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="runSimulator()" class="mt-6 w-full bg-accent hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                            Check Permission
+                        </button>
+                    </div>
+                    
+                    <!-- Simulator Result -->
+                    <div id="sim-result" class="p-6 hidden">
+                        <div id="sim-decision" class="mb-4"></div>
+                        <div id="sim-explanation" class="text-sm text-slate-400"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <!-- How Governor Decides "Appropriate" -->
         <section class="py-24 bg-deep">
             <div class="max-w-5xl mx-auto px-6 md:px-12">
@@ -820,18 +928,18 @@
         <section class="py-24 bg-surface">
             <div class="max-w-6xl mx-auto px-6 md:px-12">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-accent-red/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">📊</div>
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-red/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-red/30 hover:scale-110">📊</div>
                         <h3 class="text-xl font-bold mb-3">Pressure Limits</h3>
                         <p class="text-slate-400">Per-user pressure cannot exceed threshold. Agents must wait.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-accent-orange/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">⏱️</div>
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-orange/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-orange/30 hover:scale-110">⏱️</div>
                         <h3 class="text-xl font-bold mb-3">Cooldown Periods</h3>
                         <p class="text-slate-400">Same escalation type has minimum interval. No rapid fire.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-accent-purple/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-purple/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-purple/30 hover:scale-110">🔒</div>
                         <h3 class="text-xl font-bold mb-3">Mutual Exclusion</h3>
                         <p class="text-slate-400">Only one popup at a time. Only one banner at a time. Coordinated.</p>
                     </div>
@@ -2060,6 +2168,84 @@
     
     buildTimeline();
     setupObservers();
+    
+    // Interactive Decision Simulator
+    const simPressure = document.getElementById('sim-pressure');
+    const simPressureVal = document.getElementById('sim-pressure-val');
+    
+    if (simPressure && simPressureVal) {
+        simPressure.addEventListener('input', (e) => {
+            simPressureVal.textContent = e.target.value + '%';
+        });
+    }
+    
+    window.runSimulator = function() {
+        const pressure = parseInt(document.getElementById('sim-pressure').value);
+        const type = document.getElementById('sim-type').value;
+        const resultDiv = document.getElementById('sim-result');
+        const decisionDiv = document.getElementById('sim-decision');
+        const explanationDiv = document.getElementById('sim-explanation');
+        
+        let allowed = true;
+        let reason = '';
+        let rule = '';
+        
+        // Apply Governor rules
+        if (pressure > 50) {
+            allowed = false;
+            rule = 'PRESSURE_LIMIT';
+            reason = `User pressure at ${pressure}% exceeds limit (50%). System must wait for cooldown.`;
+        } else if (type === 'urgency' && pressure > 30) {
+            allowed = false;
+            rule = 'URGENCY_COOLDOWN';
+            reason = `Urgency escalation blocked at ${pressure}% pressure. User already received urgency messaging.`;
+        } else if (type === 'popup' && pressure > 40) {
+            allowed = false;
+            rule = 'HIGH_PRESSURE_ACTION';
+            reason = `Popup blocked - user pressure too high for interruptive actions.`;
+        } else {
+            reason = `Pressure at ${pressure}% is within safe limits. Escalation type "${type}" is allowed.`;
+        }
+        
+        // Display result
+        resultDiv.classList.remove('hidden');
+        
+        if (allowed) {
+            decisionDiv.innerHTML = `
+                <div class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-accent-green rounded-full flex items-center justify-center text-2xl">✓</div>
+                        <div>
+                            <div class="font-bold text-xl text-accent-green">ALLOWED</div>
+                            <div class="text-sm text-slate-400">Escalation may proceed</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            decisionDiv.innerHTML = `
+                <div class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-accent-red rounded-full flex items-center justify-center text-2xl">✗</div>
+                        <div>
+                            <div class="font-bold text-xl text-accent-red">BLOCKED</div>
+                            <div class="text-sm font-mono text-slate-400">${rule}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        explanationDiv.innerHTML = `
+            <div class="bg-surface-2 rounded-lg p-4 mt-4">
+                <div class="text-white font-medium mb-2">Decision Logic:</div>
+                <div class="text-slate-400">${reason}</div>
+            </div>
+        `;
+        
+        // Animate result
+        resultDiv.style.animation = 'scale-in 0.3s ease-out';
+    };
     </script>
 </body>
 </html>
