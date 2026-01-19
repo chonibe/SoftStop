@@ -2,8 +2,6 @@
 
 Governor is a control layer that stops automated systems from over-pushing users. It answers a single question before any escalation: **is this allowed right now?**
 
-Governor enforces limits based on explicit past actions and user rejections. It never infers intent or optimizes outcomes.
-
 ## What's in this repo
 - Narrative assets: [docs/SLIDE_KILLER.md](docs/SLIDE_KILLER.md), [docs/ONE_PAGER.md](docs/ONE_PAGER.md), [docs/CONCEPT.md](docs/CONCEPT.md)
 - Project management: [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md), [PROJECT_DASHBOARD.md](PROJECT_DASHBOARD.md), [docs/TASK_QUEUE.md](docs/TASK_QUEUE.md)
@@ -30,8 +28,7 @@ Governor enforces limits based on explicit past actions and user rejections. It 
 - Performance tracking: [docs/perf/PERFORMANCE.md](docs/perf/PERFORMANCE.md)
 
 ## Version
-1.0.1
+1.0.0
 
 ## Change Log
-- 1.0.1: Clarify Governor signal boundaries and deterministic enforcement.
 - 1.0.0: Initial repository overview.
