@@ -827,50 +827,29 @@
                 <!-- Without Governor -->
                 <div class="mb-12">
                     <div class="text-center mb-6">
-                        <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold mb-2">
-                            ❌ Without Governor
+                        <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold">
+                            ❌ Without Governor: Each agent fires independently — no coordination
                         </div>
-                        <p class="text-sm text-slate-400">Each agent acts independently — chaos</p>
                     </div>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
                         <!-- Multiple Agents (uncoordinated) -->
-                        <div class="space-y-3">
-                            <div class="bg-surface border border-purple-500/30 rounded-xl p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🤖</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Sales AI</div>
-                                        <div class="text-xs text-accent-red">No coordination</div>
-                                    </div>
-                                </div>
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🤖</div>
+                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
                             </div>
-                            <div class="bg-surface border border-pink-500/30 rounded-xl p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">📧</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Marketing</div>
-                                        <div class="text-xs text-accent-red">No coordination</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[10px] font-bold mt-1">Marketing</div>
                             </div>
-                            <div class="bg-surface border border-cyan-500/30 rounded-xl p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">💬</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Support Bot</div>
-                                        <div class="text-xs text-accent-red">No coordination</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[10px] font-bold mt-1">Support</div>
                             </div>
-                            <div class="bg-surface border border-orange-500/30 rounded-xl p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🎯</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Retention</div>
-                                        <div class="text-xs text-accent-red">No coordination</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🎯</div>
+                                <div class="text-[10px] font-bold mt-1">Retention</div>
                             </div>
                         </div>
                         
@@ -884,45 +863,22 @@
                         </div>
                         
                         <!-- All channels firing -->
-                        <div class="space-y-3">
-                            <div class="text-center mb-2">
-                                <div class="text-xs font-bold text-slate-500 uppercase">Channels</div>
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[9px] font-bold mt-1">Gmail</div>
                             </div>
-                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">📧</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Gmail / Outlook</div>
-                                        <div class="text-xs text-accent-red">3 emails sent</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.1s;">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[9px] font-bold mt-1">Twilio</div>
                             </div>
-                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.1s;">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">💬</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Twilio SMS</div>
-                                        <div class="text-xs text-accent-red">2 SMS sent</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.2s;">
+                                <div class="text-2xl">🔔</div>
+                                <div class="text-[9px] font-bold mt-1">FCM</div>
                             </div>
-                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.2s;">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🔔</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Push (FCM)</div>
-                                        <div class="text-xs text-accent-red">4 push sent</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-surface border border-white/10 rounded-xl p-4 animate-pulse" style="animation-delay: 0.3s;">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🖥️</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">In-App Modal</div>
-                                        <div class="text-xs text-accent-red">2 popups shown</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.3s;">
+                                <div class="text-2xl">🖥️</div>
+                                <div class="text-[9px] font-bold mt-1">Modal</div>
                             </div>
                         </div>
                         
@@ -950,50 +906,29 @@
                 <!-- With Governor -->
                 <div>
                     <div class="text-center mb-6">
-                        <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold mb-2">
-                            ✅ With Governor
+                        <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold">
+                            ✅ With Governor: All agents ask permission — coordinated execution
                         </div>
-                        <p class="text-sm text-slate-400">Governor coordinates all agents and systems</p>
                     </div>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
                         <!-- Multiple Agents/Systems -->
-                        <div class="space-y-3">
-                            <div class="bg-surface border border-purple-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🤖</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Sales AI</div>
-                                        <div class="text-xs text-slate-500">Upgrade flows</div>
-                                    </div>
-                                </div>
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🤖</div>
+                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
                             </div>
-                            <div class="bg-surface border border-pink-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">📧</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Marketing</div>
-                                        <div class="text-xs text-slate-500">Campaigns</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[10px] font-bold mt-1">Marketing</div>
                             </div>
-                            <div class="bg-surface border border-cyan-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">💬</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Support Bot</div>
-                                        <div class="text-xs text-slate-500">Help flows</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[10px] font-bold mt-1">Support</div>
                             </div>
-                            <div class="bg-surface border border-orange-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
-                                    <div class="text-2xl">🎯</div>
-                                    <div>
-                                        <div class="font-bold text-sm">Retention</div>
-                                        <div class="text-xs text-slate-500">Win-back</div>
-                                    </div>
-                                </div>
+                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🎯</div>
+                                <div class="text-[10px] font-bold mt-1">Retention</div>
                             </div>
                         </div>
                         
@@ -1037,45 +972,34 @@
                         </div>
                         
                         <!-- Execution Channels -->
-                        <div class="space-y-3">
-                            <div class="text-center mb-2">
-                                <div class="text-xs font-bold text-slate-500 uppercase">Channels</div>
-                            </div>
-                            <div class="bg-surface border border-green-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
                                     <div class="text-2xl">📧</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Gmail / Outlook</div>
-                                        <div class="text-xs text-accent-green">✓ Allowed</div>
-                                    </div>
+                                    <div class="text-[10px] font-bold mt-1">Gmail</div>
                                 </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
                             </div>
-                            <div class="bg-surface border border-red-500/30 rounded-xl p-4 opacity-50">
-                                <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
                                     <div class="text-2xl">💬</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Twilio SMS</div>
-                                        <div class="text-xs text-accent-red">✗ Blocked</div>
-                                    </div>
+                                    <div class="text-[10px] font-bold mt-1">Twilio</div>
                                 </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
                             </div>
-                            <div class="bg-surface border border-green-500/30 rounded-xl p-4 interactive-card">
-                                <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
                                     <div class="text-2xl">🔔</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">Push (FCM)</div>
-                                        <div class="text-xs text-accent-green">✓ Allowed</div>
-                                    </div>
+                                    <div class="text-[10px] font-bold mt-1">FCM</div>
                                 </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
                             </div>
-                            <div class="bg-surface border border-red-500/30 rounded-xl p-4 opacity-50">
-                                <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
                                     <div class="text-2xl">🖥️</div>
-                                    <div class="flex-1">
-                                        <div class="font-bold text-sm">In-App Modal</div>
-                                        <div class="text-xs text-accent-red">✗ Blocked</div>
-                                    </div>
+                                    <div class="text-[10px] font-bold mt-1">Modal</div>
                                 </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
                             </div>
                         </div>
                         
