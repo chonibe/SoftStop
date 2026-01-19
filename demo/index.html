@@ -736,24 +736,28 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4">What Governor Checks</h3>
+                    <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-green">Allowed Signals</h3>
+                        <p class="text-sm text-slate-400 mb-3">Explicit, observable, binary facts.</p>
                         <ul class="space-y-3 text-sm text-slate-400">
-                            <li><span class="text-white font-medium">Pressure history</span> — counts, types, recency, surfaces</li>
-                            <li><span class="text-white font-medium">Resistance signals</span> — dismissed popup, ignored CTA, opted out</li>
-                            <li><span class="text-white font-medium">Cooldowns</span> — time-based pauses after rejections</li>
-                            <li><span class="text-white font-medium">Hard caps</span> — absolute limits per type and window</li>
+                            <li><span class="text-white font-medium">Pressure events</span> — urgency shown, discount applied, modal displayed</li>
+                            <li><span class="text-white font-medium">Resistance signals</span> — dismissed popup, ignored CTA, unsubscribed</li>
+                            <li><span class="text-white font-medium">Time</span> — last escalation, cooldown expiry, session window</li>
+                            <li><span class="text-white font-medium">Surface metadata</span> — checkout, pricing page, email channel</li>
+                            <li><span class="text-white font-medium">Hard policy</span> — max 1 discount / 30 days, caps per session</li>
                         </ul>
                     </div>
-                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-red">What Governor Does NOT Use</h3>
+                    <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">Banned Signals</h3>
+                        <p class="text-sm text-slate-400 mb-3">These turn Governor into an optimizer.</p>
                         <ul class="space-y-3 text-sm text-slate-400">
-                            <li>• Funnel stage</li>
-                            <li>• Persona or personalization</li>
-                            <li>• Predicted conversion likelihood</li>
-                            <li>• LLM reasoning or “intent” scores</li>
+                            <li>• Funnel stage labels</li>
+                            <li>• Intent scores or predictions</li>
+                            <li>• Personalization / segmentation data</li>
+                            <li>• LLM reasoning or confidence outputs</li>
+                            <li>• Business goals or KPIs</li>
                         </ul>
-                        <div class="text-xs text-slate-500 mt-3">Those belong to optimization systems, not Governor.</div>
+                        <div class="text-xs text-slate-500 mt-3">If interpretation is required, it’s banned.</div>
                     </div>
                 </div>
 
@@ -782,6 +786,9 @@
                     <div class="text-sm text-slate-400">
                         <span class="text-white font-bold">Key mental model:</span> Appropriateness is not inferred — it is enforced.
                         Governor reads what already happened and applies limits.
+                    </div>
+                    <div class="text-xs text-slate-500 mt-3">
+                        Litmus test: Would two engineers interpret this signal the same way? If no, it’s banned.
                     </div>
                 </div>
             </div>
