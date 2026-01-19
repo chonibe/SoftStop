@@ -469,8 +469,202 @@
             </div>
         </section>
         
+        <!-- Per-User Intelligence -->
+        <section class="py-24 bg-gradient-to-b from-deep to-surface">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-16">
+                    <div class="inline-block mb-4 px-4 py-2 bg-accent-purple/10 border border-accent-purple/30 rounded-full text-accent-purple text-sm font-bold">
+                        Per-User Intelligence
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">Every User Has Their Own Journey</h2>
+                    <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                        Governor doesn't apply the same rules to everyone. It tracks <span class="text-white font-bold">each user's pressure individually</span> and makes different decisions based on their unique state.
+                    </p>
+                </div>
+                
+                <!-- Example: Same Campaign, Different Decisions -->
+                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden mb-12">
+                    <div class="bg-surface-2 px-6 py-4 border-b border-white/10">
+                        <h3 class="font-bold text-lg">Same Campaign → Different Decisions</h3>
+                        <p class="text-sm text-slate-400 mt-1">Marketing wants to send a "Flash Sale" popup to all users</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                        <!-- User 1: Sarah -->
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">💎</div>
+                                <div>
+                                    <div class="font-bold">Sarah</div>
+                                    <div class="text-xs text-slate-500">VIP User</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-green font-mono">12%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">3 days ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Engagement:</span>
+                                    <span class="text-slate-300">High</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-green font-bold text-sm">✓ ALLOWED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Low pressure, good timing</div>
+                            </div>
+                        </div>
+                        
+                        <!-- User 2: Mike -->
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg">🆕</div>
+                                <div>
+                                    <div class="font-bold">Mike</div>
+                                    <div class="text-xs text-slate-500">New User</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-orange font-mono">58%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">2 hours ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Engagement:</span>
+                                    <span class="text-slate-300">Exploring</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Pressure too high, cooldown active</div>
+                            </div>
+                        </div>
+                        
+                        <!-- User 3: Emma -->
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-red/20 rounded-full flex items-center justify-center text-lg">😤</div>
+                                <div>
+                                    <div class="font-bold">Emma</div>
+                                    <div class="text-xs text-slate-500">At Risk</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-red font-mono">87%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">5 mins ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Engagement:</span>
+                                    <span class="text-slate-300">Declining</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Critical pressure, protecting user</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- What Governor Tracks -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-surface border border-white/10 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="text-2xl">📊</span>
+                            Per-User State
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Pressure Level</div>
+                                    <div class="text-slate-400">Cumulative stress from all channels</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Recent History</div>
+                                    <div class="text-slate-400">What they've received in last 24h/7d/30d</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Channel Limits</div>
+                                    <div class="text-slate-400">How many emails, SMSs, popups sent</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Active Cooldowns</div>
+                                    <div class="text-slate-400">Which escalation types are on cooldown</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-surface border border-white/10 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="text-2xl">🎯</span>
+                            Why Per-User Matters
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent-green rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">VIPs get treated differently</div>
+                                    <div class="text-slate-400">High-value users have lower thresholds</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent-green rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">New users aren't overwhelmed</div>
+                                    <div class="text-slate-400">Onboarding gets protection from day 1</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent-green rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">At-risk users are protected</div>
+                                    <div class="text-slate-400">High pressure = more aggressive blocking</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent-green rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Engaged users get more freedom</div>
+                                    <div class="text-slate-400">Active users can handle more</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <!-- How It Works -->
-        <section id="how-it-works" class="py-24 bg-deep">
+        <section id="how-it-works" class="py-24 bg-surface">
             <div class="max-w-6xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-16">
                     <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Works</h2>
