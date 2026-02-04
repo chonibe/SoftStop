@@ -230,12 +230,73 @@ jobs:
           fi
 
   # ============================================================================
+  # ECOSYSTEM BOUNDARY CHECK
+  # Ensure apps/ don't import from packages/ internals
+  # ============================================================================
+  ecosystem-boundary-check:
+    name: Verify Ecosystem Boundaries
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check apps don't import packages internals
+        run: |
+          echo "Checking that Ecosystem apps use SDK, not Core internals..."
+          
+          # Look for relative imports to packages/
+          RELATIVE_IMPORTS=$(grep -r -n "from ['\"].*\/packages\/" apps/ 2>/dev/null || true)
+          
+          # Look for direct package internals
+          INTERNAL_IMPORTS=$(grep -r -n "from ['\"]@governor/\(core\|api\)/src" apps/ 2>/dev/null || true)
+          
+          if [ -n "$RELATIVE_IMPORTS" ]; then
+            echo "❌ TENET VIOLATION: Apps importing from packages/ directly"
+            echo ""
+            echo "$RELATIVE_IMPORTS"
+            echo ""
+            echo "Apps MUST use @governor/sdk, not direct imports."
+            echo "This violates: Governor authorizes, apps execute."
+            exit 1
+          fi
+          
+          if [ -n "$INTERNAL_IMPORTS" ]; then
+            echo "❌ TENET VIOLATION: Apps importing from package internals"
+            echo ""
+            echo "$INTERNAL_IMPORTS"
+            echo ""
+            echo "Apps can only import from @governor/sdk public API."
+            exit 1
+          fi
+          
+          echo "✅ Ecosystem boundaries respected - apps use SDK only"
+      
+      - name: Verify workspace dependencies
+        run: |
+          echo "Verifying apps use workspace:* for local development..."
+          
+          for app in apps/*/package.json; do
+            if [ -f "$app" ]; then
+              # Check that apps use workspace:* for @governor packages
+              NON_WORKSPACE=$(grep -E "@governor/(sdk|core|api)\".*[0-9]" "$app" || true)
+              
+              if [ -n "$NON_WORKSPACE" ]; then
+                echo "⚠️  WARNING: $app should use 'workspace:*' for local development"
+                echo "$NON_WORKSPACE"
+              fi
+            fi
+          done
+          
+          echo "✅ Workspace dependencies verified"
+
+  # ============================================================================
   # SUMMARY
   # ============================================================================
   summary:
     name: Tenet Check Summary
     runs-on: ubuntu-latest
-    needs: [integrity-check, governance-check, tenet-check, dependency-check]
+    needs: [integrity-check, governance-check, tenet-check, dependency-check, ecosystem-boundary-check]
     if: always()
     
     steps:
@@ -275,6 +336,13 @@ jobs:
             FAILED=true
           else
             echo "✅ Dependency Check: PASSED"
+          fi
+          
+          if [ "${{ needs.ecosystem-boundary-check.result }}" == "failure" ]; then
+            echo "❌ Ecosystem Boundary Check: FAILED"
+            FAILED=true
+          else
+            echo "✅ Ecosystem Boundary Check: PASSED"
           fi
           
           echo ""

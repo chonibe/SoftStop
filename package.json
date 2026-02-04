@@ -1,28 +1,52 @@
 {
-  "name": "governor",
-  "version": "0.1.0",
+  "name": "governor-monorepo",
+  "version": "1.0.0",
   "private": true,
+  "description": "Governor - Central permission gate for escalation control",
+  "packageManager": "pnpm@8.15.4",
   "scripts": {
-    "dev": "tsx governor/api/src/server.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "build": "tsc -p tsconfig.json"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.49.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "zod": "^3.23.8"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules",
+    "dev:api": "turbo dev --filter=@governor/api",
+    "dev:demo": "turbo dev --filter=@governor/demo",
+    "build:packages": "turbo build --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
+    "test:packages": "turbo test --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
+    "deploy:staging": "turbo deploy --filter=@governor/api -- --env staging",
+    "deploy:production": "turbo deploy --filter=@governor/api -- --env production",
+    "db:migrate": "node scripts/run-migration.js",
+    "check:boundaries": "node scripts/check-boundaries.js",
+    "check:tenets": "node scripts/tenet-check.js --all",
+    "check:all": "npm run check:boundaries && npm run check:tenets",
+    "tenet-check": "node scripts/tenet-check.js --all",
+    "legacy:dev": "tsx governor/api/src/server.ts",
+    "legacy:test": "vitest run"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
     "@types/node": "^20.14.8",
-    "@types/supertest": "^2.0.16",
-    "supertest": "^6.3.4",
+    "tsup": "^8.0.2",
     "tsx": "^4.16.2",
+    "turbo": "^1.12.4",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/governor.git"
+  },
+  "keywords": [
+    "governor",
+    "permission",
+    "escalation",
+    "rate-limiting",
+    "cloudflare-workers"
+  ],
+  "license": "MIT"
 }
