@@ -1,0 +1,52 @@
+{
+  "name": "governor-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Governor - Central permission gate for escalation control",
+  "packageManager": "pnpm@8.15.4",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules",
+    "dev:api": "turbo dev --filter=@governor/api",
+    "dev:demo": "turbo dev --filter=@governor/demo",
+    "build:packages": "turbo build --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
+    "test:packages": "turbo test --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
+    "deploy:staging": "turbo deploy --filter=@governor/api -- --env staging",
+    "deploy:production": "turbo deploy --filter=@governor/api -- --env production",
+    "db:migrate": "node scripts/run-migration.js",
+    "check:boundaries": "node scripts/check-boundaries.js",
+    "check:tenets": "node scripts/tenet-check.js --all",
+    "check:all": "npm run check:boundaries && npm run check:tenets",
+    "tenet-check": "node scripts/tenet-check.js --all",
+    "legacy:dev": "tsx governor/api/src/server.ts",
+    "legacy:test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "tsup": "^8.0.2",
+    "tsx": "^4.16.2",
+    "turbo": "^1.12.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/governor.git"
+  },
+  "keywords": [
+    "governor",
+    "permission",
+    "escalation",
+    "rate-limiting",
+    "cloudflare-workers"
+  ],
+  "license": "MIT"
+}

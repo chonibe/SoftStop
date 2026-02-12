@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Governor | Multi-Channel Timeline Demo</title>
+    <meta name="description" content="Scroll through 44 days of pressure across email, SMS, push, and in-app. Feel the chaos. Then see Governor stop it.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        deep: '#08080c',
+                        surface: '#111118',
+                        'surface-2': '#1a1a24',
+                        'surface-3': '#252532',
+                        accent: '#3b82f6',
+                        'accent-green': '#10b981',
+                        'accent-red': '#ef4444',
+                        'accent-orange': '#f97316',
+                        'accent-purple': '#8b5cf6',
+                        'accent-yellow': '#eab308',
+                        'accent-pink': '#ec4899',
+                        'accent-cyan': '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        @keyframes slide-in { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-down { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+        @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .interactive-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .code-typing {
+            overflow: hidden;
+            border-right: 2px solid #3b82f6;
+            white-space: nowrap;
+            animation: typing 2s steps(40) forwards, blink 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .gradient-border:hover::before {
+            opacity: 1;
+        }
+        
+        .slide-in { animation: slide-in 0.5s ease-out forwards; }
+        .slide-down { animation: slide-down 0.4s ease-out forwards; }
+        .pulse { animation: pulse 1.5s ease-in-out infinite; }
+        .glow { animation: glow 2s ease-in-out infinite; }
+        .shake { animation: shake 0.3s ease-in-out; }
+        
+        .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
+        .pressure-card.visible { opacity: 1; transform: translateX(0); }
+        .pressure-card.blocked { opacity: 0.6; }
+        .pressure-card.blocked .block-reason {
+            display: block !important;
+        }
+        
+        .timeline-line { 
+            position: absolute; 
+            left: 12px; 
+            top: 0; 
+            bottom: 0; 
+            width: 2px; 
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
+        }
+        
+        @media (min-width: 768px) {
+            .timeline-line {
+                left: 24px;
+            }
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            transition: all 0.3s;
+        }
+        
+        @media (min-width: 768px) {
+            .timeline-dot {
+                left: 20px;
+            }
+        }
+        
+        .timeline-dot.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Channel-specific styling */
+        .channel-email { border-left-color: #ef4444; }
+        .channel-sms { border-left-color: #8b5cf6; }
+        .channel-push { border-left-color: #f97316; }
+        .channel-popup { border-left-color: #ec4899; }
+        .channel-badge { border-left-color: #eab308; }
+        .channel-chat { border-left-color: #06b6d4; }
+        .channel-ad { border-left-color: #3b82f6; }
+        .channel-social { border-left-color: #a855f7; }
+        .channel-user { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+        
+        /* User action card styling */
+        .user-action { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border: 1px dashed rgba(16, 185, 129, 0.3);
+        }
+        .user-action .action-arrow {
+            color: #f97316;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111118; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        
+        /* User selector */
+        .user-btn.active-user { 
+            border-color: rgba(59, 130, 246, 0.5); 
+            background: rgba(59, 130, 246, 0.1);
+            opacity: 1 !important;
+        }
+        
+        /* Mood transitions */
+        #moodEmoji { 
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        /* Mobile overlay when sidebar is open */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        
+        @media (max-width: 1023px) {
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+        
+        /* Touch improvements */
+        @media (hover: none) {
+            button, a {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+        
+        /* Fixed Governor Button */
+        #governorBtnFixed {
+            min-width: 240px;
+        }
+        
+        @media (max-width: 640px) {
+            #governorBtnFixed {
+                min-width: auto;
+                padding: 1rem 1.5rem;
+            }
+            #governorBtnFixed .text-xs:last-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-deep text-white antialiased">
+
+    <!-- Mobile overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    
+    <!-- Mobile Menu Toggle -->
+    <button id="mobileMenuToggle" class="fixed top-4 left-4 z-[60] lg:hidden bg-surface border border-white/20 rounded-lg p-3 hover:bg-surface-2 transition-all shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+    
+    <!-- Fixed Mobile User Info (only visible in demo section on mobile) -->
+    <div id="mobileUserInfo" class="fixed top-4 left-4 right-4 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-surface-2/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div id="mobileUserAvatar" class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">🎰</div>
+                    <div>
+                        <div id="mobileUserName" class="font-bold text-sm">Choni</div>
+                        <div class="text-xs text-slate-500">Day <span id="mobileDayCount">1</span> of 44</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="flex items-center gap-2">
+                            <div id="mobileMoodEmoji" class="text-2xl">😊</div>
+                            <div>
+                                <div id="mobileMoodLabel" class="font-bold text-xs text-accent-green">Happy</div>
+                                <div id="mobilePressureValue" class="text-xs text-slate-500">0% pressure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fixed Governor Toggle Button -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70]">
+        <button id="governorBtnFixed" class="bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-6 py-4 transition-all text-left group shadow-2xl backdrop-blur-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div id="governorIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all"></div>
+                    <div>
+                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Governor</div>
+                        <div id="governorLabelFixed" class="font-bold text-white">OFF</div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 group-hover:text-white transition-colors">Tap to toggle</div>
+            </div>
+        </button>
+    </div>
+    
+    <!-- Fixed Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0">
+        <!-- Logo -->
+        <div class="p-6 border-b border-white/5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black">G</div>
+                <div>
+                    <div class="font-bold text-lg">Governor</div>
+                    <div class="text-xs text-slate-500">Multi-Channel Demo</div>
+                </div>
+            </div>
+            <p class="text-sm text-slate-400">Scroll through <strong class="text-white">44 days</strong> of pressure across <strong class="text-white">all channels</strong>.</p>
+        </div>
+        
+        <!-- User Selector -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Viewing User</div>
+            <div class="grid grid-cols-1 gap-2">
+                <button onclick="switchUser('choni')" id="user-choni" class="user-btn active-user flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left">
+                    <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">🎰</div>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">Choni</div>
+                        <div class="text-[10px] text-slate-500">High engagement, then churn</div>
+                    </div>
+                </button>
+                <button onclick="switchUser('sarah')" id="user-sarah" class="user-btn flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left opacity-60">
+                    <div class="w-10 h-10 bg-accent-green/20 rounded-full flex items-center justify-center text-lg">💎</div>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">Sarah</div>
+                        <div class="text-[10px] text-slate-500">VIP, low tolerance</div>
+                    </div>
+                </button>
+                <button onclick="switchUser('mike')" id="user-mike" class="user-btn flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left opacity-60">
+                    <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg">🆕</div>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">Mike</div>
+                        <div class="text-[10px] text-slate-500">New user, exploring</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Current Date -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Current Date</div>
+            <div id="currentDate" class="text-2xl font-black font-mono">Dec 6, 2025</div>
+            <div id="dayCount" class="text-sm text-slate-500">Day 1 of 44</div>
+        </div>
+        
+        <!-- Customer Temperament -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Customer Temperament</div>
+            <div class="flex items-center gap-4">
+                <div id="moodEmoji" class="text-5xl transition-all duration-500">😊</div>
+                <div class="flex-1">
+                    <div id="moodLabel" class="font-bold text-lg text-accent-green">Happy</div>
+                    <div id="moodDesc" class="text-xs text-slate-500">Enjoying the platform</div>
+                </div>
+            </div>
+            <div class="mt-3 flex gap-1">
+                <div id="mood-1" class="mood-step flex-1 h-2 rounded-full bg-accent-green"></div>
+                <div id="mood-2" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
+                <div id="mood-3" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
+                <div id="mood-4" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
+                <div id="mood-5" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
+            </div>
+            <div class="flex justify-between text-[9px] text-slate-600 mt-1">
+                <span>Happy</span>
+                <span>Annoyed</span>
+                <span>Frustrated</span>
+                <span>Angry</span>
+                <span>Churned</span>
+            </div>
+        </div>
+        
+        <!-- Pressure Meter -->
+        <div class="p-6 border-b border-white/5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">User Pressure</span>
+                <span id="pressureValue" class="text-sm font-mono font-bold text-accent">0</span>
+            </div>
+            <div class="h-4 bg-surface-2 rounded-full overflow-hidden mb-2">
+                <div id="pressureBar" class="h-full bg-accent rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div id="pressureStatus" class="text-xs text-slate-500">Relaxed</div>
+        </div>
+        
+        <!-- Channel Stats -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Touches by Channel</div>
+            <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">📧</div>
+                    <div id="countEmail" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Email</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">💬</div>
+                    <div id="countSms" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">SMS</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🔔</div>
+                    <div id="countPush" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Push</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🖥️</div>
+                    <div id="countPopup" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Popup</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">🏷️</div>
+                    <div id="countBadge" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Badge</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">💭</div>
+                    <div id="countChat" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Chat</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">📢</div>
+                    <div id="countAd" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Ads</div>
+                </div>
+                <div class="bg-surface-2 rounded-lg p-2">
+                    <div class="text-lg">📱</div>
+                    <div id="countSocial" class="font-bold font-mono text-sm">0</div>
+                    <div class="text-[10px] text-slate-500">Social</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Totals -->
+        <div class="p-6 border-b border-white/5">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="text-xs text-slate-500 uppercase font-bold">Total Touches</div>
+                    <div id="totalCount" class="text-2xl font-black font-mono">0</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 uppercase font-bold">Blocked</div>
+                    <div id="blockedCount" class="text-2xl font-black font-mono text-accent-green">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Governor Info (Sidebar) -->
+        <div class="p-6 border-b border-white/5">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Governor Status</div>
+            <div class="bg-surface-2 border border-white/10 rounded-xl p-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div id="governorIndicator" class="w-4 h-4 rounded-full bg-accent-red"></div>
+                    <span id="governorLabel" class="font-bold">OFF</span>
+                </div>
+                <p id="governorHint" class="text-xs text-slate-500 mt-2">
+                    Use the button to toggle Governor
+                </p>
+            </div>
+        </div>
+        
+        <!-- Decision History (for internal teams) -->
+        <div class="p-6 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Decision Log</div>
+                <span class="text-[10px] text-slate-600">For internal review</span>
+            </div>
+            <div id="decisionLog" class="flex-1 overflow-y-auto space-y-2 text-xs max-h-48">
+                <div class="text-slate-600 italic">Scroll through timeline to see decisions...</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content - Scrollable Timeline -->
+    <main class="lg:ml-80 min-h-screen">
+        
+        <!-- Landing Page -->
+        
+        <!-- Hero Section (Landing) -->
+        <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-deep via-surface to-deep pt-20 lg:pt-0 relative overflow-hidden">
+            <!-- Background gradient effects -->
+            <div class="absolute inset-0 opacity-30">
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-purple/20 rounded-full blur-3xl"></div>
+            </div>
+            
+            <div class="relative text-center px-6 md:px-12 max-w-4xl">
+                <div class="inline-block mb-6 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full text-accent text-sm font-bold">
+                    The missing pressure regulator for multi-agent platforms
+                </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                    Governor Is a Pressure Regulator
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-3xl mx-auto">
+                    Governor doesn't decide what to show next.<br class="hidden md:block"/>
+                    <span class="text-white font-bold">It decides when escalation should stop.</span>
+                </p>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-12">
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
+                        <div class="text-3xl md:text-4xl font-black text-accent-green">&lt;10ms</div>
+                        <div class="text-xs md:text-sm text-slate-500">Permission check</div>
+                    </div>
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
+                        <div class="text-3xl md:text-4xl font-black text-accent-purple">1 line</div>
+                        <div class="text-xs md:text-sm text-slate-500">To integrate</div>
+                    </div>
+                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
+                        <div class="text-3xl md:text-4xl font-black text-accent-cyan">100%</div>
+                        <div class="text-xs md:text-sm text-slate-500">Tracked</div>
+                    </div>
+                </div>
+                
+                <!-- CTA -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#demo" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                        See Live Demo
+                    </a>
+                    <a href="#how-it-works" class="inline-block bg-surface-2 hover:bg-surface-3 border border-white/10 text-white font-bold py-4 px-8 rounded-xl transition-all">
+                        How It Works
+                    </a>
+                </div>
+                
+                <!-- Social Proof Notifications -->
+                <div class="mt-16 flex flex-col gap-3 max-w-md mx-auto">
+                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 0.5s; animation-fill-mode: forwards;">
+                        <div class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
+                        <span class="text-sm text-slate-300">Startup from Berlin signed up</span>
+                        <span class="text-xs text-slate-500 ml-auto">just now</span>
+                    </div>
+                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 1s; animation-fill-mode: forwards;">
+                        <div class="w-2 h-2 bg-accent-purple rounded-full animate-pulse"></div>
+                        <span class="text-sm text-slate-300">Someone from California just upgraded</span>
+                        <span class="text-xs text-slate-500 ml-auto">just now</span>
+                    </div>
+                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 1.5s; animation-fill-mode: forwards;">
+                        <div class="w-2 h-2 bg-accent-cyan rounded-full animate-pulse"></div>
+                        <span class="text-sm text-slate-300">Enterprise deal closed</span>
+                        <span class="text-xs text-slate-500 ml-auto">just now</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Testimonial -->
+        <section class="py-24 bg-surface relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
+                    <div class="absolute top-0 left-0 text-9xl text-accent">"</div>
+                    <div class="absolute bottom-0 right-0 text-9xl text-accent">"</div>
+                </div>
+            </div>
+            <div class="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
+                <p class="text-2xl md:text-3xl text-white font-medium mb-8 leading-relaxed">
+                    Governor reduced our user complaints by 73%. Our AI agents now feel <span class="text-accent-green">helpful, not pushy</span>.
+                </p>
+                <div class="flex items-center justify-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-accent to-accent-purple rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        SC
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-white">Sarah Chen</div>
+                        <div class="text-sm text-slate-400">VP Engineering, Acme</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Per-User Intelligence -->
+        <section class="py-24 bg-gradient-to-b from-deep to-surface">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-16">
+                    <div class="inline-block mb-4 px-4 py-2 bg-accent-purple/10 border border-accent-purple/30 rounded-full text-accent-purple text-sm font-bold">
+                        Per-User Intelligence
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">Each User Has Their Own Pressure State</h2>
+                    <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                        Governor tracks <span class="text-white font-bold">pressure per user</span>. Different users can be in different states at the same moment, so the same escalation can be allowed for one and blocked for another.
+                    </p>
+                    <div class="text-sm text-slate-500 mt-3">
+                        By regulating pressure, users move at their own pace — indirectly, not by design.
+                    </div>
+                </div>
+                
+                <!-- Example: Same Campaign, Different Decisions -->
+                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden mb-12">
+                    <div class="bg-surface-2 px-6 py-4 border-b border-white/10">
+                        <h3 class="font-bold text-lg">Same Escalation → Different Pressure → Different Decision</h3>
+                        <p class="text-sm text-slate-400 mt-1">Marketing wants to send a "Flash Sale" popup to all users. Governor checks pressure for each user individually.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                        <!-- User 1: Sarah -->
+                        <div class="p-6 interactive-card gradient-border">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">💎</div>
+                                <div>
+                                    <div class="font-bold">Sarah</div>
+                                    <div class="text-xs text-slate-500">VIP User</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-green font-mono">12%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">3 days ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Recent response:</span>
+                                    <span class="text-slate-300">Positive</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg p-3 transition-all hover:bg-accent-green/20">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-green font-bold text-sm">✓ ALLOWED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Low pressure, safe to escalate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- User 2: Mike -->
+                        <div class="p-6 interactive-card gradient-border">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">🆕</div>
+                                <div>
+                                    <div class="font-bold">Mike</div>
+                                    <div class="text-xs text-slate-500">New User</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-orange font-mono">58%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">2 hours ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Recent response:</span>
+                                    <span class="text-slate-300">Ignored</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Pressure too high, cooldown active</div>
+                            </div>
+                        </div>
+                        
+                        <!-- User 3: Emma -->
+                        <div class="p-6 interactive-card gradient-border">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-accent-red/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">😤</div>
+                                <div>
+                                    <div class="font-bold">Emma</div>
+                                    <div class="text-xs text-slate-500">At Risk</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Pressure:</span>
+                                    <span class="text-accent-red font-mono">87%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Last popup:</span>
+                                    <span class="text-slate-300">5 mins ago</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Recent response:</span>
+                                    <span class="text-slate-300">Unsubscribed SMS</span>
+                                </div>
+                            </div>
+                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
+                                </div>
+                                <div class="text-xs text-slate-400">Critical pressure, protect the user</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Clean Distinction -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">❌ What Governor is NOT</h3>
+                        <ul class="space-y-2 text-sm text-slate-400">
+                            <li>• Decide when to upsell</li>
+                            <li>• Decide which funnel stage a user is in</li>
+                            <li>• Advance users down the funnel</li>
+                            <li>• Personalize journeys</li>
+                            <li>• Optimize timing for conversion</li>
+                        </ul>
+                        <div class="text-xs text-slate-500 mt-3">Those are optimization systems.</div>
+                    </div>
+                    <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ What Governor DOES</h3>
+                        <div class="text-sm text-slate-400 mb-4">Governor answers only this:</div>
+                        <div class="bg-deep border border-white/10 rounded-lg p-4 font-mono text-sm">
+                            <span class="text-white">Is it appropriate to increase pressure on this user right now?</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-3">Negative authority. No intent, no optimization.</div>
+                    </div>
+                </div>
+                
+                <!-- What Governor Tracks -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-surface border border-white/10 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="text-2xl">📊</span>
+                            Per-User State
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Pressure Level</div>
+                                    <div class="text-slate-400">Cumulative stress from all channels</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Recent History</div>
+                                    <div class="text-slate-400">What they've received in last 24h/7d/30d</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Channel Limits</div>
+                                    <div class="text-slate-400">How many emails, SMSs, popups sent</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
+                                <div>
+                                    <div class="font-medium text-white">Active Cooldowns</div>
+                                    <div class="text-slate-400">Which escalation types are on cooldown</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-surface border border-white/10 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="text-2xl">🧠</span>
+                            Why This Still Affects the Funnel
+                        </h3>
+                        <div class="text-sm text-slate-400 mb-4">
+                            Most funnels break not because users move too slowly, but because systems push too fast.
+                        </div>
+                        <div class="grid grid-cols-1 gap-3 text-xs text-slate-400 mb-4">
+                            <div class="bg-surface-2 rounded-lg p-3">
+                                <div class="font-bold text-accent-red mb-1">Without Governor</div>
+                                User hesitates → system escalates → user resists → trust drops → funnel breaks
+                            </div>
+                            <div class="bg-surface-2 rounded-lg p-3">
+                                <div class="font-bold text-accent-green mb-1">With Governor</div>
+                                User hesitates → system pauses → user continues at own pace → trust remains
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500">
+                            Funnels = engines • UX = steering • Governor = brake + traction control
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">
+                            Example: No urgency modal, no discount email, no repeated reminders — user can still convert without being chased.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- How It Works -->
+        <section id="how-it-works" class="py-24 bg-surface">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Works</h2>
+                    <p class="text-xl text-slate-400">A single permission check between intent and action.</p>
+                </div>
+                
+                <div class="relative">
+                    <!-- Flow arrows -->
+                    <div class="hidden md:flex absolute top-1/3 left-0 right-0 items-center justify-center gap-4 pointer-events-none">
+                        <div class="flex-1"></div>
+                        <div class="text-4xl text-accent animate-pulse">→</div>
+                        <div class="flex-1"></div>
+                        <div class="text-4xl text-accent animate-pulse" style="animation-delay: 0.3s;">→</div>
+                        <div class="flex-1"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Step 1 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent mb-4 transition-all hover:scale-110">1</div>
+                            <h3 class="text-2xl font-bold mb-3">Agent Proposes</h3>
+                            <p class="text-slate-400 mb-6">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-slate-500">// Agent request</div>
+                                <div class="text-accent-green">escalate</div><span class="text-white">(userId, </span><span class="text-accent-yellow">"popup"</span><span class="text-white">)</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent-purple/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-purple mb-4 transition-all hover:scale-110">2</div>
+                            <h3 class="text-2xl font-bold mb-3">Governor Checks</h3>
+                            <p class="text-slate-400 mb-6">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-slate-500">// Governor response</div>
+                                <div class="text-accent-red">BLOCKED</div>
+                                <div class="text-slate-500 text-xs mt-1">reason: "Pressure limit"</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3 -->
+                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
+                            <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-green mb-4 transition-all hover:scale-110">3</div>
+                            <h3 class="text-2xl font-bold mb-3">Execute or Block</h3>
+                            <p class="text-slate-400 mb-6">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
+                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
+                                <div class="text-accent-green">✓ ALLOWED</div>
+                                <div class="text-slate-500 text-xs mt-1">or</div>
+                                <div class="text-accent-red">✗ BLOCKED</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Governor in the Flow -->
+        <section class="py-24 bg-gradient-to-b from-surface to-deep">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">Governor Lives in the Flow</h2>
+                    <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                        Governor doesn't replace your optimization systems. It sits <span class="text-white font-bold">between decision and execution</span> as a safety layer.
+                    </p>
+                </div>
+                
+                <!-- Without Governor -->
+                <div class="mb-12">
+                    <div class="text-center mb-6">
+                        <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold">
+                            ❌ Without Governor: Each agent fires independently — no coordination
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                        <!-- Multiple Agents (uncoordinated) -->
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🤖</div>
+                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
+                            </div>
+                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[10px] font-bold mt-1">Marketing</div>
+                            </div>
+                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[10px] font-bold mt-1">Support</div>
+                            </div>
+                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🎯</div>
+                                <div class="text-[10px] font-bold mt-1">Retention</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Direct execution arrows -->
+                        <div class="hidden lg:flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-4xl text-accent-red mb-2">⚠️</div>
+                                <div class="text-sm font-bold text-accent-red mb-1">Direct Access</div>
+                                <div class="text-xs text-slate-500">No gate, no limits</div>
+                            </div>
+                        </div>
+                        
+                        <!-- All channels firing -->
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[9px] font-bold mt-1">Gmail</div>
+                            </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.1s;">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[9px] font-bold mt-1">Twilio</div>
+                            </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.2s;">
+                                <div class="text-2xl">🔔</div>
+                                <div class="text-[9px] font-bold mt-1">FCM</div>
+                            </div>
+                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.3s;">
+                                <div class="text-2xl">🖥️</div>
+                                <div class="text-[9px] font-bold mt-1">Modal</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow to User -->
+                        <div class="hidden lg:flex items-center justify-center">
+                            <div class="text-4xl text-accent-red">→</div>
+                        </div>
+                        
+                        <!-- Overwhelmed User -->
+                        <div class="flex items-center justify-center">
+                            <div class="bg-accent-red/10 border-2 border-accent-red/50 rounded-2xl p-6 text-center shake">
+                                <div class="text-5xl mb-3">😡</div>
+                                <div class="font-black text-lg text-accent-red mb-1">User</div>
+                                <div class="text-xs text-slate-400">Overwhelmed</div>
+                                <div class="mt-3 text-xs text-left space-y-1">
+                                    <div class="text-slate-400">• 11 messages today</div>
+                                    <div class="text-slate-400">• Pressure: 95%</div>
+                                    <div class="text-slate-400">• About to churn</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- With Governor -->
+                <div>
+                    <div class="text-center mb-6">
+                        <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold">
+                            ✅ With Governor: All agents ask permission — coordinated execution
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                        <!-- Multiple Agents/Systems -->
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🤖</div>
+                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
+                            </div>
+                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">📧</div>
+                                <div class="text-[10px] font-bold mt-1">Marketing</div>
+                            </div>
+                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">💬</div>
+                                <div class="text-[10px] font-bold mt-1">Support</div>
+                            </div>
+                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                <div class="text-2xl">🎯</div>
+                                <div class="text-[10px] font-bold mt-1">Retention</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrows pointing to Governor -->
+                        <div class="hidden lg:flex flex-col items-center justify-center">
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                            <div class="text-3xl text-accent">→</div>
+                        </div>
+                        
+                        <!-- Governor (Central Gate) -->
+                        <div class="bg-accent/10 border-2 border-accent rounded-2xl p-6 relative">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+                                PERMISSION GATE
+                            </div>
+                            <div class="text-center mt-2">
+                                <div class="text-5xl mb-3">🛡️</div>
+                                <div class="font-black text-xl mb-2">Governor</div>
+                                <div class="text-xs text-slate-400 mb-3">Checks per-user state</div>
+                                <div class="space-y-1 text-xs text-left">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-green rounded-full"></div>
+                                        <span class="text-slate-400">Pressure: 35%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-orange rounded-full"></div>
+                                        <span class="text-slate-400">Cooldowns active</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-accent-purple rounded-full"></div>
+                                        <span class="text-slate-400">Limits enforced</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow to Execution -->
+                        <div class="hidden lg:flex items-center justify-center">
+                            <div class="text-4xl text-accent-green">→</div>
+                        </div>
+                        
+                        <!-- Execution Channels -->
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                    <div class="text-2xl">📧</div>
+                                    <div class="text-[10px] font-bold mt-1">Gmail</div>
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
+                            </div>
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
+                                    <div class="text-2xl">💬</div>
+                                    <div class="text-[10px] font-bold mt-1">Twilio</div>
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
+                            </div>
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
+                                    <div class="text-2xl">🔔</div>
+                                    <div class="text-[10px] font-bold mt-1">FCM</div>
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
+                            </div>
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
+                                    <div class="text-2xl">🖥️</div>
+                                    <div class="text-[10px] font-bold mt-1">Modal</div>
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow to User -->
+                        <div class="hidden lg:flex items-center justify-center">
+                            <div class="text-4xl text-accent-green">→</div>
+                        </div>
+                        
+                        <!-- Protected User -->
+                        <div class="flex items-center justify-center">
+                            <div class="bg-accent-green/10 border-2 border-accent-green/50 rounded-2xl p-6 text-center">
+                                <div class="text-5xl mb-3">😊</div>
+                                <div class="font-black text-lg text-accent-green mb-1">User</div>
+                                <div class="text-xs text-slate-400">Protected</div>
+                                <div class="mt-3 text-xs text-left space-y-1">
+                                    <div class="text-slate-400">• 2 messages today</div>
+                                    <div class="text-slate-400">• Pressure: 35%</div>
+                                    <div class="text-slate-400">• Trust intact</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Key Insight -->
+                <div class="mt-12 max-w-4xl mx-auto">
+                    <div class="bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="text-center mb-6">
+                            <div class="text-2xl font-black mb-2">Governor is NOT a replacement</div>
+                            <p class="text-slate-400">It's a layer that works with your existing systems</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-surface rounded-xl p-6">
+                                <div class="font-bold text-accent mb-3">Your Optimization Systems</div>
+                                <ul class="space-y-2 text-sm text-slate-400">
+                                    <li>• Decide which users to target</li>
+                                    <li>• Choose what message to show</li>
+                                    <li>• Optimize timing for conversion</li>
+                                    <li>• Personalize content</li>
+                                </ul>
+                                <div class="text-xs text-accent-green mt-3 font-bold">✓ Still does all of this</div>
+                            </div>
+                            <div class="bg-surface rounded-xl p-6">
+                                <div class="font-bold text-accent-green mb-3">Governor Adds</div>
+                                <ul class="space-y-2 text-sm text-slate-400">
+                                    <li>• Cross-agent coordination</li>
+                                    <li>• Per-user pressure limits</li>
+                                    <li>• Cooldown enforcement</li>
+                                    <li>• Execution gate</li>
+                                </ul>
+                                <div class="text-xs text-accent-purple mt-3 font-bold">+ New safety layer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- How Governor Decides "Appropriate" -->
+        <section class="py-24 bg-deep">
+            <div class="max-w-5xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Decides "Appropriate"</h2>
+                    <p class="text-xl text-slate-400">
+                        Governor doesn't "know" in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
+                    </p>
+                    <div class="mt-6 max-w-3xl mx-auto bg-surface-2 border border-accent/20 rounded-xl p-4">
+                        <div class="text-sm text-white font-bold mb-2">The ONLY question Governor asks:</div>
+                        <div class="text-lg text-accent">"Has this user already received enough pressure of this type within the defined limits?"</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ Allowed Signals</h3>
+                        <p class="text-xs text-slate-400 mb-4">Explicit, observable, binary facts.</p>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li><span class="text-white font-medium">Pressure events</span> — urgency shown, discount applied, modal displayed</li>
+                            <li><span class="text-white font-medium">User resistance</span> — dismissed popup, ignored CTA, unsubscribed</li>
+                            <li><span class="text-white font-medium">Time</span> — last escalation, cooldown expiry, session window</li>
+                            <li><span class="text-white font-medium">Surface metadata</span> — checkout page, email channel, pricing view</li>
+                            <li><span class="text-white font-medium">Hard policy</span> — max 1 discount/30d, caps per session</li>
+                        </ul>
+                    </div>
+                    <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">🚫 Banned Signals</h3>
+                        <p class="text-xs text-slate-400 mb-4">These turn Governor into an optimizer.</p>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li><span class="text-white font-medium">Funnel stage</span> — awareness, consideration, conversion labels</li>
+                            <li><span class="text-white font-medium">Intent scores</span> — high intent, conversion likelihood, propensity</li>
+                            <li><span class="text-white font-medium">Personalization</span> — personas, demographics, cohort, LTV</li>
+                            <li><span class="text-white font-medium">AI reasoning</span> — confidence scores, agent justifications</li>
+                            <li><span class="text-white font-medium">Business goals</span> — revenue targets, conversion KPIs</li>
+                        </ul>
+                        <div class="text-xs text-slate-500 mt-3">If interpretation is required, it's banned.</div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-2 border border-white/10 rounded-2xl p-6 mb-10">
+                    <h3 class="font-bold text-lg mb-3">Decision Logic (Deterministic)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-400">
+                        <div class="bg-deep rounded-lg p-4 font-mono">
+                            <div>1. Identify escalation type</div>
+                            <div>2. Fetch user pressure state</div>
+                            <div>3. Apply rules in order:</div>
+                            <div class="pl-4">a. Hard block?</div>
+                            <div class="pl-4">b. Cooldown active?</div>
+                            <div class="pl-4">c. Cap exceeded?</div>
+                            <div>4. Return ALLOWED / BLOCKED + reason</div>
+                        </div>
+                        <div class="bg-deep rounded-lg p-4 font-mono">
+                            <div>// Example result</div>
+                            <div class="text-accent-red">allowed: false</div>
+                            <div>reason: "urgency_cap_reached"</div>
+                            <div>retry_after: "7d"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-3 text-accent-red">❌ What Governor Does NOT Do</h3>
+                        <div class="bg-deep rounded-lg p-4 text-sm text-slate-400 italic">
+                            "User is highly engaged, so a discount would help them convert."
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">This is optimization logic. Not Governor's job.</div>
+                    </div>
+                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-3 text-accent-green">✅ What Governor DOES Do</h3>
+                        <div class="bg-deep rounded-lg p-4 text-sm text-white">
+                            "A discount was already shown 3 days ago. Policy allows max 1 per 14 days. Block."
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">Pure enforcement. No interpretation.</div>
+                    </div>
+                </div>
+
+                <div class="bg-surface border border-white/10 rounded-2xl p-6">
+                    <div class="text-sm text-slate-400 mb-3">
+                        <span class="text-white font-bold">Signal boundary litmus test:</span>
+                    </div>
+                    <div class="text-base text-white mb-2">"Would two engineers always interpret this signal the same way?"</div>
+                    <div class="flex gap-8 text-sm">
+                        <div><span class="text-accent-green font-bold">Yes</span> → Allowed</div>
+                        <div><span class="text-accent-red font-bold">No</span> → Banned</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Features -->
+        <section class="py-24 bg-surface">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-red/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-red/30 hover:scale-110">📊</div>
+                        <h3 class="text-xl font-bold mb-3">Pressure Limits</h3>
+                        <p class="text-slate-400">Per-user pressure cannot exceed threshold. Agents must wait.</p>
+                    </div>
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-orange/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-orange/30 hover:scale-110">⏱️</div>
+                        <h3 class="text-xl font-bold mb-3">Cooldown Periods</h3>
+                        <p class="text-slate-400">Same escalation type has minimum interval. No rapid fire.</p>
+                    </div>
+                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
+                        <div class="w-16 h-16 bg-accent-purple/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-purple/30 hover:scale-110">🔒</div>
+                        <h3 class="text-xl font-bold mb-3">Mutual Exclusion</h3>
+                        <p class="text-slate-400">Only one popup at a time. Only one banner at a time. Coordinated.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- API Section -->
+        <section class="py-24 bg-deep">
+            <div class="max-w-5xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">One API. Total Control.</h2>
+                    <p class="text-xl text-slate-400">Governor integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
+                </div>
+                
+                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-white/10">
+                        <button class="px-6 py-3 text-sm font-bold text-accent border-b-2 border-accent">Permission Check</button>
+                        <button class="px-6 py-3 text-sm font-bold text-slate-500 hover:text-white transition-colors">Configuration</button>
+                        <button class="px-6 py-3 text-sm font-bold text-slate-500 hover:text-white transition-colors">Events</button>
+                    </div>
+                    
+                    <!-- Code -->
+                    <div class="p-6 md:p-8 font-mono text-sm overflow-x-auto">
+<pre class="text-slate-300"><span class="text-slate-500">// Before any escalation</span>
+<span class="text-purple-400">const</span> decision = <span class="text-purple-400">await</span> governor.<span class="text-blue-400">check</span>({
+  <span class="text-cyan-400">userId</span>: <span class="text-green-400">"user_123"</span>,
+  <span class="text-cyan-400">agentId</span>: <span class="text-green-400">"sales-agent"</span>,
+  <span class="text-cyan-400">escalationType</span>: <span class="text-green-400">"popup"</span>,
+  <span class="text-cyan-400">pressure</span>: <span class="text-orange-400">25</span>
+});
+
+<span class="text-purple-400">if</span> (decision.<span class="text-cyan-400">allowed</span>) {
+  <span class="text-blue-400">showPopup</span>(user);
+} <span class="text-purple-400">else</span> {
+  <span class="text-slate-500">// Agent must wait or downgrade</span>
+  console.<span class="text-blue-400">log</span>(decision.<span class="text-cyan-400">reason</span>);
+  <span class="text-slate-500">// "Cooldown active for popup"</span>
+  <span class="text-slate-500">// "Would exceed pressure limit"</span>
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA to Demo -->
+        <section class="py-24 bg-surface text-center">
+            <div class="max-w-4xl mx-auto px-6 md:px-12">
+                <h2 class="text-4xl md:text-5xl font-black mb-6">See It In Action</h2>
+                <p class="text-xl text-slate-400 mb-12">
+                    Scroll through 44 days of real user pressure. Watch different outcomes with Governor ON vs OFF.
+                </p>
+                <a href="#demo" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl text-lg">
+                    Launch Interactive Demo →
+                </a>
+            </div>
+        </section>
+        
+        <!-- Demo Section Marker -->
+        <div id="demo" class="h-1"></div>
+        
+        <!-- Original Hero Section (Demo Start) -->
+        <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep pt-20 lg:pt-0">
+            <div class="text-center px-6 md:px-12 max-w-2xl">
+                <div class="flex justify-center gap-2 md:gap-3 text-3xl md:text-4xl mb-6">
+                    <span>📧</span><span>💬</span><span>🔔</span><span>🖥️</span><span>💭</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-black mb-4">Multi-Channel Pressure</h1>
+                <p class="text-lg md:text-xl text-slate-400 mb-4">
+                    Platforms don't just send emails. They hit you from <strong class="text-white">every direction</strong>:
+                </p>
+                <div class="flex flex-wrap justify-center gap-2 mb-8 text-sm">
+                    <span class="bg-accent-red/20 text-accent-red px-3 py-1 rounded-full">Email</span>
+                    <span class="bg-accent-purple/20 text-accent-purple px-3 py-1 rounded-full">SMS</span>
+                    <span class="bg-accent-orange/20 text-accent-orange px-3 py-1 rounded-full">Push Notifications</span>
+                    <span class="bg-accent-pink/20 text-accent-pink px-3 py-1 rounded-full">In-App Popups</span>
+                    <span class="bg-accent-yellow/20 text-accent-yellow px-3 py-1 rounded-full">Badges</span>
+                    <span class="bg-accent-cyan/20 text-accent-cyan px-3 py-1 rounded-full">Chat</span>
+                </div>
+                <p class="text-slate-500 mb-8">Scroll to experience 44 days of real cross-channel pressure.</p>
+                <div class="flex items-center justify-center gap-2 text-slate-500">
+                    <span class="animate-bounce">↓</span>
+                    <span class="text-sm">Start scrolling</span>
+                    <span class="animate-bounce">↓</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline Container -->
+        <div id="timeline" class="relative px-4 md:px-8 lg:px-12 py-12 md:py-24">
+            <div class="timeline-line"></div>
+            <div id="timelineEntries"></div>
+        </div>
+
+        <!-- End Section -->
+        <section id="endSection" class="min-h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000 py-12">
+            <div class="text-center px-6 md:px-12 max-w-3xl">
+                <div id="endIcon" class="text-5xl md:text-6xl mb-6">😵</div>
+                <h2 id="endTitle" class="text-3xl md:text-4xl font-black mb-4">Death by a Thousand Touches</h2>
+                <p id="endText" class="text-lg md:text-xl text-slate-400 mb-8">
+                    This is what multi-channel automation looks like without coordination.
+                </p>
+                
+                <!-- Outcome comparison -->
+                <div id="outcomeComparison" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
+                    <!-- Without Governor -->
+                    <div id="outcomeWithout" class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6 text-left">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">❌</span>
+                            <span class="font-bold text-accent-red">Without Governor</span>
+                        </div>
+                        <div id="outcomeWithoutText" class="text-sm text-slate-400 space-y-2">
+                            <div>💀 User churned</div>
+                            <div>📧 Marked as spam</div>
+                            <div>💸 $0 lifetime value</div>
+                            <div>⚠️ Damaged brand reputation</div>
+                        </div>
+                    </div>
+                    
+                    <!-- With Governor -->
+                    <div id="outcomeWith" class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6 text-left">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">✅</span>
+                            <span class="font-bold text-accent-green">With Governor</span>
+                        </div>
+                        <div id="outcomeWithText" class="text-sm text-slate-400 space-y-2">
+                            <div>😊 User retained</div>
+                            <div>📬 Healthy engagement</div>
+                            <div>💰 $247 lifetime value</div>
+                            <div>❤️ Positive brand sentiment</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-xl mx-auto mb-8">
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-red" id="finalTotal">0</div>
+                        <div class="text-xs text-slate-500">Total Touches</div>
+                    </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-green" id="finalBlocked">0</div>
+                        <div class="text-xs text-slate-500">Blocked</div>
+                    </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-orange" id="finalPressure">0</div>
+                        <div class="text-xs text-slate-500">Peak Pressure</div>
+                    </div>
+                    <div class="bg-surface rounded-xl p-4">
+                        <div class="text-2xl font-black text-accent-purple" id="finalChannels">8</div>
+                        <div class="text-xs text-slate-500">Channels Used</div>
+                    </div>
+                </div>
+                <a href="#" onclick="location.reload()" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
+                    Try Again with Governor ON
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    // =====================================================
+    // GOVERNOR MULTI-CHANNEL TIMELINE DEMO
+    // Real pressure from multiple channels
+    // =====================================================
+    
+    // Current user
+    let currentUser = 'choni';
+
+    // Multi-channel pressure data with user actions and platform responses
+    // Shows the feedback loop: User action → Platform response → More pressure
+    
+    // CHONI's Journey - High engagement casino user who gets overwhelmed and churns
+    const choniEvents = [
+        // Day 1 - Dec 6: Signup
+        { date: '2025-12-06', channel: 'user', subject: 'You signed up for CrownCoins Casino', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5, trigger: 'signup' },
+        { date: '2025-12-06', channel: 'push', subject: 'Your account is ready! Claim your bonus', type: 'promo', pressure: 8 },
+        
+        // Day 2 - Dec 7: User opened email but didn't click
+        { date: '2025-12-07', channel: 'user', subject: 'You opened the welcome email (no click)', type: 'action', pressure: -2, isUser: true },
+        { date: '2025-12-07', channel: 'email', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8, trigger: 'opened_no_click' },
+        { date: '2025-12-07', channel: 'sms', subject: '🎰 Your FREE coins are waiting! Tap to claim', type: 'promo', pressure: 10, trigger: 'opened_no_click' },
+        
+        // Day 3 - Dec 8: User visited site but left
+        { date: '2025-12-08', channel: 'user', subject: 'You visited the site for 30 seconds', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12, trigger: 'browse_abandon' },
+        { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15, trigger: 'browse_abandon' },
+        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Choni, your coins are waiting!" 🎰', type: 'retarget', pressure: 8, trigger: 'browse_abandon' },
+        
+        // Day 4 - Dec 9
+        { date: '2025-12-09', channel: 'email', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
+        { date: '2025-12-09', channel: 'badge', subject: 'NEW: 3 unclaimed bonuses waiting', type: 'fomo', pressure: 6 },
+        
+        // Day 5 - Dec 10: User clicked on email
+        { date: '2025-12-10', channel: 'user', subject: 'You clicked the "$10M Jackpot" email', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-10', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-10', channel: 'email', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-10', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14, trigger: 'email_click' },
+        { date: '2025-12-10', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16, trigger: 'email_click' },
+        
+        // Day 6 - Dec 11: User didn't claim gift
+        { date: '2025-12-11', channel: 'user', subject: 'You ignored 3 emails', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-11', channel: 'email', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-11', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12, trigger: 'inactivity' },
+        
+        // Day 8 - Dec 13: User viewed pricing
+        { date: '2025-12-13', channel: 'user', subject: 'You viewed the coin purchase page', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-13', channel: 'email', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
+        { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'ad', subject: '[Instagram] "300% BONUS - Today Only!" 🔥', type: 'retarget', pressure: 10, trigger: 'viewed_pricing' },
+        { date: '2025-12-13', channel: 'ad', subject: '[YouTube Pre-roll] "CrownCoins: Win Big Today"', type: 'retarget', pressure: 8, trigger: 'viewed_pricing' },
+        
+        // Day 9 - Dec 14: User closed popup without action
+        { date: '2025-12-14', channel: 'user', subject: 'You closed the popup (no purchase)', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-14', channel: 'email', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'popup_dismiss' },
+        { date: '2025-12-14', channel: 'push', subject: 'Your gift expires in 3 hours!', type: 'urgency', pressure: 12, trigger: 'popup_dismiss' },
+        
+        // Day 10 - Dec 15
+        { date: '2025-12-15', channel: 'email', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-15', channel: 'badge', subject: 'VIP status unlocked - claim rewards', type: 'fomo', pressure: 8 },
+        
+        // Day 11 - Dec 16: Heavy day - user is getting overwhelmed
+        { date: '2025-12-16', channel: 'user', subject: 'You marked 2 emails as spam', type: 'action', pressure: -10, isUser: true },
+        { date: '2025-12-16', channel: 'email', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
+        { date: '2025-12-16', channel: 'email', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-16', channel: 'email', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
+        { date: '2025-12-16', channel: 'sms', subject: '🚨 3 EMAILS WAITING - open now!', type: 'meta', pressure: 10, trigger: 'low_engagement' },
+        { date: '2025-12-16', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6, trigger: 'low_engagement' },
+        { date: '2025-12-16', channel: 'popup', subject: '47 players viewing this jackpot RIGHT NOW', type: 'fomo', pressure: 14 },
+        
+        // Day 12 - Dec 17
+        { date: '2025-12-17', channel: 'email', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-17', channel: 'chat', subject: 'Quick question - did you see the mystery deal?', type: 'sales', pressure: 10 },
+        
+        // Day 13 - Dec 18: User played a game
+        { date: '2025-12-18', channel: 'user', subject: 'You played slots for 10 minutes', type: 'action', pressure: -8, isUser: true },
+        { date: '2025-12-18', channel: 'email', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18, trigger: 'game_played' },
+        { date: '2025-12-18', channel: 'email', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-18', channel: 'push', subject: 'JACKPOT ALERT: Drawing starts in 1 hour', type: 'urgency', pressure: 14, trigger: 'game_played' },
+        { date: '2025-12-18', channel: 'sms', subject: '🎰 $10M drawing TONIGHT. Are you in?', type: 'urgency', pressure: 14, trigger: 'game_played' },
+        
+        // Day 14 - Dec 19
+        { date: '2025-12-19', channel: 'email', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
+        
+        // Day 15 - Dec 20: User unsubscribed from SMS
+        { date: '2025-12-20', channel: 'user', subject: 'You unsubscribed from SMS', type: 'action', pressure: -15, isUser: true },
+        { date: '2025-12-20', channel: 'email', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
+        { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'push', subject: 'We noticed you unsubscribed - here\'s 50 free coins', type: 'winback', pressure: 10, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'ad', subject: '[Instagram Story] "Miss us? Here\'s 100 FREE coins" 🎁', type: 'retarget', pressure: 12, trigger: 'sms_unsub' },
+        { date: '2025-12-20', channel: 'social', subject: '[Instagram DM] "Hey! We have a special offer for you..."', type: 'outreach', pressure: 14, trigger: 'sms_unsub' },
+        
+        // Day 16 - Dec 21
+        { date: '2025-12-21', channel: 'email', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-21', channel: 'badge', subject: 'WEEKEND DEAL expires in 12h', type: 'urgency', pressure: 10 },
+        
+        // Day 17 - Dec 22
+        { date: '2025-12-22', channel: 'email', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
+        { date: '2025-12-22', channel: 'chat', subject: 'Happy holidays! Any questions about our promos?', type: 'sales', pressure: 8 },
+        
+        // Day 18 - Dec 23: User added coins to cart but didn't buy
+        { date: '2025-12-23', channel: 'user', subject: 'You added coins to cart (abandoned)', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-23', channel: 'email', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'email', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
+        { date: '2025-12-23', channel: 'push', subject: 'Your cart is waiting! Complete purchase for bonus', type: 'urgency', pressure: 16, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[Facebook] "Choni, you left coins in your cart!" 🛒', type: 'retarget', pressure: 12, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[TikTok] "Complete your purchase - 20% OFF!" 💰', type: 'retarget', pressure: 10, trigger: 'cart_abandon' },
+        { date: '2025-12-23', channel: 'ad', subject: '[Google Display] "Your CrownCoins cart expires soon"', type: 'retarget', pressure: 8, trigger: 'cart_abandon' },
+        
+        // Day 19 - Dec 24
+        { date: '2025-12-24', channel: 'email', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
+        { date: '2025-12-24', channel: 'push', subject: 'Christmas Eve surprise waiting for you!', type: 'promo', pressure: 8 },
+        
+        // Day 20 - Dec 25
+        { date: '2025-12-25', channel: 'email', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
+        
+        // Day 21 - Dec 26
+        { date: '2025-12-26', channel: 'email', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
+        { date: '2025-12-26', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
+        { date: '2025-12-26', channel: 'popup', subject: 'POST-CHRISTMAS SALE: 400% bonus today only!', type: 'urgency', pressure: 16 },
+        
+        // Day 23 - Dec 28
+        { date: '2025-12-28', channel: 'email', subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promo', pressure: 10 },
+        
+        // Day 24 - Dec 29
+        { date: '2025-12-29', channel: 'email', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
+        { date: '2025-12-29', channel: 'badge', subject: 'RAFFLE ENTRY: 2 hours remaining', type: 'urgency', pressure: 10 },
+        
+        // Day 26 - Dec 31
+        { date: '2025-12-31', channel: 'user', subject: 'You logged in to check balance', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-31', channel: 'email', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10, trigger: 'login' },
+        { date: '2025-12-31', channel: 'email', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', channel: 'push', subject: 'Ring in 2026 with FREE SPINS!', type: 'promo', pressure: 10 },
+        { date: '2025-12-31', channel: 'popup', subject: 'NEW YEAR COUNTDOWN: Claim before midnight!', type: 'urgency', pressure: 14, trigger: 'login' },
+        
+        // Day 27 - Jan 1
+        { date: '2026-01-01', channel: 'email', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
+        { date: '2026-01-01', channel: 'push', subject: 'Happy 2026! See your year in review', type: 'feature', pressure: 5 },
+        
+        // Day 30 - Jan 4
+        { date: '2026-01-04', channel: 'email', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
+        { date: '2026-01-04', channel: 'email', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
+        
+        // Day 33 - Jan 7
+        { date: '2026-01-07', channel: 'email', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
+        { date: '2026-01-07', channel: 'chat', subject: 'Hey! Did you make your choice yet?', type: 'sales', pressure: 10 },
+        
+        // Day 37 - Jan 11
+        { date: '2026-01-11', channel: 'user', subject: 'You haven\'t logged in for 10 days', type: 'action', pressure: 0, isUser: true },
+        { date: '2026-01-11', channel: 'email', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'popup', subject: 'MYSTERY DEAL: Scratch to reveal!', type: 'promo', pressure: 10 },
+        { date: '2026-01-11', channel: 'ad', subject: '[Facebook] "We miss you, Choni! Come back for 500 FREE coins" 😢', type: 'retarget', pressure: 12, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'ad', subject: '[Google Search] "CrownCoins - Your account has rewards waiting"', type: 'retarget', pressure: 8, trigger: 'inactivity' },
+        { date: '2026-01-11', channel: 'social', subject: '[Facebook Messenger] "Choni! You have unclaimed rewards 🎁"', type: 'outreach', pressure: 14, trigger: 'inactivity' },
+        
+        // Day 38 - Jan 12
+        { date: '2026-01-12', channel: 'email', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
+        
+        // Day 39 - Jan 13
+        { date: '2026-01-13', channel: 'email', subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promo', pressure: 10 },
+        { date: '2026-01-13', channel: 'badge', subject: 'BINGO: 1 free card unclaimed', type: 'fomo', pressure: 6 },
+        
+        // Day 40 - Jan 14
+        { date: '2026-01-14', channel: 'email', subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 8 },
+        { date: '2026-01-14', channel: 'email', subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promo', pressure: 10 },
+        { date: '2026-01-14', channel: 'push', subject: 'NEW GAME: Joker\'s Deal is live!', type: 'feature', pressure: 8 },
+        
+        // Day 41 - Jan 15
+        { date: '2026-01-15', channel: 'email', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
+        
+        // Day 44 - Jan 18
+        { date: '2026-01-18', channel: 'user', subject: 'You opened the app today', type: 'action', pressure: -3, isUser: true },
+        { date: '2026-01-18', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'email', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
+        { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
+        { date: '2026-01-18', channel: 'ad', subject: '[Every website you visit] "CrownCoins: 200% Bonus Ends Tonight!"', type: 'retarget', pressure: 14, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'ad', subject: '[YouTube] "Don\'t let your free spins expire!"', type: 'retarget', pressure: 10, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'ad', subject: '[Spotify] Audio ad between songs 🔊', type: 'retarget', pressure: 12, trigger: 'app_open' },
+        { date: '2026-01-18', channel: 'social', subject: '[WhatsApp] "Hey it\'s CrownCoins support, quick question..."', type: 'outreach', pressure: 16, trigger: 'app_open' },
+    ];
+    
+    // SARAH's Journey - VIP user with low tolerance
+    // Events have 'requiresGovernorOff' or 'requiresGovernorOn' flags for conditional display
+    const sarahEvents = [
+        { date: '2025-12-06', channel: 'user', subject: 'Sarah signed up (VIP tier from referral)', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-06', channel: 'email', subject: 'Welcome VIP! Exclusive 500% bonus inside 🎁', type: 'onboarding', pressure: 5 },
+        { date: '2025-12-06', channel: 'push', subject: 'VIP access unlocked!', type: 'promo', pressure: 6 },
+        
+        { date: '2025-12-07', channel: 'user', subject: 'Sarah made a $50 deposit', type: 'action', pressure: -10, isUser: true },
+        { date: '2025-12-07', channel: 'email', subject: 'Thanks for your deposit! Here\'s 50 bonus spins', type: 'promo', pressure: 8 },
+        { date: '2025-12-07', channel: 'sms', subject: '🎰 VIP: Your bonus spins are ready!', type: 'promo', pressure: 10 },
+        { date: '2025-12-07', channel: 'push', subject: 'Spin now before bonus expires!', type: 'urgency', pressure: 12 },
+        
+        // WITHOUT GOVERNOR: Sarah gets overwhelmed
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah unsubscribed from SMS immediately', type: 'action', pressure: -15, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-08', channel: 'email', subject: 'We noticed you unsubscribed - 100 free coins!', type: 'winback', pressure: 15, trigger: 'sms_unsub', requiresGovernorOff: true },
+        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Come back Sarah! VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'sms_unsub', requiresGovernorOff: true },
+        
+        // WITH GOVERNOR: Sarah has a good experience
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah played slots for 20 minutes', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Your weekly VIP digest 💎', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        
+        // WITHOUT GOVERNOR: More pressure
+        { date: '2025-12-09', channel: 'email', subject: 'Sarah, exclusive VIP jackpot tonight!', type: 'promo', pressure: 12, requiresGovernorOff: true },
+        { date: '2025-12-09', channel: 'popup', subject: 'VIP EXCLUSIVE: Triple deposit bonus!', type: 'urgency', pressure: 18, requiresGovernorOff: true },
+        
+        // WITH GOVERNOR: Respectful engagement
+        { date: '2025-12-09', channel: 'user', subject: 'Sarah won $25 on slots!', type: 'action', pressure: -8, isUser: true, requiresGovernorOn: true },
+        
+        // WITHOUT GOVERNOR: Sarah churns
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah marked 2 emails as spam', type: 'action', pressure: -20, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Sarah, we miss you! 🎁"', type: 'retarget', pressure: 14, trigger: 'low_engagement', requiresGovernorOff: true },
+        { date: '2025-12-10', channel: 'social', subject: '[Instagram DM] "Hi Sarah, any issues with your account?"', type: 'outreach', pressure: 18, trigger: 'low_engagement', requiresGovernorOff: true },
+        { date: '2025-12-11', channel: 'user', subject: 'Sarah deleted her account', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        
+        // WITH GOVERNOR: Sarah becomes loyal
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah made another $50 deposit', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-10', channel: 'email', subject: 'Thanks VIP! Your balance is ready', type: 'transactional', pressure: 2, requiresGovernorOn: true },
+        { date: '2025-12-12', channel: 'user', subject: 'Sarah referred a friend', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Referral bonus credited! 🎉', type: 'transactional', pressure: 2, requiresGovernorOn: true },
+        { date: '2025-12-15', channel: 'email', subject: 'Your weekly VIP update', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        { date: '2025-12-15', channel: 'user', subject: 'Sarah upgraded to VIP Plus tier', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+    ];
+    
+    // MIKE's Journey - New user, light engagement
+    const mikeEvents = [
+        { date: '2025-12-06', channel: 'user', subject: 'Mike signed up to try the platform', type: 'action', pressure: 0, isUser: true },
+        { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins! Start with 100 free coins', type: 'onboarding', pressure: 5 },
+        
+        { date: '2025-12-08', channel: 'user', subject: 'Mike played for 5 minutes', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-08', channel: 'email', subject: 'You left some coins on the table, Mike!', type: 'reminder', pressure: 8 },
+        
+        { date: '2025-12-10', channel: 'email', subject: 'Weekend bonus: 50 free spins!', type: 'promo', pressure: 6 },
+        { date: '2025-12-10', channel: 'push', subject: 'Free spins waiting for you!', type: 'promo', pressure: 6 },
+        
+        // WITHOUT GOVERNOR: Mike gets overwhelmed with follow-ups
+        { date: '2025-12-12', channel: 'user', subject: 'Mike opened the app but didn\'t play', type: 'action', pressure: -2, isUser: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresGovernorOff: true },
+        { date: '2025-12-12', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-12', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
+        
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresGovernorOff: true },
+        
+        { date: '2025-12-18', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresGovernorOff: true },
+        
+        { date: '2025-12-25', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-28', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresGovernorOff: true },
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year! We miss you...', type: 'winback', pressure: 6, requiresGovernorOff: true },
+        { date: '2026-01-05', channel: 'user', subject: 'Mike hasn\'t logged in for 2 weeks', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        
+        // WITH GOVERNOR: Mike has a good steady experience
+        { date: '2025-12-12', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresGovernorOn: true },
+        
+        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresGovernorOn: true },
+        
+        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresGovernorOn: true },
+        
+        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 4, requiresGovernorOn: true },
+        
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 3, requiresGovernorOn: true },
+        { date: '2026-01-01', channel: 'user', subject: 'Mike shared the app with a friend', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        
+        { date: '2026-01-05', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresGovernorOn: true },
+    ];
+    
+    // All user journeys
+    const userJourneys = {
+        choni: choniEvents,
+        sarah: sarahEvents,
+        mike: mikeEvents
+    };
+    
+    // User outcomes - what happens without vs with Governor
+    const userOutcomes = {
+        choni: {
+            without: {
+                icon: '💀',
+                title: 'Choni Churned',
+                subtitle: 'Overwhelmed after 44 days of pressure',
+                items: [
+                    '💀 Unsubscribed from all channels',
+                    '📧 Marked 5 emails as spam',
+                    '💸 $0 future revenue',
+                    '⚠️ Left negative review'
+                ]
+            },
+            with: {
+                icon: '😊',
+                title: 'Choni Retained',
+                subtitle: 'Healthy engagement maintained',
+                items: [
+                    '😊 Still active user',
+                    '📬 Opens 40% of emails',
+                    '💰 $380 lifetime value',
+                    '❤️ Referred 2 friends'
+                ]
+            }
+        },
+        sarah: {
+            without: {
+                icon: '😡',
+                title: 'Sarah Deleted Account',
+                subtitle: 'VIP lost in just 5 days',
+                items: [
+                    '💀 Deleted account permanently',
+                    '📧 Reported to spam authorities',
+                    '💸 Lost $500+ potential LTV',
+                    '⚠️ Posted complaint on Twitter'
+                ]
+            },
+            with: {
+                icon: '💎',
+                title: 'Sarah is VIP for Life',
+                subtitle: 'Governor protected her experience',
+                items: [
+                    '💎 Upgraded to VIP Plus',
+                    '📬 Prefers email once weekly',
+                    '💰 $1,200 lifetime value',
+                    '❤️ Brand ambassador'
+                ]
+            }
+        },
+        mike: {
+            without: {
+                icon: '😐',
+                title: 'Mike Went Dormant',
+                subtitle: 'Lost interest, stopped opening emails',
+                items: [
+                    '😴 Inactive for 6 months',
+                    '📧 0% open rate',
+                    '💸 $12 total revenue',
+                    '⚠️ Wasted marketing spend'
+                ]
+            },
+            with: {
+                icon: '🎮',
+                title: 'Mike Became Regular',
+                subtitle: 'Right pace of engagement',
+                items: [
+                    '🎮 Plays weekly',
+                    '📬 Opens 60% of emails',
+                    '💰 $95 lifetime value',
+                    '❤️ Steady, sustainable user'
+                ]
+            }
+        }
+    };
+    
+    // Get current user's events
+    let pressureEvents = userJourneys[currentUser];
+
+    // State
+    const state = {
+        governorEnabled: false,
+        pressure: 0,
+        maxPressure: 0,
+        blocked: 0,
+        counts: { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 },
+        totalTouches: 0,
+        currentDay: 0,
+        visibleEvents: new Set()
+    };
+
+    // DOM Elements
+    const els = {
+        currentDate: document.getElementById('currentDate'),
+        dayCount: document.getElementById('dayCount'),
+        pressureBar: document.getElementById('pressureBar'),
+        pressureValue: document.getElementById('pressureValue'),
+        pressureStatus: document.getElementById('pressureStatus'),
+        countEmail: document.getElementById('countEmail'),
+        countSms: document.getElementById('countSms'),
+        countPush: document.getElementById('countPush'),
+        countPopup: document.getElementById('countPopup'),
+        countBadge: document.getElementById('countBadge'),
+        countChat: document.getElementById('countChat'),
+        countAd: document.getElementById('countAd'),
+        countSocial: document.getElementById('countSocial'),
+        totalCount: document.getElementById('totalCount'),
+        blockedCount: document.getElementById('blockedCount'),
+        governorIndicator: document.getElementById('governorIndicator'),
+        governorLabel: document.getElementById('governorLabel'),
+        governorHint: document.getElementById('governorHint'),
+        timelineEntries: document.getElementById('timelineEntries'),
+        endSection: document.getElementById('endSection'),
+    };
+
+    const channelConfig = {
+        email: { icon: '📧', color: 'channel-email', label: 'Gmail', logo: 'gmail' },
+        sms: { icon: '💬', color: 'channel-sms', label: 'SMS', logo: 'sms' },
+        push: { icon: '🔔', color: 'channel-push', label: 'Push', logo: 'push' },
+        popup: { icon: '🖥️', color: 'channel-popup', label: 'Popup', logo: 'popup' },
+        badge: { icon: '🏷️', color: 'channel-badge', label: 'Badge', logo: 'badge' },
+        chat: { icon: '💭', color: 'channel-chat', label: 'Chat', logo: 'chat' },
+        ad: { icon: '📢', color: 'channel-ad', label: 'Retargeting Ad', logo: 'ad' },
+        social: { icon: '📱', color: 'channel-social', label: 'Social DM', logo: 'social' },
+        // User actions (shown differently)
+        user: { icon: '👤', color: 'channel-user', label: 'You', logo: 'user' },
+    };
+    
+    // Get logo/icon based on channel and subject content
+    function getChannelLogo(channel, subject) {
+        subject = subject.toLowerCase();
+        
+        // Detect specific platforms from subject
+        if (subject.includes('facebook') || subject.includes('[facebook]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+        }
+        if (subject.includes('instagram') || subject.includes('[instagram]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="url(#instagram-gradient)"><defs><linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FDC468"/><stop offset="50%" style="stop-color:#DF4996"/><stop offset="100%" style="stop-color:#8A3AB9"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>';
+        }
+        if (subject.includes('tiktok') || subject.includes('[tiktok]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#000000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>';
+        }
+        if (subject.includes('youtube') || subject.includes('[youtube]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>';
+        }
+        if (subject.includes('whatsapp') || subject.includes('[whatsapp]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+        }
+        if (subject.includes('google') || subject.includes('[google]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>';
+        }
+        if (subject.includes('spotify') || subject.includes('[spotify]')) {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>';
+        }
+        
+        // Gmail for email
+        if (channel === 'email') {
+            return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#FBBC04" d="M7.364 12.909L6.545 13.818V21h3.273v-7.091z"/><path fill="#34A853" d="M16.636 12.909L17.455 13.818V21h-3.273v-7.091z"/></svg>';
+        }
+        
+        // Default icons
+        if (channel === 'sms') return '<span class="text-lg">💬</span>';
+        if (channel === 'push') return '<span class="text-lg">🔔</span>';
+        if (channel === 'popup') return '<span class="text-lg">🖥️</span>';
+        if (channel === 'badge') return '<span class="text-lg">🏷️</span>';
+        if (channel === 'chat') return '<span class="text-lg">💭</span>';
+        if (channel === 'user') return '<span class="text-lg">👤</span>';
+        
+        // Generic ad icon
+        return '<span class="text-lg">📢</span>';
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function getFilteredEvents() {
+        return pressureEvents.filter(event => {
+            // Filter based on Governor state for conditional events
+            if (event.requiresGovernorOff && state.governorEnabled) return false;
+            if (event.requiresGovernorOn && !state.governorEnabled) return false;
+            return true;
+        });
+    }
+    
+    function getUniqueDates() {
+        return [...new Set(getFilteredEvents().map(e => e.date))].sort();
+    }
+
+    // Mood configurations
+    const moods = [
+        { emoji: '😊', label: 'Happy', desc: 'Enjoying the platform', color: 'text-accent-green', stepColor: 'bg-accent-green' },
+        { emoji: '😐', label: 'Annoyed', desc: 'Getting too many messages', color: 'text-accent-yellow', stepColor: 'bg-accent-yellow' },
+        { emoji: '😤', label: 'Frustrated', desc: 'Considering unsubscribing', color: 'text-accent-orange', stepColor: 'bg-accent-orange' },
+        { emoji: '😡', label: 'Angry', desc: 'Will mark as spam', color: 'text-accent-red', stepColor: 'bg-accent-red' },
+        { emoji: '💀', label: 'Churned', desc: 'User lost forever', color: 'text-slate-500', stepColor: 'bg-slate-500' },
+    ];
+    
+    // Protected mood when Governor is ON
+    const protectedMood = { emoji: '😌', label: 'Protected', desc: 'Governor is shielding this user', color: 'text-accent-green', stepColor: 'bg-accent-green' };
+    const recoveringMood = { emoji: '🙂', label: 'Recovering', desc: 'Pressure decreasing, trust rebuilding', color: 'text-accent-cyan', stepColor: 'bg-accent-cyan' };
+    
+    function updateTemperament() {
+        // When Governor is ON, show protected/recovering state
+        if (state.governorEnabled) {
+            const mood = state.blocked > 0 ? protectedMood : recoveringMood;
+            document.getElementById('moodEmoji').textContent = mood.emoji;
+            document.getElementById('moodLabel').textContent = mood.label;
+            document.getElementById('moodLabel').className = `font-bold text-lg ${mood.color}`;
+            document.getElementById('moodDesc').textContent = `${state.blocked} messages blocked`;
+            
+            // Update mobile mood
+            const mobileMoodEmoji = document.getElementById('mobileMoodEmoji');
+            const mobileMoodLabel = document.getElementById('mobileMoodLabel');
+            if (mobileMoodEmoji) mobileMoodEmoji.textContent = mood.emoji;
+            if (mobileMoodLabel) {
+                mobileMoodLabel.textContent = mood.label;
+                mobileMoodLabel.className = `font-bold text-xs ${mood.color}`;
+            }
+            
+            // Show all steps as green (protected)
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`mood-${i}`);
+                step.className = `mood-step flex-1 h-2 rounded-full ${mood.stepColor}`;
+            }
+            return;
+        }
+        
+        let moodIndex = 0;
+        if (state.pressure >= 90) moodIndex = 4;
+        else if (state.pressure >= 70) moodIndex = 3;
+        else if (state.pressure >= 45) moodIndex = 2;
+        else if (state.pressure >= 20) moodIndex = 1;
+        
+        const mood = moods[moodIndex];
+        document.getElementById('moodEmoji').textContent = mood.emoji;
+        document.getElementById('moodLabel').textContent = mood.label;
+        document.getElementById('moodLabel').className = `font-bold text-lg ${mood.color}`;
+        document.getElementById('moodDesc').textContent = mood.desc;
+        
+        // Update mobile mood
+        const mobileMoodEmoji = document.getElementById('mobileMoodEmoji');
+        const mobileMoodLabel = document.getElementById('mobileMoodLabel');
+        if (mobileMoodEmoji) mobileMoodEmoji.textContent = mood.emoji;
+        if (mobileMoodLabel) {
+            mobileMoodLabel.textContent = mood.label;
+            mobileMoodLabel.className = `font-bold text-xs ${mood.color}`;
+        }
+        
+        // Update mood steps
+        for (let i = 1; i <= 5; i++) {
+            const step = document.getElementById(`mood-${i}`);
+            if (i <= moodIndex + 1) {
+                step.className = `mood-step flex-1 h-2 rounded-full ${mood.stepColor}`;
+            } else {
+                step.className = 'mood-step flex-1 h-2 rounded-full bg-surface-2';
+            }
+        }
+    }
+    
+    function updatePressure() {
+        const pct = Math.min(100, state.pressure);
+        els.pressureBar.style.width = `${pct}%`;
+        els.pressureValue.textContent = state.pressure;
+        
+        if (state.pressure > state.maxPressure) state.maxPressure = state.pressure;
+        
+        if (state.pressure > 70) {
+            els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'OVERWHELMED';
+            els.pressureStatus.className = 'text-xs text-accent-red font-bold shake';
+        } else if (state.pressure > 40) {
+            els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'Stressed';
+            els.pressureStatus.className = 'text-xs text-accent-orange';
+        } else {
+            els.pressureBar.className = 'h-full bg-accent rounded-full transition-all duration-500';
+            els.pressureStatus.textContent = 'Relaxed';
+            els.pressureStatus.className = 'text-xs text-slate-500';
+        }
+        
+        // Update temperament
+        updateTemperament();
+    }
+
+    // Decision log for internal teams
+    const decisionLog = [];
+    
+    function logDecision(event, decision, blockResult = null) {
+        const entry = {
+            timestamp: new Date().toISOString().substr(11, 8),
+            date: event.date,
+            channel: event.channel,
+            subject: event.subject,
+            type: event.type,
+            decision: decision,
+            pressure: state.pressure,
+            rule: blockResult?.rule || null,
+            reason: blockResult?.reason || null
+        };
+        decisionLog.unshift(entry); // Add to top
+        
+        // Keep only last 50 entries
+        if (decisionLog.length > 50) decisionLog.pop();
+        
+        // Update UI
+        renderDecisionLog();
+    }
+    
+    function updateOutcomes() {
+        const outcomes = userOutcomes[currentUser];
+        if (!outcomes) return;
+        
+        const withoutEl = document.getElementById('outcomeWithoutText');
+        const withEl = document.getElementById('outcomeWithText');
+        const endIcon = document.getElementById('endIcon');
+        const endTitle = document.getElementById('endTitle');
+        const endText = document.getElementById('endText');
+        
+        if (withoutEl) {
+            withoutEl.innerHTML = outcomes.without.items.map(item => `<div>${item}</div>`).join('');
+        }
+        if (withEl) {
+            withEl.innerHTML = outcomes.with.items.map(item => `<div>${item}</div>`).join('');
+        }
+        
+        // Update main message based on Governor state
+        if (state.governorEnabled) {
+            endIcon.textContent = outcomes.with.icon;
+            endTitle.textContent = outcomes.with.title;
+            endTitle.className = 'text-4xl font-black mb-4 text-accent-green';
+            endText.textContent = outcomes.with.subtitle;
+            
+            // Highlight the "With Governor" panel
+            document.getElementById('outcomeWithout').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
+            document.getElementById('outcomeWith').className = 'bg-accent-green/10 border border-accent-green/50 rounded-xl p-6 text-left ring-2 ring-accent-green/50';
+        } else {
+            endIcon.textContent = outcomes.without.icon;
+            endTitle.textContent = outcomes.without.title;
+            endTitle.className = 'text-4xl font-black mb-4 text-accent-red';
+            endText.textContent = outcomes.without.subtitle;
+            
+            // Highlight the "Without Governor" panel
+            document.getElementById('outcomeWithout').className = 'bg-accent-red/10 border border-accent-red/50 rounded-xl p-6 text-left ring-2 ring-accent-red/50';
+            document.getElementById('outcomeWith').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
+        }
+    }
+    
+    function renderDecisionLog() {
+        const logEl = document.getElementById('decisionLog');
+        if (!logEl) return;
+        
+        if (decisionLog.length === 0) {
+            logEl.innerHTML = '<div class="text-slate-600 italic">Scroll through timeline to see decisions...</div>';
+            return;
+        }
+        
+        logEl.innerHTML = decisionLog.map(entry => {
+            const channelLogo = getChannelLogo(entry.channel, entry.subject || '');
+            const isBlocked = entry.decision === 'BLOCKED';
+            const isUser = entry.decision === 'USER_ACTION';
+            const isAllowed = entry.decision === 'ALLOWED';
+            
+            if (isUser) {
+                return `
+                    <div class="bg-accent-green/10 border border-accent-green/20 rounded p-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 flex items-center justify-center">${getChannelLogo('user', '')}</div>
+                            <span class="text-accent-green font-medium">USER</span>
+                            <span class="text-slate-500">${entry.date}</span>
+                        </div>
+                        <div class="text-slate-400 mt-1">Pressure: ${entry.pressure}</div>
+                    </div>
+                `;
+            }
+            
+            if (isBlocked) {
+                return `
+                    <div class="bg-accent-red/10 border border-accent-red/20 rounded p-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 flex items-center justify-center">${channelLogo}</div>
+                            <span class="text-accent-red font-medium">BLOCKED</span>
+                            <span class="font-mono text-[10px] bg-accent-red/20 px-1 rounded">${entry.rule}</span>
+                        </div>
+                        <div class="text-slate-400 mt-1">${entry.reason}</div>
+                        <div class="text-slate-600 mt-1">${entry.date} • Pressure: ${entry.pressure}</div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="bg-surface-2 border border-white/5 rounded p-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 flex items-center justify-center">${channelLogo}</div>
+                        <span class="text-slate-400 font-medium">ALLOWED</span>
+                        <span class="text-[10px] text-slate-500">${entry.type}</span>
+                    </div>
+                    <div class="text-slate-600 mt-1">${entry.date} • Pressure: ${entry.pressure}</div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function updateStats() {
+        els.countEmail.textContent = state.counts.email;
+        els.countSms.textContent = state.counts.sms;
+        els.countPush.textContent = state.counts.push;
+        els.countPopup.textContent = state.counts.popup;
+        els.countBadge.textContent = state.counts.badge;
+        els.countChat.textContent = state.counts.chat;
+        if (els.countAd) els.countAd.textContent = state.counts.ad;
+        if (els.countSocial) els.countSocial.textContent = state.counts.social;
+        els.totalCount.textContent = state.totalTouches;
+        els.blockedCount.textContent = state.blocked;
+    }
+
+    function shouldBlock(event) {
+        if (!state.governorEnabled) return null;
+        
+        // Check various blocking rules and return reason
+        if (state.pressure > 50) {
+            return {
+                blocked: true,
+                rule: 'PRESSURE_LIMIT',
+                reason: `User pressure at ${state.pressure}% (limit: 50%)`,
+                suggestion: 'Wait for cooldown or reduce intensity'
+            };
+        }
+        if (event.type === 'urgency' && state.pressure > 30) {
+            return {
+                blocked: true,
+                rule: 'URGENCY_COOLDOWN',
+                reason: `Urgency blocked at ${state.pressure}% pressure`,
+                suggestion: 'User already received urgency messaging'
+            };
+        }
+        if (event.pressure > 14) {
+            return {
+                blocked: true,
+                rule: 'HIGH_PRESSURE_ACTION',
+                reason: `Action intensity ${event.pressure} exceeds limit (14)`,
+                suggestion: 'Use lower-pressure alternative'
+            };
+        }
+        
+        // Channel-specific limits
+        const channelLimits = { email: 3, sms: 1, push: 2, popup: 1, ad: 2, social: 1 };
+        if (channelLimits[event.channel] && state.counts[event.channel] >= channelLimits[event.channel]) {
+            return {
+                blocked: true,
+                rule: 'CHANNEL_LIMIT',
+                reason: `${event.channel.toUpperCase()} limit reached (${channelLimits[event.channel]}/day)`,
+                suggestion: `Try a different channel`
+            };
+        }
+        
+        return null;
+    }
+
+    function processEvent(event, card) {
+        const key = event.date + event.channel + event.subject;
+        if (state.visibleEvents.has(key)) return;
+        state.visibleEvents.add(key);
+        
+        const isUser = card.dataset.isUser === 'true';
+        
+        if (isUser) {
+            // User actions - just update pressure (can be negative = relief)
+            state.pressure = Math.max(0, state.pressure + event.pressure);
+            card.classList.add('visible');
+            logDecision(event, 'USER_ACTION');
+            updatePressure();
+            updateStats();
+            return;
+        }
+        
+        const blockResult = shouldBlock(event);
+        
+        if (blockResult && blockResult.blocked) {
+            state.blocked++;
+            card.classList.add('blocked');
+            
+            // Populate block reason in the card
+            const ruleEl = card.querySelector('.block-rule');
+            const reasonEl = card.querySelector('.block-reason-text');
+            const suggestionEl = card.querySelector('.block-suggestion');
+            if (ruleEl) ruleEl.textContent = blockResult.rule;
+            if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
+            if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
+            
+            // Log the blocked decision
+            logDecision(event, 'BLOCKED', blockResult);
+            
+            // Blocking prevents new pressure AND provides relief
+            state.pressure = Math.max(0, state.pressure - 5);
+        } else {
+            if (state.counts[event.channel] !== undefined) {
+                state.counts[event.channel]++;
+            }
+            state.totalTouches++;
+            state.pressure += event.pressure;
+            
+            // Log allowed decision
+            logDecision(event, 'ALLOWED');
+        }
+        
+        card.classList.add('visible');
+        updatePressure();
+        updateStats();
+    }
+
+    function buildTimeline() {
+        const dates = getUniqueDates();
+        let html = '';
+        
+        const filteredEvents = getFilteredEvents();
+        
+        dates.forEach((date, dayIndex) => {
+            const dayEvents = filteredEvents.filter(e => e.date === date);
+            const formattedDate = formatDate(date);
+            
+            html += `
+                <div class="day-section mb-8 md:mb-12 relative pl-8 md:pl-16" data-date="${date}" data-day="${dayIndex + 1}">
+                    <div class="timeline-dot" data-day="${dayIndex + 1}"></div>
+                    <div class="flex items-center gap-2 md:gap-3 mb-4">
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">${formattedDate}</span>
+                        <span class="text-xs text-slate-600">${dayEvents.length} touch${dayEvents.length > 1 ? 'es' : ''}</span>
+                    </div>
+                    <div class="space-y-3">
+            `;
+            
+                    dayEvents.forEach(event => {
+                const cfg = channelConfig[event.channel];
+                const isUser = event.isUser;
+                const hasTrigger = event.trigger;
+                
+                if (isUser) {
+                    // User action card - styled differently
+                    html += `
+                        <div class="pressure-card user-action relative rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color}"
+                             data-date="${event.date}" 
+                             data-channel="${event.channel}"
+                             data-subject="${event.subject}"
+                             data-type="${event.type}"
+                             data-pressure="${event.pressure}"
+                             data-is-user="true">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 bg-accent-green/20 rounded-lg flex items-center justify-center flex-shrink-0">${getChannelLogo(event.channel, event.subject)}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] text-accent-green uppercase font-bold">YOUR ACTION</span>
+                                        ${event.pressure !== 0 ? `<span class="text-[10px] ${event.pressure < 0 ? 'text-accent-green' : 'text-accent-red'}">${event.pressure > 0 ? '+' : ''}${event.pressure} pressure</span>` : ''}
+                                    </div>
+                                    <div class="font-semibold text-sm text-accent-green/90">${event.subject}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Platform pressure card
+                    html += `
+                        <div class="pressure-card relative bg-surface rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color} border border-white/5"
+                             data-date="${event.date}" 
+                             data-channel="${event.channel}"
+                             data-subject="${event.subject}"
+                             data-type="${event.type}"
+                             data-pressure="${event.pressure}">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center flex-shrink-0">${getChannelLogo(event.channel, event.subject)}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
+                                        <span class="text-[10px] text-slate-600">+${event.pressure} pressure</span>
+                                        ${hasTrigger ? `<span class="text-[10px] bg-accent-orange/20 text-accent-orange px-1.5 py-0.5 rounded">← triggered by: ${event.trigger.replace('_', ' ')}</span>` : ''}
+                                    </div>
+                                    <div class="font-semibold text-sm">${event.subject}</div>
+                                </div>
+                            </div>
+                            <!-- Block reason (shown when blocked) -->
+                            <div class="block-reason hidden mt-3 bg-accent-green/10 border border-accent-green/30 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-accent-green font-bold text-xs">🛡️ BLOCKED</span>
+                                    <span class="block-rule text-[10px] bg-accent-green/20 text-accent-green px-2 py-0.5 rounded font-mono"></span>
+                                </div>
+                                <div class="block-reason-text text-xs text-slate-400"></div>
+                                <div class="block-suggestion text-[10px] text-slate-500 mt-1 italic"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `</div></div>`;
+        });
+        
+        els.timelineEntries.innerHTML = html;
+    }
+
+    function setupObservers() {
+        const dayObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const date = entry.target.dataset.date;
+                    const day = parseInt(entry.target.dataset.day);
+                    
+                    els.currentDate.textContent = formatDate(date);
+                    els.dayCount.textContent = `Day ${day} of 44`;
+                    state.currentDay = day;
+                    
+                    document.querySelectorAll('.timeline-dot').forEach(dot => {
+                        dot.classList.toggle('active', parseInt(dot.dataset.day) === day);
+                    });
+                    
+                    if (day >= 10 && !state.governorEnabled) {
+                        els.governorHint.classList.remove('hidden');
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const eventObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const event = {
+                        date: card.dataset.date,
+                        channel: card.dataset.channel,
+                        subject: card.dataset.subject,
+                        type: card.dataset.type,
+                        pressure: parseInt(card.dataset.pressure)
+                    };
+                    processEvent(event, card);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const endObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    els.endSection.style.opacity = '1';
+                    document.getElementById('finalTotal').textContent = state.totalTouches;
+                    document.getElementById('finalBlocked').textContent = state.blocked;
+                    document.getElementById('finalPressure').textContent = state.maxPressure;
+                    
+                    if (state.governorEnabled && state.blocked > 0) {
+                        document.getElementById('endIcon').textContent = '😊';
+                        document.getElementById('endTitle').textContent = 'Governor Protected You';
+                        document.getElementById('endText').textContent = `${state.blocked} touches blocked across all channels.`;
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.day-section').forEach(el => dayObserver.observe(el));
+        document.querySelectorAll('.pressure-card').forEach(el => eventObserver.observe(el));
+        endObserver.observe(els.endSection);
+    }
+
+    function toggleGovernor() {
+        state.governorEnabled = !state.governorEnabled;
+        
+        // Reset state for fresh playthrough with new Governor setting
+        state.pressure = 0;
+        state.maxPressure = 0;
+        state.blocked = 0;
+        state.totalTouches = 0;
+        state.counts = { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 };
+        state.visibleEvents = new Set();
+        state.currentDay = 1;
+        decisionLog.length = 0;
+        
+        // Update both indicators (sidebar and fixed)
+        const governorIndicatorFixed = document.getElementById('governorIndicatorFixed');
+        const governorLabelFixed = document.getElementById('governorLabelFixed');
+        
+        if (state.governorEnabled) {
+            // Sidebar indicator
+            if (els.governorIndicator) els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
+            if (els.governorLabel) els.governorLabel.textContent = 'ON';
+            if (els.governorHint) els.governorHint.textContent = 'Governor is protecting this user. The story changes!';
+            
+            // Fixed button
+            if (governorIndicatorFixed) governorIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all';
+            if (governorLabelFixed) governorLabelFixed.textContent = 'ON';
+        } else {
+            // Sidebar indicator
+            if (els.governorIndicator) els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
+            if (els.governorLabel) els.governorLabel.textContent = 'OFF';
+            if (els.governorHint) els.governorHint.textContent = 'Use the button to toggle Governor';
+            
+            // Fixed button
+            if (governorIndicatorFixed) governorIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all';
+            if (governorLabelFixed) governorLabelFixed.textContent = 'OFF';
+        }
+        
+        // Rebuild timeline with different events based on Governor state
+        buildTimeline();
+        setupObservers();
+        updatePressure();
+        updateStats();
+        updateTemperament();
+        updateOutcomes();
+        renderDecisionLog();
+        
+        // Scroll to demo section
+        const demoSection = document.getElementById('demo');
+        if (demoSection) {
+            demoSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    
+    // Attach to fixed button
+    const governorBtnFixed = document.getElementById('governorBtnFixed');
+    if (governorBtnFixed) {
+        governorBtnFixed.addEventListener('click', toggleGovernor);
+    }
+
+    // User switching function
+    function switchUser(userId) {
+        // Update current user
+        currentUser = userId;
+        pressureEvents = userJourneys[userId];
+        
+        // Update UI
+        document.querySelectorAll('.user-btn').forEach(btn => {
+            btn.classList.remove('active-user');
+            btn.classList.add('opacity-60');
+        });
+        document.getElementById(`user-${userId}`).classList.add('active-user');
+        document.getElementById(`user-${userId}`).classList.remove('opacity-60');
+        
+        // Update mobile user info
+        const mobileUserAvatar = document.getElementById('mobileUserAvatar');
+        const mobileUserName = document.getElementById('mobileUserName');
+        
+        if (mobileUserAvatar && mobileUserName) {
+            if (userId === 'choni') {
+                mobileUserAvatar.innerHTML = '🎰';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Choni';
+            } else if (userId === 'sarah') {
+                mobileUserAvatar.innerHTML = '💎';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-green/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Sarah';
+            } else if (userId === 'mike') {
+                mobileUserAvatar.innerHTML = '🆕';
+                mobileUserAvatar.className = 'w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg';
+                mobileUserName.textContent = 'Mike';
+            }
+        }
+        
+        // Reset state
+        state.pressure = 0;
+        state.maxPressure = 0;
+        state.blocked = 0;
+        state.totalTouches = 0;
+        state.counts = { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 };
+        state.visibleEvents = new Set();
+        state.currentDay = 1;
+        
+        // Clear decision log
+        decisionLog.length = 0;
+        renderDecisionLog();
+        
+        // Rebuild timeline
+        buildTimeline();
+        setupObservers();
+        
+        // Reset displays
+        updatePressure();
+        updateStats();
+        updateTemperament();
+        updateOutcomes();
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Make switchUser available globally
+    window.switchUser = switchUser;
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    function toggleSidebar() {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('active');
+        }
+    }
+    
+    function closeSidebar() {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.remove('active');
+        }
+    }
+    
+    if (mobileMenuToggle && sidebar && sidebarOverlay) {
+        mobileMenuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+    }
+    
+    buildTimeline();
+    setupObservers();
+    
+    // Mobile User Info - show/hide based on scroll position
+    const mobileUserInfo = document.getElementById('mobileUserInfo');
+    const demoSection = document.getElementById('demo');
+    const mobilePressureValue = document.getElementById('mobilePressureValue');
+    const mobileDayCount = document.getElementById('mobileDayCount');
+    
+    // Update mobile user info
+    function updateMobileUserInfo() {
+        if (mobilePressureValue) {
+            mobilePressureValue.textContent = `${state.pressure}% pressure`;
+        }
+        if (mobileDayCount) {
+            mobileDayCount.textContent = state.currentDay;
+        }
+    }
+    
+    // Show/hide mobile user info based on scroll
+    function checkMobileUserInfoVisibility() {
+        if (!mobileUserInfo || !demoSection || window.innerWidth >= 1024) {
+            if (mobileUserInfo) {
+                mobileUserInfo.style.opacity = '0';
+                mobileUserInfo.style.pointerEvents = 'none';
+            }
+            return;
+        }
+        
+        const demoRect = demoSection.getBoundingClientRect();
+        const isInDemo = demoRect.top < window.innerHeight && demoRect.bottom > 0;
+        
+        if (isInDemo) {
+            mobileUserInfo.style.opacity = '1';
+            mobileUserInfo.style.pointerEvents = 'auto';
+        } else {
+            mobileUserInfo.style.opacity = '0';
+            mobileUserInfo.style.pointerEvents = 'none';
+        }
+    }
+    
+    // Update mobile info when pressure changes
+    const originalUpdatePressure = updatePressure;
+    updatePressure = function() {
+        originalUpdatePressure();
+        updateMobileUserInfo();
+    };
+    
+    // Listen for scroll
+    window.addEventListener('scroll', checkMobileUserInfoVisibility);
+    window.addEventListener('resize', checkMobileUserInfoVisibility);
+    
+    // Check initially
+    checkMobileUserInfoVisibility();
+    </script>
+</body>
+</html>
