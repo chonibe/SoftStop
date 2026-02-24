@@ -29,6 +29,7 @@ export interface GovernorEvent {
   decisionId?: string;
   context?: Record<string, unknown>;
   createdAt?: string;
+  tenantId?: string;
 }
 
 export interface GovernorUserState {

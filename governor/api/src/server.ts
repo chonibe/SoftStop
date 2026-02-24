@@ -2,12 +2,16 @@ import path from "path";
 import express from "express";
 import { createApp } from "./app";
 import { env } from "./env";
+import { MemoryStorage } from "./storage/memoryStorage";
 import { SupabaseStorage } from "./storage/supabaseStorage";
 
-const storage = new SupabaseStorage(
-  env.supabaseUrl,
-  env.supabaseServiceRoleKey
-);
+const storage = env.useSupabase
+  ? new SupabaseStorage(env.supabaseUrl, env.supabaseKey)
+  : new MemoryStorage();
+
+if (!env.useSupabase) {
+  console.log("Governor using in-memory storage. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY) for persistence.");
+}
 
 const app = createApp(storage);
 

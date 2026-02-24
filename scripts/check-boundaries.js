@@ -14,6 +14,16 @@ console.log('🛡️  Governor Boundary Check');
 console.log('==========================\n');
 
 let violations = 0;
+const appsDir = path.join(__dirname, '..', 'apps');
+const packagesDir = path.join(__dirname, '..', 'packages');
+
+if (!fs.existsSync(appsDir) || !fs.readdirSync(appsDir).some(f => fs.statSync(path.join(appsDir, f)).isDirectory())) {
+  console.log('No apps/ packages present – skipping boundary checks.\n');
+  console.log('==========================');
+  console.log('✅ All boundary checks passed');
+  console.log('\nGovernor governs itself. 🛡️\n');
+  process.exit(0);
+}
 
 // Check 1: Relative imports to packages/
 console.log('Checking for relative imports to packages/...');
@@ -80,7 +90,6 @@ try {
 
 // Check 4: Verify workspace:* usage
 console.log('Checking workspace dependencies...');
-const appsDir = path.join(__dirname, '..', 'apps');
 if (fs.existsSync(appsDir)) {
   const apps = fs.readdirSync(appsDir).filter(f => 
     fs.statSync(path.join(appsDir, f)).isDirectory()

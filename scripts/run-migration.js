@@ -1,22 +1,27 @@
 #!/usr/bin/env node
 /**
  * Run Governor database migration on Supabase
- * 
+ *
  * Usage:
  *   node scripts/run-migration.js
- * 
+ *
  * Environment variables:
- *   SUPABASE_URL - Your Supabase project URL
+ *   DATABASE_URL - Direct Postgres connection string (recommended for DDL)
+ *   SUPABASE_URL - Your Supabase project URL (for table verification)
  *   SUPABASE_SERVICE_ROLE_KEY - Your Supabase service role key
+ *
+ * If DATABASE_URL is set, migrations run via pg. Otherwise falls back to
+ * exec_sql RPC (if available) or prints manual instructions.
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables
 require('dotenv').config();
 
+const DATABASE_URL = process.env.DATABASE_URL;
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://xutgikcqbjdubwveidir.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -26,88 +31,101 @@ if (!SUPABASE_SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
+async function runWithPg() {
+  const client = new Client({ connectionString: DATABASE_URL });
+  await client.connect();
+
+  const migrationsDir = path.join(__dirname, '..', 'governor', 'api', 'db', 'migrations');
+  const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+
+  for (const file of migrationFiles) {
+    const migrationPath = path.join(migrationsDir, file);
+    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    console.log('\n📄 Migration:', file);
+    console.log('🔄 Executing...\n');
+
+    const statements = migrationSQL
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    for (let i = 0; i < statements.length; i++) {
+      const statement = statements[i] + ';';
+      console.log(`  Statement ${i + 1}/${statements.length}...`);
+      await client.query(statement);
+    }
+  }
+
+  await client.end();
+}
+
 async function runMigration() {
   console.log('🚀 Running Governor database migration...\n');
+  console.log('🗄️  Target database:', SUPABASE_URL);
 
-  // Create Supabase client
+  const migrationsDir = path.join(__dirname, '..', 'governor', 'api', 'db', 'migrations');
+  const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false }
   });
 
-  // Read migration file
-  const migrationPath = path.join(__dirname, '..', 'governor', 'api', 'db', 'migrations', '001_init.sql');
-  const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-
-  console.log('📄 Migration file:', migrationPath);
-  console.log('🗄️  Target database:', SUPABASE_URL);
-  console.log('\n📝 SQL to execute:\n');
-  console.log(migrationSQL);
-  console.log('\n🔄 Executing migration...\n');
-
-  // Split SQL into individual statements (basic split by semicolon)
-  const statements = migrationSQL
-    .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
-
-  for (let i = 0; i < statements.length; i++) {
-    const statement = statements[i] + ';';
-    console.log(`Executing statement ${i + 1}/${statements.length}...`);
-    
-    const { data, error } = await supabase.rpc('exec_sql', { sql: statement });
-    
-    if (error) {
-      // Try direct query execution as fallback
-      const { error: queryError } = await supabase.from('governor_events').select('count').limit(0);
-      
-      if (queryError && queryError.message.includes('does not exist')) {
-        console.error('❌ Error: Unable to execute SQL directly via client.');
-        console.error('   Please run the migration manually in Supabase SQL Editor:\n');
-        console.error(`   1. Go to ${SUPABASE_URL.replace('https://', 'https://supabase.com/dashboard/project/')}`);
-        console.error('   2. Navigate to SQL Editor');
-        console.error('   3. Copy and paste the contents of:');
-        console.error(`      ${migrationPath}`);
-        console.error('   4. Click "Run"\n');
-        process.exit(1);
+  if (DATABASE_URL) {
+    try {
+      await runWithPg();
+    } catch (err) {
+      console.error('❌ Migration failed:', err.message);
+      console.log('\n📋 Run migrations manually in Supabase SQL Editor:');
+      migrationFiles.forEach(f => console.log(`   - governor/api/db/migrations/${f}`));
+      process.exit(1);
+    }
+  } else {
+    let ran = false;
+    for (const file of migrationFiles) {
+      const migrationPath = path.join(migrationsDir, file);
+      const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+      const statements = migrationSQL.split(';').map(s => s.trim()).filter(s => s.length > 0);
+      for (const s of statements) {
+        const { error } = await supabase.rpc('exec_sql', { sql: s + ';' });
+        if (error) {
+          console.warn('\n⚠️  exec_sql RPC not available. Use DATABASE_URL for auto-migration.');
+          console.log('\n📋 Run migrations manually in Supabase SQL Editor:');
+          migrationFiles.forEach(f => console.log(`   - governor/api/db/migrations/${f}`));
+          console.log('   Get DATABASE_URL from: Project Settings → Database → Connection string (URI)\n');
+          break;
+        }
+        ran = true;
       }
     }
   }
 
-  // Verify tables were created
+  // Verify tables
   console.log('\n✅ Verifying tables...\n');
 
-  const { data: events, error: eventsError } = await supabase
-    .from('governor_events')
-    .select('count')
-    .limit(0);
+  const tables = [
+    ['governor_events', '001_init'],
+    ['governor_user_state', '001_init'],
+    ['analytics_users', '002_analytics'],
+    ['analytics_events', '002_analytics'],
+    ['tenant_api_keys', '004_api_keys'],
+  ];
 
-  const { data: state, error: stateError } = await supabase
-    .from('governor_user_state')
-    .select('count')
-    .limit(0);
-
-  if (eventsError && eventsError.message.includes('does not exist')) {
-    console.error('❌ Table governor_events does not exist');
-    console.error('\n📋 Manual migration required:');
-    console.error(`   1. Go to ${SUPABASE_URL.replace('https://', 'https://supabase.com/dashboard/project/')}/sql/new`);
-    console.error('   2. Copy and paste the contents of:');
-    console.error(`      ${migrationPath}`);
-    console.error('   3. Click "Run"\n');
-    process.exit(1);
+  let allOk = true;
+  for (const [table, migration] of tables) {
+    const { error } = await supabase.from(table).select('*').limit(0);
+    if (error && error.message.includes('does not exist')) {
+      console.log(`❌ ${table} missing (run governor/api/db/migrations/${migration}.sql in Supabase SQL Editor)`);
+      allOk = false;
+    } else {
+      console.log(`✅ ${table}`);
+    }
   }
 
-  if (stateError && stateError.message.includes('does not exist')) {
-    console.error('❌ Table governor_user_state does not exist');
-    process.exit(1);
+  if (allOk) {
+    console.log('\n🎉 All migrations verified.\n');
+  } else {
+    console.log('\n📋 Run SQL files in Supabase Dashboard → SQL Editor.\n');
   }
-
-  console.log('✅ governor_events table exists');
-  console.log('✅ governor_user_state table exists');
-  console.log('\n🎉 Migration completed successfully!\n');
-  console.log('Next steps:');
-  console.log('  1. Set environment variables in Vercel');
-  console.log('  2. Test the API endpoints');
-  console.log('  3. Run integration tests\n');
 }
 
 runMigration().catch(err => {

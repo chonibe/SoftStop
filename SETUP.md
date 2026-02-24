@@ -12,29 +12,40 @@ Complete setup guide for deploying Governor to production.
 
 Run the database migration to create required tables in Supabase.
 
-### Option A: Supabase Dashboard (Recommended)
+### Option A: Supabase Dashboard (Manual)
 
-1. Go to your Supabase project: https://supabase.com/dashboard/project/xutgikcqbjdubwveidir
+1. Go to your Supabase project: https://supabase.com/dashboard
 2. Navigate to **SQL Editor** (left sidebar)
-3. Click **New Query**
-4. Copy and paste the contents of `governor/api/db/migrations/001_init.sql`
-5. Click **Run** or press `Ctrl+Enter`
+3. For each migration file in `governor/api/db/migrations/`:
+   - Click **New Query**
+   - Copy/paste the contents of `001_init.sql`, then run
+   - Copy/paste the contents of `002_analytics.sql`, then run
 
-### Option B: Using the Migration Script
+### Option B: Migration Script (Automatic)
+
+Add to `.env` (copy from `.env.example`):
+
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+DATABASE_URL=postgresql://postgres.[ref]:[password]@...pooler.supabase.com:6543/postgres
+```
+
+Get `DATABASE_URL` from: **Project Settings → Database → Connection string (URI)**
 
 ```bash
-# Set environment variable (Windows PowerShell)
-$env:SUPABASE_SERVICE_ROLE_KEY="your_service_role_key"
-
-# Run migration
 node scripts/run-migration.js
 ```
+
+Without `DATABASE_URL`, the script falls back to RPC (if available) or prints manual instructions.
 
 ### Verify Tables Created
 
 After running the migration, verify in Supabase Dashboard → Table Editor:
 - ✅ `governor_events` table exists
 - ✅ `governor_user_state` table exists
+- ✅ `analytics_users` table exists (validity test)
+- ✅ `analytics_events` table exists (validity test)
 
 ## Step 2: Configure Vercel Environment Variables
 
@@ -51,10 +62,12 @@ Get your service role key from:
 - Supabase Dashboard → Project Settings → API → `service_role` key
 
 4. Click **Save**
-5. Trigger a new deployment:
+5. Build and deploy:
    ```bash
+   npm run build    # compiles governor TS to dist/ (required for api/check and api/record)
    vercel deploy --prod
    ```
+   Ensure your Vercel project build settings run `npm run build` so the API routes can load the compiled code from `dist/`.
 
 ## Step 3: Test the API
 

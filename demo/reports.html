@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Governor | Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        deep: '#08080c',
+                        surface: '#111118',
+                        'surface-2': '#1a1a24',
+                        'surface-3': '#252532',
+                        accent: '#3b82f6',
+                        'accent-green': '#10b981',
+                        'accent-red': '#ef4444',
+                        'accent-orange': '#f97316',
+                        'accent-purple': '#8b5cf6',
+                        'accent-yellow': '#eab308',
+                        'accent-cyan': '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        .report-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); box-shadow: 0 0 0 1px #3b82f6; }
+        .report-btn:hover { transform: translateY(-2px); }
+        .metric-card { transition: all 0.2s ease; }
+        .bar-fill { transition: width 0.5s ease-out; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111118; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-deep text-white min-h-screen">
+    <div class="max-w-5xl mx-auto px-6 py-10">
+        <header class="mb-10">
+            <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-accent transition-colors text-sm mb-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back to Demo
+            </a>
+            <div class="flex items-baseline gap-3">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Governor Reports</h1>
+                <span class="text-xs text-slate-500 font-mono px-2 py-0.5 rounded bg-surface-2">Pilot dashboard</span>
+            </div>
+            <p class="text-slate-500 mt-2">View integration health, metrics, and compliance reports</p>
+        </header>
+
+        <section class="mb-8">
+            <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Reports</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <button type="button" data-report="health" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10 text-accent mb-2 group-hover:bg-accent/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Health</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Integration status</span>
+                </button>
+                <button type="button" data-report="report" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent-purple/10 text-accent-purple mb-2 group-hover:bg-accent-purple/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Admin Report</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Ops metrics</span>
+                </button>
+                <button type="button" data-report="audit" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent-cyan/10 text-accent-cyan mb-2 group-hover:bg-accent-cyan/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Audit Report</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Compliance view</span>
+                </button>
+                <button type="button" data-report="audit-csv" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent-green/10 text-accent-green mb-2 group-hover:bg-accent-green/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Download CSV</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Export to Excel</span>
+                </button>
+                <button type="button" data-report="decisions" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent-orange/10 text-accent-orange mb-2 group-hover:bg-accent-orange/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Decision Log</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Why things were blocked</span>
+                </button>
+                <button type="button" data-report="insights" class="report-btn group relative px-5 py-4 rounded-xl bg-surface-2/80 hover:bg-surface-3 border border-slate-700/80 hover:border-slate-600 transition-all text-left">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent-yellow/10 text-accent-yellow mb-2 group-hover:bg-accent-yellow/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </span>
+                    <span class="font-semibold text-white block">Insights</span>
+                    <span class="text-xs text-slate-500 mt-0.5 block">Adoption & integration</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="mb-6 p-4 rounded-xl bg-surface-2/50 border border-slate-700/50">
+            <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Filters</h2>
+            <div class="flex flex-wrap gap-6 items-end">
+                <div>
+                    <label class="block text-xs text-slate-500 mb-1">API key <span class="text-accent-green">(recommended)</span></label>
+                    <div class="flex items-center gap-2">
+                        <input type="password" id="apiKey" placeholder="gov_..." autocomplete="off" class="bg-surface-3 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white font-mono focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none w-80 max-w-full" title="Scoped API key – only see your tenant's data. Bookmark or paste once; it's saved so you can just open the page next time.">
+                        <button type="button" id="forgetKey" class="text-xs text-slate-500 hover:text-accent-red transition-colors whitespace-nowrap hidden" title="Clear saved key">Forget</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 mb-1">Tenant ID <span class="text-slate-600">(fallback)</span></label>
+                    <input type="text" id="tenantId" placeholder="default" class="bg-surface-3 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none w-36" title="Use when no API key – less secure">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 mb-1">Health period</label>
+                    <select id="periodHours" class="bg-surface-3 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none">
+                        <option value="24">Last 24 hours</option>
+                        <option value="48">Last 48 hours</option>
+                        <option value="168">Last 7 days</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 mb-1">Date range (report & audit)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="dateFrom" class="bg-surface-3 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none">
+                        <span class="text-slate-600">→</span>
+                        <input type="date" id="dateTo" class="bg-surface-3 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Result</h2>
+                <span id="loadedAt" class="text-xs text-slate-600 font-mono hidden"></span>
+            </div>
+            <div id="output" class="rounded-xl bg-surface-2 border border-slate-700/80 overflow-hidden min-h-[280px]">
+                <div id="placeholder" class="p-8 flex flex-col items-center justify-center min-h-[280px] text-slate-500">
+                    <svg class="w-12 h-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <p class="text-sm">Select a report above to load data</p>
+                </div>
+            </div>
+            <div id="error" class="mt-3 p-3 rounded-lg bg-accent-red/10 border border-accent-red/30 text-accent-red text-sm hidden"></div>
+            <div id="status" class="mt-3 p-3 rounded-lg bg-accent-green/10 border border-accent-green/30 text-accent-green text-sm hidden"></div>
+            <div id="rawToggle" class="mt-3 hidden">
+                <button type="button" id="toggleRaw" class="text-xs text-slate-500 hover:text-slate-400 transition-colors">Show raw JSON</button>
+            </div>
+            <pre id="rawJson" class="mt-3 p-4 rounded-lg bg-surface-3 font-mono text-xs text-slate-400 overflow-auto max-h-64 hidden"></pre>
+        </section>
+    </div>
+
+    <script>
+        const API_BASE = /localhost|127\.0\.0\.1/.test(window.location.hostname) ? '/v1' : '/api';
+        const KEY_STORAGE = 'governor_report_key';
+        let lastData = null;
+        let lastReportType = null;
+
+        function initApiKey() {
+            const apiKeyEl = document.getElementById('apiKey');
+            const forgetBtn = document.getElementById('forgetKey');
+
+            function getKeyFromUrl() {
+                const hash = (window.location.hash || '').replace(/^#/, '');
+                const params = new URLSearchParams(hash);
+                let k = params.get('key');
+                if (k) return k;
+                const q = new URLSearchParams(window.location.search);
+                k = q.get('key');
+                return k || null;
+            }
+
+            function saveKey(key) {
+                if (key && key.startsWith('gov_')) {
+                    try { localStorage.setItem(KEY_STORAGE, key); } catch (_) {}
+                    forgetBtn.classList.remove('hidden');
+                }
+            }
+
+            function clearKey() {
+                try { localStorage.removeItem(KEY_STORAGE); } catch (_) {}
+                apiKeyEl.value = '';
+                forgetBtn.classList.add('hidden');
+                if (window.history.replaceState) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('key');
+                    url.hash = url.hash.replace(/[?&]key=[^&]*/g, '').replace(/^#/, '') || '';
+                    window.history.replaceState({}, '', url.pathname + url.search + (url.hash ? '#' + url.hash : ''));
+                }
+            }
+
+            const urlKey = getKeyFromUrl();
+            if (urlKey) {
+                apiKeyEl.value = urlKey;
+                saveKey(urlKey);
+                if (window.history.replaceState) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('key');
+                    const hp = new URLSearchParams((url.hash || '').replace(/^#/, ''));
+                    hp.delete('key');
+                    const h = hp.toString();
+                    url.hash = h ? '#' + h : '';
+                    window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+                }
+            } else {
+                try {
+                    const stored = localStorage.getItem(KEY_STORAGE);
+                    if (stored) {
+                        apiKeyEl.value = stored;
+                        forgetBtn.classList.remove('hidden');
+                    }
+                } catch (_) {}
+            }
+
+            apiKeyEl.addEventListener('blur', () => {
+                const v = apiKeyEl.value?.trim();
+                if (v && v.startsWith('gov_')) saveKey(v);
+            });
+
+            forgetBtn.addEventListener('click', clearKey);
+
+            window._persistKeyFromInput = function() {
+                const v = apiKeyEl.value?.trim();
+                if (v && v.startsWith('gov_')) saveKey(v);
+            };
+        }
+        initApiKey();
+
+        function setDefaultDates() {
+            const to = new Date();
+            const from = new Date(to);
+            from.setDate(from.getDate() - 7);
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('dateFrom').value = `${from.getFullYear()}-${pad(from.getMonth() + 1)}-${pad(from.getDate())}`;
+            document.getElementById('dateTo').value = `${to.getFullYear()}-${pad(to.getMonth() + 1)}-${pad(to.getDate())}`;
+        }
+        setDefaultDates();
+
+        function setActiveButton(type) {
+            document.querySelectorAll('.report-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.report === type);
+            });
+        }
+
+        function showError(msg) {
+            document.getElementById('error').textContent = msg;
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('status').classList.add('hidden');
+        }
+
+        function showStatus(msg) {
+            document.getElementById('status').textContent = msg;
+            document.getElementById('status').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        function clearMessages() {
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('status').classList.add('hidden');
+        }
+
+        function healthScoreClass(score) {
+            if (score >= 70) return 'text-accent-green';
+            if (score >= 50) return 'text-accent-yellow';
+            return 'text-accent-red';
+        }
+
+        function renderHealth(data) {
+            if (!data?.ok || !data.metrics) return JSON.stringify(data, null, 2);
+            const m = data.metrics;
+            const scoreClass = healthScoreClass(m.healthScore);
+            const maxDist = Math.max(1, ...Object.values(m.actionTypeDistribution || {}));
+            const distBars = Object.entries(m.actionTypeDistribution || {}).map(([k, v]) =>
+                `<div class="flex items-center gap-3 py-1">
+                    <span class="w-24 text-slate-400 text-sm">${k}</span>
+                    <div class="flex-1 h-2 bg-surface-3 rounded-full overflow-hidden">
+                        <div class="bar-fill h-full bg-accent rounded-full" style="width:${(v / maxDist) * 100}%"></div>
+                    </div>
+                    <span class="font-mono text-sm text-white w-10">${v}</span>
+                </div>`
+            ).join('');
+            return `
+                <div class="p-6 animate-fade-in">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Health Score</p>
+                            <p class="text-3xl font-bold ${scoreClass}">${m.healthScore}</p>
+                            <p class="text-xs text-slate-500 mt-1">0–100</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Total Checks</p>
+                            <p class="text-2xl font-semibold text-white">${m.totalChecks}</p>
+                            <p class="text-xs text-slate-500 mt-1">${m.periodHours}h period</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Orphan Rate</p>
+                            <p class="text-2xl font-semibold ${m.orphanRate > 0.2 ? 'text-accent-red' : m.orphanRate > 0.05 ? 'text-accent-yellow' : 'text-accent-green'}">${(m.orphanRate * 100).toFixed(2)}%</p>
+                            <p class="text-xs text-slate-500 mt-1">${m.orphanCount} orphaned</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Block Rate</p>
+                            <p class="text-2xl font-semibold text-white">${(m.blockRate * 100).toFixed(1)}%</p>
+                            <p class="text-xs text-slate-500 mt-1">of outcomes blocked</p>
+                        </div>
+                    </div>
+                    ${distBars ? `<div class="pt-4 border-t border-slate-700/80"><p class="text-xs text-slate-500 uppercase tracking-wider mb-3">Action type distribution</p>${distBars}</div>` : ''}
+                </div>`;
+        }
+
+        function renderReport(data) {
+            const report = data?.report || data?.audit?.summary || data;
+            const period = report.period || {};
+            const outcomes = report.outcomesByType || {};
+            const blocks = report.blocksByReason || {};
+            const dist = report.actionTypeDistribution || {};
+            const totalOut = (outcomes.executed || 0) + (outcomes.blocked || 0) + (outcomes.downgraded || 0);
+            const maxDist = Math.max(1, ...Object.values(dist));
+            const distBars = Object.entries(dist).map(([k, v]) =>
+                `<div class="flex items-center gap-3 py-1">
+                    <span class="w-24 text-slate-400 text-sm">${k}</span>
+                    <div class="flex-1 h-2 bg-surface-3 rounded-full overflow-hidden">
+                        <div class="bar-fill h-full bg-accent-purple rounded-full" style="width:${(v / maxDist) * 100}%"></div>
+                    </div>
+                    <span class="font-mono text-sm text-white w-10">${v}</span>
+                </div>`
+            ).join('');
+            const blockChips = Object.entries(blocks).map(([k, v]) =>
+                `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-red/10 text-accent-red text-xs font-mono">${k}: ${v}</span>`
+            ).join(' ');
+            return `
+                <div class="p-6 animate-fade-in">
+                    ${period.from ? `<p class="text-xs text-slate-500 mb-4">${period.from} → ${period.to}</p>` : ''}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Total Checks</p>
+                            <p class="text-2xl font-semibold text-white">${report.totalChecks ?? '-'}</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Executed</p>
+                            <p class="text-2xl font-semibold text-accent-green">${outcomes.executed ?? '-'}</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Blocked</p>
+                            <p class="text-2xl font-semibold text-accent-red">${outcomes.blocked ?? '-'}</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl bg-surface-3/80 border border-slate-700/80">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Downgraded</p>
+                            <p class="text-2xl font-semibold text-accent-cyan">${outcomes.downgraded ?? '-'}</p>
+                        </div>
+                    </div>
+                    ${Object.keys(blocks).length ? `<div class="mb-6"><p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Blocks by reason</p><div class="flex flex-wrap gap-2">${blockChips}</div></div>` : ''}
+                    ${distBars ? `<div class="pt-4 border-t border-slate-700/80"><p class="text-xs text-slate-500 uppercase tracking-wider mb-3">Action type distribution</p>${distBars}</div>` : ''}
+                </div>`;
+        }
+
+        function renderInsights(data) {
+            if (!data?.ok || !data.insights) return JSON.stringify(data, null, 2);
+            const insights = data.insights;
+            const period = data.period || {};
+            if (insights.length === 0) {
+                return `
+                    <div class="p-8 animate-fade-in text-center">
+                        <p class="text-slate-500 mb-2">No insights for this period</p>
+                        <p class="text-xs text-slate-600">${period.from ? escapeHtml(period.from) + ' → ' + escapeHtml(period.to) : 'Run Health or Report first.'}</p>
+                    </div>`;
+            }
+            const severityIcon = s => s === 'good' ? '✓' : s === 'warning' ? '⚠' : '!';
+            const severityBg = s => s === 'good' ? 'bg-accent-green/10 border-accent-green/30' : s === 'warning' ? 'bg-accent-yellow/10 border-accent-yellow/30' : 'bg-accent-red/10 border-accent-red/30';
+            const severityColor = s => s === 'good' ? 'text-accent-green' : s === 'warning' ? 'text-accent-yellow' : 'text-accent-red';
+            const rows = insights.map(i => `
+                <div class="p-4 rounded-xl border ${severityBg(i.severity)} mb-3 last:mb-0 animate-fade-in">
+                    <div class="flex gap-3">
+                        <span class="${severityColor(i.severity)} font-bold shrink-0">${severityIcon(i.severity)}</span>
+                        <div>
+                            <p class="font-semibold text-white">${escapeHtml(i.title)}</p>
+                            <p class="text-sm text-slate-400 mt-1">${escapeHtml(i.message)}</p>
+                            ${i.action ? `<p class="text-xs text-accent mt-2">→ ${escapeHtml(i.action)}</p>` : ''}
+                        </div>
+                    </div>
+                </div>`).join('');
+            return `
+                <div class="p-6 animate-fade-in">
+                    <p class="text-xs text-slate-500 mb-4">Adoption & integration insights (${period.periodHours || 24}h health, ${period.from ? 'report ' + period.from.slice(0,10) : 'default'} period)</p>
+                    <div>${rows}</div>
+                </div>`;
+        }
+
+        function renderDecisions(data) {
+            if (!data?.ok || !data.decisions) return JSON.stringify(data, null, 2);
+            const decisions = data.decisions;
+            const period = data.period || {};
+            if (decisions.length === 0) {
+                return `
+                    <div class="p-8 animate-fade-in text-center">
+                        <p class="text-slate-500 mb-2">No decisions in this period</p>
+                        <p class="text-xs text-slate-600">${period.from ? period.from + ' → ' + period.to : 'Run check/record to see decisions.'}</p>
+                    </div>`;
+            }
+            const rows = decisions.map(d => {
+                const time = new Date(d.createdAt).toLocaleString();
+                const outcomeBadge = d.eventType === 'executed'
+                    ? '<span class="px-2 py-0.5 rounded text-xs font-medium bg-accent-green/20 text-accent-green">executed</span>'
+                    : d.eventType === 'blocked'
+                    ? '<span class="px-2 py-0.5 rounded text-xs font-medium bg-accent-red/20 text-accent-red">blocked</span>'
+                    : '<span class="px-2 py-0.5 rounded text-xs font-medium bg-accent-cyan/20 text-accent-cyan">downgraded</span>';
+                const reason = d.eventType === 'blocked' && d.explanationPlain
+                    ? `<div class="mt-2 pl-4 border-l-2 border-accent-red/50 text-sm text-slate-400">${escapeHtml(d.explanationPlain)}</div>`
+                    : '';
+                return `
+                    <div class="decision-row py-4 px-4 border-b border-slate-700/80 last:border-0 hover:bg-surface-3/50 transition-colors">
+                        <div class="flex flex-wrap items-start gap-3">
+                            <span class="font-mono text-xs text-slate-600 shrink-0">${escapeHtml(time)}</span>
+                            <span class="font-mono text-sm text-white">${escapeHtml(d.userId)}</span>
+                            <span class="px-2 py-0.5 rounded text-xs bg-surface-3 text-slate-400">${escapeHtml(d.actionType)}</span>
+                            ${outcomeBadge}
+                        </div>
+                        ${reason}
+                    </div>`;
+            }).join('');
+            return `
+                <div class="animate-fade-in">
+                    ${period.from ? `<p class="text-xs text-slate-500 px-4 pt-4">${escapeHtml(period.from)} → ${escapeHtml(period.to)}</p>` : ''}
+                    <p class="text-xs text-slate-500 px-4 pb-2">${decisions.length} decision(s), newest first</p>
+                    <div class="max-h-[400px] overflow-y-auto">${rows}</div>
+                </div>`;
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function display(data, type, formattedHtml) {
+            if (data?.ok && window._persistKeyFromInput) window._persistKeyFromInput();
+            lastData = data;
+            lastReportType = type;
+            const output = document.getElementById('output');
+            document.getElementById('placeholder')?.remove();
+            output.innerHTML = formattedHtml;
+            document.getElementById('loadedAt').textContent = 'Loaded ' + new Date().toLocaleTimeString();
+            document.getElementById('loadedAt').classList.remove('hidden');
+            if (type !== 'audit-csv') {
+                document.getElementById('rawToggle').classList.remove('hidden');
+                document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('rawJson').classList.add('hidden');
+                document.getElementById('toggleRaw').textContent = 'Show raw JSON';
+            }
+        }
+
+        function displayRawJson() {
+            if (!lastData) return;
+            const el = document.getElementById('rawJson');
+            const btn = document.getElementById('toggleRaw');
+            if (el.classList.contains('hidden')) {
+                el.textContent = JSON.stringify(lastData, null, 2);
+                el.classList.remove('hidden');
+                btn.textContent = 'Hide raw JSON';
+            } else {
+                el.classList.add('hidden');
+                btn.textContent = 'Show raw JSON';
+            }
+        }
+
+        function reportHeaders() {
+            const key = document.getElementById('apiKey').value?.trim();
+            const headers = { 'Content-Type': 'application/json' };
+            if (key) headers['Authorization'] = `Bearer ${key}`;
+            return headers;
+        }
+
+        function appendTenantToUrl(url) {
+            const key = document.getElementById('apiKey').value?.trim();
+            if (key) return url;
+            const t = document.getElementById('tenantId').value?.trim();
+            if (!t) return url;
+            const param = `tenantId=${encodeURIComponent(t)}`;
+            return url + (url.includes('?') ? '&' : '?') + param;
+        }
+
+        async function fetchReport(type) {
+            clearMessages();
+            setActiveButton(type);
+            const output = document.getElementById('output');
+            const placeholder = document.getElementById('placeholder');
+            if (placeholder) {
+                output.innerHTML = '<div class="p-8 flex flex-col items-center justify-center min-h-[280px]"><div class="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-3"></div><p class="text-slate-500 text-sm">Loading report…</p></div>';
+            }
+
+            try {
+                if (type === 'health') {
+                    const hours = document.getElementById('periodHours').value;
+                    const res = await fetch(appendTenantToUrl(`${API_BASE}/health?periodHours=${hours}`), { headers: reportHeaders() });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || res.statusText);
+                    display(data, type, renderHealth(data));
+                } else if (type === 'report') {
+                    const from = document.getElementById('dateFrom').value;
+                    const to = document.getElementById('dateTo').value;
+                    let url = `${API_BASE}/report`;
+                    if (from && to) url += `?from=${from}T00:00:00.000Z&to=${to}T23:59:59.999Z`;
+                    url = appendTenantToUrl(url);
+                    const res = await fetch(url, { headers: reportHeaders() });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || res.statusText);
+                    display(data, type, renderReport(data));
+                } else if (type === 'audit') {
+                    const from = document.getElementById('dateFrom').value;
+                    const to = document.getElementById('dateTo').value;
+                    let url = `${API_BASE}/report/audit`;
+                    if (from && to) url += `?from=${from}T00:00:00.000Z&to=${to}T23:59:59.999Z`;
+                    url = appendTenantToUrl(url);
+                    const res = await fetch(url, { headers: reportHeaders() });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || res.statusText);
+                    const summary = data?.audit?.summary || data;
+                    display(data, type, renderReport({ report: summary, audit: { summary } }));
+                } else if (type === 'insights') {
+                    const from = document.getElementById('dateFrom').value;
+                    const to = document.getElementById('dateTo').value;
+                    const hours = document.getElementById('periodHours').value;
+                    let url = `${API_BASE}/report/insights?periodHours=${hours}`;
+                    if (from && to) url += `&from=${from}T00:00:00.000Z&to=${to}T23:59:59.999Z`;
+                    url = appendTenantToUrl(url);
+                    const res = await fetch(url, { headers: reportHeaders() });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || res.statusText);
+                    display(data, type, renderInsights(data));
+                } else if (type === 'decisions') {
+                    const from = document.getElementById('dateFrom').value;
+                    const to = document.getElementById('dateTo').value;
+                    let url = `${API_BASE}/report/decisions?limit=200`;
+                    if (from && to) url += `&from=${from}T00:00:00.000Z&to=${to}T23:59:59.999Z`;
+                    url = appendTenantToUrl(url);
+                    const res = await fetch(url, { headers: reportHeaders() });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || res.statusText);
+                    display(data, type, renderDecisions(data));
+                } else if (type === 'audit-csv') {
+                    const from = document.getElementById('dateFrom').value;
+                    const to = document.getElementById('dateTo').value;
+                    let url = `${API_BASE}/report/audit?format=csv`;
+                    if (from && to) url += `&from=${from}T00:00:00.000Z&to=${to}T23:59:59.999Z`;
+                    url = appendTenantToUrl(url);
+                    const res = await fetch(url, { headers: reportHeaders() });
+                    if (!res.ok) throw new Error(await res.text() || res.statusText);
+                    const blob = await res.blob();
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `governor-audit-${from || 'export'}-to-${to || 'now'}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    showStatus('✓ CSV downloaded. Check your Downloads folder.');
+                    output.innerHTML = '<div class="p-8 flex flex-col items-center justify-center min-h-[200px]"><div class="w-12 h-12 rounded-full bg-accent-green/20 flex items-center justify-center mb-3"><svg class="w-6 h-6 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div><p class="text-slate-400">CSV file downloaded</p></div>';
+                    document.getElementById('rawToggle').classList.add('hidden');
+                }
+            } catch (err) {
+                showError(err.message || 'Request failed');
+                output.innerHTML = '<div class="p-8 flex flex-col items-center justify-center min-h-[200px] text-accent-red"><svg class="w-12 h-12 mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>' + (err.message || 'Failed to load report') + '</p></div>';
+            }
+        }
+
+        document.querySelectorAll('.report-btn').forEach(btn => {
+            btn.addEventListener('click', () => fetchReport(btn.dataset.report));
+        });
+        document.getElementById('toggleRaw')?.addEventListener('click', displayRawJson);
+    </script>
+</body>
+</html>
