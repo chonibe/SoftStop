@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="Without SoftStop departments slam hot customers unevenly; with SoftStop the same chaos hits a shared journal then Allow or Block">
+  <rect width="1280" height="640" fill="#0B0B0F"/>
+  <text x="40" y="36" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="700" fill="#E8A317" letter-spacing="2">WHY SOFTSTOP</text>
+  <text x="40" y="68" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#F7F5F0">Many departments. Thousands of customers. One journal - or none.</text>
+  <text x="40" y="96" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#9A9AA2">Growth, CRM, Support, Ads, Product, and Agents fire without seeing each other. SoftStop is the shared permit.</text>
+
+  <rect x="32" y="120" width="592" height="470" rx="14" fill="#141418" stroke="#2a2a32"/>
+  <text x="52" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700" fill="#f85149" letter-spacing="1.5">WITHOUT SOFTSTOP - BLIND SILOS</text>
+  <text x="52" y="174" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#78716C">Hot customers get slammed; others barely touched</text>
+
+  <g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#F7F5F0">
+    <rect x="52" y="198" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="220">Growth</text>
+    <rect x="52" y="246" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="268">CRM</text>
+    <rect x="52" y="294" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="316">Support</text>
+    <rect x="52" y="342" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="364">Ads</text>
+    <rect x="52" y="390" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="412">Product</text>
+    <rect x="52" y="438" width="118" height="36" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <text x="64" y="460">Agents</text>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M170 216 C260 200, 360 208, 430 216" stroke="#f85149" stroke-width="1.6" opacity="0.55"/>
+    <path d="M170 216 C250 240, 350 230, 430 216" stroke="#E8A317" stroke-width="1.2" opacity="0.4" stroke-dasharray="3 4"/>
+    <path d="M170 264 C255 230, 340 220, 430 216" stroke="#f85149" stroke-width="1.3" opacity="0.45"/>
+    <path d="M170 312 C260 250, 350 225, 430 216" stroke="#E8A317" stroke-width="1.1" opacity="0.35"/>
+    <path d="M170 360 C270 280, 360 230, 430 216" stroke="#f85149" stroke-width="1.2" opacity="0.4"/>
+    <path d="M170 408 C280 300, 370 235, 430 216" stroke="#E8A317" stroke-width="1" opacity="0.32"/>
+    <path d="M170 456 C290 320, 375 240, 430 216" stroke="#f85149" stroke-width="1.1" opacity="0.38"/>
+    <path d="M170 216 C250 260, 350 295, 430 312" stroke="#f85149" stroke-width="1.4" opacity="0.48"/>
+    <path d="M170 264 C255 290, 345 305, 430 312" stroke="#E8A317" stroke-width="1.2" opacity="0.42"/>
+    <path d="M170 312 C250 300, 340 308, 430 312" stroke="#f85149" stroke-width="1.5" opacity="0.5"/>
+    <path d="M170 360 C255 330, 350 315, 430 312" stroke="#E8A317" stroke-width="1.2" opacity="0.4"/>
+    <path d="M170 408 C270 350, 360 320, 430 312" stroke="#f85149" stroke-width="1.2" opacity="0.4"/>
+    <path d="M170 456 C285 380, 370 325, 430 312" stroke="#E8A317" stroke-width="1" opacity="0.3"/>
+    <path d="M170 216 C260 300, 360 380, 430 408" stroke="#f85149" stroke-width="1.3" opacity="0.42"/>
+    <path d="M170 264 C255 320, 350 385, 430 408" stroke="#E8A317" stroke-width="1.1" opacity="0.35"/>
+    <path d="M170 312 C250 350, 345 395, 430 408" stroke="#f85149" stroke-width="1.3" opacity="0.45"/>
+    <path d="M170 360 C250 380, 340 400, 430 408" stroke="#E8A317" stroke-width="1.2" opacity="0.4"/>
+    <path d="M170 408 C245 400, 340 406, 430 408" stroke="#f85149" stroke-width="1.5" opacity="0.5"/>
+    <path d="M170 456 C250 430, 350 412, 430 408" stroke="#E8A317" stroke-width="1.2" opacity="0.38"/>
+    <path d="M170 216 C260 235, 360 255, 430 264" stroke="#E8A317" stroke-width="1.1" opacity="0.28"/>
+    <path d="M170 264 C250 260, 350 262, 430 264" stroke="#9A9AA2" stroke-width="1" opacity="0.25"/>
+    <path d="M170 360 C270 300, 360 270, 430 264" stroke="#E8A317" stroke-width="0.9" opacity="0.22"/>
+    <path d="M170 408 C260 450, 350 490, 430 504" stroke="#E8A317" stroke-width="1" opacity="0.28"/>
+    <path d="M170 456 C250 480, 350 500, 430 504" stroke="#9A9AA2" stroke-width="1" opacity="0.25"/>
+    <path d="M170 312 C280 340, 370 355, 430 360" stroke="#9A9AA2" stroke-width="0.9" opacity="0.22"/>
+    <path d="M170 456 C280 456, 370 456, 430 456" stroke="#9A9AA2" stroke-width="0.85" opacity="0.2"/>
+  </g>
+  <g>
+    <circle cx="280" cy="210" r="2.4" fill="#E8A317" opacity="0.9"/>
+    <circle cx="320" cy="225" r="2.2" fill="#f85149" opacity="0.85"/>
+    <circle cx="360" cy="212" r="2.4" fill="#E8A317" opacity="0.9"/>
+    <circle cx="290" cy="300" r="2.4" fill="#f85149" opacity="0.85"/>
+    <circle cx="340" cy="318" r="2.2" fill="#E8A317" opacity="0.85"/>
+    <circle cx="300" cy="390" r="2.4" fill="#f85149" opacity="0.85"/>
+    <circle cx="355" cy="405" r="2.2" fill="#E8A317" opacity="0.8"/>
+    <circle cx="310" cy="262" r="1.6" fill="#E8A317" opacity="0.55"/>
+    <circle cx="350" cy="500" r="1.6" fill="#9A9AA2" opacity="0.5"/>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11">
+    <rect x="430" y="198" width="168" height="34" rx="7" fill="#241818" stroke="#f8514988"/>
+    <circle cx="446" cy="215" r="4" fill="#f85149"/>
+    <text x="458" y="219" fill="#F7F5F0">cust_1042</text>
+    <text x="548" y="219" fill="#f85149" font-size="10">x10</text>
+
+    <rect x="430" y="246" width="168" height="34" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <circle cx="446" cy="263" r="4" fill="#E8A317"/>
+    <text x="458" y="267" fill="#D6D3D1">cust_881</text>
+    <text x="555" y="267" fill="#E8A317" font-size="10">x4</text>
+
+    <rect x="430" y="294" width="168" height="34" rx="7" fill="#241818" stroke="#f8514988"/>
+    <circle cx="446" cy="311" r="4" fill="#f85149"/>
+    <text x="458" y="315" fill="#F7F5F0">cust_2207</text>
+    <text x="552" y="315" fill="#f85149" font-size="10">x9</text>
+
+    <rect x="430" y="342" width="168" height="34" rx="7" fill="#1a1a20" stroke="#2a2a32" opacity="0.85"/>
+    <circle cx="446" cy="359" r="4" fill="#6b6b74"/>
+    <text x="458" y="363" fill="#9A9AA2">cust_559</text>
+    <text x="555" y="363" fill="#6b6b74" font-size="10">x2</text>
+
+    <rect x="430" y="390" width="168" height="34" rx="7" fill="#241818" stroke="#f8514988"/>
+    <circle cx="446" cy="407" r="4" fill="#f85149"/>
+    <text x="458" y="411" fill="#F7F5F0">cust_3301</text>
+    <text x="552" y="411" fill="#f85149" font-size="10">x8</text>
+
+    <rect x="430" y="438" width="168" height="34" rx="7" fill="#1a1a20" stroke="#2a2a32" opacity="0.8"/>
+    <circle cx="446" cy="455" r="4" fill="#6b6b74"/>
+    <text x="458" y="459" fill="#9A9AA2">cust_774</text>
+    <text x="555" y="459" fill="#6b6b74" font-size="10">x1</text>
+
+    <rect x="430" y="486" width="168" height="34" rx="7" fill="#1a1a20" stroke="#3a3a44"/>
+    <circle cx="446" cy="503" r="4" fill="#E8A317"/>
+    <text x="458" y="507" fill="#D6D3D1">cust_4156</text>
+    <text x="555" y="507" fill="#E8A317" font-size="10">x3</text>
+  </g>
+  <text x="52" y="560" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#f85149">Pressure stacks on victims. No shared stop.</text>
+
+  <rect x="656" y="120" width="592" height="470" rx="14" fill="#141418" stroke="#3a3428"/>
+  <text x="676" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700" fill="#E8A317" letter-spacing="1.5">WITH SOFTSTOP - CHAOS TO ORDER</text>
+  <text x="676" y="174" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#78716C">Same blind fire hits the journal first - then Allow / Block</text>
+
+  <g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#F7F5F0">
+    <rect x="676" y="198" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="220">Growth</text>
+    <rect x="676" y="246" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="268">CRM</text>
+    <rect x="676" y="294" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="316">Support</text>
+    <rect x="676" y="342" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="364">Ads</text>
+    <rect x="676" y="390" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="412">Product</text>
+    <rect x="676" y="438" width="118" height="36" rx="7" fill="#1a1a20" stroke="#E8A31755"/>
+    <text x="688" y="460">Agents</text>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M794 216 C860 200, 920 280, 960 327" stroke="#f85149" stroke-width="1.3" opacity="0.45"/>
+    <path d="M794 216 C855 240, 915 300, 960 327" stroke="#E8A317" stroke-width="1.1" opacity="0.5"/>
+    <path d="M794 264 C850 270, 910 310, 960 327" stroke="#E8A317" stroke-width="1.4" opacity="0.55"/>
+    <path d="M794 264 C860 250, 920 290, 960 327" stroke="#f85149" stroke-width="1" opacity="0.35" stroke-dasharray="3 4"/>
+    <path d="M794 312 C845 315, 905 322, 960 327" stroke="#E8A317" stroke-width="1.5" opacity="0.6"/>
+    <path d="M794 312 C855 300, 915 315, 960 327" stroke="#f85149" stroke-width="1.1" opacity="0.4"/>
+    <path d="M794 360 C850 345, 910 335, 960 327" stroke="#E8A317" stroke-width="1.3" opacity="0.5"/>
+    <path d="M794 408 C860 370, 920 340, 960 327" stroke="#f85149" stroke-width="1.2" opacity="0.42"/>
+    <path d="M794 408 C855 385, 915 345, 960 327" stroke="#E8A317" stroke-width="1" opacity="0.38" stroke-dasharray="3 4"/>
+    <path d="M794 456 C870 400, 925 350, 960 327" stroke="#E8A317" stroke-width="1.2" opacity="0.45"/>
+  </g>
+  <circle cx="870" cy="290" r="2.2" fill="#f85149" opacity="0.8"/>
+  <circle cx="900" cy="320" r="2.2" fill="#E8A317" opacity="0.9"/>
+  <circle cx="885" cy="350" r="2" fill="#E8A317" opacity="0.75"/>
+
+  <rect x="960" y="286" width="120" height="82" rx="12" fill="#0B0B0F" stroke="#E8A317" stroke-width="1.5"/>
+  <rect x="972" y="298" width="28" height="28" rx="6" fill="#E8A317"/>
+  <text x="986" y="317" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0B0B0F">SS</text>
+  <text x="1008" y="312" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#F7F5F0">SoftStop</text>
+  <text x="1008" y="328" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#9A9AA2">shared journal</text>
+  <text x="972" y="352" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8A317">check -&gt; record</text>
+
+  <path d="M1080 310 C1120 290, 1140 278, 1160 270" fill="none" stroke="#3fb950" stroke-width="1.75"/>
+  <path d="M1080 350 C1120 365, 1140 378, 1160 390" fill="none" stroke="#E8A317" stroke-width="1.75"/>
+
+  <g font-family="Helvetica, Arial, sans-serif" font-size="12">
+    <rect x="1160" y="250" width="64" height="40" rx="7" fill="#1a1a20" stroke="#3fb95088"/>
+    <text x="1172" y="275" fill="#3fb950" font-weight="700">Allow</text>
+    <rect x="1160" y="370" width="64" height="40" rx="7" fill="#1a1a20" stroke="#E8A31788"/>
+    <text x="1172" y="395" fill="#E8A317" font-weight="700">Block</text>
+  </g>
+
+  <text x="676" y="520" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#9A9AA2">1. Chaos arrives  2. Journal absorbs  3. Permit resolves</text>
+  <text x="676" y="560" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#E8A317">Only allowed escalations pass.</text>
+
+  <text x="40" y="620" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6b6b74">Interactive version: softstop.vercel.app - Why SoftStop canvases</text>
+</svg>

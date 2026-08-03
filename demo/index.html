@@ -890,18 +890,76 @@
             filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 45%, transparent));
         }
         .wf-canvas.is-broken .wf-cust {
-            border-color: color-mix(in srgb, var(--ss-danger) 28%, rgba(154,154,162,0.18));
+            border-color: color-mix(in srgb, var(--ss-danger) 22%, rgba(154,154,162,0.18));
         }
-        .wf-canvas.is-broken .wf-cust-dot {
-            animation: wf-cust-hit 1.6s ease-in-out infinite;
+        .wf-canvas.is-broken .wf-cust.is-heat-hot {
+            border-color: color-mix(in srgb, var(--ss-danger) 55%, rgba(154,154,162,0.2));
+            background: color-mix(in srgb, var(--ss-danger) 8%, #1a1a20);
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--ss-danger) 18%, transparent);
         }
-        .wf-canvas.is-broken .wf-cust:nth-child(3n) .wf-cust-dot { animation-delay: 0.2s; }
-        .wf-canvas.is-broken .wf-cust:nth-child(3n+1) .wf-cust-dot { animation-delay: 0.55s; }
-        .wf-canvas.is-broken .wf-cust:nth-child(3n+2) .wf-cust-dot { animation-delay: 0.9s; }
+        .wf-canvas.is-broken .wf-cust.is-heat-hot .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-danger) 80%, var(--ss-amber));
+            animation: wf-cust-hit 0.85s ease-in-out infinite;
+        }
+        .wf-canvas.is-broken .wf-cust.is-heat-med .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-amber) 65%, var(--ss-danger));
+            animation: wf-cust-hit 1.5s ease-in-out infinite;
+            animation-delay: 0.35s;
+        }
+        .wf-canvas.is-broken .wf-cust.is-heat-light {
+            opacity: 0.72;
+            border-color: rgba(154, 154, 162, 0.14);
+        }
+        .wf-canvas.is-broken .wf-cust.is-heat-light .wf-cust-dot {
+            background: rgba(154, 154, 162, 0.55);
+            box-shadow: 0 0 0 2px rgba(154, 154, 162, 0.08);
+            animation: none;
+        }
+        .wf-cust-badge {
+            margin-left: auto;
+            font-family: var(--oc-font-mono);
+            font-size: 0.55rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--ss-danger) 70%, var(--ss-muted));
+        }
+        .wf-cust.is-heat-med .wf-cust-badge { color: color-mix(in srgb, var(--ss-amber) 65%, var(--ss-muted)); }
+        .wf-cust.is-heat-light .wf-cust-badge { color: var(--ss-muted); opacity: 0.7; }
         @keyframes wf-cust-hit {
             0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-danger) 12%, transparent); transform: scale(1); }
             40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--ss-danger) 28%, transparent); transform: scale(1.25); }
             70% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-amber) 18%, transparent); transform: scale(1.05); }
+        }
+        .wf-node.is-hub.is-absorbing {
+            box-shadow:
+                0 0 0 1px color-mix(in srgb, var(--ss-amber) 45%, transparent),
+                0 0 28px color-mix(in srgb, var(--ss-amber) 28%, transparent);
+        }
+        .wf-edges .wf-path.is-inbound-chaos {
+            stroke: color-mix(in srgb, var(--ss-danger) 36%, rgba(154,154,162,0.2));
+            stroke-width: 1.15;
+            opacity: 0;
+        }
+        .wf-edges .wf-path.is-inbound-chaos.is-chaos-alt {
+            stroke: color-mix(in srgb, var(--ss-amber) 34%, rgba(154,154,162,0.16));
+            stroke-width: 0.95;
+            stroke-dasharray: 3 5;
+        }
+        .wf-edges .wf-pulse.is-inbound-chaos {
+            stroke: color-mix(in srgb, var(--ss-danger) 65%, var(--ss-amber));
+            stroke-width: 2;
+            stroke-dasharray: 7 140;
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 35%, transparent));
+        }
+        .wf-canvas.is-clean.is-governed .wf-path.is-inbound-chaos {
+            stroke: color-mix(in srgb, var(--ss-amber) 48%, rgba(154,154,162,0.28));
+            stroke-width: 1.5;
+            stroke-dasharray: none;
+        }
+        .wf-canvas.is-clean.is-governed .wf-pulse.is-inbound-chaos {
+            stroke: var(--ss-amber);
+            stroke-dasharray: 10 220;
+            filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ss-amber) 50%, transparent));
         }
         .wf-cust {
             position: relative;
@@ -952,8 +1010,12 @@
         @media (prefers-reduced-motion: reduce) {
             .wf-canvas.is-broken .wf-cust-dot { animation: none !important; }
             .wf-edges .wf-msg { display: none; }
-            .wf-edges .wf-pulse.is-chaos { display: none; }
+            .wf-edges .wf-pulse.is-chaos,
+            .wf-edges .wf-pulse.is-inbound-chaos { display: none; }
             .wf-edges .wf-path.is-chaos { opacity: 0.85 !important; }
+            .wf-edges .wf-path.is-inbound-chaos { opacity: 0.75 !important; }
+            .wf-canvas.is-clean.is-governed .wf-path.is-inbound-chaos { opacity: 0.9 !important; }
+            .wf-node.is-hub.is-absorbing { box-shadow: none; }
         }
         .wf-pair {
             display: grid;
@@ -2389,11 +2451,11 @@ if (!d.allowed) {
                 <div class="wf-pair" id="scalePair">
                     <div>
                         <p class="wf-pair-label is-bad">Without SoftStop · blind silos</p>
-                        <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments firing notifications blindly at many customers with no shared log">
+                        <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments piling uneven notifications onto hot customers with no shared log">
                             <div class="wf-toolbar" aria-hidden="true">
                                 <span>Departments</span>
                                 <span>No shared log</span>
-                                <span>× customers</span>
+                                <span>Hot customers</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -2408,14 +2470,14 @@ if (!d.allowed) {
                                     </div>
                                     <div class="wf-spacer" aria-hidden="true"></div>
                                     <div class="wf-col wf-col-cust" data-wf-targets>
-                                        <div class="wf-mobile-flow" aria-hidden="true">↓ blind hits ↓</div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_1042</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_881</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_2207</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_559</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_3301</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_774</span></div>
-                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_4156</span></div>
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ uneven blast ↓</div>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="10"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_1042</span><span class="wf-cust-badge" aria-hidden="true">×10</span></div>
+                                        <div class="wf-cust is-heat-med" data-wf-node="tgt" data-heat="med" data-weight="4"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_881</span><span class="wf-cust-badge" aria-hidden="true">×4</span></div>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="9"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_2207</span><span class="wf-cust-badge" aria-hidden="true">×9</span></div>
+                                        <div class="wf-cust is-heat-light" data-wf-node="tgt" data-heat="light" data-weight="2"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_559</span><span class="wf-cust-badge" aria-hidden="true">×2</span></div>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="8"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_3301</span><span class="wf-cust-badge" aria-hidden="true">×8</span></div>
+                                        <div class="wf-cust is-heat-light" data-wf-node="tgt" data-heat="light" data-weight="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_774</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-heat-med" data-wf-node="tgt" data-heat="med" data-weight="3"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_4156</span><span class="wf-cust-badge" aria-hidden="true">×3</span></div>
                                         <div class="wf-cust is-more" aria-hidden="true"><span class="wf-cust-name">+ thousands more</span></div>
                                     </div>
                                 </div>
@@ -2423,11 +2485,11 @@ if (!d.allowed) {
                         </div>
                     </div>
                     <div>
-                        <p class="wf-pair-label is-good">With SoftStop · one journal</p>
-                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same departments check SoftStop shared journal then allow or block">
+                        <p class="wf-pair-label is-good">With SoftStop · chaos → order</p>
+                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Departments fire chaotically into SoftStop, then the journal governs allow or block">
                             <div class="wf-toolbar" aria-hidden="true">
-                                <span>Departments</span>
-                                <span>Shared journal</span>
+                                <span>Blind fire</span>
+                                <span>SoftStop absorbs</span>
                                 <span>Permit</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
@@ -3639,6 +3701,7 @@ if (!d.allowed) {
         if (!stage || !svg || !hub) return;
         if (window.matchMedia('(max-width: 860px)').matches) {
             svg.innerHTML = '';
+            root._chaosMsgMeta = null;
             return;
         }
 
@@ -3656,21 +3719,64 @@ if (!d.allowed) {
         const toAllow = portCenter(allowNode, stageRect);
         const toBlock = portCenter(blockNode, stageRect);
 
+        // Uneven inbound fire: some depts blast harder into the gate.
+        const deptFire = [4, 2, 3, 1, 3, 2];
         const parts = [];
-        root.querySelectorAll('[data-wf-node="src"] [data-port="out"]').forEach((port, i) => {
+        const msgPaths = [];
+        let edgeI = 0;
+        root.querySelectorAll('[data-wf-node="src"] [data-port="out"]').forEach((port, si) => {
             const from = portCenter(port, stageRect);
-            const d = bezier(from.x, from.y, toHub.x, toHub.y);
-            parts.push(`<path class="wf-path is-amber" data-edge="in-${i}" d="${d}" />`);
-            parts.push(`<path class="wf-pulse" data-pulse="in-${i}" d="${d}" />`);
+            const copies = deptFire[si] || 2;
+            for (let c = 0; c < copies; c++) {
+                const wobble = (si - 2.5) * 16 + (c - (copies - 1) / 2) * 22 + ((si + c) % 2 ? 18 : -14);
+                const skew = ((si % 3) - 1) + c * 0.45;
+                const d = chaosBezier(from.x, from.y, toHub.x, toHub.y, wobble, skew);
+                const alt = c > 0;
+                parts.push(`<path class="wf-path is-inbound-chaos${alt ? ' is-chaos-alt' : ''}" data-edge="in-chaos-${edgeI}" data-phase="chaos" d="${d}" />`);
+                parts.push(`<path class="wf-pulse is-inbound-chaos${alt ? ' is-chaos-fast' : ''}" data-pulse="in-chaos-${edgeI}" data-phase="chaos" d="${d}" />`);
+                if (c === 0 || (copies >= 3 && c === copies - 1)) {
+                    msgPaths.push({ d, hot: copies >= 3, weight: copies });
+                }
+                edgeI += 1;
+            }
         });
 
         const dAllow = bezier(fromAllow.x, fromAllow.y, toAllow.x, toAllow.y);
         const dBlock = bezier(fromBlock.x, fromBlock.y, toBlock.x, toBlock.y);
-        parts.push(`<path class="wf-path is-ok" data-edge="out-allow" d="${dAllow}" />`);
-        parts.push(`<path class="wf-pulse is-ok" data-pulse="out-allow" d="${dAllow}" />`);
-        parts.push(`<path class="wf-path is-amber" data-edge="out-block" d="${dBlock}" />`);
-        parts.push(`<path class="wf-pulse" data-pulse="out-block" d="${dBlock}" />`);
+        parts.push(`<path class="wf-path is-ok" data-edge="out-allow" data-phase="order" d="${dAllow}" />`);
+        parts.push(`<path class="wf-pulse is-ok" data-pulse="out-allow" data-phase="order" d="${dAllow}" />`);
+        parts.push(`<path class="wf-path is-amber" data-edge="out-block" data-phase="order" d="${dBlock}" />`);
+        parts.push(`<path class="wf-pulse" data-pulse="out-block" data-phase="order" d="${dBlock}" />`);
+
+        msgPaths.forEach((m, mi) => {
+            const r = m.hot ? 2.3 : 1.8;
+            const cls = m.hot ? 'wf-msg is-hot' : 'wf-msg';
+            parts.push(`<circle class="${cls}" data-msg="${mi}" data-phase="chaos" r="${r}" cx="0" cy="0" />`);
+            parts.push(`<path data-msg-track="c-msg-${mi}" data-phase="chaos" d="${m.d}" fill="none" stroke="none" />`);
+        });
+
         svg.innerHTML = parts.join('');
+        const governed = root.classList.contains('is-governed');
+        svg.querySelectorAll('[data-phase="order"]').forEach((el) => {
+            el.style.opacity = governed ? '1' : '0';
+        });
+        if (governed) {
+            svg.querySelectorAll('[data-phase="chaos"].wf-path').forEach((el) => {
+                el.style.opacity = '0.85';
+            });
+            svg.querySelectorAll('.wf-msg').forEach((el) => {
+                el.style.display = 'none';
+            });
+        }
+        root._chaosMsgMeta = (reduce || governed)
+            ? null
+            : msgPaths.map((m, mi) => ({
+                circle: svg.querySelector(`[data-msg="${mi}"]`),
+                track: svg.querySelector(`[data-msg-track="c-msg-${mi}"]`),
+                hot: m.hot,
+                weight: m.weight,
+                loopDelay: m.hot ? 40 : 160,
+            }));
     }
 
     function chaosBezier(x1, y1, x2, y2, wobble, skew = 0) {
@@ -3680,45 +3786,69 @@ if (!d.allowed) {
         return `M ${x1} ${y1} C ${x1 + dx} ${c1y}, ${x2 - dx * 0.9} ${c2y}, ${x2} ${y2}`;
     }
 
+    // Preferential pile-on: hot victims get hit by many depts concurrently;
+    // light victims get 1–2 sparse taps. Not round-robin.
+    function pickDeptIndices(deptCount, heat, custIndex) {
+        if (heat === 'hot') return [...Array(deptCount).keys()];
+        if (heat === 'med') {
+            // Clustered subsets so the same few depts pile onto the same medium customers
+            const start = (custIndex * 2) % deptCount;
+            return [start, (start + 1) % deptCount, (start + 3) % deptCount];
+        }
+        // light: one primary aggressor
+        return [(custIndex * 3 + 1) % deptCount];
+    }
+
     function drawChaosEdges(root) {
         const stage = root.querySelector('[data-wf-stage]');
         const svg = root.querySelector('[data-wf-edges]');
         if (!stage || !svg) return;
         if (window.matchMedia('(max-width: 860px)').matches) {
             svg.innerHTML = '';
+            root._chaosMsgMeta = null;
             return;
         }
 
         const stageRect = sizeSvg(stage, svg);
         const outs = [...root.querySelectorAll('[data-wf-node="src"] [data-port="out"]')];
-        const ins = [...root.querySelectorAll('[data-wf-node="tgt"] [data-port="in"]')];
-        if (!outs.length || !ins.length) return;
+        const targets = [...root.querySelectorAll('[data-wf-node="tgt"]')];
+        if (!outs.length || !targets.length) return;
 
-        // Near-complete mesh: every department hits every customer, plus
-        // overlapping alternate curves so edges cross like stacked blasts.
         const links = [];
-        outs.forEach((port, si) => {
-            ins.forEach((tgt, ti) => {
-                const base = (si - ti) * 14 + ((si + ti) % 2 ? 26 : -22);
-                links.push({ port, tgt, wobble: base, skew: (si % 3) - 1, kind: 'main' });
-                // Extra overlapping path on most pairs for denser chaos
-                if ((si + ti) % 2 === 0 || si === ti % outs.length) {
+        targets.forEach((custEl, ti) => {
+            const portIn = custEl.querySelector('[data-port="in"]');
+            if (!portIn) return;
+            const heat = custEl.getAttribute('data-heat') || 'light';
+            const weight = Number(custEl.getAttribute('data-weight') || '1');
+            const deptIndices = pickDeptIndices(outs.length, heat, ti);
+            // Concurrent copies per dept → hot gets slammed, light barely touched
+            const copies =
+                heat === 'hot' ? Math.max(2, Math.round(weight / 3)) :
+                heat === 'med' ? 2 : 1;
+
+            deptIndices.forEach((si) => {
+                const port = outs[si];
+                for (let c = 0; c < copies; c++) {
+                    const base = (si - ti) * 12 + (c - (copies - 1) / 2) * 18 + (heat === 'hot' ? 8 : -6);
                     links.push({
                         port,
-                        tgt,
-                        wobble: -base * 0.7 + ((si * 7 + ti * 3) % 5) * 8 - 16,
-                        skew: ((ti % 3) - 1) * 1.4,
-                        kind: 'alt',
+                        tgt: portIn,
+                        wobble: base + ((si * 5 + ti * 7 + c * 11) % 9) - 4,
+                        skew: ((si % 3) - 1) + c * 0.55,
+                        kind: c === 0 ? 'main' : 'alt',
+                        heat,
+                        weight,
                     });
                 }
-                // Ghost arcs on high-pressure crossings
-                if ((si * 2 + ti) % 3 === 0) {
+                if (heat === 'hot') {
                     links.push({
                         port,
-                        tgt,
-                        wobble: base * 1.35 + (ti % 2 ? 38 : -34),
-                        skew: (si - ti) * 0.35,
+                        tgt: portIn,
+                        wobble: (si - ti) * 18 + (ti % 2 ? 42 : -38),
+                        skew: (si - ti) * 0.4,
                         kind: 'ghost',
+                        heat,
+                        weight,
                     });
                 }
             });
@@ -3734,20 +3864,34 @@ if (!d.allowed) {
                 link.kind === 'alt' ? 'wf-path is-chaos is-chaos-alt' :
                 link.kind === 'ghost' ? 'wf-path is-chaos is-chaos-ghost' :
                 'wf-path is-chaos';
-            parts.push(`<path class="${pathClass}" data-edge="c-${i}" d="${d}" />`);
+            parts.push(`<path class="${pathClass}" data-edge="c-${i}" data-heat="${link.heat}" d="${d}" />`);
             if (link.kind !== 'ghost') {
-                const pulseClass = link.kind === 'alt' ? 'wf-pulse is-chaos is-chaos-fast' : 'wf-pulse is-chaos';
-                parts.push(`<path class="${pulseClass}" data-pulse="c-${i}" data-chaos-pulse="${link.kind}" d="${d}" />`);
+                const pulseClass = link.heat === 'hot' || link.kind === 'alt'
+                    ? 'wf-pulse is-chaos is-chaos-fast'
+                    : 'wf-pulse is-chaos';
+                parts.push(`<path class="${pulseClass}" data-pulse="c-${i}" data-heat="${link.heat}" d="${d}" />`);
             }
-            if (link.kind === 'main' || (link.kind === 'alt' && i % 3 === 0)) {
-                msgPaths.push({ d, hot: (i + link.kind.length) % 3 === 0, i });
+            // Message particles heavily biased to hot victims
+            const spawnMsgs =
+                link.kind === 'main' && link.heat === 'hot' ? 2 :
+                link.kind === 'alt' && link.heat === 'hot' ? 1 :
+                link.kind === 'main' && link.heat === 'med' ? 1 :
+                link.kind === 'main' && link.heat === 'light' && i % 5 === 0 ? 1 : 0;
+            for (let m = 0; m < spawnMsgs; m++) {
+                msgPaths.push({
+                    d,
+                    hot: link.heat === 'hot',
+                    heat: link.heat,
+                    weight: link.weight,
+                    stagger: m * 0.18,
+                });
             }
         });
 
         msgPaths.forEach((m, mi) => {
-            const r = m.hot ? 2.4 : 1.9;
+            const r = m.hot ? 2.5 : m.heat === 'med' ? 1.9 : 1.5;
             const cls = m.hot ? 'wf-msg is-hot' : 'wf-msg';
-            parts.push(`<circle class="${cls}" data-msg="${mi}" data-msg-path="c-msg-${mi}" r="${r}" cx="0" cy="0" />`);
+            parts.push(`<circle class="${cls}" data-msg="${mi}" r="${r}" cx="0" cy="0" />`);
             parts.push(`<path data-msg-track="c-msg-${mi}" d="${m.d}" fill="none" stroke="none" />`);
         });
 
@@ -3758,12 +3902,19 @@ if (!d.allowed) {
                 circle: svg.querySelector(`[data-msg="${mi}"]`),
                 track: svg.querySelector(`[data-msg-track="c-msg-${mi}"]`),
                 hot: m.hot,
+                heat: m.heat,
+                weight: m.weight,
+                // Hot: rapid re-fire; light: sparse
+                durationScale: m.heat === 'hot' ? 0.75 : m.heat === 'med' ? 1 : 1.35,
+                loopDelay: m.heat === 'hot' ? 30 + (mi % 4) * 20 : m.heat === 'med' ? 140 : 420,
+                delayBias: (m.stagger || 0) * 400 + (m.heat === 'light' ? 500 : 0),
             }));
     }
 
     function drawBoardEdges(root) {
         const kind = root.getAttribute('data-wf');
         if (kind === 'chaos') drawChaosEdges(root);
+        else if (kind === 'converge') drawConvergeEdges(root);
         else drawConvergeEdges(root);
     }
 
@@ -3775,8 +3926,9 @@ if (!d.allowed) {
             if (!circle || !track || typeof track.getTotalLength !== 'function') return;
             const len = track.getTotalLength();
             if (!len) return;
-            const duration = item.hot ? 880 + (i % 4) * 100 : 1050 + (i % 5) * 130;
-            const delay = (i % 12) * 50 + (i % 3) * 35;
+            const scale = item.durationScale || 1;
+            const duration = (item.hot ? 820 : 1100) * scale + (i % 4) * 80;
+            const delay = (item.delayBias || 0) + (i % 10) * 40 + (item.heat === 'hot' ? (i % 3) * 25 : (i % 5) * 70);
             const proxy = { t: 0 };
             const place = (t) => {
                 const pt = track.getPointAtLength(Math.min(len, Math.max(0, t * len)));
@@ -3790,36 +3942,195 @@ if (!d.allowed) {
                 delay,
                 ease: 'linear',
                 loop: true,
-                loopDelay: 60 + (i % 5) * 35,
+                loopDelay: item.loopDelay != null ? item.loopDelay : 80,
                 onUpdate: () => {
                     place(proxy.t);
                     const peak = Math.sin(proxy.t * Math.PI);
-                    circle.style.opacity = String(item.hot ? 0.35 + peak * 0.65 : 0.25 + peak * 0.75);
+                    const base = item.hot ? 0.4 : item.heat === 'med' ? 0.28 : 0.18;
+                    circle.style.opacity = String(base + peak * (item.hot ? 0.6 : 0.55));
                 },
             });
         });
     }
 
-    function pulseBoard(root) {
+    function pulseBoard(root, opts = {}) {
         if (reduce) return;
         const kind = root.getAttribute('data-wf');
         const chaotic = kind === 'chaos';
-        root.querySelectorAll('.wf-pulse').forEach((p, i) => {
-            const fast = chaotic && p.classList.contains('is-chaos-fast');
+        const converge = kind === 'converge';
+        const phase = opts.phase || 'all';
+
+        const pulses = [...root.querySelectorAll('.wf-pulse')].filter((p) => {
+            if (phase === 'all') return true;
+            return (p.getAttribute('data-phase') || 'order') === phase;
+        });
+
+        pulses.forEach((p, i) => {
+            const heat = p.getAttribute('data-heat');
+            const isChaosPulse = p.classList.contains('is-chaos') || p.classList.contains('is-inbound-chaos');
+            const fast = p.classList.contains('is-chaos-fast') || heat === 'hot';
+            const hotBias = heat === 'hot';
+            const lightBias = heat === 'light';
+
+            if (converge && phase === 'chaos') {
+                animate(p, {
+                    opacity: [0, 0.95, 1, 0.65, 0],
+                    strokeDashoffset: [0, -160],
+                    duration: fast ? 720 : 920,
+                    delay: (i % 12) * 32 + Math.floor(i / 12) * 55,
+                    ease: 'linear',
+                    loop: true,
+                    loopDelay: fast ? 90 : 180,
+                });
+                return;
+            }
+
+            if (converge && phase === 'order') {
+                animate(p, {
+                    opacity: [0, 1, 1, 0],
+                    strokeDashoffset: [0, -250],
+                    duration: 1500,
+                    delay: i * 180,
+                    ease: 'linear',
+                    loop: true,
+                    loopDelay: 900,
+                });
+                return;
+            }
+
             animate(p, {
-                opacity: chaotic ? [0, 0.95, 1, 0.7, 0] : [0, 1, 1, 0],
+                opacity: chaotic
+                    ? (lightBias ? [0, 0.55, 0.7, 0] : [0, 0.95, 1, 0.7, 0])
+                    : [0, 1, 1, 0],
                 strokeDashoffset: [0, chaotic ? -180 : -250],
-                duration: chaotic ? (fast ? 780 : 980) : 1600,
-                delay: chaotic ? (i % 14) * 38 + Math.floor(i / 14) * 70 : i * 160,
+                duration: chaotic
+                    ? (hotBias ? 700 : lightBias ? 1400 : fast ? 820 : 1000)
+                    : 1600,
+                delay: chaotic
+                    ? (hotBias
+                        ? (i % 8) * 28
+                        : lightBias
+                            ? 400 + (i % 6) * 120
+                            : (i % 12) * 45)
+                    : i * 160,
                 ease: 'linear',
                 loop: true,
-                loopDelay: chaotic ? (fast ? 120 : 220) : 900,
+                loopDelay: chaotic
+                    ? (hotBias ? 50 : lightBias ? 500 : fast ? 140 : 240)
+                    : 900,
             });
         });
-        if (chaotic) pulseChaosMessages(root);
+
+        if ((chaotic || (converge && phase === 'chaos')) && phase !== 'order') {
+            pulseChaosMessages(root);
+        }
+    }
+
+    function playConvergeBoard(root) {
+        const sources = root.querySelectorAll('[data-wf-node="src"]');
+        const hub = root.querySelector('[data-wf-node="hub"]');
+        const outs = root.querySelectorAll('[data-wf-node="out"]');
+        if (!sources.length || !hub) return;
+
+        drawConvergeEdges(root);
+        root.classList.remove('is-governed');
+
+        const reveal = [...sources, hub, ...outs];
+        if (reduce) {
+            snapVisible(reveal);
+            root.classList.add('is-governed');
+            root.querySelectorAll('.wf-path').forEach((p) => {
+                p.style.opacity = p.getAttribute('data-phase') === 'chaos' ? '0.75' : '1';
+            });
+            return;
+        }
+
+        // Hide order nodes until SoftStop absorbs.
+        outs.forEach((el) => {
+            el.style.opacity = '0';
+        });
+
+        const tl = createTimeline({ defaults: { ease: 'out(3)' } });
+        tl.add(sources, {
+            opacity: [0, 1],
+            y: [12, 0],
+            scale: [0.96, 1],
+            duration: 380,
+            delay: stagger(40),
+        });
+        tl.add(hub, {
+            opacity: [0, 1],
+            y: [16, 0],
+            scale: [0.94, 1],
+            duration: 420,
+        }, '-=180');
+        // Beat 1 — chaos arrives at the gate
+        tl.add(root.querySelectorAll('[data-phase="chaos"].wf-path'), {
+            opacity: [0, 0.9],
+            duration: 280,
+            delay: stagger(8),
+            onComplete: () => {
+                pulseBoard(root, { phase: 'chaos' });
+            },
+        }, '-=120');
+        // Beat 2 — SoftStop absorbs
+        tl.add(hub, {
+            scale: [1, 1.06, 1],
+            duration: 640,
+            ease: 'inOut(2)',
+            onBegin: () => { hub.classList.add('is-absorbing'); },
+            onComplete: () => {
+                root.classList.add('is-governed');
+                // Calm inbound chaos strokes into ordered amber checks
+                root.querySelectorAll('[data-phase="chaos"].wf-path').forEach((p) => {
+                    p.style.opacity = '0.85';
+                });
+                // Stop frantic message particles once governed
+                root.querySelectorAll('.wf-msg').forEach((c) => {
+                    c.style.opacity = '0';
+                    c.style.display = 'none';
+                });
+                root._chaosMsgMeta = null;
+            },
+        }, '+=700');
+        // Beat 3 — allow / block resolve
+        tl.add(outs, {
+            opacity: [0, 1],
+            y: [10, 0],
+            scale: [0.96, 1],
+            duration: 400,
+            delay: stagger(70),
+        }, '-=200');
+        tl.add(root.querySelectorAll('[data-phase="order"].wf-path'), {
+            opacity: [0, 1],
+            duration: 420,
+            delay: stagger(40),
+            onComplete: () => {
+                hub.classList.remove('is-absorbing');
+                // Soft inbound pulses + calm outbound
+                pulseBoard(root, { phase: 'order' });
+                root.querySelectorAll('[data-phase="chaos"].wf-pulse').forEach((p, i) => {
+                    animate(p, {
+                        opacity: [0, 0.85, 0.85, 0],
+                        strokeDashoffset: [0, -240],
+                        duration: 1600,
+                        delay: i * 140,
+                        ease: 'linear',
+                        loop: true,
+                        loopDelay: 850,
+                    });
+                });
+            },
+        }, '-=160');
     }
 
     function playBoard(root) {
+        const kind = root.getAttribute('data-wf');
+        if (kind === 'converge') {
+            playConvergeBoard(root);
+            return;
+        }
+
         const sources = root.querySelectorAll('[data-wf-node="src"]');
         const hub = root.querySelector('[data-wf-node="hub"]');
         const outs = root.querySelectorAll('[data-wf-node="out"]');
@@ -3827,7 +4138,7 @@ if (!d.allowed) {
         const entries = root.querySelectorAll('[data-entry]');
         if (!sources.length) return;
 
-        const chaotic = root.getAttribute('data-wf') === 'chaos';
+        const chaotic = kind === 'chaos';
         drawBoardEdges(root);
 
         const reveal = [...sources, ...(hub ? [hub] : []), ...outs, ...targets, ...entries];

@@ -9,6 +9,13 @@
 <p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
 <p align="center">
+  <img src="docs/brand/softstop-scale-chaos.png" alt="Without SoftStop: departments slam hot customers unevenly. With SoftStop: the same chaos hits a shared journal, then Allow or Block." width="100%" />
+</p>
+
+<p align="center"><em>Growth, CRM, Support, Ads, Product, and Agents don’t share a stop signal — so a few customers get slammed while others barely hear from you. SoftStop is the shared journal every system <code>check</code>s before escalating.</em><br />
+<a href="https://softstop.vercel.app">See the interactive Why SoftStop canvases →</a></p>
+
+<p align="center">
   <a href="https://softstop-docs.vercel.app">Docs</a> ·
   <a href="#get-started">Quickstart</a> ·
   <a href="https://softstop.vercel.app">Live demo</a> ·
@@ -38,17 +45,9 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 | `record` the outcome | Personalize content |
 | Enforce cooldowns & caps across systems | Optimize conversion |
 
-## The use case (in one picture)
+## The use case
 
-Lifecycle email, pricing SMS, checkout modal, and a support agent can all hit the **same person** with no shared stop signal. SoftStop sits in the middle as a tiny authorize-only gate.
-
-<p align="center">
-  <img src="docs/brand/softstop-before-after.png" alt="Without SoftStop many systems stack pressure on one user; with SoftStop only allowed escalations pass" width="100%" />
-</p>
-
-<p align="center">
-  <img src="docs/brand/softstop-use-cases.png" alt="SoftStop fits marketing plus CRM, product UI, and agents" width="100%" />
-</p>
+Lifecycle email, pricing SMS, checkout modal, and a support agent can all hit the **same person** with no shared stop signal. SoftStop sits in the middle as a tiny authorize-only gate — see the diagram above, or [scroll the live demo](https://softstop.vercel.app).
 
 ### Example story (live demo)
 
