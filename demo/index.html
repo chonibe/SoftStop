@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftStop — Makes software stop when it should</title>
-    <meta name="description" content="SoftStop is the shared authorize-only permit before any system raises pressure on a user. check before urgency, discount, interruption, or reminder — then record.">
+    <meta name="description" content="SoftStop is the shared per-customer pressure journal. Every system check/records into one permit — urgency, discount, interruption, reminder — so no channel is blind.">
     <link rel="icon" href="assets/softstop-mark-dark.png" type="image/png" />
     <meta property="og:title" content="SoftStop" />
     <meta property="og:description" content="Doesn't make software smarter. Makes it stop when it should." />
@@ -48,6 +48,13 @@
             --oc-surface-secondary-soft: rgba(63, 185, 80, 0.14);
             --oc-chart-line: rgba(237, 237, 237, 0.09);
             --logo-glow: color-mix(in srgb, var(--ss-amber) 35%, transparent);
+
+            /* Bklit / shadcn-style chart tokens (static HTML adaptation) */
+            --chart-line-primary: var(--ss-amber);
+            --chart-grid: rgba(154, 154, 162, 0.14);
+            --chart-background: var(--ss-ink-900);
+            --chart-muted: var(--ss-muted);
+            --radius: 0.5rem;
 
             --oc-space-2: 0.5rem;
             --oc-space-3: 0.75rem;
@@ -175,11 +182,26 @@
         }
 
         /* —— Layout rail —— */
-        .container { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; overflow-x: clip; }
-        .rail {
+        /* .page — not Tailwind's .container (CDN was left-capping the layout) */
+        .page {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
             width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: clip;
+        }
+        .rail {
+            box-sizing: border-box;
+            width: min(100%, 1060px);
             max-width: 1060px;
-            margin: 0 auto;
+            margin-inline: auto;
+            align-self: center;
             padding: 0 var(--oc-space-7);
             border-left: 1px solid var(--oc-border-subtle);
             border-right: 1px solid var(--oc-border-subtle);
@@ -410,6 +432,7 @@
             margin-top: 16px;
             background: var(--oc-bg-surface);
             border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
             overflow: hidden;
         }
         .usage-block pre {
@@ -421,6 +444,198 @@
             color: var(--oc-text-secondary);
             overflow-x: auto;
             white-space: pre;
+        }
+        .code-block { border-radius: var(--radius); }
+
+        /* —— Shared journal graphic (multi-system → one permit) —— */
+        .journal-board {
+            margin: 8px 0 28px;
+            border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
+            background: var(--chart-background);
+            overflow: hidden;
+            position: relative;
+        }
+        .journal-board::before {
+            content: "";
+            position: absolute; inset: 0; pointer-events: none;
+            background-image:
+                linear-gradient(var(--chart-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--chart-grid) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.55;
+            mask-image: linear-gradient(#000 40%, #0000 100%);
+        }
+        .journal-layout {
+            position: relative; z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) 28px minmax(0, 1.2fr) 28px minmax(140px, 0.7fr);
+            gap: 0;
+            align-items: stretch;
+            padding: 22px 18px;
+            min-height: 320px;
+        }
+        @media (max-width: 860px) {
+            .journal-layout {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                min-height: 0;
+            }
+            .journal-arrow { display: none; }
+        }
+        .journal-col-label {
+            font-family: var(--oc-font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--chart-muted);
+            margin: 0 0 12px;
+            font-weight: 600;
+        }
+        .channel-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .channel-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--oc-border-subtle);
+            border-radius: calc(var(--radius) - 2px);
+            background: color-mix(in srgb, var(--oc-bg-page) 70%, transparent);
+            font-family: var(--oc-font-mono);
+            font-size: 0.78rem;
+            color: var(--oc-text-secondary);
+            opacity: 0;
+            transform: translateX(-12px);
+        }
+        .channel-chip .ch-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--chart-line-primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-amber) 18%, transparent);
+            flex-shrink: 0;
+        }
+        .channel-chip .ch-ask {
+            margin-left: auto;
+            color: var(--oc-text-muted);
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+        }
+        .journal-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--oc-text-muted);
+            opacity: 0.55;
+        }
+        .journal-arrow svg { width: 18px; height: 18px; }
+        .journal-panel {
+            border: 1px solid color-mix(in srgb, var(--ss-amber) 32%, var(--oc-border-subtle));
+            border-radius: var(--radius);
+            background: color-mix(in srgb, var(--oc-bg-page) 88%, var(--ss-amber));
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--ss-amber) 8%, transparent);
+        }
+        .journal-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--oc-border-subtle);
+        }
+        .journal-panel-head strong {
+            font-family: var(--oc-font-display);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--oc-text-primary);
+        }
+        .journal-user {
+            font-family: var(--oc-font-mono);
+            font-size: 0.68rem;
+            color: var(--ss-amber);
+            letter-spacing: 0.04em;
+        }
+        .journal-feed {
+            flex: 1;
+            padding: 10px 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 180px;
+        }
+        .journal-entry {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: calc(var(--radius) - 2px);
+            border: 1px solid transparent;
+            background: color-mix(in srgb, var(--oc-bg-surface) 55%, transparent);
+            font-family: var(--oc-font-mono);
+            font-size: 0.72rem;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .journal-entry.is-in {
+            border-color: color-mix(in srgb, var(--ss-amber) 22%, transparent);
+        }
+        .journal-entry .je-sys { color: var(--oc-text-muted); }
+        .journal-entry .je-act { color: var(--oc-text-secondary); }
+        .journal-entry .je-out {
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            font-size: 0.65rem;
+        }
+        .journal-entry .je-out.ok { color: var(--ss-ok); }
+        .journal-entry .je-out.no { color: var(--ss-amber); }
+        .permit-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+        }
+        .permit-card {
+            border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
+            padding: 16px 14px;
+            background: var(--oc-bg-page);
+            opacity: 0;
+            transform: translateX(12px);
+        }
+        .permit-card.allow {
+            border-color: color-mix(in srgb, var(--ss-ok) 40%, transparent);
+        }
+        .permit-card.block {
+            border-color: color-mix(in srgb, var(--ss-amber) 45%, transparent);
+        }
+        .permit-card .pc-kicker {
+            font-family: var(--oc-font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .permit-card.allow .pc-kicker { color: var(--ss-ok); }
+        .permit-card.block .pc-kicker { color: var(--ss-amber); }
+        .permit-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--oc-text-muted);
+            line-height: 1.45;
+        }
+        .journal-caption {
+            margin: 0 0 8px;
+            color: var(--oc-text-muted);
+            font-size: 0.92rem;
+            line-height: 1.65;
+            max-width: 46rem;
         }
 
         /* —— How / feature tiles —— */
@@ -434,6 +649,7 @@
         @media (max-width: 520px) { .flow-rail { grid-template-columns: 1fr; } }
         .flow-step {
             border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
             background: var(--oc-bg-surface);
             padding: 18px 16px;
             opacity: 0;
@@ -461,6 +677,7 @@
         @media (max-width: 640px) { .flow-outcome { grid-template-columns: 1fr; } }
         .outcome-chip {
             border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
             padding: 16px;
             background: color-mix(in srgb, var(--oc-bg-surface) 80%, transparent);
         }
@@ -468,6 +685,7 @@
         .outcome-chip.blocked { border-color: color-mix(in srgb, var(--ss-amber) 40%, transparent); }
         .action-tile {
             border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
             background: var(--oc-bg-surface);
             padding: 14px;
         }
@@ -480,6 +698,7 @@
         @media (max-width: 760px) { .benefit-row { grid-template-columns: 1fr; } }
         .benefit-card {
             border: 1px solid var(--oc-border-subtle);
+            border-radius: var(--radius);
             background: var(--oc-bg-surface);
             padding: 20px 18px;
         }
@@ -491,8 +710,9 @@
             padding: 28px 0 40px;
         }
         .footer-inner {
+            width: min(100%, 1060px);
             max-width: 1060px;
-            margin: 0 auto;
+            margin-inline: auto;
             padding: 0 var(--oc-space-7);
             display: flex;
             flex-wrap: wrap;
@@ -784,6 +1004,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            corePlugins: {
+                // SoftStop page shell must not fight Tailwind's .container max-width
+                container: false,
+            },
             theme: {
                 extend: {
                     fontFamily: {
@@ -1349,15 +1573,15 @@
 
 
 
-    <main class="container">
+    <main class="page">
         <header class="hero">
             <div class="hero-content">
                 <img class="hero-mark" src="assets/softstop-mark-dark.png" width="72" height="72" alt="" />
-                <p class="hero-eyebrow">Open source · Authorize-only permit</p>
-                <h1 class="title">Makes software <em>stop</em> when it should.</h1>
+                <p class="hero-eyebrow">Open source · Shared pressure journal</p>
+                <h1 class="title">One journal.<br /><em>Every</em> system asks it.</h1>
                 <p class="description">
-                    The shared permit before any system raises pressure on a user.<br />
-                    One <code>check</code> before urgency, discount, interruption, or reminder — then <code>record</code>.
+                    Email, SMS, push, popups, ads, and agents all <code>check</code> the same SoftStop permit —
+                    and <code>record</code> into one per-customer journal, so no system is blind to what another already did.
                 </p>
                 <div class="hero-actions">
                     <a href="#quickstart" class="hero-cta oc-action oc-action-primary">Get started</a>
@@ -1374,18 +1598,27 @@
                 <div class="code-block">
                     <div class="code-header">
                         <span class="code-label">install</span>
-                        <button type="button" class="copy-line-btn" data-copy-text="npm i https://softstop.vercel.app/softstop.tgz" title="Copy" aria-label="Copy install">
+                        <button type="button" class="copy-line-btn" data-copy-text="curl -fsSL https://softstop.vercel.app/install.sh | bash" title="Copy" aria-label="Copy install">
                             <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                     </div>
                     <div class="code-content">
+                        <div class="code-line comment"># Pressure rises fast. SoftStop decides if it should.</div>
                         <div class="code-line cmd">
                             <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>npm i https://softstop.vercel.app/softstop.tgz</span>
+                            <span class="code-cmd-text" data-copy-text>curl -fsSL https://softstop.vercel.app/install.sh | bash</span>
+                            <button type="button" class="copy-line-btn" data-copy-text="curl -fsSL https://softstop.vercel.app/install.sh | bash" title="Copy" aria-label="Copy install command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
+                <p class="quickstart-note">
+                    Works on macOS and Linux (Windows via WSL or Git Bash). The one-liner installs the SoftStop client from the hosted tarball.
+                    Or <code>npm i https://softstop.vercel.app/softstop.tgz</code>
+                </p>
 
                 <div class="usage-block" id="sdkUsage">
                     <div class="code-header">
@@ -1410,14 +1643,64 @@ if (!d.allowed) {
                     <h2 class="section-title">How it works</h2>
                     <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="section-link">Docs →</a>
                 </div>
-                <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Escalate → check → allow or block → record</h3>
-                <p class="description" style="text-align:left;margin:0 0 28px;max-width:42rem">SoftStop is an authorize-only permit. Same gate for marketing, product UI, and agents.</p>
+                <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Many systems. One shared journal per customer.</h3>
+                <p class="journal-caption">
+                    SoftStop is authorize-only: every pressure surface asks the same permit with <span class="code-chip">check</span>,
+                    then writes the outcome with <span class="code-chip">record</span>. Action types stay honest —
+                    <span class="code-chip">urgency</span>, <span class="code-chip">discount</span>, <span class="code-chip">interruption</span>, <span class="code-chip">reminder</span>.
+                </p>
+
+                <div class="journal-board" id="journalBoard" aria-label="Multi-system SoftStop journal diagram">
+                    <div class="journal-layout">
+                        <div>
+                            <p class="journal-col-label">Systems</p>
+                            <div class="channel-stack" id="channelStack">
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>Email<span class="ch-ask">check</span></div>
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>SMS<span class="ch-ask">check</span></div>
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>Push<span class="ch-ask">check</span></div>
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>Popup<span class="ch-ask">check</span></div>
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>Ads<span class="ch-ask">check</span></div>
+                                <div class="channel-chip" data-channel><span class="ch-dot" aria-hidden="true"></span>Agent<span class="ch-ask">check</span></div>
+                            </div>
+                        </div>
+                        <div class="journal-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                        </div>
+                        <div class="journal-panel">
+                            <div class="journal-panel-head">
+                                <strong>Shared journal</strong>
+                                <span class="journal-user">user · cust_1042</span>
+                            </div>
+                            <div class="journal-feed" id="journalFeed">
+                                <div class="journal-entry" data-entry><span class="je-sys">email</span><span class="je-act">urgency · record</span><span class="je-out ok">ALLOW</span></div>
+                                <div class="journal-entry" data-entry><span class="je-sys">sms</span><span class="je-act">reminder · record</span><span class="je-out ok">ALLOW</span></div>
+                                <div class="journal-entry" data-entry><span class="je-sys">push</span><span class="je-act">urgency · record</span><span class="je-out no">BLOCK</span></div>
+                                <div class="journal-entry" data-entry><span class="je-sys">popup</span><span class="je-act">discount · record</span><span class="je-out no">BLOCK</span></div>
+                                <div class="journal-entry" data-entry><span class="je-sys">ads</span><span class="je-act">interruption · record</span><span class="je-out no">BLOCK</span></div>
+                                <div class="journal-entry" data-entry><span class="je-sys">agent</span><span class="je-act">reminder · record</span><span class="je-out no">BLOCK</span></div>
+                            </div>
+                        </div>
+                        <div class="journal-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                        </div>
+                        <div class="permit-stack" id="permitStack">
+                            <div class="permit-card allow" data-permit>
+                                <div class="pc-kicker">Allow</div>
+                                <p>First touches land. Journal grows so later systems see them.</p>
+                            </div>
+                            <div class="permit-card block" data-permit>
+                                <div class="pc-kicker">Block</div>
+                                <p>Stacked pressure stops. Still recorded — no blind spots.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="flow-rail" id="flowRail">
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">01</div>
-                        <div class="flow-title">Escalate?</div>
-                        <p class="text-sm text-slate-500 leading-relaxed">Your system wants to raise pressure — email, SMS, modal, agent nudge.</p>
+                        <div class="flow-title">Any system</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Email, SMS, push, modal, ads, agent — each about to raise pressure.</p>
                     </div>
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">02</div>
@@ -1426,13 +1709,13 @@ if (!d.allowed) {
                     </div>
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">03</div>
-                        <div class="flow-title">Permit</div>
-                        <p class="text-sm text-slate-500 leading-relaxed">Allow or block from cooldowns, caps, and stacking rules — not from copy AI.</p>
+                        <div class="flow-title">Shared journal</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Decision uses the same per-customer history — not a silo per tool.</p>
                     </div>
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">04</div>
                         <div class="flow-title">record()</div>
-                        <p class="text-sm text-slate-500 leading-relaxed">Always record — including when blocked — so health and orphan rate stay honest.</p>
+                        <p class="text-sm text-slate-500 leading-relaxed">Always write the outcome — including blocked — so the next system isn’t blind.</p>
                     </div>
                 </div>
 
@@ -1442,14 +1725,14 @@ if (!d.allowed) {
                             <span class="text-[10px] font-bold uppercase tracking-wider bg-accent-red/20 text-accent-red px-2 py-0.5 rounded">LANDED</span>
                             <span class="text-[11px] font-mono text-slate-500">OFF or allowed</span>
                         </div>
-                        <p class="text-sm text-slate-400">Touch hits the user. Pressure rises. SoftStop OFF lands everything.</p>
+                        <p class="text-sm text-slate-400">Touch hits the user. Journal entry lands. SoftStop OFF lands everything.</p>
                     </div>
                     <div class="outcome-chip blocked">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="text-[10px] font-bold uppercase tracking-wider bg-stop-amber/20 text-stop-amber px-2 py-0.5 rounded">BLOCKED</span>
                             <span class="text-[11px] font-mono text-slate-500">ON + over limit</span>
                         </div>
-                        <p class="text-sm text-slate-400">Touch does not fire. Rule shown. Still <span class="code-chip">record</span> with outcome blocked.</p>
+                        <p class="text-sm text-slate-400">Touch does not fire. Still <span class="code-chip">record</span> blocked so other systems see it.</p>
                     </div>
                 </div>
 
@@ -1482,14 +1765,14 @@ if (!d.allowed) {
         <section id="demo" class="scroll-mt-14">
             <div class="max-w-6xl mx-auto px-4 md:px-6 pt-14 md:pt-16 pb-6">
                 <p class="section-kicker mb-3">Live example</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">7 days of stacked escalations</h2>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">7 days, many channels, one journal</h2>
                 <p class="text-slate-400 max-w-2xl leading-relaxed mb-2">
-                    Marketing-chaos story in a short scroll: email, SMS, push, and in-app stacking on one person.
-                    SoftStop isn’t the messenger — it’s the permit under all of them.
+                    Stacked escalations across email, SMS, push, and in-app — same customer, same SoftStop journal.
+                    SoftStop isn’t the messenger; it’s the shared permit every channel asks before it fires.
                 </p>
                 <p class="text-sm text-slate-500 mb-6">
-                    <span class="text-accent-red font-medium">OFF</span> → every touch <span class="text-accent-red font-medium">LANDED</span>.
-                    <span class="text-stop-amber font-medium">ON</span> → excess shows <span class="text-stop-amber font-medium">BLOCKED</span> with the rule.
+                    <span class="text-accent-red font-medium">OFF</span> → every touch <span class="text-accent-red font-medium">LANDED</span> (journal stays blind between systems).
+                    <span class="text-stop-amber font-medium">ON</span> → excess shows <span class="text-stop-amber font-medium">BLOCKED</span> because the journal already knows.
                 </p>
             </div>
 
@@ -1605,18 +1888,19 @@ if (!d.allowed) {
                     <h2 class="section-title">Why SoftStop</h2>
                     <a href="https://github.com/chonibe/SoftStop" class="section-link">GitHub →</a>
                 </div>
-                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">One shared permit before pressure</h3>
+                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">One shared journal before pressure</h3>
                 <p class="description" style="text-align:left;margin:0 0 28px;max-width:42rem">
-                    Marketing, product, and agents stop stacking on the same user. SoftStop authorizes — it does not send mail or write copy.
+                    Marketing, product, and agents stop stacking blind. SoftStop authorizes and journals —
+                    it does not send mail or write copy.
                 </p>
                 <div class="benefit-row">
                     <div class="benefit-card">
-                        <h3 class="font-display font-semibold text-paper mb-2">Authorize only</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Doesn’t send mail or write copy. Your stack still owns the message — SoftStop owns the permit.</p>
+                        <h3 class="font-display font-semibold text-paper mb-2">Cross-system journal</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Every <span class="code-chip">record</span> lands in one per-customer history — email isn’t blind to SMS.</p>
                     </div>
                     <div class="benefit-card">
-                        <h3 class="font-display font-semibold text-paper mb-2">Cross-system caps</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Cooldowns and channel limits apply across email, SMS, push, UI, and agents — not siloed per tool.</p>
+                        <h3 class="font-display font-semibold text-paper mb-2">Authorize only</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Doesn’t send mail or write copy. Your stack owns the message — SoftStop owns the permit.</p>
                     </div>
                     <div class="benefit-card">
                         <h3 class="font-display font-semibold text-paper mb-2">Honest adoption</h3>
@@ -2733,6 +3017,47 @@ if (!d.allowed) {
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    function snapVisible(els) {
+        els.forEach((el) => {
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+            el.classList.add('is-in', 'is-visible');
+        });
+    }
+
+    function playJournal() {
+        const channels = document.querySelectorAll('[data-channel]');
+        const entries = document.querySelectorAll('[data-entry]');
+        const permits = document.querySelectorAll('[data-permit]');
+        if (!channels.length) return;
+
+        if (reduce) {
+            snapVisible([...channels, ...entries, ...permits]);
+            return;
+        }
+
+        const tl = createTimeline({ defaults: { ease: 'out(3)' } });
+        tl.add(channels, {
+            opacity: [0, 1],
+            x: [-14, 0],
+            duration: 420,
+            delay: stagger(70),
+        })
+        .add(entries, {
+            opacity: [0, 1],
+            y: [12, 0],
+            duration: 380,
+            delay: stagger(95),
+            onComplete: () => entries.forEach((el) => el.classList.add('is-in')),
+        }, '-=180')
+        .add(permits, {
+            opacity: [0, 1],
+            x: [14, 0],
+            duration: 460,
+            delay: stagger(110),
+        }, '-=220');
+    }
+
     function revealFlow() {
         const steps = document.querySelectorAll('[data-flow-step]');
         if (!steps.length) return;
@@ -2747,6 +3072,18 @@ if (!d.allowed) {
             delay: stagger(90),
         });
         steps.forEach((el) => el.classList.add('is-visible'));
+    }
+
+    const journalBoard = document.getElementById('journalBoard');
+    if (journalBoard) {
+        const ioJ = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                ioJ.unobserve(entry.target);
+                playJournal();
+            }
+        }, { threshold: 0.28 });
+        ioJ.observe(journalBoard);
     }
 
     const flowRail = document.getElementById('flowRail');
@@ -2779,6 +3116,18 @@ if (!d.allowed) {
             }
         }, { threshold: 0.2 });
         io2.observe(actionTiles);
+    }
+
+    // Subtle hero entrance
+    if (!reduce) {
+        const heroBits = document.querySelectorAll('.hero-mark, .hero-eyebrow, .title, .hero .description, .hero-actions');
+        heroBits.forEach((el) => { el.style.opacity = '0'; });
+        createTimeline({ defaults: { ease: 'out(3)', duration: 650 } })
+            .add('.hero-mark', { opacity: [0, 1], y: [16, 0] })
+            .add('.hero-eyebrow', { opacity: [0, 1], y: [10, 0] }, '-=420')
+            .add('.title', { opacity: [0, 1], y: [22, 0] }, '-=400')
+            .add('.hero .description', { opacity: [0, 1], y: [14, 0] }, '-=380')
+            .add('.hero-actions', { opacity: [0, 1], y: [10, 0] }, '-=320');
     }
     </script>
 </body>
