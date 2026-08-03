@@ -836,7 +836,11 @@
             align-items: center;
         }
         .wf-canvas.is-scale.is-clean .wf-stage-grid {
-            grid-template-columns: minmax(100px, 1fr) 0.4fr minmax(132px, 158px) 0.35fr minmax(96px, 120px);
+            grid-template-columns: minmax(100px, 1fr) 0.35fr minmax(120px, 148px) 0.4fr minmax(118px, 1fr);
+            min-height: 340px;
+        }
+        .wf-canvas.is-scale.is-clean .wf-stage {
+            padding: 34px 12px 16px;
         }
         .wf-canvas.is-scale .wf-node {
             padding: 7px 10px 7px 7px;
@@ -945,21 +949,77 @@
             stroke-width: 0.95;
             stroke-dasharray: 3 5;
         }
+        .wf-edges .wf-path.is-inbound-chaos.is-chaos-ghost {
+            stroke: color-mix(in srgb, var(--ss-danger) 22%, rgba(154,154,162,0.12));
+            stroke-width: 0.85;
+        }
         .wf-edges .wf-pulse.is-inbound-chaos {
             stroke: color-mix(in srgb, var(--ss-danger) 65%, var(--ss-amber));
             stroke-width: 2;
             stroke-dasharray: 7 140;
             filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 35%, transparent));
         }
+        /* Inbound stays chaotic after SoftStop absorbs — gate only filters outbound. */
         .wf-canvas.is-clean.is-governed .wf-path.is-inbound-chaos {
-            stroke: color-mix(in srgb, var(--ss-amber) 48%, rgba(154,154,162,0.28));
-            stroke-width: 1.5;
-            stroke-dasharray: none;
+            opacity: 0.9;
         }
-        .wf-canvas.is-clean.is-governed .wf-pulse.is-inbound-chaos {
+        .wf-edges .wf-path.is-permit-allow {
+            stroke: color-mix(in srgb, var(--ss-ok) 55%, rgba(154,154,162,0.2));
+            stroke-width: 1.35;
+            opacity: 0;
+        }
+        .wf-edges .wf-path.is-permit-block {
+            stroke: color-mix(in srgb, var(--ss-amber) 42%, rgba(154,154,162,0.18));
+            stroke-width: 1.05;
+            stroke-dasharray: 4 6;
+            opacity: 0;
+        }
+        .wf-edges .wf-pulse.is-permit-allow {
+            stroke: var(--ss-ok);
+            stroke-width: 1.85;
+            stroke-dasharray: 8 200;
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-ok) 45%, transparent));
+        }
+        .wf-edges .wf-pulse.is-permit-block {
             stroke: var(--ss-amber);
-            stroke-dasharray: 10 220;
-            filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ss-amber) 50%, transparent));
+            stroke-width: 1.5;
+            stroke-dasharray: 5 180;
+            filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ss-amber) 35%, transparent));
+        }
+        .wf-edges .wf-msg.is-permit {
+            fill: color-mix(in srgb, var(--ss-ok) 70%, #fff);
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-ok) 50%, transparent));
+        }
+        .wf-edges .wf-msg.is-block-fade {
+            fill: color-mix(in srgb, var(--ss-amber) 60%, #fff);
+            filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ss-amber) 40%, transparent));
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-hot {
+            border-color: color-mix(in srgb, var(--ss-ok) 35%, rgba(154,154,162,0.2));
+            background: color-mix(in srgb, var(--ss-ok) 6%, #1a1a20);
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-hot .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-ok) 75%, var(--ss-amber));
+            animation: none;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-ok) 14%, transparent);
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-med .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-ok) 55%, var(--ss-amber));
+            animation: none;
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-light {
+            opacity: 0.78;
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-light .wf-cust-dot {
+            background: rgba(154, 154, 162, 0.5);
+            animation: none;
+        }
+        .wf-canvas.is-clean .wf-cust-badge {
+            color: color-mix(in srgb, var(--ss-ok) 65%, var(--ss-muted));
+        }
+        .wf-canvas.is-clean .wf-cust.is-heat-light .wf-cust-badge {
+            color: var(--ss-muted);
+            opacity: 0.7;
         }
         .wf-cust {
             position: relative;
@@ -1014,7 +1074,9 @@
             .wf-edges .wf-pulse.is-inbound-chaos { display: none; }
             .wf-edges .wf-path.is-chaos { opacity: 0.85 !important; }
             .wf-edges .wf-path.is-inbound-chaos { opacity: 0.75 !important; }
-            .wf-canvas.is-clean.is-governed .wf-path.is-inbound-chaos { opacity: 0.9 !important; }
+            .wf-canvas.is-clean.is-governed .wf-path.is-inbound-chaos { opacity: 0.85 !important; }
+            .wf-edges .wf-path.is-permit-allow { opacity: 0.9 !important; }
+            .wf-edges .wf-path.is-permit-block { opacity: 0.55 !important; }
             .wf-node.is-hub.is-absorbing { box-shadow: none; }
         }
         .wf-pair {
@@ -2485,27 +2547,27 @@ if (!d.allowed) {
                         </div>
                     </div>
                     <div>
-                        <p class="wf-pair-label is-good">With SoftStop · chaos → order</p>
-                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Departments fire chaotically into SoftStop, then the journal governs allow or block">
+                        <p class="wf-pair-label is-good">With SoftStop · one journal</p>
+                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same department blast hits SoftStop first; only permitted messages reach customers">
                             <div class="wf-toolbar" aria-hidden="true">
-                                <span>Blind fire</span>
-                                <span>SoftStop absorbs</span>
-                                <span>Permit</span>
+                                <span>Same blind fire</span>
+                                <span>SoftStop journal</span>
+                                <span>Permitted only</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
                                 <div class="wf-stage-grid">
                                     <div class="wf-col wf-col-systems" data-wf-sources>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 3 5-6"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Growth</div><div class="wf-node-meta">check →</div></div></div>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="wf-node-body"><div class="wf-node-name">CRM</div><div class="wf-node-meta">check →</div></div></div>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Support</div><div class="wf-node-meta">check →</div></div></div>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Ads</div><div class="wf-node-meta">check →</div></div></div>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Product</div><div class="wf-node-meta">check →</div></div></div>
-                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Agents</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 3 5-6"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Growth</div><div class="wf-node-meta">urgency blast</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="wf-node-body"><div class="wf-node-name">CRM</div><div class="wf-node-meta">discount drip</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Support</div><div class="wf-node-meta">reminder ping</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Ads</div><div class="wf-node-meta">retarget</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Product</div><div class="wf-node-meta">interruption</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Agents</div><div class="wf-node-meta">outreach</div></div></div>
                                     </div>
                                     <div class="wf-spacer" aria-hidden="true"></div>
                                     <div class="wf-col wf-col-hub">
-                                        <div class="wf-mobile-flow" aria-hidden="true">↓ converge ↓</div>
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ same blast → journal ↓</div>
                                         <div class="wf-node is-hub" data-wf-node="hub">
                                             <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
                                             <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
@@ -2518,20 +2580,18 @@ if (!d.allowed) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="wf-mobile-flow" aria-hidden="true">↓ permit ↓</div>
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ allow / block ↓</div>
                                     </div>
                                     <div class="wf-spacer" aria-hidden="true"></div>
-                                    <div class="wf-col wf-col-out" data-wf-outs>
-                                        <div class="wf-node is-sm is-allow" data-wf-node="out" data-port-in="allow">
-                                            <span class="wf-port in ok" data-port="in" aria-hidden="true"></span>
-                                            <div class="wf-node-icon is-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
-                                            <div class="wf-node-body"><div class="wf-node-name">Allow</div><div class="wf-node-meta">record</div></div>
-                                        </div>
-                                        <div class="wf-node is-sm is-block" data-wf-node="out" data-port-in="block">
-                                            <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
-                                            <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
-                                            <div class="wf-node-body"><div class="wf-node-name">Block</div><div class="wf-node-meta">record</div></div>
-                                        </div>
+                                    <div class="wf-col wf-col-cust" data-wf-targets>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="10" data-allowed="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_1042</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-heat-med" data-wf-node="tgt" data-heat="med" data-weight="4" data-allowed="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_881</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="9" data-allowed="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_2207</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-heat-light" data-wf-node="tgt" data-heat="light" data-weight="2" data-allowed="0"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_559</span><span class="wf-cust-badge" aria-hidden="true">×0</span></div>
+                                        <div class="wf-cust is-heat-hot" data-wf-node="tgt" data-heat="hot" data-weight="8" data-allowed="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_3301</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-heat-light" data-wf-node="tgt" data-heat="light" data-weight="1" data-allowed="0"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_774</span><span class="wf-cust-badge" aria-hidden="true">×0</span></div>
+                                        <div class="wf-cust is-heat-med" data-wf-node="tgt" data-heat="med" data-weight="3" data-allowed="1"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_4156</span><span class="wf-cust-badge" aria-hidden="true">×1</span></div>
+                                        <div class="wf-cust is-more" aria-hidden="true"><span class="wf-cust-name">+ thousands more</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -3694,91 +3754,6 @@ if (!d.allowed) {
         return stageRect;
     }
 
-    function drawConvergeEdges(root) {
-        const stage = root.querySelector('[data-wf-stage]');
-        const svg = root.querySelector('[data-wf-edges]');
-        const hub = root.querySelector('[data-wf-node="hub"]');
-        if (!stage || !svg || !hub) return;
-        if (window.matchMedia('(max-width: 860px)').matches) {
-            svg.innerHTML = '';
-            root._chaosMsgMeta = null;
-            return;
-        }
-
-        const stageRect = sizeSvg(stage, svg);
-        const hubIn = hub.querySelector('[data-port="in"]');
-        const hubAllow = hub.querySelector('[data-port="out-allow"]');
-        const hubBlock = hub.querySelector('[data-port="out-block"]');
-        const allowNode = root.querySelector('[data-port-in="allow"] [data-port="in"]');
-        const blockNode = root.querySelector('[data-port-in="block"] [data-port="in"]');
-        if (!hubIn || !hubAllow || !hubBlock || !allowNode || !blockNode) return;
-
-        const toHub = portCenter(hubIn, stageRect);
-        const fromAllow = portCenter(hubAllow, stageRect);
-        const fromBlock = portCenter(hubBlock, stageRect);
-        const toAllow = portCenter(allowNode, stageRect);
-        const toBlock = portCenter(blockNode, stageRect);
-
-        // Uneven inbound fire: some depts blast harder into the gate.
-        const deptFire = [4, 2, 3, 1, 3, 2];
-        const parts = [];
-        const msgPaths = [];
-        let edgeI = 0;
-        root.querySelectorAll('[data-wf-node="src"] [data-port="out"]').forEach((port, si) => {
-            const from = portCenter(port, stageRect);
-            const copies = deptFire[si] || 2;
-            for (let c = 0; c < copies; c++) {
-                const wobble = (si - 2.5) * 16 + (c - (copies - 1) / 2) * 22 + ((si + c) % 2 ? 18 : -14);
-                const skew = ((si % 3) - 1) + c * 0.45;
-                const d = chaosBezier(from.x, from.y, toHub.x, toHub.y, wobble, skew);
-                const alt = c > 0;
-                parts.push(`<path class="wf-path is-inbound-chaos${alt ? ' is-chaos-alt' : ''}" data-edge="in-chaos-${edgeI}" data-phase="chaos" d="${d}" />`);
-                parts.push(`<path class="wf-pulse is-inbound-chaos${alt ? ' is-chaos-fast' : ''}" data-pulse="in-chaos-${edgeI}" data-phase="chaos" d="${d}" />`);
-                if (c === 0 || (copies >= 3 && c === copies - 1)) {
-                    msgPaths.push({ d, hot: copies >= 3, weight: copies });
-                }
-                edgeI += 1;
-            }
-        });
-
-        const dAllow = bezier(fromAllow.x, fromAllow.y, toAllow.x, toAllow.y);
-        const dBlock = bezier(fromBlock.x, fromBlock.y, toBlock.x, toBlock.y);
-        parts.push(`<path class="wf-path is-ok" data-edge="out-allow" data-phase="order" d="${dAllow}" />`);
-        parts.push(`<path class="wf-pulse is-ok" data-pulse="out-allow" data-phase="order" d="${dAllow}" />`);
-        parts.push(`<path class="wf-path is-amber" data-edge="out-block" data-phase="order" d="${dBlock}" />`);
-        parts.push(`<path class="wf-pulse" data-pulse="out-block" data-phase="order" d="${dBlock}" />`);
-
-        msgPaths.forEach((m, mi) => {
-            const r = m.hot ? 2.3 : 1.8;
-            const cls = m.hot ? 'wf-msg is-hot' : 'wf-msg';
-            parts.push(`<circle class="${cls}" data-msg="${mi}" data-phase="chaos" r="${r}" cx="0" cy="0" />`);
-            parts.push(`<path data-msg-track="c-msg-${mi}" data-phase="chaos" d="${m.d}" fill="none" stroke="none" />`);
-        });
-
-        svg.innerHTML = parts.join('');
-        const governed = root.classList.contains('is-governed');
-        svg.querySelectorAll('[data-phase="order"]').forEach((el) => {
-            el.style.opacity = governed ? '1' : '0';
-        });
-        if (governed) {
-            svg.querySelectorAll('[data-phase="chaos"].wf-path').forEach((el) => {
-                el.style.opacity = '0.85';
-            });
-            svg.querySelectorAll('.wf-msg').forEach((el) => {
-                el.style.display = 'none';
-            });
-        }
-        root._chaosMsgMeta = (reduce || governed)
-            ? null
-            : msgPaths.map((m, mi) => ({
-                circle: svg.querySelector(`[data-msg="${mi}"]`),
-                track: svg.querySelector(`[data-msg-track="c-msg-${mi}"]`),
-                hot: m.hot,
-                weight: m.weight,
-                loopDelay: m.hot ? 40 : 160,
-            }));
-    }
-
     function chaosBezier(x1, y1, x2, y2, wobble, skew = 0) {
         const dx = Math.max(28, Math.abs(x2 - x1) * (0.32 + Math.abs(skew) * 0.08));
         const c1y = y1 + wobble * 0.55 + skew * 10;
@@ -3799,6 +3774,219 @@ if (!d.allowed) {
         return [(custIndex * 3 + 1) % deptCount];
     }
 
+    // Same uneven pile-on volume as Without SoftStop — only the endpoint changes.
+    function buildPileOnLinks(outs, targets, resolveTgt) {
+        const links = [];
+        targets.forEach((custEl, ti) => {
+            const heat = custEl.getAttribute('data-heat') || 'light';
+            const weight = Number(custEl.getAttribute('data-weight') || '1');
+            const deptIndices = pickDeptIndices(outs.length, heat, ti);
+            const copies =
+                heat === 'hot' ? Math.max(2, Math.round(weight / 3)) :
+                heat === 'med' ? 2 : 1;
+            const tgt = resolveTgt(custEl, ti);
+            if (!tgt) return;
+
+            deptIndices.forEach((si) => {
+                const port = outs[si];
+                for (let c = 0; c < copies; c++) {
+                    const base = (si - ti) * 12 + (c - (copies - 1) / 2) * 18 + (heat === 'hot' ? 8 : -6);
+                    links.push({
+                        port,
+                        tgt,
+                        wobble: base + ((si * 5 + ti * 7 + c * 11) % 9) - 4,
+                        skew: ((si % 3) - 1) + c * 0.55,
+                        kind: c === 0 ? 'main' : 'alt',
+                        heat,
+                        weight,
+                        custIndex: ti,
+                    });
+                }
+                if (heat === 'hot') {
+                    links.push({
+                        port,
+                        tgt,
+                        wobble: (si - ti) * 18 + (ti % 2 ? 42 : -38),
+                        skew: (si - ti) * 0.4,
+                        kind: 'ghost',
+                        heat,
+                        weight,
+                        custIndex: ti,
+                    });
+                }
+            });
+        });
+        return links;
+    }
+
+    function msgSpawnCount(link, i) {
+        return link.kind === 'main' && link.heat === 'hot' ? 2 :
+            link.kind === 'alt' && link.heat === 'hot' ? 1 :
+            link.kind === 'main' && link.heat === 'med' ? 1 :
+            link.kind === 'main' && link.heat === 'light' && i % 5 === 0 ? 1 : 0;
+    }
+
+    function drawConvergeEdges(root) {
+        const stage = root.querySelector('[data-wf-stage]');
+        const svg = root.querySelector('[data-wf-edges]');
+        const hub = root.querySelector('[data-wf-node="hub"]');
+        if (!stage || !svg || !hub) return;
+        if (window.matchMedia('(max-width: 860px)').matches) {
+            svg.innerHTML = '';
+            root._chaosMsgMeta = null;
+            root._permitMsgMeta = null;
+            return;
+        }
+
+        const stageRect = sizeSvg(stage, svg);
+        const hubIn = hub.querySelector('[data-port="in"]');
+        const hubAllow = hub.querySelector('[data-port="out-allow"]');
+        const hubBlock = hub.querySelector('[data-port="out-block"]');
+        const outs = [...root.querySelectorAll('[data-wf-node="src"] [data-port="out"]')];
+        const targets = [...root.querySelectorAll('[data-wf-node="tgt"]')];
+        if (!hubIn || !hubAllow || !hubBlock || !outs.length || !targets.length) return;
+
+        // Inbound: identical pile-on volume as Without, but every blast hits SoftStop.
+        const inboundLinks = buildPileOnLinks(outs, targets, () => hubIn);
+        const parts = [];
+        const inboundMsgs = [];
+        inboundLinks.forEach((link, i) => {
+            const from = portCenter(link.port, stageRect);
+            const to = portCenter(link.tgt, stageRect);
+            const d = chaosBezier(from.x, from.y, to.x, to.y, link.wobble, link.skew);
+            const pathClass =
+                link.kind === 'alt' ? 'wf-path is-inbound-chaos is-chaos-alt' :
+                link.kind === 'ghost' ? 'wf-path is-inbound-chaos is-chaos-ghost' :
+                'wf-path is-inbound-chaos';
+            parts.push(`<path class="${pathClass}" data-edge="in-${i}" data-phase="chaos" data-heat="${link.heat}" d="${d}" />`);
+            if (link.kind !== 'ghost') {
+                const pulseClass = link.heat === 'hot' || link.kind === 'alt'
+                    ? 'wf-pulse is-inbound-chaos is-chaos-fast'
+                    : 'wf-pulse is-inbound-chaos';
+                parts.push(`<path class="${pulseClass}" data-pulse="in-${i}" data-phase="chaos" data-heat="${link.heat}" d="${d}" />`);
+            }
+            const spawnMsgs = msgSpawnCount(link, i);
+            for (let m = 0; m < spawnMsgs; m++) {
+                inboundMsgs.push({
+                    d,
+                    hot: link.heat === 'hot',
+                    heat: link.heat,
+                    weight: link.weight,
+                    stagger: m * 0.18,
+                    phase: 'chaos',
+                });
+            }
+        });
+
+        // Outbound: SoftStop → customers. Sparse Allow that lands; Block paths fade short.
+        const fromAllow = portCenter(hubAllow, stageRect);
+        const fromBlock = portCenter(hubBlock, stageRect);
+        const permitMsgs = [];
+        targets.forEach((custEl, ti) => {
+            const portIn = custEl.querySelector('[data-port="in"]');
+            if (!portIn) return;
+            const to = portCenter(portIn, stageRect);
+            const heat = custEl.getAttribute('data-heat') || 'light';
+            const allowed = Number(custEl.getAttribute('data-allowed') || '0');
+            const wobble = (ti - 3) * 14;
+
+            if (allowed > 0) {
+                const dAllow = chaosBezier(fromAllow.x, fromAllow.y, to.x, to.y, wobble * 0.35, (ti % 3) - 1);
+                parts.push(`<path class="wf-path is-permit-allow" data-edge="allow-${ti}" data-phase="order" d="${dAllow}" />`);
+                parts.push(`<path class="wf-pulse is-permit-allow" data-pulse="allow-${ti}" data-phase="order" d="${dAllow}" />`);
+                permitMsgs.push({
+                    d: dAllow,
+                    hot: false,
+                    heat,
+                    phase: 'order',
+                    kind: 'allow',
+                    loopDelay: 520 + ti * 80,
+                    durationScale: 1.15,
+                });
+            }
+
+            // Blocked attempts still leave the journal — dashed, die before landing.
+            const blockCopies = heat === 'hot' ? 2 : heat === 'med' ? 1 : (ti % 2 === 0 ? 1 : 0);
+            for (let b = 0; b < blockCopies; b++) {
+                const midX = fromBlock.x + (to.x - fromBlock.x) * (0.42 + b * 0.08);
+                const midY = fromBlock.y + (to.y - fromBlock.y) * (0.42 + b * 0.08) + (b ? 18 : -12);
+                const dBlock = chaosBezier(
+                    fromBlock.x, fromBlock.y,
+                    midX, midY,
+                    wobble * 0.5 + b * 10,
+                    ((ti + b) % 3) - 1
+                );
+                parts.push(`<path class="wf-path is-permit-block" data-edge="block-${ti}-${b}" data-phase="order" d="${dBlock}" />`);
+                parts.push(`<path class="wf-pulse is-permit-block" data-pulse="block-${ti}-${b}" data-phase="order" d="${dBlock}" />`);
+                if (b === 0 && heat !== 'light') {
+                    permitMsgs.push({
+                        d: dBlock,
+                        hot: false,
+                        heat,
+                        phase: 'order',
+                        kind: 'block',
+                        loopDelay: 380 + ti * 60,
+                        durationScale: 0.95,
+                        maxT: 0.92,
+                    });
+                }
+            }
+        });
+
+        inboundMsgs.forEach((m, mi) => {
+            const r = m.hot ? 2.5 : m.heat === 'med' ? 1.9 : 1.5;
+            const cls = m.hot ? 'wf-msg is-hot' : 'wf-msg';
+            parts.push(`<circle class="${cls}" data-msg="in-${mi}" data-phase="chaos" r="${r}" cx="0" cy="0" />`);
+            parts.push(`<path data-msg-track="in-msg-${mi}" data-phase="chaos" d="${m.d}" fill="none" stroke="none" />`);
+        });
+        permitMsgs.forEach((m, mi) => {
+            const r = m.kind === 'allow' ? 2.1 : 1.6;
+            const cls = m.kind === 'allow' ? 'wf-msg is-permit' : 'wf-msg is-block-fade';
+            parts.push(`<circle class="${cls}" data-msg="out-${mi}" data-phase="order" r="${r}" cx="0" cy="0" style="display:none" />`);
+            parts.push(`<path data-msg-track="out-msg-${mi}" data-phase="order" d="${m.d}" fill="none" stroke="none" />`);
+        });
+
+        svg.innerHTML = parts.join('');
+        const governed = root.classList.contains('is-governed');
+        svg.querySelectorAll('[data-phase="order"]').forEach((el) => {
+            if (el.classList.contains('wf-msg')) {
+                el.style.display = governed ? '' : 'none';
+                el.style.opacity = governed ? '' : '0';
+            } else {
+                el.style.opacity = governed ? '1' : '0';
+            }
+        });
+        svg.querySelectorAll('[data-phase="chaos"].wf-path').forEach((el) => {
+            if (governed) el.style.opacity = '0.9';
+        });
+
+        root._chaosMsgMeta = reduce
+            ? null
+            : inboundMsgs.map((m, mi) => ({
+                circle: svg.querySelector(`[data-msg="in-${mi}"]`),
+                track: svg.querySelector(`[data-msg-track="in-msg-${mi}"]`),
+                hot: m.hot,
+                heat: m.heat,
+                weight: m.weight,
+                durationScale: m.heat === 'hot' ? 0.75 : m.heat === 'med' ? 1 : 1.35,
+                loopDelay: m.heat === 'hot' ? 30 + (mi % 4) * 20 : m.heat === 'med' ? 140 : 420,
+                delayBias: (m.stagger || 0) * 400 + (m.heat === 'light' ? 500 : 0),
+            }));
+        root._permitMsgMeta = reduce
+            ? null
+            : permitMsgs.map((m, mi) => ({
+                circle: svg.querySelector(`[data-msg="out-${mi}"]`),
+                track: svg.querySelector(`[data-msg-track="out-msg-${mi}"]`),
+                hot: false,
+                heat: m.heat,
+                kind: m.kind,
+                durationScale: m.durationScale || 1,
+                loopDelay: m.loopDelay || 500,
+                maxT: m.maxT || 1,
+                delayBias: mi * 90,
+            }));
+    }
+
     function drawChaosEdges(root) {
         const stage = root.querySelector('[data-wf-stage]');
         const svg = root.querySelector('[data-wf-edges]');
@@ -3814,46 +4002,7 @@ if (!d.allowed) {
         const targets = [...root.querySelectorAll('[data-wf-node="tgt"]')];
         if (!outs.length || !targets.length) return;
 
-        const links = [];
-        targets.forEach((custEl, ti) => {
-            const portIn = custEl.querySelector('[data-port="in"]');
-            if (!portIn) return;
-            const heat = custEl.getAttribute('data-heat') || 'light';
-            const weight = Number(custEl.getAttribute('data-weight') || '1');
-            const deptIndices = pickDeptIndices(outs.length, heat, ti);
-            // Concurrent copies per dept → hot gets slammed, light barely touched
-            const copies =
-                heat === 'hot' ? Math.max(2, Math.round(weight / 3)) :
-                heat === 'med' ? 2 : 1;
-
-            deptIndices.forEach((si) => {
-                const port = outs[si];
-                for (let c = 0; c < copies; c++) {
-                    const base = (si - ti) * 12 + (c - (copies - 1) / 2) * 18 + (heat === 'hot' ? 8 : -6);
-                    links.push({
-                        port,
-                        tgt: portIn,
-                        wobble: base + ((si * 5 + ti * 7 + c * 11) % 9) - 4,
-                        skew: ((si % 3) - 1) + c * 0.55,
-                        kind: c === 0 ? 'main' : 'alt',
-                        heat,
-                        weight,
-                    });
-                }
-                if (heat === 'hot') {
-                    links.push({
-                        port,
-                        tgt: portIn,
-                        wobble: (si - ti) * 18 + (ti % 2 ? 42 : -38),
-                        skew: (si - ti) * 0.4,
-                        kind: 'ghost',
-                        heat,
-                        weight,
-                    });
-                }
-            });
-        });
-
+        const links = buildPileOnLinks(outs, targets, (custEl) => custEl.querySelector('[data-port="in"]'));
         const parts = [];
         const msgPaths = [];
         links.forEach((link, i) => {
@@ -3871,12 +4020,7 @@ if (!d.allowed) {
                     : 'wf-pulse is-chaos';
                 parts.push(`<path class="${pulseClass}" data-pulse="c-${i}" data-heat="${link.heat}" d="${d}" />`);
             }
-            // Message particles heavily biased to hot victims
-            const spawnMsgs =
-                link.kind === 'main' && link.heat === 'hot' ? 2 :
-                link.kind === 'alt' && link.heat === 'hot' ? 1 :
-                link.kind === 'main' && link.heat === 'med' ? 1 :
-                link.kind === 'main' && link.heat === 'light' && i % 5 === 0 ? 1 : 0;
+            const spawnMsgs = msgSpawnCount(link, i);
             for (let m = 0; m < spawnMsgs; m++) {
                 msgPaths.push({
                     d,
@@ -3904,7 +4048,6 @@ if (!d.allowed) {
                 hot: m.hot,
                 heat: m.heat,
                 weight: m.weight,
-                // Hot: rapid re-fire; light: sparse
                 durationScale: m.heat === 'hot' ? 0.75 : m.heat === 'med' ? 1 : 1.35,
                 loopDelay: m.heat === 'hot' ? 30 + (mi % 4) * 20 : m.heat === 'med' ? 140 : 420,
                 delayBias: (m.stagger || 0) * 400 + (m.heat === 'light' ? 500 : 0),
@@ -3918,20 +4061,26 @@ if (!d.allowed) {
         else drawConvergeEdges(root);
     }
 
-    function pulseChaosMessages(root) {
-        const meta = root._chaosMsgMeta;
-        if (!meta || !meta.length) return;
-        meta.forEach((item, i) => {
+    function pulseChaosMessages(root, which = 'all') {
+        const metas = [
+            ...((which === 'all' || which === 'chaos') ? (root._chaosMsgMeta || []) : []),
+            ...((which === 'all' || which === 'order') ? (root._permitMsgMeta || []) : []),
+        ];
+        if (!metas.length) return;
+        metas.forEach((item, i) => {
             const { circle, track } = item;
             if (!circle || !track || typeof track.getTotalLength !== 'function') return;
             const len = track.getTotalLength();
             if (!len) return;
             const scale = item.durationScale || 1;
-            const duration = (item.hot ? 820 : 1100) * scale + (i % 4) * 80;
+            const maxT = item.maxT != null ? item.maxT : 1;
+            const isPermit = item.kind === 'allow' || item.kind === 'block';
+            const duration = (item.hot ? 820 : isPermit ? 1300 : 1100) * scale + (i % 4) * 80;
             const delay = (item.delayBias || 0) + (i % 10) * 40 + (item.heat === 'hot' ? (i % 3) * 25 : (i % 5) * 70);
             const proxy = { t: 0 };
             const place = (t) => {
-                const pt = track.getPointAtLength(Math.min(len, Math.max(0, t * len)));
+                const clamped = Math.min(maxT, Math.max(0, t * maxT));
+                const pt = track.getPointAtLength(clamped * len);
                 circle.setAttribute('cx', String(pt.x));
                 circle.setAttribute('cy', String(pt.y));
             };
@@ -3946,6 +4095,14 @@ if (!d.allowed) {
                 onUpdate: () => {
                     place(proxy.t);
                     const peak = Math.sin(proxy.t * Math.PI);
+                    if (item.kind === 'block') {
+                        circle.style.opacity = String(0.15 + peak * 0.45 * (1 - proxy.t * 0.7));
+                        return;
+                    }
+                    if (item.kind === 'allow') {
+                        circle.style.opacity = String(0.35 + peak * 0.55);
+                        return;
+                    }
                     const base = item.hot ? 0.4 : item.heat === 'med' ? 0.28 : 0.18;
                     circle.style.opacity = String(base + peak * (item.hot ? 0.6 : 0.55));
                 },
@@ -3967,33 +4124,38 @@ if (!d.allowed) {
 
         pulses.forEach((p, i) => {
             const heat = p.getAttribute('data-heat');
-            const isChaosPulse = p.classList.contains('is-chaos') || p.classList.contains('is-inbound-chaos');
+            const isPermitAllow = p.classList.contains('is-permit-allow');
+            const isPermitBlock = p.classList.contains('is-permit-block');
             const fast = p.classList.contains('is-chaos-fast') || heat === 'hot';
             const hotBias = heat === 'hot';
             const lightBias = heat === 'light';
 
             if (converge && phase === 'chaos') {
                 animate(p, {
-                    opacity: [0, 0.95, 1, 0.65, 0],
-                    strokeDashoffset: [0, -160],
-                    duration: fast ? 720 : 920,
-                    delay: (i % 12) * 32 + Math.floor(i / 12) * 55,
+                    opacity: lightBias ? [0, 0.55, 0.7, 0] : [0, 0.95, 1, 0.7, 0],
+                    strokeDashoffset: [0, -180],
+                    duration: hotBias ? 700 : lightBias ? 1400 : fast ? 820 : 1000,
+                    delay: hotBias
+                        ? (i % 8) * 28
+                        : lightBias
+                            ? 400 + (i % 6) * 120
+                            : (i % 12) * 45,
                     ease: 'linear',
                     loop: true,
-                    loopDelay: fast ? 90 : 180,
+                    loopDelay: hotBias ? 50 : lightBias ? 500 : fast ? 140 : 240,
                 });
                 return;
             }
 
             if (converge && phase === 'order') {
                 animate(p, {
-                    opacity: [0, 1, 1, 0],
-                    strokeDashoffset: [0, -250],
-                    duration: 1500,
-                    delay: i * 180,
+                    opacity: isPermitBlock ? [0, 0.55, 0.45, 0] : [0, 0.9, 0.9, 0],
+                    strokeDashoffset: [0, isPermitBlock ? -160 : -220],
+                    duration: isPermitBlock ? 1100 : 1500,
+                    delay: i * 140,
                     ease: 'linear',
                     loop: true,
-                    loopDelay: 900,
+                    loopDelay: isPermitAllow ? 700 : 900,
                 });
                 return;
             }
@@ -4021,33 +4183,42 @@ if (!d.allowed) {
             });
         });
 
-        if ((chaotic || (converge && phase === 'chaos')) && phase !== 'order') {
-            pulseChaosMessages(root);
+        if (chaotic || (converge && phase === 'chaos')) {
+            pulseChaosMessages(root, 'chaos');
+        } else if (converge && phase === 'order') {
+            pulseChaosMessages(root, 'order');
+        } else if (phase === 'all') {
+            pulseChaosMessages(root, 'all');
         }
     }
 
     function playConvergeBoard(root) {
         const sources = root.querySelectorAll('[data-wf-node="src"]');
         const hub = root.querySelector('[data-wf-node="hub"]');
-        const outs = root.querySelectorAll('[data-wf-node="out"]');
+        const targets = root.querySelectorAll('[data-wf-node="tgt"], .wf-cust');
         if (!sources.length || !hub) return;
 
         drawConvergeEdges(root);
         root.classList.remove('is-governed');
 
-        const reveal = [...sources, hub, ...outs];
+        const reveal = [...sources, hub, ...targets];
         if (reduce) {
             snapVisible(reveal);
             root.classList.add('is-governed');
+            drawConvergeEdges(root);
             root.querySelectorAll('.wf-path').forEach((p) => {
-                p.style.opacity = p.getAttribute('data-phase') === 'chaos' ? '0.75' : '1';
+                p.style.opacity = p.getAttribute('data-phase') === 'chaos' ? '0.85' : '0.9';
             });
             return;
         }
 
-        // Hide order nodes until SoftStop absorbs.
-        outs.forEach((el) => {
+        // Customers wait until SoftStop starts filtering outbound.
+        targets.forEach((el) => {
             el.style.opacity = '0';
+        });
+        root.querySelectorAll('[data-phase="order"]').forEach((el) => {
+            el.style.opacity = '0';
+            if (el.classList.contains('wf-msg')) el.style.display = 'none';
         });
 
         const tl = createTimeline({ defaults: { ease: 'out(3)' } });
@@ -4064,16 +4235,16 @@ if (!d.allowed) {
             scale: [0.94, 1],
             duration: 420,
         }, '-=180');
-        // Beat 1 — chaos arrives at the gate
+        // Beat 1 — same chaotic pile-on volume lands on SoftStop
         tl.add(root.querySelectorAll('[data-phase="chaos"].wf-path'), {
             opacity: [0, 0.9],
             duration: 280,
-            delay: stagger(8),
+            delay: stagger(5),
             onComplete: () => {
                 pulseBoard(root, { phase: 'chaos' });
             },
         }, '-=120');
-        // Beat 2 — SoftStop absorbs
+        // Beat 2 — SoftStop absorbs; inbound storm keeps firing
         tl.add(hub, {
             scale: [1, 1.06, 1],
             duration: 640,
@@ -4081,25 +4252,15 @@ if (!d.allowed) {
             onBegin: () => { hub.classList.add('is-absorbing'); },
             onComplete: () => {
                 root.classList.add('is-governed');
-                // Calm inbound chaos strokes into ordered amber checks
-                root.querySelectorAll('[data-phase="chaos"].wf-path').forEach((p) => {
-                    p.style.opacity = '0.85';
-                });
-                // Stop frantic message particles once governed
-                root.querySelectorAll('.wf-msg').forEach((c) => {
-                    c.style.opacity = '0';
-                    c.style.display = 'none';
-                });
-                root._chaosMsgMeta = null;
+                // Inbound storm keeps firing — SoftStop only gates outbound.
             },
         }, '+=700');
-        // Beat 3 — allow / block resolve
-        tl.add(outs, {
+        // Beat 3 — customers appear; sparse allow / block leave the journal
+        tl.add(targets, {
             opacity: [0, 1],
             y: [10, 0],
-            scale: [0.96, 1],
             duration: 400,
-            delay: stagger(70),
+            delay: stagger(36),
         }, '-=200');
         tl.add(root.querySelectorAll('[data-phase="order"].wf-path'), {
             opacity: [0, 1],
@@ -4107,19 +4268,10 @@ if (!d.allowed) {
             delay: stagger(40),
             onComplete: () => {
                 hub.classList.remove('is-absorbing');
-                // Soft inbound pulses + calm outbound
-                pulseBoard(root, { phase: 'order' });
-                root.querySelectorAll('[data-phase="chaos"].wf-pulse').forEach((p, i) => {
-                    animate(p, {
-                        opacity: [0, 0.85, 0.85, 0],
-                        strokeDashoffset: [0, -240],
-                        duration: 1600,
-                        delay: i * 140,
-                        ease: 'linear',
-                        loop: true,
-                        loopDelay: 850,
-                    });
+                root.querySelectorAll('[data-phase="order"].wf-msg').forEach((c) => {
+                    c.style.display = '';
                 });
+                pulseBoard(root, { phase: 'order' });
             },
         }, '-=160');
     }
