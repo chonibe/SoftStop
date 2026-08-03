@@ -1,0 +1,23 @@
+{
+  "name": "@governor/server",
+  "version": "0.0.0",
+  "description": "HTTP server for Governor policy enforcement.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "governor-server": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format esm,cjs --dts",
+    "start": "node dist/cli.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@governor/core": "workspace:*",
+    "@governor/storage": "workspace:*"
+  }
+}

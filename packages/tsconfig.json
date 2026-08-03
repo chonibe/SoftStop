@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@governor/core": ["packages/core/src/index.ts"],
+      "@governor/gateway": ["packages/gateway/src/index.ts"],
+      "@governor/server": ["packages/server/src/index.ts"],
+      "@governor/storage": ["packages/storage/src/index.ts"],
+      "@governor/sdk": ["packages/sdk-js/src/index.ts"]
+    },
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["packages/**/*.ts", "governor/**/*.ts"]
+}

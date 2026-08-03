@@ -1,0 +1,14 @@
+{
+  "surfaces": {
+    "core": {
+      "description": "Governor Core - permission gate and rules engine",
+      "paths": ["governor/api/src", "packages/api/src"],
+      "forbiddenImports": ["ecosystem", "gateway", "sendgrid", "twilio", "postmark", "mailchimp", "nodemailer", "resend"]
+    },
+    "ecosystem": {
+      "description": "Ecosystem adapters and senders",
+      "paths": ["governor/ecosystem", "packages/ecosystem"]
+    }
+  },
+  "version": "1.0.0"
+}

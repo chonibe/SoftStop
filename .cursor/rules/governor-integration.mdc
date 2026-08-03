@@ -1,0 +1,19 @@
+---
+description: When user says "add SoftStop" or "add Governor" - integrate SoftStop into escalation touchpoints
+alwaysApply: true
+---
+
+# SoftStop Integration
+
+When the user asks to **"add SoftStop"**, **"add Governor"**, **"integrate SoftStop"**, or **"add SoftStop to this project"**:
+
+1. **Read** [docs/GOVERNOR_INTEGRATION_WORKFLOW.md](../../docs/GOVERNOR_INTEGRATION_WORKFLOW.md) for the full workflow
+2. **Search** for escalation touchpoints: `sendEmail`, `sendSMS`, `showModal`, `popup`, `toast`, `resend`, `twilio`, `mailgun`, `push.send`, `createCampaign`
+3. **For each touchpoint** – Add `check()` before and `record()` after. Use examples from `examples/nodejs/`, `examples/python/`, or `examples/browser/` based on project language
+4. **Map actionType**: urgency (time pressure) | discount (price/promo) | interruption (modal/popup) | reminder (soft nudge)
+5. **When blocked** – Always call `record()` with `outcome: "blocked"` and `blockReason` from check
+6. **Verify** after edits: `curl -X POST $GOVERNOR_API_URL/api/verify` (or `/v1/verify` on localhost)
+
+Product: **SoftStop** — shared permit before raising pressure on a user.
+
+API: `POST /api/check`, `POST /api/record` (local: `/v1/...`). Env: `SOFTSTOP_API_URL` or `GOVERNOR_API_URL`. Optional hosted demo: https://governer.vercel.app — prefer self-host for production.

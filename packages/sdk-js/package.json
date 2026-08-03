@@ -1,0 +1,15 @@
+{
+  "name": "@governor/sdk",
+  "version": "0.0.0",
+  "description": "JavaScript client for Governor check/record (experimental package extraction).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts"
+  },
+  "license": "MIT"
+}

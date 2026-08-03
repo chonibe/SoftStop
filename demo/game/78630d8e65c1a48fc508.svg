@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#67e8f9"/>
+      <stop offset="30%" style="stop-color:#38bdf8"/>
+      <stop offset="60%" style="stop-color:#0ea5e9"/>
+      <stop offset="100%" style="stop-color:#0369a1"/>
+    </linearGradient>
+    <linearGradient id="dg2" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.5"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="dglow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <polygon points="50,8 92,50 50,92 8,50" fill="url(#dg1)" filter="url(#dglow)"/>
+  <polygon points="50,8 70,35 50,50 30,35" fill="url(#dg2)"/>
+  <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+  <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+  <polygon points="50,8 92,50 50,50" fill="rgba(255,255,255,0.08)"/>
+</svg>
