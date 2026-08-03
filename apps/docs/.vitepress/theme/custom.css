@@ -3,7 +3,9 @@
   --ss-ink-900: #141418;
   --ss-ink-850: #1a1a20;
   --ss-paper: #f7f5f0;
-  --ss-paper-dim: #bcbcc4;
+  --ss-paper-2: #ebe7df;
+  --ss-paper-3: #e2ddd3;
+  --ss-paper-dim: #5c5c66;
   --ss-muted: #8b8b96;
   --ss-amber: #e8a317;
   --ss-amber-mid: #c98a0f;
@@ -12,6 +14,46 @@
   --vp-font-family-base: "Switzer", ui-sans-serif, system-ui, sans-serif;
   --vp-font-family-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 
+  --vp-c-brand-1: var(--ss-amber-deep);
+  --vp-c-brand-2: var(--ss-amber-mid);
+  --vp-c-brand-3: var(--ss-amber);
+  --vp-c-brand-soft: color-mix(in srgb, var(--ss-amber) 18%, transparent);
+
+  /* Light (default when .dark is absent) */
+  --vp-c-bg: var(--ss-paper);
+  --vp-c-bg-alt: var(--ss-paper-2);
+  --vp-c-bg-elv: #fffefb;
+  --vp-c-bg-soft: var(--ss-paper-3);
+
+  --vp-c-text-1: var(--ss-ink);
+  --vp-c-text-2: #2a2a32;
+  --vp-c-text-3: var(--ss-paper-dim);
+
+  --vp-c-divider: rgba(11, 11, 15, 0.12);
+  --vp-c-gutter: rgba(11, 11, 15, 0.08);
+  --vp-c-border: rgba(11, 11, 15, 0.14);
+
+  --vp-button-brand-bg: var(--ss-amber);
+  --vp-button-brand-hover-bg: var(--ss-amber-mid);
+  --vp-button-brand-active-bg: var(--ss-amber-deep);
+  --vp-button-brand-text: var(--ss-ink);
+  --vp-button-brand-hover-text: var(--ss-ink);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, var(--ss-ink) 30%, var(--ss-amber-deep));
+  --vp-home-hero-image-background-image: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--ss-amber) 22%, transparent),
+    transparent
+  );
+
+  --ss-card-bg: color-mix(in srgb, var(--ss-paper-2) 92%, #fff);
+  --ss-card-bg-hover: var(--ss-paper-3);
+  --ss-card-title: var(--ss-ink);
+  --ss-card-desc: var(--ss-paper-dim);
+}
+
+.dark {
   --vp-c-brand-1: var(--ss-amber);
   --vp-c-brand-2: var(--ss-amber-mid);
   --vp-c-brand-3: var(--ss-amber-deep);
@@ -23,33 +65,24 @@
   --vp-c-bg-soft: var(--ss-ink-900);
 
   --vp-c-text-1: var(--ss-paper);
-  --vp-c-text-2: var(--ss-paper-dim);
+  --vp-c-text-2: #bcbcc4;
   --vp-c-text-3: var(--ss-muted);
 
   --vp-c-divider: rgba(154, 154, 162, 0.18);
   --vp-c-gutter: rgba(154, 154, 162, 0.12);
   --vp-c-border: rgba(154, 154, 162, 0.22);
 
-  --vp-button-brand-bg: var(--ss-amber);
-  --vp-button-brand-hover-bg: var(--ss-amber-mid);
-  --vp-button-brand-active-bg: var(--ss-amber-deep);
-  --vp-button-brand-text: var(--ss-ink);
-  --vp-button-brand-hover-text: var(--ss-ink);
-
-  --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, var(--ss-paper) 30%, var(--ss-amber));
   --vp-home-hero-image-background-image: radial-gradient(
     closest-side,
     color-mix(in srgb, var(--ss-amber) 28%, transparent),
     transparent
   );
-}
 
-.dark {
-  --vp-c-bg: var(--ss-ink);
-  --vp-c-bg-alt: var(--ss-ink-900);
-  --vp-c-bg-elv: var(--ss-ink-850);
-  --vp-c-bg-soft: var(--ss-ink-900);
+  --ss-card-bg: color-mix(in srgb, var(--ss-ink-900) 88%, transparent);
+  --ss-card-bg-hover: var(--ss-ink-850);
+  --ss-card-title: var(--ss-paper);
+  --ss-card-desc: var(--ss-muted);
 }
 
 .VPNavBarTitle .title {
@@ -63,7 +96,7 @@
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
   border: 1px solid var(--vp-c-divider);
-  color: var(--ss-muted);
+  color: var(--vp-c-text-3);
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -85,7 +118,7 @@
   padding: 1rem 1.1rem;
   border: 1px solid var(--vp-c-divider);
   border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--ss-ink-900) 88%, transparent);
+  background: var(--ss-card-bg);
   text-decoration: none !important;
   color: inherit !important;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
@@ -93,7 +126,7 @@
 
 .ss-hub-card:hover {
   border-color: color-mix(in srgb, var(--ss-amber) 55%, var(--vp-c-divider));
-  background: var(--ss-ink-850);
+  background: var(--ss-card-bg-hover);
   transform: translateY(-1px);
 }
 
@@ -101,17 +134,17 @@
   font-weight: 600;
   font-size: 1rem;
   letter-spacing: -0.01em;
-  color: var(--ss-paper);
+  color: var(--ss-card-title);
 }
 
 .ss-hub-card__desc {
   font-size: 0.875rem;
   line-height: 1.45;
-  color: var(--ss-muted);
+  color: var(--ss-card-desc);
 }
 
 .ss-kicker {
-  color: var(--ss-amber);
+  color: var(--vp-c-brand-1);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -132,17 +165,18 @@
   border: 1px solid var(--vp-c-divider);
   border-radius: 0.5rem;
   text-decoration: none;
-  color: var(--ss-paper);
-  background: var(--ss-ink-900);
+  color: var(--ss-card-title);
+  background: var(--ss-card-bg);
 }
 
 .ss-start-list a:hover {
   border-color: color-mix(in srgb, var(--ss-amber) 45%, var(--vp-c-divider));
+  background: var(--ss-card-bg-hover);
 }
 
 .ss-start-list span {
   display: block;
   margin-top: 0.15rem;
-  color: var(--ss-muted);
+  color: var(--ss-card-desc);
   font-size: 0.85rem;
 }
