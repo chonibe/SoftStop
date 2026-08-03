@@ -854,21 +854,62 @@
         .wf-canvas.is-scale .wf-col-systems { gap: 7px; }
         .wf-canvas.is-scale .wf-col-out { gap: 10px; }
         .wf-edges .wf-path.is-chaos {
-            stroke: color-mix(in srgb, var(--ss-danger) 42%, rgba(154,154,162,0.25));
-            stroke-width: 1.25;
+            stroke: color-mix(in srgb, var(--ss-danger) 38%, rgba(154,154,162,0.22));
+            stroke-width: 1.1;
             opacity: 0;
         }
+        .wf-edges .wf-path.is-chaos.is-chaos-alt {
+            stroke: color-mix(in srgb, var(--ss-amber) 32%, rgba(154,154,162,0.18));
+            stroke-width: 0.95;
+            stroke-dasharray: 3 5;
+        }
+        .wf-edges .wf-path.is-chaos.is-chaos-ghost {
+            stroke: color-mix(in srgb, var(--ss-danger) 22%, rgba(154,154,162,0.12));
+            stroke-width: 0.85;
+        }
         .wf-edges .wf-pulse.is-chaos {
-            stroke: color-mix(in srgb, var(--ss-danger) 75%, var(--ss-amber));
+            stroke: color-mix(in srgb, var(--ss-danger) 70%, var(--ss-amber));
+            stroke-width: 2;
+            stroke-dasharray: 8 160;
             filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 40%, transparent));
+        }
+        .wf-edges .wf-pulse.is-chaos.is-chaos-fast {
+            stroke: var(--ss-amber);
+            stroke-width: 1.75;
+            stroke-dasharray: 5 120;
+            filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ss-amber) 50%, transparent));
+        }
+        .wf-edges .wf-msg {
+            fill: color-mix(in srgb, var(--ss-amber) 85%, #fff);
+            opacity: 0;
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-amber) 55%, transparent));
+            pointer-events: none;
+        }
+        .wf-edges .wf-msg.is-hot {
+            fill: color-mix(in srgb, var(--ss-danger) 75%, var(--ss-amber));
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 45%, transparent));
+        }
+        .wf-canvas.is-broken .wf-cust {
+            border-color: color-mix(in srgb, var(--ss-danger) 28%, rgba(154,154,162,0.18));
+        }
+        .wf-canvas.is-broken .wf-cust-dot {
+            animation: wf-cust-hit 1.6s ease-in-out infinite;
+        }
+        .wf-canvas.is-broken .wf-cust:nth-child(3n) .wf-cust-dot { animation-delay: 0.2s; }
+        .wf-canvas.is-broken .wf-cust:nth-child(3n+1) .wf-cust-dot { animation-delay: 0.55s; }
+        .wf-canvas.is-broken .wf-cust:nth-child(3n+2) .wf-cust-dot { animation-delay: 0.9s; }
+        @keyframes wf-cust-hit {
+            0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-danger) 12%, transparent); transform: scale(1); }
+            40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--ss-danger) 28%, transparent); transform: scale(1.25); }
+            70% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-amber) 18%, transparent); transform: scale(1.05); }
         }
         .wf-cust {
             position: relative;
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 7px 10px;
-            min-height: 36px;
+            padding: 6px 9px;
+            min-height: 32px;
             border-radius: 7px;
             background: #1a1a20;
             border: 1px solid rgba(154, 154, 162, 0.18);
@@ -881,7 +922,7 @@
         }
         .wf-cust-name {
             font-family: var(--oc-font-mono);
-            font-size: 0.68rem;
+            font-size: 0.64rem;
             color: var(--ss-paper-dim);
             letter-spacing: 0.02em;
         }
@@ -899,8 +940,20 @@
         .wf-col-cust {
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 5px;
             justify-content: center;
+        }
+        .wf-canvas.is-scale.is-broken .wf-stage {
+            padding: 34px 12px 16px;
+        }
+        .wf-canvas.is-scale.is-broken .wf-stage-grid {
+            min-height: 340px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .wf-canvas.is-broken .wf-cust-dot { animation: none !important; }
+            .wf-edges .wf-msg { display: none; }
+            .wf-edges .wf-pulse.is-chaos { display: none; }
+            .wf-edges .wf-path.is-chaos { opacity: 0.85 !important; }
         }
         .wf-pair {
             display: grid;
@@ -2360,6 +2413,9 @@ if (!d.allowed) {
                                         <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_881</span></div>
                                         <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_2207</span></div>
                                         <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_559</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_3301</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_774</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_4156</span></div>
                                         <div class="wf-cust is-more" aria-hidden="true"><span class="wf-cust-name">+ thousands more</span></div>
                                     </div>
                                 </div>
@@ -3617,6 +3673,13 @@ if (!d.allowed) {
         svg.innerHTML = parts.join('');
     }
 
+    function chaosBezier(x1, y1, x2, y2, wobble, skew = 0) {
+        const dx = Math.max(28, Math.abs(x2 - x1) * (0.32 + Math.abs(skew) * 0.08));
+        const c1y = y1 + wobble * 0.55 + skew * 10;
+        const c2y = y2 + wobble * 0.85 - skew * 8;
+        return `M ${x1} ${y1} C ${x1 + dx} ${c1y}, ${x2 - dx * 0.9} ${c2y}, ${x2} ${y2}`;
+    }
+
     function drawChaosEdges(root) {
         const stage = root.querySelector('[data-wf-stage]');
         const svg = root.querySelector('[data-wf-edges]');
@@ -3631,32 +3694,71 @@ if (!d.allowed) {
         const ins = [...root.querySelectorAll('[data-wf-node="tgt"] [data-port="in"]')];
         if (!outs.length || !ins.length) return;
 
+        // Near-complete mesh: every department hits every customer, plus
+        // overlapping alternate curves so edges cross like stacked blasts.
         const links = [];
         outs.forEach((port, si) => {
             ins.forEach((tgt, ti) => {
-                if ((si + ti * 2) % 3 === 0 || (si * 3 + ti) % 5 === 0) {
-                    links.push([port, tgt, (si - ti) * 18 + ((si + ti) % 2 ? 22 : -16)]);
+                const base = (si - ti) * 14 + ((si + ti) % 2 ? 26 : -22);
+                links.push({ port, tgt, wobble: base, skew: (si % 3) - 1, kind: 'main' });
+                // Extra overlapping path on most pairs for denser chaos
+                if ((si + ti) % 2 === 0 || si === ti % outs.length) {
+                    links.push({
+                        port,
+                        tgt,
+                        wobble: -base * 0.7 + ((si * 7 + ti * 3) % 5) * 8 - 16,
+                        skew: ((ti % 3) - 1) * 1.4,
+                        kind: 'alt',
+                    });
+                }
+                // Ghost arcs on high-pressure crossings
+                if ((si * 2 + ti) % 3 === 0) {
+                    links.push({
+                        port,
+                        tgt,
+                        wobble: base * 1.35 + (ti % 2 ? 38 : -34),
+                        skew: (si - ti) * 0.35,
+                        kind: 'ghost',
+                    });
                 }
             });
         });
-        if (links.length < 10) {
-            outs.forEach((port, si) => {
-                links.push([port, ins[si % ins.length], (si % 2 ? 28 : -24)]);
-                links.push([port, ins[(si + 2) % ins.length], (si % 2 ? -32 : 30)]);
-            });
-        }
 
         const parts = [];
-        links.forEach(([port, tgt, wobble], i) => {
-            const from = portCenter(port, stageRect);
-            const to = portCenter(tgt, stageRect);
-            const d = bezier(from.x, from.y, to.x, to.y, wobble);
-            parts.push(`<path class="wf-path is-chaos" data-edge="c-${i}" d="${d}" />`);
-            if (i % 2 === 0) {
-                parts.push(`<path class="wf-pulse is-chaos" data-pulse="c-${i}" d="${d}" />`);
+        const msgPaths = [];
+        links.forEach((link, i) => {
+            const from = portCenter(link.port, stageRect);
+            const to = portCenter(link.tgt, stageRect);
+            const d = chaosBezier(from.x, from.y, to.x, to.y, link.wobble, link.skew);
+            const pathClass =
+                link.kind === 'alt' ? 'wf-path is-chaos is-chaos-alt' :
+                link.kind === 'ghost' ? 'wf-path is-chaos is-chaos-ghost' :
+                'wf-path is-chaos';
+            parts.push(`<path class="${pathClass}" data-edge="c-${i}" d="${d}" />`);
+            if (link.kind !== 'ghost') {
+                const pulseClass = link.kind === 'alt' ? 'wf-pulse is-chaos is-chaos-fast' : 'wf-pulse is-chaos';
+                parts.push(`<path class="${pulseClass}" data-pulse="c-${i}" data-chaos-pulse="${link.kind}" d="${d}" />`);
+            }
+            if (link.kind === 'main' || (link.kind === 'alt' && i % 3 === 0)) {
+                msgPaths.push({ d, hot: (i + link.kind.length) % 3 === 0, i });
             }
         });
+
+        msgPaths.forEach((m, mi) => {
+            const r = m.hot ? 2.4 : 1.9;
+            const cls = m.hot ? 'wf-msg is-hot' : 'wf-msg';
+            parts.push(`<circle class="${cls}" data-msg="${mi}" data-msg-path="c-msg-${mi}" r="${r}" cx="0" cy="0" />`);
+            parts.push(`<path data-msg-track="c-msg-${mi}" d="${m.d}" fill="none" stroke="none" />`);
+        });
+
         svg.innerHTML = parts.join('');
+        root._chaosMsgMeta = reduce
+            ? null
+            : msgPaths.map((m, mi) => ({
+                circle: svg.querySelector(`[data-msg="${mi}"]`),
+                track: svg.querySelector(`[data-msg-track="c-msg-${mi}"]`),
+                hot: m.hot,
+            }));
     }
 
     function drawBoardEdges(root) {
@@ -3665,21 +3767,56 @@ if (!d.allowed) {
         else drawConvergeEdges(root);
     }
 
+    function pulseChaosMessages(root) {
+        const meta = root._chaosMsgMeta;
+        if (!meta || !meta.length) return;
+        meta.forEach((item, i) => {
+            const { circle, track } = item;
+            if (!circle || !track || typeof track.getTotalLength !== 'function') return;
+            const len = track.getTotalLength();
+            if (!len) return;
+            const duration = item.hot ? 880 + (i % 4) * 100 : 1050 + (i % 5) * 130;
+            const delay = (i % 12) * 50 + (i % 3) * 35;
+            const proxy = { t: 0 };
+            const place = (t) => {
+                const pt = track.getPointAtLength(Math.min(len, Math.max(0, t * len)));
+                circle.setAttribute('cx', String(pt.x));
+                circle.setAttribute('cy', String(pt.y));
+            };
+            place(0);
+            animate(proxy, {
+                t: [0, 1],
+                duration,
+                delay,
+                ease: 'linear',
+                loop: true,
+                loopDelay: 60 + (i % 5) * 35,
+                onUpdate: () => {
+                    place(proxy.t);
+                    const peak = Math.sin(proxy.t * Math.PI);
+                    circle.style.opacity = String(item.hot ? 0.35 + peak * 0.65 : 0.25 + peak * 0.75);
+                },
+            });
+        });
+    }
+
     function pulseBoard(root) {
         if (reduce) return;
         const kind = root.getAttribute('data-wf');
         const chaotic = kind === 'chaos';
         root.querySelectorAll('.wf-pulse').forEach((p, i) => {
+            const fast = chaotic && p.classList.contains('is-chaos-fast');
             animate(p, {
-                opacity: [0, 1, 1, 0],
-                strokeDashoffset: [0, -250],
-                duration: chaotic ? 1400 : 1600,
-                delay: i * (chaotic ? 90 : 160),
+                opacity: chaotic ? [0, 0.95, 1, 0.7, 0] : [0, 1, 1, 0],
+                strokeDashoffset: [0, chaotic ? -180 : -250],
+                duration: chaotic ? (fast ? 780 : 980) : 1600,
+                delay: chaotic ? (i % 14) * 38 + Math.floor(i / 14) * 70 : i * 160,
                 ease: 'linear',
                 loop: true,
-                loopDelay: chaotic ? 400 : 900,
+                loopDelay: chaotic ? (fast ? 120 : 220) : 900,
             });
         });
+        if (chaotic) pulseChaosMessages(root);
     }
 
     function playBoard(root) {
@@ -3690,12 +3827,15 @@ if (!d.allowed) {
         const entries = root.querySelectorAll('[data-entry]');
         if (!sources.length) return;
 
+        const chaotic = root.getAttribute('data-wf') === 'chaos';
         drawBoardEdges(root);
 
         const reveal = [...sources, ...(hub ? [hub] : []), ...outs, ...targets, ...entries];
         if (reduce) {
             snapVisible(reveal);
-            root.querySelectorAll('.wf-path').forEach((p) => { p.style.opacity = '1'; });
+            root.querySelectorAll('.wf-path').forEach((p) => {
+                p.style.opacity = chaotic ? '0.85' : '1';
+            });
             return;
         }
 
@@ -3726,13 +3866,13 @@ if (!d.allowed) {
                 opacity: [0, 1],
                 y: [10, 0],
                 duration: 360,
-                delay: stagger(50),
+                delay: stagger(chaotic ? 32 : 50),
             }, '-=280');
         }
         tl.add(root.querySelectorAll('.wf-path'), {
-            opacity: [0, 1],
-            duration: 480,
-            delay: stagger(18),
+            opacity: [0, chaotic ? 0.9 : 1],
+            duration: chaotic ? 260 : 480,
+            delay: stagger(chaotic ? 5 : 18),
         }, '-=300');
         if (entries.length) {
             tl.add(entries, {
