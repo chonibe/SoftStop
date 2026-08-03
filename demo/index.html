@@ -209,32 +209,15 @@
             background-size: 26px 26px;
             mask-image: linear-gradient(#000, #0000 90%);
         }
-        .hero-art {
-            pointer-events: none;
-            user-select: none;
-            display: flex;
-            justify-content: center;
-            height: min(28vh, 260px);
-            overflow: hidden;
-            mask-image: linear-gradient(#0000 0%, #000 40% 68%, #0000 92%);
-        }
-        .hero-art pre {
-            margin: 0;
-            font-family: var(--oc-font-mono);
-            font-size: 11px;
-            line-height: 1.25;
-            letter-spacing: 1px;
-            color: var(--oc-accent-primary);
-            opacity: 0.55;
-            white-space: pre;
-        }
         .hero-content {
             position: relative; z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: -80px;
-            padding: 0 var(--oc-space-6) 68px;
+            padding: 72px var(--oc-space-6) 68px;
+        }
+        @media (max-width: 720px) {
+            .hero-content { padding: 52px 20px 48px; }
         }
         .hero-mark {
             width: 72px; height: 72px;
@@ -377,37 +360,17 @@
             font-size: 0.72rem;
             font-weight: 600;
         }
-        .mode-switch {
-            display: flex;
-            align-items: stretch;
-            gap: var(--oc-space-4);
-            margin-bottom: -1px;
-            margin-left: auto;
-        }
-        .mode-btn {
-            font-family: var(--oc-font-mono);
-            color: var(--oc-text-muted);
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid transparent;
-            padding: 14px 2px;
-            font-size: 0.72rem;
-            transition: color 0.15s, border-color 0.15s;
-        }
-        .mode-btn:hover { color: var(--oc-text-primary); }
-        .mode-btn.active {
-            color: var(--oc-accent-primary);
-            border-bottom-color: var(--oc-accent-primary);
-            font-weight: 600;
-        }
         .code-content {
             font-family: var(--oc-font-mono);
             padding: 18px 20px;
             font-size: 0.9rem;
             line-height: 1.6;
         }
-        .code-content[hidden] { display: none !important; }
+        .code-header .copy-line-btn {
+            margin: 9px 0 9px auto;
+            align-self: center;
+            opacity: 1;
+        }
         .code-line {
             display: flex;
             align-items: center;
@@ -1388,22 +1351,6 @@
 
     <main class="container">
         <header class="hero">
-            <div class="hero-art" aria-hidden="true"><pre>                :::
-             :::::::::
-          :::::::::::::::          halt
-       :::::::::::::::::::::::
-    ::::::::             ::::::::
-  ::::::                     ::::::
- :::::                         :::::
-:::::           STOP            :::::
- :::::                         :::::
-  ::::::                     ::::::
-    ::::::::             ::::::::
-       :::::::::::::::::::::::
-          :::::::::::::::
-             :::::::::
-                :::
-</pre></div>
             <div class="hero-content">
                 <img class="hero-mark" src="assets/softstop-mark-dark.png" width="72" height="72" alt="" />
                 <p class="hero-eyebrow">Open source · Authorize-only permit</p>
@@ -1424,80 +1371,18 @@
                 <div class="section-header">
                     <h2 class="section-title">Quick Start</h2>
                 </div>
-                <div class="code-block" data-quickstart>
+                <div class="code-block">
                     <div class="code-header">
                         <span class="code-label">install</span>
-                        <div class="mode-switch" role="tablist" aria-label="Install modes">
-                            <button type="button" class="mode-btn active" data-mode="oneliner" role="tab" aria-selected="true">One-liner</button>
-                            <button type="button" class="mode-btn" data-mode="sdk" role="tab" aria-selected="false">SDK</button>
-                            <button type="button" class="mode-btn" data-mode="selfhost" role="tab" aria-selected="false">Self-host</button>
-                            <button type="button" class="mode-btn" data-mode="curl" role="tab" aria-selected="false">curl</button>
-                        </div>
+                        <button type="button" class="copy-line-btn" data-copy-text="npm i https://softstop.vercel.app/softstop.tgz" title="Copy" aria-label="Copy install">
+                            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
                     </div>
-
-                    <div id="code-oneliner" class="code-content" data-mode-panel="oneliner">
-                        <div class="code-line comment"># Real package tarball from softstop.vercel.app (not on npm registry yet)</div>
+                    <div class="code-content">
                         <div class="code-line cmd">
                             <span class="code-prompt">$</span>
                             <span class="code-cmd-text" data-copy-text>npm i https://softstop.vercel.app/softstop.tgz</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="code-sdk" class="code-content" data-mode-panel="sdk" hidden>
-                        <div class="code-line comment"># From GitHub (same package name: softstop)</div>
-                        <div class="code-line cmd">
-                            <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>npm i 'github:chonibe/SoftStop#path:packages/sdk-js'</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                        </div>
-                        <div class="code-line comment"># Browser CDN — no install</div>
-                        <div class="code-line cmd">
-                            <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>import { SoftStop } from 'https://softstop.vercel.app/sdk.js'</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="code-selfhost" class="code-content" data-mode-panel="selfhost" hidden>
-                        <div class="code-line comment"># Run the SoftStop API locally</div>
-                        <div class="code-line cmd">
-                            <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>git clone https://github.com/chonibe/SoftStop.git && cd SoftStop && pnpm install && pnpm dev</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                        </div>
-                        <div class="code-line comment"># Smoke test — orphanRate must stay low</div>
-                        <div class="code-line cmd">
-                            <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>pnpm softstop verify</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="code-curl" class="code-content" data-mode-panel="curl" hidden>
-                        <div class="code-line comment"># check before escalate (local /v1 — hosted uses /api)</div>
-                        <div class="code-line cmd">
-                            <span class="code-prompt">$</span>
-                            <span class="code-cmd-text" data-copy-text>curl -X POST http://localhost:3000/v1/check -H 'content-type: application/json' -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'</span>
-                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
-                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1505,27 +1390,19 @@
                 <div class="usage-block" id="sdkUsage">
                     <div class="code-header">
                         <span class="code-label">usage</span>
-                        <button type="button" class="copy-line-btn" style="margin:9px 0;align-self:center" data-copy-target="#usagePre" title="Copy usage" aria-label="Copy usage">
+                        <button type="button" class="copy-line-btn" data-copy-target="#usagePre" title="Copy usage" aria-label="Copy usage">
                             <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                     </div>
                     <pre id="usagePre">import { SoftStop } from 'softstop'
-
-const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
-const decision = await ss.check({ userId: 'user_123', actionType: 'urgency', surface: 'email' })
-
-if (!decision.allowed) {
-  await ss.record({ decisionId: decision.decisionId, userId: 'user_123', actionType: 'urgency', outcome: 'blocked', blockReason: decision.reason })
-  return // do not escalate
-}
-// escalate, then record outcome: 'executed'</pre>
+const ss = new SoftStop({ url: 'http://localhost:3000' })
+const d = await ss.check({ userId: 'u1', actionType: 'urgency' })
+if (!d.allowed) {
+  await ss.record({ decisionId: d.decisionId, userId: 'u1', actionType: 'urgency', outcome: 'blocked', blockReason: d.reason })
+  return
+}</pre>
                 </div>
-
-                <p class="quickstart-note">
-                    Package name is <code>softstop</code>. Install via tarball or GitHub path until published to npm.
-                    Hosted APIs use <code>/api</code> instead of <code>/v1</code>.
-                </p>
             </section>
 
             <section id="how">
@@ -2803,21 +2680,7 @@ if (!decision.allowed) {
         if (e.key === 'Escape') closeDrawer();
     });
 
-    // OpenClaw-style install mode tabs
-    document.querySelectorAll('[data-mode]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const mode = btn.getAttribute('data-mode');
-            document.querySelectorAll('[data-mode]').forEach((b) => {
-                const on = b === btn;
-                b.classList.toggle('active', on);
-                b.setAttribute('aria-selected', on ? 'true' : 'false');
-            });
-            document.querySelectorAll('[data-mode-panel]').forEach((panel) => {
-                panel.hidden = panel.getAttribute('data-mode-panel') !== mode;
-            });
-        });
-    });
-
+    // Copy install / usage
     async function copyText(btn, text) {
         try {
             await navigator.clipboard.writeText(text);
@@ -2843,6 +2706,11 @@ if (!decision.allowed) {
             if (targetSel) {
                 const el = document.querySelector(targetSel);
                 if (el) copyText(btn, el.innerText.trim());
+                return;
+            }
+            const attr = btn.getAttribute('data-copy-text');
+            if (attr) {
+                copyText(btn, attr);
                 return;
             }
             const line = btn.closest('.code-line');
