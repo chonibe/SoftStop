@@ -742,6 +742,211 @@
             .wf-mobile-flow { display: none; }
         }
 
+        /* —— Compact / strip / pair variants (same ink + amber language) —— */
+        .wf-canvas.is-compact {
+            min-height: 0;
+            margin: 0 0 24px;
+        }
+        .wf-canvas.is-compact .wf-stage {
+            padding: 40px 20px 28px;
+            min-height: 0;
+        }
+        .wf-canvas.is-compact .wf-stage-grid {
+            min-height: 220px;
+            grid-template-columns: minmax(120px, 1fr) 0.7fr minmax(150px, 180px) 0.7fr minmax(110px, 140px);
+        }
+        .wf-canvas.is-strip {
+            min-height: 0;
+            margin: 0 0 20px;
+        }
+        .wf-canvas.is-strip .wf-stage {
+            padding: 36px 18px 22px;
+            min-height: 0;
+        }
+        .wf-canvas.is-strip .wf-stage-grid {
+            min-height: 112px;
+            grid-template-columns: 1.4fr 0.5fr minmax(140px, 168px) 0.5fr 1fr;
+            align-items: center;
+        }
+        .wf-canvas.is-strip .wf-col-systems {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .wf-canvas.is-strip .wf-col-out {
+            flex-direction: row;
+            gap: 10px;
+        }
+        .wf-canvas.is-strip .wf-node {
+            padding: 8px 12px 8px 8px;
+            min-height: 40px;
+        }
+        .wf-canvas.is-strip .wf-node.is-hub {
+            min-width: 150px;
+        }
+        .wf-canvas.is-strip .wf-hub-body { display: none; }
+        .wf-canvas.is-strip .wf-hub-head {
+            padding: 12px;
+            border-bottom: none;
+        }
+        .wf-canvas.is-mini {
+            min-height: 0;
+            margin: 0;
+        }
+        .wf-canvas.is-mini .wf-stage {
+            padding: 36px 14px 18px;
+            min-height: 0;
+        }
+        .wf-canvas.is-mini .wf-stage-grid {
+            min-height: 168px;
+            grid-template-columns: 1fr 0.45fr minmax(132px, 160px);
+            align-items: center;
+        }
+        .wf-canvas.is-mini .wf-col-systems { gap: 8px; }
+        .wf-canvas.is-mini .wf-node {
+            padding: 8px 10px 8px 8px;
+            min-height: 40px;
+        }
+        .wf-canvas.is-mini .wf-node.is-hub { min-width: 0; width: 100%; }
+        .wf-canvas.is-mini .wf-hub-body { display: none; }
+        .wf-canvas.is-mini .wf-hub-head {
+            padding: 11px 12px;
+            border-bottom: none;
+        }
+        .wf-canvas.is-broken {
+            background:
+                radial-gradient(ellipse 70% 50% at 50% 40%, color-mix(in srgb, var(--ss-danger) 7%, transparent), transparent 70%),
+                var(--ss-ink);
+        }
+        .wf-canvas.is-broken .wf-node {
+            border-color: rgba(154, 154, 162, 0.16);
+        }
+        .wf-canvas.is-broken .wf-node-meta { color: color-mix(in srgb, var(--ss-danger) 70%, var(--ss-muted)); }
+        .wf-canvas.is-scale {
+            min-height: 0;
+            margin: 0;
+        }
+        .wf-canvas.is-scale .wf-stage {
+            padding: 38px 14px 20px;
+            min-height: 0;
+        }
+        .wf-canvas.is-scale .wf-stage-grid {
+            min-height: 280px;
+            grid-template-columns: minmax(108px, 1fr) 0.55fr minmax(120px, 1fr);
+            align-items: center;
+        }
+        .wf-canvas.is-scale.is-clean .wf-stage-grid {
+            grid-template-columns: minmax(100px, 1fr) 0.4fr minmax(132px, 158px) 0.35fr minmax(96px, 120px);
+        }
+        .wf-canvas.is-scale .wf-node {
+            padding: 7px 10px 7px 7px;
+            min-height: 38px;
+        }
+        .wf-canvas.is-scale .wf-node.is-hub {
+            min-width: 0;
+            width: 100%;
+        }
+        .wf-canvas.is-scale .wf-hub-body { display: none; }
+        .wf-canvas.is-scale .wf-hub-head {
+            padding: 10px 11px;
+            border-bottom: none;
+        }
+        .wf-canvas.is-scale .wf-col-systems { gap: 7px; }
+        .wf-canvas.is-scale .wf-col-out { gap: 10px; }
+        .wf-edges .wf-path.is-chaos {
+            stroke: color-mix(in srgb, var(--ss-danger) 42%, rgba(154,154,162,0.25));
+            stroke-width: 1.25;
+            opacity: 0;
+        }
+        .wf-edges .wf-pulse.is-chaos {
+            stroke: color-mix(in srgb, var(--ss-danger) 75%, var(--ss-amber));
+            filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ss-danger) 40%, transparent));
+        }
+        .wf-cust {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            min-height: 36px;
+            border-radius: 7px;
+            background: #1a1a20;
+            border: 1px solid rgba(154, 154, 162, 0.18);
+            opacity: 0;
+        }
+        .wf-cust-dot {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+            background: color-mix(in srgb, var(--ss-danger) 55%, #9a9aa2);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-danger) 12%, transparent);
+        }
+        .wf-cust-name {
+            font-family: var(--oc-font-mono);
+            font-size: 0.68rem;
+            color: var(--ss-paper-dim);
+            letter-spacing: 0.02em;
+        }
+        .wf-cust.is-more {
+            border-style: dashed;
+            background: transparent;
+            justify-content: center;
+        }
+        .wf-cust.is-more .wf-cust-name {
+            color: var(--ss-muted);
+            font-size: 0.62rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .wf-col-cust {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            justify-content: center;
+        }
+        .wf-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 8px 0 28px;
+        }
+        @media (max-width: 860px) {
+            .wf-pair { grid-template-columns: 1fr; }
+            .wf-canvas.is-compact .wf-stage-grid,
+            .wf-canvas.is-strip .wf-stage-grid,
+            .wf-canvas.is-mini .wf-stage-grid,
+            .wf-canvas.is-scale .wf-stage-grid,
+            .wf-canvas.is-scale.is-clean .wf-stage-grid {
+                grid-template-columns: 1fr;
+                min-height: 0;
+            }
+            .wf-canvas.is-strip .wf-col-systems,
+            .wf-canvas.is-strip .wf-col-out {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .wf-col-cust { max-width: 280px; margin-inline: auto; width: 100%; }
+        }
+        .wf-pair-label {
+            font-family: var(--oc-font-mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(154, 154, 162, 0.75);
+            margin: 0 0 8px;
+        }
+        .wf-pair-label.is-bad { color: color-mix(in srgb, var(--ss-danger) 75%, rgba(154,154,162,0.5)); }
+        .wf-pair-label.is-good { color: color-mix(in srgb, var(--ss-amber) 80%, rgba(154,154,162,0.4)); }
+        .wf-node.is-sm .wf-node-name { font-size: 0.78rem; }
+        .wf-node.is-sm .wf-node-icon { width: 24px; height: 24px; border-radius: 5px; }
+        .wf-node.is-sm .wf-node-icon svg { width: 13px; height: 13px; }
+        .wf-col-types {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        @media (max-width: 860px) {
+            .wf-col-types { max-width: 320px; margin-inline: auto; }
+        }
+
         /* —— How / lean steps (no card chrome) —— */
         .flow-rail {
             display: grid;
@@ -1605,7 +1810,7 @@
             <a href="#quickstart" class="site-nav-link active">Product</a>
             <a href="#how" class="site-nav-link">How it works</a>
             <a href="#demo" class="site-nav-link">Demo</a>
-            <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="site-nav-link" target="_blank" rel="noopener">Docs</a>
+            <a href="https://softstop-docs.vercel.app" class="site-nav-link" target="_blank" rel="noopener">Docs</a>
             <a href="https://github.com/chonibe/SoftStop" class="site-nav-link" target="_blank" rel="noopener">
                 <svg class="site-nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
                 GitHub
@@ -1619,7 +1824,7 @@
                 <a href="#quickstart" class="site-nav-link">Product</a>
                 <a href="#how" class="site-nav-link">How it works</a>
                 <a href="#demo" class="site-nav-link">Demo</a>
-                <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="site-nav-link">Docs</a>
+                <a href="https://softstop-docs.vercel.app" class="site-nav-link">Docs</a>
                 <a href="https://github.com/chonibe/SoftStop" class="site-nav-link">GitHub</a>
             </nav>
         </details>
@@ -1781,7 +1986,7 @@ if (!d.allowed) {
             <section id="how">
                 <div class="section-header">
                     <h2 class="section-title">How it works</h2>
-                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="section-link">Docs →</a>
+                    <a href="https://softstop-docs.vercel.app" class="section-link">Docs →</a>
                 </div>
                 <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Many systems. One shared journal per customer.</h3>
                 <p class="journal-caption">
@@ -1790,42 +1995,42 @@ if (!d.allowed) {
                     <span class="code-chip">urgency</span>, <span class="code-chip">discount</span>, <span class="code-chip">interruption</span>, <span class="code-chip">reminder</span>.
                 </p>
 
-                <div class="wf-canvas" id="journalBoard" aria-label="SoftStop workflow: systems check a shared journal, then allow or block">
+                <div class="wf-canvas" data-wf="main" id="journalBoard" aria-label="SoftStop workflow: systems check a shared journal, then allow or block">
                     <div class="wf-toolbar" aria-hidden="true">
                         <span>Systems</span>
                         <span>Shared journal</span>
                         <span>Permit</span>
                     </div>
-                    <div class="wf-stage" id="wfStage">
-                        <svg class="wf-edges" id="wfEdges" aria-hidden="true"></svg>
+                    <div class="wf-stage" id="wfStage" data-wf-stage>
+                        <svg class="wf-edges" id="wfEdges" data-wf-edges aria-hidden="true"></svg>
                         <div class="wf-stage-grid">
-                        <div class="wf-col wf-col-systems" id="channelStack">
-                            <div class="wf-node" data-wf-node="sys" data-port-out="email">
+                        <div class="wf-col wf-col-systems" id="channelStack" data-wf-sources>
+                            <div class="wf-node" data-wf-node="src" data-port-out="email">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">Email</div><div class="wf-node-meta">check →</div></div>
                             </div>
-                            <div class="wf-node" data-wf-node="sys" data-port-out="sms">
+                            <div class="wf-node" data-wf-node="src" data-port-out="sms">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">SMS</div><div class="wf-node-meta">check →</div></div>
                             </div>
-                            <div class="wf-node" data-wf-node="sys" data-port-out="push">
+                            <div class="wf-node" data-wf-node="src" data-port-out="push">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">Push</div><div class="wf-node-meta">check →</div></div>
                             </div>
-                            <div class="wf-node" data-wf-node="sys" data-port-out="popup">
+                            <div class="wf-node" data-wf-node="src" data-port-out="popup">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">Popup</div><div class="wf-node-meta">check →</div></div>
                             </div>
-                            <div class="wf-node" data-wf-node="sys" data-port-out="ads">
+                            <div class="wf-node" data-wf-node="src" data-port-out="ads">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 7a7 7 0 0 1 0 10"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">Ads</div><div class="wf-node-meta">check →</div></div>
                             </div>
-                            <div class="wf-node" data-wf-node="sys" data-port-out="agent">
+                            <div class="wf-node" data-wf-node="src" data-port-out="agent">
                                 <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
                                 <div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M19 4v2"/><path d="M5 4v2"/></svg></div>
                                 <div class="wf-node-body"><div class="wf-node-name">Agent</div><div class="wf-node-meta">check →</div></div>
@@ -1859,7 +2064,7 @@ if (!d.allowed) {
 
                         <div class="wf-spacer" aria-hidden="true"></div>
 
-                        <div class="wf-col wf-col-out" id="permitStack">
+                        <div class="wf-col wf-col-out" id="permitStack" data-wf-outs>
                             <div class="wf-node is-allow" data-wf-node="out" data-permit data-port-in="allow">
                                 <span class="wf-port in ok" data-port="in" aria-hidden="true"></span>
                                 <div class="wf-node-icon is-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
@@ -1917,23 +2122,77 @@ if (!d.allowed) {
 
                 <div class="mt-14">
                     <p class="section-kicker">Action types</p>
-                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-6" style="margin:0 0 20px">Four ways pressure shows up</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="actionTiles">
-                        <div class="action-tile">
-                            <div class="font-mono text-stop-amber text-sm mb-2">urgency</div>
-                            <p class="text-xs text-slate-500 leading-relaxed">Time pressure — “ends tonight”, countdown push.</p>
+                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-3" style="margin:0 0 10px">Four ways pressure shows up</h3>
+                    <p class="journal-caption" style="margin-bottom:14px">
+                        Same permit path for every type — pressure kind → <span class="code-chip">check</span> → shared journal → allow or block.
+                    </p>
+
+                    <div class="wf-canvas is-compact" data-wf="actions" id="actionFlow" aria-label="Action types flow into SoftStop check then journal">
+                        <div class="wf-toolbar" aria-hidden="true">
+                            <span>Pressure type</span>
+                            <span>check()</span>
+                            <span>Journal</span>
                         </div>
-                        <div class="action-tile">
-                            <div class="font-mono text-stop-amber text-sm mb-2">discount</div>
-                            <p class="text-xs text-slate-500 leading-relaxed">Price / promo — coupon SMS, offer email.</p>
-                        </div>
-                        <div class="action-tile">
-                            <div class="font-mono text-stop-amber text-sm mb-2">interruption</div>
-                            <p class="text-xs text-slate-500 leading-relaxed">Modal / popup — checkout upsell, forced attention.</p>
-                        </div>
-                        <div class="action-tile">
-                            <div class="font-mono text-stop-amber text-sm mb-2">reminder</div>
-                            <p class="text-xs text-slate-500 leading-relaxed">Soft nudge — badge, agent follow-up.</p>
+                        <div class="wf-stage" data-wf-stage>
+                            <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
+                            <div class="wf-stage-grid">
+                                <div class="wf-col wf-col-types" data-wf-sources>
+                                    <div class="wf-node is-sm" data-wf-node="src">
+                                        <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">urgency</div><div class="wf-node-meta">time pressure</div></div>
+                                    </div>
+                                    <div class="wf-node is-sm" data-wf-node="src">
+                                        <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.9 4.9 2.8 2.8"/><path d="m16.3 16.3 2.8 2.8"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 19.1 2.8-2.8"/><path d="m16.3 7.7 2.8-2.8"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">discount</div><div class="wf-node-meta">price / promo</div></div>
+                                    </div>
+                                    <div class="wf-node is-sm" data-wf-node="src">
+                                        <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">interruption</div><div class="wf-node-meta">modal / popup</div></div>
+                                    </div>
+                                    <div class="wf-node is-sm" data-wf-node="src">
+                                        <span class="wf-port out amber" data-port="out" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21h4"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">reminder</div><div class="wf-node-meta">soft nudge</div></div>
+                                    </div>
+                                </div>
+                                <div class="wf-spacer" aria-hidden="true"></div>
+                                <div class="wf-col wf-col-hub">
+                                    <div class="wf-mobile-flow" aria-hidden="true">↓ check ↓</div>
+                                    <div class="wf-node is-hub" data-wf-node="hub">
+                                        <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
+                                        <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
+                                        <span class="wf-port out-block amber" data-port="out-block" aria-hidden="true"></span>
+                                        <div class="wf-hub-head">
+                                            <div class="wf-hub-mark" aria-hidden="true">SS</div>
+                                            <div>
+                                                <div class="wf-hub-title">SoftStop</div>
+                                                <div class="wf-hub-sub">check · actionType</div>
+                                            </div>
+                                        </div>
+                                        <div class="wf-hub-body">
+                                            <div class="wf-hub-row" data-entry style="opacity:1"><span>policy permit</span><span class="tag ok">ask</span></div>
+                                            <div class="wf-hub-row" data-entry style="opacity:1"><span>journal write</span><span class="tag no">record</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="wf-mobile-flow" aria-hidden="true">↓ permit ↓</div>
+                                </div>
+                                <div class="wf-spacer" aria-hidden="true"></div>
+                                <div class="wf-col wf-col-out" data-wf-outs>
+                                    <div class="wf-node is-sm is-allow" data-wf-node="out" data-port-in="allow">
+                                        <span class="wf-port in ok" data-port="in" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">Allow</div><div class="wf-node-meta">landed</div></div>
+                                    </div>
+                                    <div class="wf-node is-sm is-block" data-wf-node="out" data-port-in="block">
+                                        <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
+                                        <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">Block</div><div class="wf-node-meta">blocked</div></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2067,15 +2326,105 @@ if (!d.allowed) {
                     <h2 class="section-title">Why SoftStop</h2>
                     <a href="https://github.com/chonibe/SoftStop" class="section-link">GitHub →</a>
                 </div>
-                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">One shared journal before pressure</h3>
-                <p class="description" style="text-align:left;margin:0 0 28px;max-width:42rem">
-                    Marketing, product, and agents stop stacking blind. SoftStop authorizes and journals —
-                    it does not send mail or write copy.
+                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Thousands of customers. Many departments. One journal — or none.</h3>
+                <p class="description" style="text-align:left;margin:0 0 18px;max-width:44rem">
+                    Growth, CRM, Support, Ads, Product, and Agents each fire urgency, discount, interruption, and reminder
+                    without seeing what the others already did. Pressure stacks per person. SoftStop doesn’t become your CDP —
+                    it is the authorize-only permit: every system <span class="code-chip">check</span>s and <span class="code-chip">record</span>s into one per-customer journal.
                 </p>
+
+                <div class="wf-pair" id="scalePair">
+                    <div>
+                        <p class="wf-pair-label is-bad">Without SoftStop · blind silos</p>
+                        <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments firing notifications blindly at many customers with no shared log">
+                            <div class="wf-toolbar" aria-hidden="true">
+                                <span>Departments</span>
+                                <span>No shared log</span>
+                                <span>× customers</span>
+                            </div>
+                            <div class="wf-stage" data-wf-stage>
+                                <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
+                                <div class="wf-stage-grid">
+                                    <div class="wf-col wf-col-systems" data-wf-sources>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 3 5-6"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Growth</div><div class="wf-node-meta">urgency blast</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="wf-node-body"><div class="wf-node-name">CRM</div><div class="wf-node-meta">discount drip</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Support</div><div class="wf-node-meta">reminder ping</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Ads</div><div class="wf-node-meta">retarget</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Product</div><div class="wf-node-meta">interruption</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Agents</div><div class="wf-node-meta">outreach</div></div></div>
+                                    </div>
+                                    <div class="wf-spacer" aria-hidden="true"></div>
+                                    <div class="wf-col wf-col-cust" data-wf-targets>
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ blind hits ↓</div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_1042</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_881</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_2207</span></div>
+                                        <div class="wf-cust" data-wf-node="tgt"><span class="wf-port in" data-port="in" aria-hidden="true"></span><span class="wf-cust-dot" aria-hidden="true"></span><span class="wf-cust-name">cust_559</span></div>
+                                        <div class="wf-cust is-more" aria-hidden="true"><span class="wf-cust-name">+ thousands more</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="wf-pair-label is-good">With SoftStop · one journal</p>
+                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same departments check SoftStop shared journal then allow or block">
+                            <div class="wf-toolbar" aria-hidden="true">
+                                <span>Departments</span>
+                                <span>Shared journal</span>
+                                <span>Permit</span>
+                            </div>
+                            <div class="wf-stage" data-wf-stage>
+                                <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
+                                <div class="wf-stage-grid">
+                                    <div class="wf-col wf-col-systems" data-wf-sources>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 3 5-6"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Growth</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="wf-node-body"><div class="wf-node-name">CRM</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Support</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Ads</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Product</div><div class="wf-node-meta">check →</div></div></div>
+                                        <div class="wf-node is-sm" data-wf-node="src"><span class="wf-port out amber" data-port="out" aria-hidden="true"></span><div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="wf-node-body"><div class="wf-node-name">Agents</div><div class="wf-node-meta">check →</div></div></div>
+                                    </div>
+                                    <div class="wf-spacer" aria-hidden="true"></div>
+                                    <div class="wf-col wf-col-hub">
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ converge ↓</div>
+                                        <div class="wf-node is-hub" data-wf-node="hub">
+                                            <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
+                                            <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
+                                            <span class="wf-port out-block amber" data-port="out-block" aria-hidden="true"></span>
+                                            <div class="wf-hub-head">
+                                                <div class="wf-hub-mark" aria-hidden="true">SS</div>
+                                                <div>
+                                                    <div class="wf-hub-title">SoftStop</div>
+                                                    <div class="wf-hub-sub">per-customer journal</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="wf-mobile-flow" aria-hidden="true">↓ permit ↓</div>
+                                    </div>
+                                    <div class="wf-spacer" aria-hidden="true"></div>
+                                    <div class="wf-col wf-col-out" data-wf-outs>
+                                        <div class="wf-node is-sm is-allow" data-wf-node="out" data-port-in="allow">
+                                            <span class="wf-port in ok" data-port="in" aria-hidden="true"></span>
+                                            <div class="wf-node-icon is-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
+                                            <div class="wf-node-body"><div class="wf-node-name">Allow</div><div class="wf-node-meta">record</div></div>
+                                        </div>
+                                        <div class="wf-node is-sm is-block" data-wf-node="out" data-port-in="block">
+                                            <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
+                                            <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+                                            <div class="wf-node-body"><div class="wf-node-name">Block</div><div class="wf-node-meta">record</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="benefit-row">
                     <div class="benefit-card">
                         <h3 class="font-display font-semibold text-paper mb-2">Cross-system journal</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Every <span class="code-chip">record</span> lands in one per-customer history — email isn’t blind to SMS.</p>
+                        <p class="text-sm text-slate-500 leading-relaxed">Every <span class="code-chip">record</span> lands in one per-customer history — Growth isn’t blind to CRM.</p>
                     </div>
                     <div class="benefit-card">
                         <h3 class="font-display font-semibold text-paper mb-2">Authorize only</h3>
@@ -3195,6 +3544,7 @@ if (!d.allowed) {
     import { animate, createTimeline, stagger } from 'https://esm.sh/animejs@4.0.2';
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const boards = [];
 
     function snapVisible(els) {
         els.forEach((el) => {
@@ -3212,31 +3562,36 @@ if (!d.allowed) {
         };
     }
 
-    function bezier(x1, y1, x2, y2) {
-        const dx = Math.max(40, Math.abs(x2 - x1) * 0.45);
-        return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+    function bezier(x1, y1, x2, y2, wobble = 0) {
+        const dx = Math.max(36, Math.abs(x2 - x1) * 0.45);
+        const midY = (y1 + y2) / 2 + wobble;
+        return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${midY}, ${x2} ${y2}`;
     }
 
-    function drawWorkflowEdges() {
-        const stage = document.getElementById('wfStage');
-        const svg = document.getElementById('wfEdges');
-        const hub = document.getElementById('wfHub');
+    function sizeSvg(stage, svg) {
+        const stageRect = stage.getBoundingClientRect();
+        svg.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+        svg.setAttribute('width', String(stageRect.width));
+        svg.setAttribute('height', String(stageRect.height));
+        return stageRect;
+    }
+
+    function drawConvergeEdges(root) {
+        const stage = root.querySelector('[data-wf-stage]');
+        const svg = root.querySelector('[data-wf-edges]');
+        const hub = root.querySelector('[data-wf-node="hub"]');
         if (!stage || !svg || !hub) return;
         if (window.matchMedia('(max-width: 860px)').matches) {
             svg.innerHTML = '';
             return;
         }
 
-        const stageRect = stage.getBoundingClientRect();
-        svg.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
-        svg.setAttribute('width', String(stageRect.width));
-        svg.setAttribute('height', String(stageRect.height));
-
+        const stageRect = sizeSvg(stage, svg);
         const hubIn = hub.querySelector('[data-port="in"]');
         const hubAllow = hub.querySelector('[data-port="out-allow"]');
         const hubBlock = hub.querySelector('[data-port="out-block"]');
-        const allowNode = document.querySelector('[data-port-in="allow"] [data-port="in"]');
-        const blockNode = document.querySelector('[data-port-in="block"] [data-port="in"]');
+        const allowNode = root.querySelector('[data-port-in="allow"] [data-port="in"]');
+        const blockNode = root.querySelector('[data-port-in="block"] [data-port="in"]');
         if (!hubIn || !hubAllow || !hubBlock || !allowNode || !blockNode) return;
 
         const toHub = portCenter(hubIn, stageRect);
@@ -3246,7 +3601,7 @@ if (!d.allowed) {
         const toBlock = portCenter(blockNode, stageRect);
 
         const parts = [];
-        document.querySelectorAll('[data-wf-node="sys"] [data-port="out"]').forEach((port, i) => {
+        root.querySelectorAll('[data-wf-node="src"] [data-port="out"]').forEach((port, i) => {
             const from = portCenter(port, stageRect);
             const d = bezier(from.x, from.y, toHub.x, toHub.y);
             parts.push(`<path class="wf-path is-amber" data-edge="in-${i}" d="${d}" />`);
@@ -3259,81 +3614,166 @@ if (!d.allowed) {
         parts.push(`<path class="wf-pulse is-ok" data-pulse="out-allow" d="${dAllow}" />`);
         parts.push(`<path class="wf-path is-amber" data-edge="out-block" d="${dBlock}" />`);
         parts.push(`<path class="wf-pulse" data-pulse="out-block" d="${dBlock}" />`);
-
         svg.innerHTML = parts.join('');
     }
 
-    function pulseEdges() {
+    function drawChaosEdges(root) {
+        const stage = root.querySelector('[data-wf-stage]');
+        const svg = root.querySelector('[data-wf-edges]');
+        if (!stage || !svg) return;
+        if (window.matchMedia('(max-width: 860px)').matches) {
+            svg.innerHTML = '';
+            return;
+        }
+
+        const stageRect = sizeSvg(stage, svg);
+        const outs = [...root.querySelectorAll('[data-wf-node="src"] [data-port="out"]')];
+        const ins = [...root.querySelectorAll('[data-wf-node="tgt"] [data-port="in"]')];
+        if (!outs.length || !ins.length) return;
+
+        const links = [];
+        outs.forEach((port, si) => {
+            ins.forEach((tgt, ti) => {
+                if ((si + ti * 2) % 3 === 0 || (si * 3 + ti) % 5 === 0) {
+                    links.push([port, tgt, (si - ti) * 18 + ((si + ti) % 2 ? 22 : -16)]);
+                }
+            });
+        });
+        if (links.length < 10) {
+            outs.forEach((port, si) => {
+                links.push([port, ins[si % ins.length], (si % 2 ? 28 : -24)]);
+                links.push([port, ins[(si + 2) % ins.length], (si % 2 ? -32 : 30)]);
+            });
+        }
+
+        const parts = [];
+        links.forEach(([port, tgt, wobble], i) => {
+            const from = portCenter(port, stageRect);
+            const to = portCenter(tgt, stageRect);
+            const d = bezier(from.x, from.y, to.x, to.y, wobble);
+            parts.push(`<path class="wf-path is-chaos" data-edge="c-${i}" d="${d}" />`);
+            if (i % 2 === 0) {
+                parts.push(`<path class="wf-pulse is-chaos" data-pulse="c-${i}" d="${d}" />`);
+            }
+        });
+        svg.innerHTML = parts.join('');
+    }
+
+    function drawBoardEdges(root) {
+        const kind = root.getAttribute('data-wf');
+        if (kind === 'chaos') drawChaosEdges(root);
+        else drawConvergeEdges(root);
+    }
+
+    function pulseBoard(root) {
         if (reduce) return;
-        const pulses = document.querySelectorAll('.wf-pulse');
-        if (!pulses.length) return;
-        pulses.forEach((p, i) => {
+        const kind = root.getAttribute('data-wf');
+        const chaotic = kind === 'chaos';
+        root.querySelectorAll('.wf-pulse').forEach((p, i) => {
             animate(p, {
                 opacity: [0, 1, 1, 0],
                 strokeDashoffset: [0, -250],
-                duration: 1600,
-                delay: i * 180,
+                duration: chaotic ? 1400 : 1600,
+                delay: i * (chaotic ? 90 : 160),
                 ease: 'linear',
                 loop: true,
-                loopDelay: 900,
+                loopDelay: chaotic ? 400 : 900,
             });
         });
     }
 
-    function playJournal() {
-        const systems = document.querySelectorAll('[data-wf-node="sys"]');
-        const hub = document.querySelector('[data-wf-node="hub"]');
-        const outs = document.querySelectorAll('[data-wf-node="out"]');
-        const entries = document.querySelectorAll('[data-entry]');
-        if (!systems.length || !hub) return;
+    function playBoard(root) {
+        const sources = root.querySelectorAll('[data-wf-node="src"]');
+        const hub = root.querySelector('[data-wf-node="hub"]');
+        const outs = root.querySelectorAll('[data-wf-node="out"]');
+        const targets = root.querySelectorAll('[data-wf-node="tgt"], .wf-cust');
+        const entries = root.querySelectorAll('[data-entry]');
+        if (!sources.length) return;
 
-        drawWorkflowEdges();
+        drawBoardEdges(root);
 
+        const reveal = [...sources, ...(hub ? [hub] : []), ...outs, ...targets, ...entries];
         if (reduce) {
-            snapVisible([...systems, hub, ...outs, ...entries]);
-            document.querySelectorAll('.wf-path').forEach((p) => { p.style.opacity = '1'; });
+            snapVisible(reveal);
+            root.querySelectorAll('.wf-path').forEach((p) => { p.style.opacity = '1'; });
             return;
         }
 
         const tl = createTimeline({
             defaults: { ease: 'out(3)' },
             onComplete: () => {
-                drawWorkflowEdges();
-                pulseEdges();
+                drawBoardEdges(root);
+                pulseBoard(root);
             },
         });
-        tl.add(systems, {
-            opacity: [0, 1],
-            y: [14, 0],
-            scale: [0.96, 1],
-            duration: 420,
-            delay: stagger(55),
-        })
-        .add(hub, {
-            opacity: [0, 1],
-            y: [18, 0],
-            scale: [0.94, 1],
-            duration: 520,
-        }, '-=220')
-        .add(document.querySelectorAll('.wf-path'), {
-            opacity: [0, 1],
-            duration: 500,
-            delay: stagger(35),
-        }, '-=360')
-        .add(entries, {
-            opacity: [0, 1],
-            y: [8, 0],
-            duration: 360,
-            delay: stagger(80),
-        }, '-=280')
-        .add(outs, {
+        tl.add(sources, {
             opacity: [0, 1],
             y: [12, 0],
             scale: [0.96, 1],
-            duration: 440,
-            delay: stagger(100),
-        }, '-=200');
+            duration: 400,
+            delay: stagger(45),
+        });
+        if (hub) {
+            tl.add(hub, {
+                opacity: [0, 1],
+                y: [16, 0],
+                scale: [0.94, 1],
+                duration: 480,
+            }, '-=200');
+        }
+        if (targets.length) {
+            tl.add(targets, {
+                opacity: [0, 1],
+                y: [10, 0],
+                duration: 360,
+                delay: stagger(50),
+            }, '-=280');
+        }
+        tl.add(root.querySelectorAll('.wf-path'), {
+            opacity: [0, 1],
+            duration: 480,
+            delay: stagger(18),
+        }, '-=300');
+        if (entries.length) {
+            tl.add(entries, {
+                opacity: [0, 1],
+                y: [8, 0],
+                duration: 320,
+                delay: stagger(70),
+            }, '-=240');
+        }
+        if (outs.length) {
+            tl.add(outs, {
+                opacity: [0, 1],
+                y: [10, 0],
+                scale: [0.96, 1],
+                duration: 400,
+                delay: stagger(80),
+            }, '-=180');
+        }
     }
+
+    function bindBoard(root) {
+        boards.push(root);
+        const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                io.unobserve(entry.target);
+                playBoard(root);
+            }
+        }, { threshold: 0.18 });
+        io.observe(root);
+    }
+
+    document.querySelectorAll('[data-wf]').forEach(bindBoard);
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            boards.forEach(drawBoardEdges);
+        }, 120);
+    });
 
     function revealFlow() {
         const steps = document.querySelectorAll('[data-flow-step]');
@@ -3351,26 +3791,6 @@ if (!d.allowed) {
         steps.forEach((el) => el.classList.add('is-visible'));
     }
 
-    const journalBoard = document.getElementById('journalBoard');
-    if (journalBoard) {
-        const ioJ = new IntersectionObserver((entries) => {
-            for (const entry of entries) {
-                if (!entry.isIntersecting) continue;
-                ioJ.unobserve(entry.target);
-                playJournal();
-            }
-        }, { threshold: 0.22 });
-        ioJ.observe(journalBoard);
-
-        let resizeTimer = 0;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                drawWorkflowEdges();
-            }, 120);
-        });
-    }
-
     const flowRail = document.getElementById('flowRail');
     if (flowRail) {
         const io = new IntersectionObserver((entries) => {
@@ -3381,26 +3801,6 @@ if (!d.allowed) {
             }
         }, { threshold: 0.25 });
         io.observe(flowRail);
-    }
-
-    const actionTiles = document.getElementById('actionTiles');
-    if (actionTiles && !reduce) {
-        const tiles = actionTiles.querySelectorAll('.action-tile');
-        tiles.forEach((t) => { t.style.opacity = '0'; });
-        const io2 = new IntersectionObserver((entries) => {
-            for (const entry of entries) {
-                if (!entry.isIntersecting) continue;
-                io2.unobserve(entry.target);
-                animate(tiles, {
-                    opacity: [0, 1],
-                    y: [14, 0],
-                    delay: stagger(70),
-                    ease: 'out(3)',
-                    duration: 480,
-                });
-            }
-        }, { threshold: 0.2 });
-        io2.observe(actionTiles);
     }
 
     const heroPairs = [
