@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="SoftStop fits these use cases">
+  <rect width="1200" height="280" fill="#0B0B0F"/>
+  <text x="48" y="48" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#E8A317" letter-spacing="1">WHERE IT FITS</text>
+  <text x="48" y="84" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#F7F5F0">Same pattern. Different teams.</text>
+
+  <g font-family="Helvetica, Arial, sans-serif">
+    <rect x="48" y="120" width="350" height="110" rx="12" fill="#121218" stroke="#2A2A32"/>
+    <text x="72" y="156" font-size="16" font-weight="700" fill="#E8A317">Marketing + CRM</text>
+    <text x="72" y="184" font-size="14" fill="#A8A29A">Lifecycle, promos, and win-back</text>
+    <text x="72" y="206" font-size="14" fill="#A8A29A">all hit one inbox without a shared cap.</text>
+
+    <rect x="424" y="120" width="350" height="110" rx="12" fill="#121218" stroke="#2A2A32"/>
+    <text x="448" y="156" font-size="16" font-weight="700" fill="#E8A317">Product UI</text>
+    <text x="448" y="184" font-size="14" fill="#A8A29A">Modals, banners, and upsells</text>
+    <text x="448" y="206" font-size="14" fill="#A8A29A">interrupt while email is also firing.</text>
+
+    <rect x="800" y="120" width="350" height="110" rx="12" fill="#121218" stroke="#2A2A32"/>
+    <text x="824" y="156" font-size="16" font-weight="700" fill="#E8A317">Agents</text>
+    <text x="824" y="184" font-size="14" fill="#A8A29A">Support or sales agents escalate</text>
+    <text x="824" y="206" font-size="14" fill="#A8A29A">humans without seeing other pressure.</text>
+  </g>
+</svg>

@@ -24,15 +24,35 @@
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-0.1.0-E8A317?style=flat-square" alt="0.1.0" /></a>
 </p>
 
+## What SoftStop is
+
+SoftStop answers one question before an escalation runs:
+
+> Is it allowed to raise pressure on **this user**, with **this action type**, **right now**?
+
+It does **not** send email, write copy, pick offers, or replace Braze / Resend / your agents. Those systems still decide *what* to say. SoftStop decides whether they’re allowed to push.
+
+| SoftStop does | SoftStop does not |
+|---|---|
+| `check` → allow or block | Send messages |
+| `record` the outcome | Personalize content |
+| Enforce cooldowns & caps across systems | Optimize conversion |
+
+## The use case (in one picture)
+
+Lifecycle email, pricing SMS, checkout modal, and a support agent can all hit the **same person** with no shared stop signal. SoftStop sits in the middle as a tiny authorize-only gate.
+
 <p align="center">
-  <img src="docs/brand/softstop-cover.png" alt="SoftStop — shared permit before pressure" width="100%" />
+  <img src="docs/brand/softstop-before-after.png" alt="Without SoftStop many systems stack pressure on one user; with SoftStop only allowed escalations pass" width="100%" />
 </p>
 
 <p align="center">
-  <img src="docs/brand/softstop-before-after.png" alt="Without SoftStop pressure stacks; with SoftStop only allowed escalations pass" width="100%" />
+  <img src="docs/brand/softstop-use-cases.png" alt="SoftStop fits marketing plus CRM, product UI, and agents" width="100%" />
 </p>
 
-Scroll the full story (email, SMS, push, in-app stacking → SoftStop on): **[Live demo](https://softstop.vercel.app)**
+### Example story (live demo)
+
+The [live demo](https://softstop.vercel.app) is a **marketing-chaos example**: scroll ~44 days of email / SMS / push / in-app stacking on one person, then toggle SoftStop on. Same SoftStop contract applies to product UI and agents — the demo just makes the failure mode obvious.
 
 ## Get started
 
@@ -87,18 +107,19 @@ if (!check.allowed) {
 
 > Hosted APIs use `/api` instead of `/v1`. `GOVERNOR_API_URL` is accepted as a legacy alias for `SOFTSTOP_API_URL`.
 
-| actionType | Meaning |
-|---|---|
-| `urgency` | Time pressure |
-| `discount` | Price / promo |
-| `interruption` | Modal / popup |
-| `reminder` | Soft nudge |
+| actionType | Meaning | Typical surface |
+|---|---|---|
+| `urgency` | Time pressure | “ends tonight” email / push |
+| `discount` | Price / promo | SMS offer, coupon modal |
+| `interruption` | Modal / popup | Checkout upsell, in-app dialog |
+| `reminder` | Soft nudge | Agent follow-up, badge |
 
 ## When to use
 
-- Many systems (lifecycle, pricing, UI, agents) can push the **same** user and don't share state
-- Platform / marketplace agents collide with your own automations
-- You need a tiny gate under Braze/Resend/modals — not another messaging platform or MCP tool firewall
+- **Marketing + CRM** — lifecycle, promo, and win-back tools don’t share caps
+- **Product UI** — modals/banners fire while email/SMS are also pushing
+- **Agents** — support/sales agents escalate humans without seeing other pressure
+- **Not SoftStop** — you need a messaging platform, CDP, or MCP tool firewall
 
 ## Adoption
 
@@ -113,7 +134,7 @@ Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
 
 - [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human
-- [Scroll demo](demo/index.html) — the product story
+- [Scroll demo](https://softstop.vercel.app) — marketing-chaos example story
 
 ## Docs
 
