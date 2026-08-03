@@ -146,19 +146,6 @@
         }
         body.mode-on #timeline { --mode-accent: #E8A317; }
         body.mode-off #timeline { --mode-accent: #ef4444; }
-        #modeBanner {
-            transition: background 0.3s, border-color 0.3s, color 0.3s;
-        }
-        #modeBanner.off {
-            background: rgba(239, 68, 68, 0.12);
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #fecaca;
-        }
-        #modeBanner.on {
-            background: rgba(232, 163, 23, 0.12);
-            border-color: rgba(232, 163, 23, 0.45);
-            color: #fde68a;
-        }
         
         .timeline-line { 
             position: absolute; 
@@ -255,37 +242,61 @@
                 -webkit-tap-highlight-color: transparent;
             }
         }
-        
-        /* Fixed SoftStop Button */
-        #softstopBtnFixed {
-            min-width: 240px;
+
+        /* Top chrome */
+        #topChrome {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 70;
+            background: rgba(11, 11, 15, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        
-        @media (max-width: 640px) {
-            #softstopBtnFixed {
-                min-width: auto;
-                padding: 1rem 1.5rem;
-            }
-            #softstopBtnFixed .text-xs:last-child {
-                display: none;
-            }
+        @media (min-width: 1024px) {
+            #topChrome { left: 20rem; }
         }
+        body { padding-top: 3.25rem; }
     </style>
 </head>
-<body class="bg-deep text-white antialiased">
+<body class="bg-deep text-white antialiased mode-off">
+
+    <!-- Fixed top: pressure + SoftStop switch -->
+    <header id="topChrome" class="h-13">
+        <div class="h-12 px-3 md:px-5 flex items-center gap-3 md:gap-5">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pressure</span>
+                    <div class="flex items-center gap-2 text-[10px] md:text-xs">
+                        <span id="pressureStatus" class="text-slate-500">Relaxed</span>
+                        <span id="pressureValue" class="font-mono font-bold text-stop-amber">0</span>
+                    </div>
+                </div>
+                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div id="pressureBar" class="h-full bg-stop-amber rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            <button id="softstopBtnFixed" type="button" class="shrink-0 flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 hover:bg-surface-3 px-3 py-1.5 transition-colors" title="Toggle SoftStop">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold hidden sm:inline">SoftStop</span>
+                <span id="softstopIndicatorFixed" class="w-2.5 h-2.5 rounded-full bg-accent-red"></span>
+                <span id="softstopLabelFixed" class="font-bold text-sm w-8">OFF</span>
+            </button>
+        </div>
+    </header>
 
     <!-- Mobile overlay -->
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
     
     <!-- Mobile Menu Toggle -->
-    <button id="mobileMenuToggle" class="fixed top-4 left-4 z-[60] lg:hidden bg-surface border border-white/20 rounded-lg p-3 hover:bg-surface-2 transition-all shadow-lg">
+    <button id="mobileMenuToggle" class="fixed top-[3.5rem] left-4 z-[60] lg:hidden bg-surface border border-white/20 rounded-lg p-3 hover:bg-surface-2 transition-all shadow-lg">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
     </button>
     
     <!-- Fixed Mobile User Info (only visible in demo section on mobile) -->
-    <div id="mobileUserInfo" class="fixed top-4 left-4 right-4 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="mobileUserInfo" class="fixed top-[3.5rem] left-4 right-4 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-surface-2/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
@@ -310,32 +321,8 @@
         </div>
     </div>
     
-    <!-- Fixed SoftStop Toggle Button -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70] flex flex-col items-center gap-2 w-[min(92vw,420px)]">
-        <button id="softstopBtnFixed" class="w-full bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-5 py-3.5 transition-all text-left group shadow-2xl backdrop-blur-sm">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div id="softstopIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all shrink-0"></div>
-                    <div class="min-w-0">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
-                          SoftStop
-                        </div>
-                        <div class="flex items-baseline gap-2">
-                          <span id="softstopLabelFixed" class="font-bold text-white text-lg">OFF</span>
-                          <span id="softstopModeHint" class="text-xs text-accent-red truncate">every escalation lands</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-[10px] text-slate-500 group-hover:text-white transition-colors shrink-0 uppercase tracking-wide">Tap</div>
-            </div>
-        </button>
-        <div id="modeBanner" class="mode-banner off w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm">
-            <span id="modeBannerText">SoftStop OFF — scroll the chaos. Then turn SoftStop ON and compare.</span>
-        </div>
-    </div>
-    
     <!-- Fixed Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0">
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 pt-0 lg:pt-0">
         <!-- Logo -->
         <div class="p-6 border-b border-white/5">
             <div class="flex items-center gap-3 mb-4">
@@ -409,18 +396,6 @@
             </div>
         </div>
         
-        <!-- Pressure Meter -->
-        <div class="p-6 border-b border-white/5">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">User Pressure</span>
-                <span id="pressureValue" class="text-sm font-mono font-bold text-accent">0</span>
-            </div>
-            <div class="h-4 bg-surface-2 rounded-full overflow-hidden mb-2">
-                <div id="pressureBar" class="h-full bg-accent rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div id="pressureStatus" class="text-xs text-slate-500">Relaxed</div>
-        </div>
-        
         <!-- Channel Stats -->
         <div class="p-6 border-b border-white/5">
             <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Touches by Channel</div>
@@ -487,11 +462,11 @@
             <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">SoftStop Status</div>
             <div class="bg-surface-2 border border-white/10 rounded-xl p-4">
                 <div class="flex items-center gap-3 mb-2">
-                    <div id="softstopIndicator" class="w-4 h-4 rounded-full bg-accent-red"></div>
+                    <div id="softstopIndicator" class="w-3 h-3 rounded-full bg-accent-red"></div>
                     <span id="softstopLabel" class="font-bold">OFF</span>
                 </div>
                 <p id="softstopHint" class="text-xs text-slate-500 mt-2">
-                    Use the button to toggle SoftStop
+                    Use the top-bar switch
                 </p>
             </div>
         </div>
@@ -1247,15 +1222,18 @@
         if (state.pressure > 70) {
             els.pressureBar.className = 'h-full bg-accent-red rounded-full transition-all duration-500';
             els.pressureStatus.textContent = 'OVERWHELMED';
-            els.pressureStatus.className = 'text-xs text-accent-red font-bold shake';
+            els.pressureStatus.className = 'text-[10px] md:text-xs text-accent-red font-bold';
+            els.pressureValue.className = 'font-mono font-bold text-accent-red';
         } else if (state.pressure > 40) {
             els.pressureBar.className = 'h-full bg-accent-orange rounded-full transition-all duration-500';
             els.pressureStatus.textContent = 'Stressed';
-            els.pressureStatus.className = 'text-xs text-accent-orange';
+            els.pressureStatus.className = 'text-[10px] md:text-xs text-accent-orange';
+            els.pressureValue.className = 'font-mono font-bold text-accent-orange';
         } else {
-            els.pressureBar.className = 'h-full bg-accent rounded-full transition-all duration-500';
+            els.pressureBar.className = 'h-full bg-stop-amber rounded-full transition-all duration-500';
             els.pressureStatus.textContent = 'Relaxed';
-            els.pressureStatus.className = 'text-xs text-slate-500';
+            els.pressureStatus.className = 'text-[10px] md:text-xs text-slate-500';
+            els.pressureValue.className = 'font-mono font-bold text-stop-amber';
         }
         
         // Update temperament
@@ -1640,36 +1618,24 @@
     }
 
     function updateModeChrome() {
-        const banner = document.getElementById('modeBanner');
-        const bannerText = document.getElementById('modeBannerText');
-        const modeHint = document.getElementById('softstopModeHint');
         const softstopIndicatorFixed = document.getElementById('softstopIndicatorFixed');
         const softstopLabelFixed = document.getElementById('softstopLabelFixed');
+        const btn = document.getElementById('softstopBtnFixed');
 
         if (state.softstopEnabled) {
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-3 h-3 rounded-full bg-accent-green';
             if (els.softstopLabel) els.softstopLabel.textContent = 'ON';
-            if (els.softstopHint) els.softstopHint.textContent = 'Amber = SoftStop blocked it. Red LANDED = still allowed.';
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all shrink-0';
+            if (els.softstopHint) els.softstopHint.textContent = 'Amber BLOCKED · red LANDED';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-2.5 h-2.5 rounded-full bg-accent-green';
             if (softstopLabelFixed) softstopLabelFixed.textContent = 'ON';
-            if (modeHint) {
-                modeHint.textContent = 'only allowed escalations pass';
-                modeHint.className = 'text-xs text-stop-amber truncate';
-            }
-            if (banner) banner.className = 'mode-banner on w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm';
-            if (bannerText) bannerText.textContent = 'SoftStop ON — blocked touches show amber + strikethrough. Compare by toggling OFF.';
+            if (btn) btn.className = 'shrink-0 flex items-center gap-2 rounded-full border border-stop-amber/50 bg-stop-amber/10 hover:bg-stop-amber/15 px-3 py-1.5 transition-colors';
         } else {
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-3 h-3 rounded-full bg-accent-red';
             if (els.softstopLabel) els.softstopLabel.textContent = 'OFF';
-            if (els.softstopHint) els.softstopHint.textContent = 'Every escalation lands. Turn SoftStop ON to see blocks.';
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all shrink-0';
+            if (els.softstopHint) els.softstopHint.textContent = 'Use the top-bar switch';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-2.5 h-2.5 rounded-full bg-accent-red';
             if (softstopLabelFixed) softstopLabelFixed.textContent = 'OFF';
-            if (modeHint) {
-                modeHint.textContent = 'every escalation lands';
-                modeHint.className = 'text-xs text-accent-red truncate';
-            }
-            if (banner) banner.className = 'mode-banner off w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm';
-            if (bannerText) bannerText.textContent = 'SoftStop OFF — every touch LANDED (red). Tap SoftStop ON, then scroll again to compare.';
+            if (btn) btn.className = 'shrink-0 flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 hover:bg-surface-3 px-3 py-1.5 transition-colors';
         }
     }
 
@@ -1689,7 +1655,7 @@
                     });
                     
                     if (day >= 10 && !state.softstopEnabled) {
-                        els.softstopHint.classList.remove('hidden');
+                        if (els.softstopHint) els.softstopHint.classList.remove('hidden');
                     }
                 }
             });
