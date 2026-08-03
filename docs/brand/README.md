@@ -12,7 +12,9 @@ Soft halt bar through a geometric **S** — permit/block without looking like a 
 
 | File | Use |
 |------|-----|
-| [softstop-mark.svg](softstop-mark.svg) | Favicon / icon |
+| [softstop-mark.png](softstop-mark.png) | Favicon / icon (primary, 256px) |
+| [softstop-mark-1024.png](softstop-mark-1024.png) | High-res mark |
+| [softstop-mark.svg](softstop-mark.svg) | Vector source |
 | [softstop-wordmark.svg](softstop-wordmark.svg) | README / demo header |
 | [softstop-cover.svg](softstop-cover.svg) | Social / README hero (~1200×630) |
 | [softstop-before-after.svg](softstop-before-after.svg) | Story proof when GIF unavailable |

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/brand/softstop-mark.svg" width="72" height="72" alt="SoftStop mark" />
+  <img src="docs/brand/softstop-mark.png" width="72" height="72" alt="SoftStop mark" />
 </p>
 
 <h1 align="center">SoftStop</h1>
