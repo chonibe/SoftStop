@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SoftStop | Example: marketing chaos</title>
+    <title>SoftStop — Makes software stop when it should</title>
     <meta name="description" content="Example SoftStop use case: scroll marketing chaos across email, SMS, push, and in-app. SoftStop is the shared permit before pressure rises — not the messaging tool.">
     <link rel="icon" href="assets/softstop-mark-dark.png" type="image/png" />
     <meta property="og:image" content="assets/softstop-cover.png" />
@@ -44,350 +44,380 @@
         }
     </script>
     <style>
-        body { font-family: 'IBM Plex Sans', sans-serif; background: #0B0B0F; color: #F7F5F0; }
+        :root {
+            --ink: #0B0B0F;
+            --paper: #F7F5F0;
+            --amber: #E8A317;
+            --surface: #111116;
+            --surface-2: #16161d;
+            --border: rgba(247, 245, 240, 0.09);
+            --border-strong: rgba(247, 245, 240, 0.16);
+            --muted: #8b8b96;
+            --danger: #f85149;
+            --ok: #3fb950;
+        }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--ink);
+            color: var(--paper);
+        }
         .font-display { font-family: 'Syne', sans-serif; }
         .font-mono { font-family: 'IBM Plex Mono', monospace; }
-        
-        @keyframes slide-in { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slide-down { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-        @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .interactive-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .interactive-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(232, 163, 23, 0.12);
-        }
-        
-        .code-typing {
-            overflow: hidden;
-            border-right: 2px solid #3b82f6;
-            white-space: nowrap;
-            animation: typing 2s steps(40) forwards, blink 0.75s step-end infinite;
-        }
-        
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
-        
-        .gradient-border {
-            position: relative;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-        }
-        
-        .gradient-border::before {
+
+        /* Atmosphere */
+        body::before {
             content: '';
-            position: absolute;
+            position: fixed;
             inset: 0;
-            border-radius: inherit;
-            padding: 2px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(232,163,23,0.07), transparent 55%),
+                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(247,245,240,0.03), transparent 50%);
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+        body > * { position: relative; z-index: 1; }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        .reveal { animation: fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+        .reveal-d1 { animation-delay: 0.08s; }
+        .reveal-d2 { animation-delay: 0.16s; }
+        .reveal-d3 { animation-delay: 0.24s; }
+
+        .pressure-card {
             opacity: 0;
-            transition: opacity 0.3s;
+            transform: translateY(8px);
+            transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.2s, background 0.2s;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
         }
-        
-        .gradient-border:hover::before {
-            opacity: 1;
-        }
-        
-        .slide-in { animation: slide-in 0.5s ease-out forwards; }
-        .slide-down { animation: slide-down 0.4s ease-out forwards; }
-        .pulse { animation: pulse 1.5s ease-in-out infinite; }
-        .glow { animation: glow 2s ease-in-out infinite; }
-        .shake { animation: shake 0.3s ease-in-out; }
-        
-        .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.35s ease-out; }
-        .pressure-card.visible { opacity: 1; transform: translateX(0); }
+        .pressure-card.visible { opacity: 1; transform: translateY(0); }
         .pressure-card.landed {
-            border-color: rgba(239, 68, 68, 0.35);
-            background: rgba(239, 68, 68, 0.06);
+            border-color: rgba(248, 81, 73, 0.28);
+            background: rgba(248, 81, 73, 0.04);
         }
         .pressure-card.blocked {
             opacity: 1;
             border-style: dashed;
-            border-color: rgba(232, 163, 23, 0.55);
-            background: rgba(11, 11, 15, 0.85);
+            border-color: rgba(232, 163, 23, 0.45);
+            background: rgba(11, 11, 15, 0.9);
             position: relative;
         }
         .pressure-card.blocked .msg-subject {
             text-decoration: line-through;
-            color: #78716c;
+            color: #6e6e78;
         }
-        .pressure-card.blocked .block-reason {
-            display: block !important;
-        }
+        .pressure-card.blocked .block-reason { display: block !important; }
         .pressure-card.blocked::before {
             content: '';
             position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            height: 3px;
-            background: #E8A317;
+            left: 0; right: 0; top: 0;
+            height: 2px;
+            background: var(--amber);
             border-radius: 8px 8px 0 0;
             pointer-events: none;
         }
-        body.mode-on #timeline { --mode-accent: #E8A317; }
-        body.mode-off #timeline { --mode-accent: #ef4444; }
-        
-        .timeline-line { 
-            position: absolute; 
-            left: 12px; 
-            top: 0; 
-            bottom: 0; 
-            width: 2px; 
-            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
+        body.mode-on #timeline { --mode-accent: var(--amber); }
+        body.mode-off #timeline { --mode-accent: var(--danger); }
+
+        .timeline-line {
+            position: absolute;
+            left: 12px;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(247,245,240,0.12), transparent);
         }
-        
-        @media (min-width: 768px) {
-            .timeline-line {
-                left: 24px;
-            }
-        }
-        
+        @media (min-width: 768px) { .timeline-line { left: 24px; } }
+
         .timeline-dot {
             position: absolute;
             left: 8px;
-            width: 10px;
-            height: 10px;
+            width: 9px; height: 9px;
             border-radius: 50%;
-            background: #333;
-            border: 2px solid #555;
-            transition: all 0.3s;
+            background: #1c1c24;
+            border: 1.5px solid #3a3a46;
+            transition: all 0.25s;
         }
-        
-        @media (min-width: 768px) {
-            .timeline-dot {
-                left: 20px;
-            }
-        }
-        
+        @media (min-width: 768px) { .timeline-dot { left: 20px; } }
         .timeline-dot.active {
-            background: #3b82f6;
-            border-color: #3b82f6;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            background: var(--amber);
+            border-color: var(--amber);
+            box-shadow: 0 0 0 3px rgba(232,163,23,0.2);
         }
-        
-        /* Channel-specific styling */
-        .channel-email { border-left-color: #ef4444; }
-        .channel-sms { border-left-color: #8b5cf6; }
-        .channel-push { border-left-color: #f97316; }
-        .channel-popup { border-left-color: #ec4899; }
-        .channel-badge { border-left-color: #eab308; }
-        .channel-chat { border-left-color: #06b6d4; }
-        .channel-ad { border-left-color: #3b82f6; }
-        .channel-social { border-left-color: #a855f7; }
-        .channel-user { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
-        
-        /* User action card styling */
-        .user-action { 
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
-            border: 1px dashed rgba(16, 185, 129, 0.3);
+
+        .channel-email { border-left-color: #f85149; }
+        .channel-sms { border-left-color: #a371f7; }
+        .channel-push { border-left-color: #db6d28; }
+        .channel-popup { border-left-color: #f778ba; }
+        .channel-badge { border-left-color: #e3b341; }
+        .channel-chat { border-left-color: #39c5cf; }
+        .channel-ad { border-left-color: #58a6ff; }
+        .channel-social { border-left-color: #bc8cff; }
+        .channel-user { border-left-color: #3fb950; background: rgba(63,185,80,0.04); }
+
+        .user-action {
+            background: linear-gradient(135deg, rgba(63,185,80,0.08) 0%, rgba(63,185,80,0.02) 100%);
+            border: 1px dashed rgba(63,185,80,0.28);
         }
-        .user-action .action-arrow {
-            color: #f97316;
-        }
-        
+
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111118; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        
-        /* User selector */
-        .user-btn.active-user { 
-            border-color: rgba(59, 130, 246, 0.5); 
-            background: rgba(59, 130, 246, 0.1);
+        ::-webkit-scrollbar-track { background: var(--ink); }
+        ::-webkit-scrollbar-thumb { background: #2a2a34; border-radius: 4px; }
+
+        .user-btn.active-user {
+            border-color: rgba(232,163,23,0.45);
+            background: rgba(232,163,23,0.08);
             opacity: 1 !important;
         }
-        
-        /* Mood transitions */
-        #moodEmoji { 
-            filter: drop-shadow(0 0 10px currentColor);
-        }
-        
-        /* Mobile overlay when sidebar is open */
+
         .sidebar-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.55);
             z-index: 40;
+            backdrop-filter: blur(2px);
         }
-        
         @media (max-width: 1023px) {
-            .sidebar-overlay.active {
-                display: block;
-            }
+            .sidebar-overlay.active { display: block; }
         }
-        
-        /* Touch improvements */
         @media (hover: none) {
-            button, a {
-                -webkit-tap-highlight-color: transparent;
-            }
+            button, a { -webkit-tap-highlight-color: transparent; }
         }
 
-        /* Top chrome */
+        /* Top chrome — full bleed, GitHub-like */
         #topChrome {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 70;
-            background: rgba(11, 11, 15, 0.92);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            height: 56px;
+            background: rgba(11,11,15,0.85);
+            backdrop-filter: blur(16px) saturate(1.2);
+            border-bottom: 1px solid var(--border);
         }
-        @media (min-width: 1024px) {
-            #topChrome { left: 20rem; }
+        body { padding-top: 56px; }
+
+        .ss-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            border-radius: 999px;
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
+            transition: border-color 0.2s, background 0.2s;
         }
-        body { padding-top: 3.25rem; }
+        .ss-switch:hover { border-color: rgba(232,163,23,0.4); }
+        .ss-switch-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 8px 0 10px;
+        }
+        .ss-switch-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'IBM Plex Mono', monospace;
+            background: rgba(248,81,73,0.12);
+            color: #ff7b72;
+            transition: background 0.2s, color 0.2s;
+        }
+        body.mode-on .ss-switch {
+            border-color: rgba(232,163,23,0.5);
+            background: rgba(232,163,23,0.06);
+        }
+        body.mode-on .ss-switch-pill {
+            background: rgba(232,163,23,0.18);
+            color: var(--amber);
+        }
+
+        #sidebar {
+            background: rgba(17,17,22,0.96);
+            border-right: 1px solid var(--border);
+        }
+
+        .stat-tile {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .hero-cta-primary {
+            background: var(--amber);
+            color: var(--ink);
+            font-weight: 700;
+            border-radius: 8px;
+            transition: filter 0.15s, transform 0.15s;
+        }
+        .hero-cta-primary:hover { filter: brightness(1.08); }
+        .hero-cta-secondary {
+            border: 1px solid var(--border-strong);
+            color: var(--paper);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .hero-cta-secondary:hover {
+            border-color: rgba(232,163,23,0.55);
+            color: var(--amber);
+        }
+
+        .code-chip {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--paper);
+        }
     </style>
 </head>
 <body class="bg-deep text-white antialiased mode-off">
 
-    <!-- Fixed top: pressure + SoftStop switch -->
-    <header id="topChrome" class="h-13">
-        <div class="h-12 px-3 md:px-5 flex items-center gap-3 md:gap-5">
-            <div class="flex-1 min-w-0">
+    <!-- Full-width top chrome -->
+    <header id="topChrome">
+        <div class="h-14 px-3 md:px-5 flex items-center gap-3 md:gap-6 max-w-[1600px] mx-auto">
+            <a href="#" class="flex items-center gap-2.5 shrink-0 group">
+                <img src="assets/softstop-mark-dark.png" width="28" height="28" alt="" class="opacity-95 group-hover:opacity-100 transition-opacity" />
+                <span class="font-display font-bold text-[15px] tracking-tight hidden xs:inline sm:inline">SoftStop</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-4 text-[12px] text-slate-500">
+                <a href="#demo" class="hover:text-paper transition-colors">Demo</a>
+                <a href="https://github.com/chonibe/SoftStop" class="hover:text-paper transition-colors">GitHub</a>
+            </div>
+
+            <div class="flex-1 min-w-0 max-w-md ml-auto">
                 <div class="flex items-center justify-between gap-2 mb-1">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pressure</span>
-                    <div class="flex items-center gap-2 text-[10px] md:text-xs">
+                    <span class="text-[10px] uppercase tracking-[0.14em] text-slate-500 font-semibold">Pressure</span>
+                    <div class="flex items-center gap-2 text-[11px]">
                         <span id="pressureStatus" class="text-slate-500">Relaxed</span>
-                        <span id="pressureValue" class="font-mono font-bold text-stop-amber">0</span>
+                        <span id="pressureValue" class="font-mono font-semibold text-stop-amber tabular-nums">0</span>
                     </div>
                 </div>
-                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-1 bg-white/[0.08] rounded-full overflow-hidden">
                     <div id="pressureBar" class="h-full bg-stop-amber rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
-            <button id="softstopBtnFixed" type="button" class="shrink-0 flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 hover:bg-surface-3 px-3 py-1.5 transition-colors" title="Toggle SoftStop">
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold hidden sm:inline">SoftStop</span>
-                <span id="softstopIndicatorFixed" class="w-2.5 h-2.5 rounded-full bg-accent-red"></span>
-                <span id="softstopLabelFixed" class="font-bold text-sm w-8">OFF</span>
+
+            <button id="softstopBtnFixed" type="button" class="ss-switch shrink-0" title="Toggle SoftStop">
+                <span class="ss-switch-label hidden sm:inline">SoftStop</span>
+                <span class="ss-switch-pill">
+                    <span id="softstopIndicatorFixed" class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span id="softstopLabelFixed">OFF</span>
+                </span>
+            </button>
+
+            <button id="mobileMenuToggle" type="button" class="lg:hidden shrink-0 p-2 rounded-md border border-white/10 hover:bg-white/5" aria-label="Open panel">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7h16M4 12h16M4 17h16"/></svg>
             </button>
         </div>
     </header>
 
-    <!-- Mobile overlay -->
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
-    
-    <!-- Mobile Menu Toggle -->
-    <button id="mobileMenuToggle" class="fixed top-[3.5rem] left-4 z-[60] lg:hidden bg-surface border border-white/20 rounded-lg p-3 hover:bg-surface-2 transition-all shadow-lg">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-    </button>
-    
-    <!-- Fixed Mobile User Info (only visible in demo section on mobile) -->
-    <div id="mobileUserInfo" class="fixed top-[3.5rem] left-4 right-4 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-surface-2/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl">
+
+    <!-- Mobile user strip -->
+    <div id="mobileUserInfo" class="fixed top-[3.75rem] left-3 right-3 lg:hidden z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-surface/95 backdrop-blur-md border border-white/10 rounded-lg px-3 py-2.5 shadow-xl">
             <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div id="mobileUserAvatar" class="w-10 h-10 bg-stop-amber/15 rounded-full flex items-center justify-center text-lg">👤</div>
+                <div class="flex items-center gap-2.5">
+                    <div id="mobileUserAvatar" class="w-8 h-8 bg-stop-amber/10 rounded-full flex items-center justify-center text-sm border border-white/10">👤</div>
                     <div>
-                        <div id="mobileUserName" class="font-bold text-sm">Choni</div>
-                        <div class="text-xs text-slate-500">Day <span id="mobileDayCount">1</span> of 44</div>
+                        <div id="mobileUserName" class="font-semibold text-sm">Choni</div>
+                        <div class="text-[11px] text-slate-500">Day <span id="mobileDayCount">1</span> of 44</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <div class="flex items-center gap-2">
-                            <div id="mobileMoodEmoji" class="text-2xl">😊</div>
-                            <div>
-                                <div id="mobileMoodLabel" class="font-bold text-xs text-accent-green">Happy</div>
-                                <div id="mobilePressureValue" class="text-xs text-slate-500">0% pressure</div>
-                            </div>
-                        </div>
+                <div class="flex items-center gap-2 text-right">
+                    <div id="mobileMoodEmoji" class="text-xl">😊</div>
+                    <div>
+                        <div id="mobileMoodLabel" class="font-semibold text-[11px] text-accent-green">Happy</div>
+                        <div id="mobilePressureValue" class="text-[11px] text-slate-500">0% pressure</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Fixed Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-80 bg-surface border-r border-white/5 z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 pt-0 lg:pt-0">
-        <!-- Logo -->
-        <div class="p-6 border-b border-white/5">
-            <div class="flex items-center gap-3 mb-4">
-                <img src="assets/softstop-mark-dark.png" width="40" height="40" alt="" />
-                <div>
-                    <div class="font-bold text-lg">SoftStop</div>
-                    <div class="text-xs text-slate-500">Example: marketing chaos</div>
-                </div>
-            </div>
-            <p class="text-sm text-slate-400">Scroll <strong class="text-white">44 days</strong> of stacked escalations. SoftStop is the permit layer — not the messenger.</p>
+
+    <!-- Sidebar / control panel -->
+    <aside id="sidebar" class="fixed left-0 top-14 bottom-0 w-[18.5rem] z-50 flex flex-col overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0">
+        <div class="p-5 border-b border-white/[0.06]">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-stop-amber font-semibold mb-2">Live example</p>
+            <p class="text-sm text-slate-400 leading-relaxed">Scroll <span class="text-paper font-medium">44 days</span> of stacked escalations. SoftStop is the permit — not the messenger.</p>
         </div>
-        
-        <!-- User Selector -->
-        <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Viewing User</div>
-            <div class="grid grid-cols-1 gap-2">
-                <button onclick="switchUser('choni')" id="user-choni" class="user-btn active-user flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left">
-                    <div class="w-10 h-10 bg-stop-amber/15 rounded-full flex items-center justify-center text-lg">👤</div>
-                    <div class="flex-1">
-                        <div class="font-bold text-sm">Choni</div>
-                        <div class="text-[10px] text-slate-500">High engagement, then churn</div>
+
+        <div class="p-5 border-b border-white/[0.06]">
+            <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-2.5">Viewing</div>
+            <div class="grid grid-cols-1 gap-1.5">
+                <button onclick="switchUser('choni')" id="user-choni" class="user-btn active-user flex items-center gap-3 bg-transparent hover:bg-white/[0.03] border border-white/10 rounded-lg p-2.5 transition-all text-left">
+                    <div class="w-8 h-8 bg-stop-amber/10 rounded-md flex items-center justify-center text-sm border border-white/5">👤</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-sm">Choni</div>
+                        <div class="text-[10px] text-slate-500 truncate">High engagement → churn</div>
                     </div>
                 </button>
-                <button onclick="switchUser('sarah')" id="user-sarah" class="user-btn flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left opacity-60">
-                    <div class="w-10 h-10 bg-accent-green/20 rounded-full flex items-center justify-center text-lg">💎</div>
-                    <div class="flex-1">
-                        <div class="font-bold text-sm">Sarah</div>
-                        <div class="text-[10px] text-slate-500">VIP, low tolerance</div>
+                <button onclick="switchUser('sarah')" id="user-sarah" class="user-btn flex items-center gap-3 bg-transparent hover:bg-white/[0.03] border border-white/10 rounded-lg p-2.5 transition-all text-left opacity-55">
+                    <div class="w-8 h-8 bg-accent-green/10 rounded-md flex items-center justify-center text-sm border border-white/5">💎</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-sm">Sarah</div>
+                        <div class="text-[10px] text-slate-500 truncate">VIP, low tolerance</div>
                     </div>
                 </button>
-                <button onclick="switchUser('mike')" id="user-mike" class="user-btn flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left opacity-60">
-                    <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg">🆕</div>
-                    <div class="flex-1">
-                        <div class="font-bold text-sm">Mike</div>
-                        <div class="text-[10px] text-slate-500">New user, exploring</div>
+                <button onclick="switchUser('mike')" id="user-mike" class="user-btn flex items-center gap-3 bg-transparent hover:bg-white/[0.03] border border-white/10 rounded-lg p-2.5 transition-all text-left opacity-55">
+                    <div class="w-8 h-8 bg-accent-orange/10 rounded-md flex items-center justify-center text-sm border border-white/5">🆕</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-sm">Mike</div>
+                        <div class="text-[10px] text-slate-500 truncate">New user, exploring</div>
                     </div>
                 </button>
             </div>
         </div>
-        
-        <!-- Current Date -->
-        <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Current Date</div>
-            <div id="currentDate" class="text-2xl font-black font-mono">Dec 6, 2025</div>
-            <div id="dayCount" class="text-sm text-slate-500">Day 1 of 44</div>
+
+        <div class="p-5 border-b border-white/[0.06]">
+            <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-1.5">Date</div>
+            <div id="currentDate" class="text-xl font-semibold font-mono tracking-tight">Dec 6, 2025</div>
+            <div id="dayCount" class="text-xs text-slate-500 mt-0.5">Day 1 of 44</div>
         </div>
-        
-        <!-- Customer Temperament -->
-        <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Customer Temperament</div>
-            <div class="flex items-center gap-4">
-                <div id="moodEmoji" class="text-5xl transition-all duration-500">😊</div>
+
+        <div class="p-5 border-b border-white/[0.06]">
+            <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-3">Temperament</div>
+            <div class="flex items-center gap-3">
+                <div id="moodEmoji" class="text-4xl transition-all duration-500">😊</div>
                 <div class="flex-1">
-                    <div id="moodLabel" class="font-bold text-lg text-accent-green">Happy</div>
+                    <div id="moodLabel" class="font-semibold text-accent-green">Happy</div>
                     <div id="moodDesc" class="text-xs text-slate-500">Enjoying the platform</div>
                 </div>
             </div>
             <div class="mt-3 flex gap-1">
-                <div id="mood-1" class="mood-step flex-1 h-2 rounded-full bg-accent-green"></div>
-                <div id="mood-2" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
-                <div id="mood-3" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
-                <div id="mood-4" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
-                <div id="mood-5" class="mood-step flex-1 h-2 rounded-full bg-surface-2"></div>
+                <div id="mood-1" class="mood-step flex-1 h-1.5 rounded-full bg-accent-green"></div>
+                <div id="mood-2" class="mood-step flex-1 h-1.5 rounded-full bg-white/10"></div>
+                <div id="mood-3" class="mood-step flex-1 h-1.5 rounded-full bg-white/10"></div>
+                <div id="mood-4" class="mood-step flex-1 h-1.5 rounded-full bg-white/10"></div>
+                <div id="mood-5" class="mood-step flex-1 h-1.5 rounded-full bg-white/10"></div>
             </div>
-            <div class="flex justify-between text-[9px] text-slate-600 mt-1">
+            <div class="flex justify-between text-[9px] text-slate-600 mt-1.5">
                 <span>Happy</span>
                 <span>Annoyed</span>
                 <span>Frustrated</span>
@@ -395,266 +425,181 @@
                 <span>Churned</span>
             </div>
         </div>
-        
-        <!-- Channel Stats -->
-        <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Touches by Channel</div>
-            <div class="grid grid-cols-4 gap-2 text-center">
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">📧</div>
-                    <div id="countEmail" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Email</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">💬</div>
-                    <div id="countSms" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">SMS</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">🔔</div>
-                    <div id="countPush" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Push</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">🖥️</div>
-                    <div id="countPopup" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Popup</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">🏷️</div>
-                    <div id="countBadge" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Badge</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">💭</div>
-                    <div id="countChat" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Chat</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">📢</div>
-                    <div id="countAd" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Ads</div>
-                </div>
-                <div class="bg-surface-2 rounded-lg p-2">
-                    <div class="text-lg">📱</div>
-                    <div id="countSocial" class="font-bold font-mono text-sm">0</div>
-                    <div class="text-[10px] text-slate-500">Social</div>
-                </div>
+
+        <div class="p-5 border-b border-white/[0.06]">
+            <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-2.5">Channels</div>
+            <div class="grid grid-cols-4 gap-1.5 text-center">
+                <div class="stat-tile"><div class="text-sm mb-0.5">📧</div><div id="countEmail" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Email</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">💬</div><div id="countSms" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">SMS</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">🔔</div><div id="countPush" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Push</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">🖥️</div><div id="countPopup" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Popup</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">🏷️</div><div id="countBadge" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Badge</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">💭</div><div id="countChat" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Chat</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">📢</div><div id="countAd" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Ads</div></div>
+                <div class="stat-tile"><div class="text-sm mb-0.5">📱</div><div id="countSocial" class="font-semibold font-mono text-xs">0</div><div class="text-[9px] text-slate-500">Social</div></div>
             </div>
         </div>
-        
-        <!-- Totals -->
-        <div class="p-6 border-b border-white/5">
+
+        <div class="p-5 border-b border-white/[0.06]">
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <div class="text-xs text-slate-500 uppercase font-bold">Total Touches</div>
-                    <div id="totalCount" class="text-2xl font-black font-mono">0</div>
+                    <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.12em]">Touches</div>
+                    <div id="totalCount" class="text-2xl font-semibold font-mono tabular-nums">0</div>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500 uppercase font-bold">Blocked</div>
-                    <div id="blockedCount" class="text-2xl font-black font-mono text-accent-green">0</div>
+                    <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.12em]">Blocked</div>
+                    <div id="blockedCount" class="text-2xl font-semibold font-mono text-stop-amber tabular-nums">0</div>
                 </div>
             </div>
         </div>
-        
-        <!-- SoftStop Info (Sidebar) -->
-        <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">SoftStop Status</div>
-            <div class="bg-surface-2 border border-white/10 rounded-xl p-4">
-                <div class="flex items-center gap-3 mb-2">
-                    <div id="softstopIndicator" class="w-3 h-3 rounded-full bg-accent-red"></div>
-                    <span id="softstopLabel" class="font-bold">OFF</span>
+
+        <div class="p-5 border-b border-white/[0.06]">
+            <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-2.5">Status</div>
+            <div class="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
+                <div class="flex items-center gap-2.5 mb-1">
+                    <div id="softstopIndicator" class="w-2 h-2 rounded-full bg-accent-red"></div>
+                    <span id="softstopLabel" class="font-semibold text-sm font-mono">OFF</span>
                 </div>
-                <p id="softstopHint" class="text-xs text-slate-500 mt-2">
-                    Use the top-bar switch
-                </p>
+                <p id="softstopHint" class="text-xs text-slate-500">Toggle SoftStop in the top bar</p>
             </div>
         </div>
-        
-        <!-- Decision History (for internal teams) -->
-        <div class="p-6 flex-1 flex flex-col min-h-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Decision Log</div>
-                <span class="text-[10px] text-slate-600">For internal review</span>
+
+        <div class="p-5 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center justify-between mb-2.5">
+                <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em]">Decision log</div>
             </div>
-            <div id="decisionLog" class="flex-1 overflow-y-auto space-y-2 text-xs max-h-48">
-                <div class="text-slate-600 italic">Scroll through timeline to see decisions...</div>
+            <div id="decisionLog" class="flex-1 overflow-y-auto space-y-2 text-xs max-h-48 font-mono">
+                <div class="text-slate-600 italic font-sans">Scroll the timeline to see decisions…</div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content - Scrollable Timeline -->
-    <main class="lg:ml-80 min-h-screen">
-        
-        <!-- Landing: short path into the scroll demo -->
-        <section class="relative min-h-[88vh] flex items-center justify-center overflow-hidden pt-24 lg:pt-16 pb-16">
+    <main class="lg:ml-[18.5rem] min-h-screen">
+
+        <!-- Brand-first hero -->
+        <section class="relative min-h-[calc(100vh-56px)] flex items-center overflow-hidden">
             <div class="pointer-events-none absolute inset-0">
-                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(232,163,23,0.08),_transparent_55%)]"></div>
-                <div class="absolute inset-0 opacity-[0.35]" style="background-image:linear-gradient(#1A1A22 1px, transparent 1px),linear-gradient(90deg, #1A1A22 1px, transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at center, black 20%, transparent 75%);"></div>
+                <div class="absolute inset-0 opacity-[0.4]" style="background-image:linear-gradient(rgba(247,245,240,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(247,245,240,0.04) 1px, transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);"></div>
             </div>
 
-            <div class="relative text-center px-6 md:px-12 max-w-3xl">
-                <img src="assets/softstop-mark-dark.png" width="72" height="72" alt="SoftStop" class="mx-auto mb-8" />
-                <p class="text-[11px] md:text-xs tracking-[0.22em] uppercase text-stop-amber font-semibold mb-5">Authorize-only pressure permit</p>
-                <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-paper mb-5">SoftStop</h1>
-                <p class="text-lg md:text-xl text-paper/90 font-medium mb-3 max-w-2xl mx-auto leading-snug">
-                    The shared permit before any system raises pressure on a user.
+            <div class="relative w-full px-6 md:px-12 lg:px-16 py-20 md:py-28 max-w-4xl">
+                <img src="assets/softstop-mark-dark.png" width="64" height="64" alt="" class="mb-8 reveal" />
+                <h1 class="font-display text-[clamp(3.25rem,8vw,5.5rem)] font-extrabold tracking-tight text-paper leading-[0.95] mb-6 reveal reveal-d1">SoftStop</h1>
+                <p class="text-xl md:text-2xl text-paper/90 font-medium max-w-xl leading-snug mb-3 reveal reveal-d2">
+                    Doesn't make software smarter.<br class="hidden sm:block" /> Makes it stop when it should.
                 </p>
-                <p class="text-base md:text-lg text-slate-400 mb-10 max-w-xl mx-auto leading-relaxed">
-                    Doesn't make software smarter. Makes it stop when it should.
+                <p class="text-base text-slate-400 max-w-md mb-10 leading-relaxed reveal reveal-d2">
+                    Authorize-only pressure permit. One <span class="code-chip">check</span> before urgency, discount, interruption, or reminder.
                 </p>
-
-                <div class="flex flex-col sm:flex-row gap-3 justify-center mb-14">
-                    <a href="#demo" class="inline-flex items-center justify-center gap-2 bg-stop-amber text-ink font-bold py-3.5 px-7 rounded-xl transition hover:brightness-110">
-                        Scroll the story
-                        <span aria-hidden="true">↓</span>
+                <div class="flex flex-col sm:flex-row gap-3 reveal reveal-d3">
+                    <a href="#demo" class="hero-cta-primary inline-flex items-center justify-center gap-2 py-3 px-6 text-sm">
+                        Scroll the example
+                        <span aria-hidden="true" class="opacity-70">↓</span>
                     </a>
-                    <a href="https://github.com/chonibe/SoftStop" class="inline-flex items-center justify-center bg-transparent border border-white/15 text-paper font-semibold py-3.5 px-7 rounded-xl hover:border-stop-amber/50 hover:text-stop-amber transition">
-                        GitHub
+                    <a href="https://github.com/chonibe/SoftStop" class="hero-cta-secondary inline-flex items-center justify-center py-3 px-6 text-sm">
+                        View on GitHub
                     </a>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-left">
-                    <div class="rounded-xl border border-white/10 bg-surface/80 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">1 · Check</div>
-                        <div class="text-sm text-paper">Is this escalation allowed right now?</div>
-                    </div>
-                    <div class="rounded-xl border border-stop-amber/30 bg-stop-amber/5 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-stop-amber mb-1">2 · Decide</div>
-                        <div class="text-sm text-paper">Allow or block — no ML, no copy</div>
-                    </div>
-                    <div class="rounded-xl border border-white/10 bg-surface/80 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">3 · Record</div>
-                        <div class="text-sm text-paper">Outcome updates the shared ledger</div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-16 md:py-20 border-y border-white/5 bg-surface/40">
-            <div class="max-w-4xl mx-auto px-6 md:px-12">
-                <p class="text-center text-[11px] tracking-[0.2em] uppercase text-stop-amber font-semibold mb-3">Example story</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold text-paper text-center mb-3">Marketing chaos on one person</h2>
-                <p class="text-center text-slate-400 mb-4 max-w-2xl mx-auto">
-                    The timeline below is a <span class="text-paper">demo of the problem</span>: email, SMS, push, and in-app stacking with no shared stop.
-                    SoftStop is not the email tool — it’s the permit layer you’d put under all of them.
+        <!-- Thin context strip -->
+        <section class="border-y border-white/[0.06] bg-white/[0.015]">
+            <div class="max-w-4xl px-6 md:px-12 lg:px-16 py-10 md:py-12">
+                <p class="text-[11px] tracking-[0.18em] uppercase text-stop-amber font-semibold mb-3">Example · marketing chaos</p>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold text-paper mb-3 tracking-tight">One person. Every channel. No shared stop.</h2>
+                <p class="text-slate-400 max-w-2xl leading-relaxed mb-6">
+                    The timeline is a demo of the failure mode — email, SMS, push, and in-app stacking.
+                    SoftStop isn’t the messenger. It’s the permit you’d put under all of them.
+                    Same contract for checkout modals and agents.
                 </p>
-                <p class="text-center text-slate-500 text-sm mb-10 max-w-xl mx-auto">
-                    Same SoftStop contract applies to checkout modals and agents. This story just makes the failure mode obvious.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-                    <div>
-                        <div class="text-stop-amber font-semibold mb-1">Marketing + CRM</div>
-                        <p class="text-slate-400">Lifecycle, promos, win-back — this demo’s story.</p>
-                    </div>
-                    <div>
-                        <div class="text-stop-amber font-semibold mb-1">Product UI</div>
-                        <p class="text-slate-400">Same SoftStop gate for modals and banners.</p>
-                    </div>
-                    <div>
-                        <div class="text-stop-amber font-semibold mb-1">Agents</div>
-                        <p class="text-slate-400">Support/sales escalate only if <span class="font-mono text-xs text-paper">check</span> allows.</p>
-                    </div>
-                </div>
-                <div class="mt-10 text-center">
-                    <a href="#demo" class="text-stop-amber font-semibold hover:underline underline-offset-4">Start the example timeline →</a>
+                <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-500">
+                    <span><span class="text-paper font-medium">Marketing</span> · this story</span>
+                    <span><span class="text-paper font-medium">Product UI</span> · modals & banners</span>
+                    <span><span class="text-paper font-medium">Agents</span> · escalate only if allowed</span>
                 </div>
             </div>
         </section>
 
-        <!-- Demo Section Marker -->
         <div id="demo" class="h-1"></div>
-        
-        <!-- Demo intro -->
-        <section class="min-h-[70vh] flex items-center justify-center pt-16 lg:pt-8 pb-12">
-            <div class="text-center px-6 md:px-12 max-w-2xl">
-                <p class="text-[11px] tracking-[0.2em] uppercase text-stop-amber font-semibold mb-4">Example · marketing chaos</p>
-                <h1 class="font-display text-3xl md:text-5xl font-semibold tracking-tight mb-4">44 days, one user, every channel</h1>
-                <p class="text-lg text-slate-400 mb-6 leading-relaxed">
-                    Scroll SoftStop <span class="text-accent-red font-medium">OFF</span> — every touch is marked <span class="text-accent-red font-medium">LANDED</span>.
-                    Toggle SoftStop <span class="text-stop-amber font-medium">ON</span> — excess touches show <span class="text-stop-amber font-medium">BLOCKED</span> with the rule that stopped them.
+
+        <section class="min-h-[55vh] flex items-center pt-16 lg:pt-12 pb-10">
+            <div class="px-6 md:px-12 lg:px-16 max-w-2xl">
+                <p class="text-[11px] tracking-[0.18em] uppercase text-stop-amber font-semibold mb-4">Interactive timeline</p>
+                <h2 class="font-display text-3xl md:text-4xl font-semibold tracking-tight mb-4">44 days. Toggle SoftStop.</h2>
+                <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                    <span class="text-accent-red font-medium">OFF</span> — every touch marked <span class="text-accent-red font-medium">LANDED</span>.
+                    <span class="text-stop-amber font-medium">ON</span> — excess touches show <span class="text-stop-amber font-medium">BLOCKED</span> with the rule.
                 </p>
-                <div class="flex flex-wrap justify-center gap-2 mb-10 text-xs md:text-sm">
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Email</span>
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">SMS</span>
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Push</span>
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">In-app</span>
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Ads</span>
-                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Chat</span>
+                <div class="flex flex-wrap gap-2 mb-8">
+                    <span class="code-chip">Email</span>
+                    <span class="code-chip">SMS</span>
+                    <span class="code-chip">Push</span>
+                    <span class="code-chip">In-app</span>
+                    <span class="code-chip">Ads</span>
+                    <span class="code-chip">Chat</span>
                 </div>
-                <div class="flex items-center justify-center gap-2 text-slate-500 text-sm">
-                    <span class="animate-bounce">↓</span>
-                    <span>Scroll to begin</span>
-                </div>
+                <p class="text-slate-500 text-sm flex items-center gap-2">
+                    <span class="inline-block animate-bounce text-stop-amber">↓</span>
+                    Scroll to begin
+                </p>
             </div>
         </section>
 
-        <!-- Timeline Container -->
-        <div id="timeline" class="relative px-4 md:px-8 lg:px-12 py-12 md:py-24">
+        <div id="timeline" class="relative px-4 md:px-8 lg:px-12 py-12 md:py-20">
             <div class="timeline-line"></div>
             <div id="timelineEntries"></div>
         </div>
 
-        <!-- End Section -->
-        <section id="endSection" class="min-h-screen flex items-center justify-center bg-gradient-to-t from-surface to-deep opacity-0 transition-opacity duration-1000 py-12">
+        <section id="endSection" class="min-h-[80vh] flex items-center justify-center border-t border-white/[0.06] opacity-0 transition-opacity duration-1000 py-16">
             <div class="text-center px-6 md:px-12 max-w-3xl">
-                <div id="endIcon" class="text-5xl md:text-6xl mb-6">😵</div>
-                <h2 id="endTitle" class="text-3xl md:text-4xl font-black mb-4">Death by a Thousand Touches</h2>
-                <p id="endText" class="text-lg md:text-xl text-slate-400 mb-8">
+                <div id="endIcon" class="text-4xl mb-5">😵</div>
+                <h2 id="endTitle" class="font-display text-3xl md:text-4xl font-semibold tracking-tight mb-3">Death by a Thousand Touches</h2>
+                <p id="endText" class="text-lg text-slate-400 mb-10 max-w-xl mx-auto">
                     This is what multi-channel automation looks like without coordination.
                 </p>
-                
-                <!-- Outcome comparison -->
-                <div id="outcomeComparison" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
-                    <!-- Without SoftStop -->
-                    <div id="outcomeWithout" class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6 text-left">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="text-2xl">❌</span>
-                            <span class="font-bold text-accent-red">Without SoftStop</span>
-                        </div>
+
+                <div id="outcomeComparison" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 text-left">
+                    <div id="outcomeWithout" class="border border-accent-red/25 bg-accent-red/[0.04] rounded-lg p-5">
+                        <div class="font-semibold text-accent-red mb-3 text-sm tracking-wide uppercase">Without SoftStop</div>
                         <div id="outcomeWithoutText" class="text-sm text-slate-400 space-y-2">
-                            <div>💀 User churned</div>
-                            <div>📧 Marked as spam</div>
-                            <div>💸 $0 lifetime value</div>
-                            <div>⚠️ Damaged brand reputation</div>
+                            <div>User churned</div>
+                            <div>Marked as spam</div>
+                            <div>$0 lifetime value</div>
+                            <div>Damaged brand reputation</div>
                         </div>
                     </div>
-                    
-                    <!-- With SoftStop -->
-                    <div id="outcomeWith" class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6 text-left">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="text-2xl">✅</span>
-                            <span class="font-bold text-accent-green">With SoftStop</span>
-                        </div>
+                    <div id="outcomeWith" class="border border-accent-green/25 bg-accent-green/[0.04] rounded-lg p-5">
+                        <div class="font-semibold text-accent-green mb-3 text-sm tracking-wide uppercase">With SoftStop</div>
                         <div id="outcomeWithText" class="text-sm text-slate-400 space-y-2">
-                            <div>😊 User retained</div>
-                            <div>📬 Healthy engagement</div>
-                            <div>💰 $247 lifetime value</div>
-                            <div>❤️ Positive brand sentiment</div>
+                            <div>User retained</div>
+                            <div>Healthy engagement</div>
+                            <div>$247 lifetime value</div>
+                            <div>Positive brand sentiment</div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-xl mx-auto mb-8">
-                    <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-red" id="finalTotal">0</div>
-                        <div class="text-xs text-slate-500">Total Touches</div>
+
+                <div id="endStats" class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-xl mx-auto mb-10">
+                    <div class="stat-tile py-4">
+                        <div class="text-2xl font-semibold font-mono text-accent-red tabular-nums" id="finalTotal">0</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Touches</div>
                     </div>
-                    <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-green" id="finalBlocked">0</div>
-                        <div class="text-xs text-slate-500">Blocked</div>
+                    <div class="stat-tile py-4">
+                        <div class="text-2xl font-semibold font-mono text-stop-amber tabular-nums" id="finalBlocked">0</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Blocked</div>
                     </div>
-                    <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-orange" id="finalPressure">0</div>
-                        <div class="text-xs text-slate-500">Peak Pressure</div>
+                    <div class="stat-tile py-4">
+                        <div class="text-2xl font-semibold font-mono text-accent-orange tabular-nums" id="finalPressure">0</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Peak</div>
                     </div>
-                    <div class="bg-surface rounded-xl p-4">
-                        <div class="text-2xl font-black text-accent-purple" id="finalChannels">8</div>
-                        <div class="text-xs text-slate-500">Channels Used</div>
+                    <div class="stat-tile py-4">
+                        <div class="text-2xl font-semibold font-mono text-paper tabular-nums" id="finalChannels">8</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Channels</div>
                     </div>
                 </div>
-                <a href="#" onclick="location.reload()" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
-                    Try Again with SoftStop ON
+                <a href="#" onclick="location.reload()" class="hero-cta-primary inline-block py-3 px-7 text-sm">
+                    Try again with SoftStop ON
                 </a>
             </div>
         </section>
@@ -1623,19 +1568,20 @@
         const btn = document.getElementById('softstopBtnFixed');
 
         if (state.softstopEnabled) {
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-3 h-3 rounded-full bg-accent-green';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-2 h-2 rounded-full bg-accent-green';
             if (els.softstopLabel) els.softstopLabel.textContent = 'ON';
             if (els.softstopHint) els.softstopHint.textContent = 'Amber BLOCKED · red LANDED';
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-2.5 h-2.5 rounded-full bg-accent-green';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-1.5 h-1.5 rounded-full bg-current';
             if (softstopLabelFixed) softstopLabelFixed.textContent = 'ON';
-            if (btn) btn.className = 'shrink-0 flex items-center gap-2 rounded-full border border-stop-amber/50 bg-stop-amber/10 hover:bg-stop-amber/15 px-3 py-1.5 transition-colors';
+            // Keep .ss-switch; mode-on body class styles the pill
+            if (btn) btn.className = 'ss-switch shrink-0';
         } else {
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-3 h-3 rounded-full bg-accent-red';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-2 h-2 rounded-full bg-accent-red';
             if (els.softstopLabel) els.softstopLabel.textContent = 'OFF';
-            if (els.softstopHint) els.softstopHint.textContent = 'Use the top-bar switch';
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-2.5 h-2.5 rounded-full bg-accent-red';
+            if (els.softstopHint) els.softstopHint.textContent = 'Toggle SoftStop in the top bar';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-1.5 h-1.5 rounded-full bg-current';
             if (softstopLabelFixed) softstopLabelFixed.textContent = 'OFF';
-            if (btn) btn.className = 'shrink-0 flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 hover:bg-surface-3 px-3 py-1.5 transition-colors';
+            if (btn) btn.className = 'ss-switch shrink-0';
         }
     }
 
