@@ -9,6 +9,6 @@ Local first — start the API, then open `index.html` (or serve this folder) wit
 <script src="governor.js"></script>
 ```
 
-Default in `governor.js` is `http://localhost:3000`. For the optional hosted demo, set `window.GOVERNOR_API_URL = "https://governer.vercel.app"`.
+Default in `governor.js` is `http://localhost:3000`. For the optional hosted demo, set `window.GOVERNOR_API_URL = "https://softstop.vercel.app"`.
 
 See [../README.md](../README.md) for the shared integration pattern.

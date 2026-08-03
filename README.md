@@ -11,7 +11,7 @@
 <p align="center">
   <a href="docs/README.md">Docs</a> ·
   <a href="#get-started">Quickstart</a> ·
-  <a href="https://governer.vercel.app">Live demo</a> ·
+  <a href="https://softstop.vercel.app">Live demo</a> ·
   <a href="governor/README.md">API</a> ·
   <a href="examples/README.md">Examples</a> ·
   <a href="SECURITY.md">Security</a>
@@ -32,7 +32,7 @@
   <img src="docs/brand/softstop-before-after.png" alt="Without SoftStop pressure stacks; with SoftStop only allowed escalations pass" width="100%" />
 </p>
 
-Scroll the full story (email, SMS, push, in-app stacking → SoftStop on): **[Live demo](https://governer.vercel.app)**
+Scroll the full story (email, SMS, push, in-app stacking → SoftStop on): **[Live demo](https://softstop.vercel.app)**
 
 ## Get started
 

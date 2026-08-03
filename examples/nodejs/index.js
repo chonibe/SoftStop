@@ -7,7 +7,7 @@
 
 const fetch = require('node-fetch');
 
-// Configuration — local self-host first; optional hosted: https://governer.vercel.app
+// Configuration — local self-host first; optional hosted: https://softstop.vercel.app
 const GOVERNOR_API_URL = process.env.GOVERNOR_API_URL || 'http://localhost:3000';
 
 function apiPrefix(baseUrl) {

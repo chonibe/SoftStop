@@ -37,7 +37,7 @@ See [.env.example](../.env.example). Prefer `SOFTSTOP_API_URL`; `GOVERNOR_API_UR
 
 ## Optional hosted demo
 
-https://governer.vercel.app — not for production.
+https://softstop.vercel.app — not for production.
 
 ## Adoption
 

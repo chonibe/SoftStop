@@ -10,7 +10,7 @@ SoftStop is a tiny open-source gate. Before email, SMS, modals, discounts, or AI
 
 Software knows how to push. SoftStop makes it stop when it should.
 
-Scroll the story: https://governer.vercel.app  
+Scroll the story: https://softstop.vercel.app  
 Repo: https://github.com/chonibe/SoftStop
 
 ## Product Hunt

@@ -40,7 +40,7 @@ SoftStop is MIT-licensed. It sits under existing tools — email, SMS, in-app UI
 **Availability**
 
 SoftStop is available now at **https://github.com/chonibe/SoftStop**.  
-Live demo: **https://governer.vercel.app**. Self-host locally or with Docker.
+Live demo: **https://softstop.vercel.app**. Self-host locally or with Docker.
 
 **Boilerplate one-liner**
 

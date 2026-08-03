@@ -13,6 +13,6 @@ pip install -r requirements.txt
 GOVERNOR_API_URL=http://localhost:3000 python governor_client.py
 ```
 
-Optional hosted demo: `GOVERNOR_API_URL=https://governer.vercel.app`.
+Optional hosted demo: `GOVERNOR_API_URL=https://softstop.vercel.app`.
 
 See [../README.md](../README.md) for the shared integration pattern.

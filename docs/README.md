@@ -14,7 +14,7 @@
 
 ## Experience the story
 
-[Live scroll demo](https://governer.vercel.app) — multi-channel pressure timeline, then SoftStop on. Source: [`demo/index.html`](../demo/index.html).
+[Live scroll demo](https://softstop.vercel.app) — multi-channel pressure timeline, then SoftStop on. Source: [`demo/index.html`](../demo/index.html).
 
 ## Brand
 

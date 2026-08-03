@@ -17,4 +17,4 @@ When the user asks to **"add SoftStop"**, **"add Governor"**, **"integrate SoftS
 
 Product: **SoftStop** — shared permit before raising pressure on a user.
 
-API: `POST /api/check`, `POST /api/record` (local: `/v1/...`). Env: `SOFTSTOP_API_URL` or `GOVERNOR_API_URL`. Optional hosted demo: https://governer.vercel.app — prefer self-host for production.
+API: `POST /api/check`, `POST /api/record` (local: `/v1/...`). Env: `SOFTSTOP_API_URL` or `GOVERNOR_API_URL`. Optional hosted demo: https://softstop.vercel.app — prefer self-host for production.

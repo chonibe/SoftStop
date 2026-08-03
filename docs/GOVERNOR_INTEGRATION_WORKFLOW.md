@@ -110,7 +110,7 @@ Or inline per touchpoint – see `examples/README.md`.
 2. Run verification: `curl -X POST $GOVERNOR_API_URL/v1/verify` (use `/api/verify` on hosted)
 3. Check health: `curl "$GOVERNOR_API_URL/v1/health"`
 
-Prefer self-host. Optional hosted demo: https://governer.vercel.app
+Prefer self-host. Optional hosted demo: https://softstop.vercel.app
 
 ## Critical Rules
 

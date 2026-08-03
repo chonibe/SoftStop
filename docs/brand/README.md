@@ -16,8 +16,9 @@ Soft halt bar through a geometric **S** — permit/block without looking like a 
 | [softstop-mark-1024.png](softstop-mark-1024.png) | High-res mark |
 | [softstop-mark.svg](softstop-mark.svg) | Vector source |
 | [softstop-wordmark.svg](softstop-wordmark.svg) | README / demo header |
-| [softstop-cover.svg](softstop-cover.svg) | Social / README hero (~1200×630) |
-| [softstop-before-after.svg](softstop-before-after.svg) | Story proof when GIF unavailable |
+| [softstop-cover.png](softstop-cover.png) | Social / README hero (~1200×630) |
+| [softstop-before-after.png](softstop-before-after.png) | Story proof |
+| [softstop-cover.svg](softstop-cover.svg) / [softstop-before-after.svg](softstop-before-after.svg) | Vector sources |
 
 ## Do
 
