@@ -9,10 +9,10 @@
 <p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
 <p align="center">
-  <img src="docs/brand/softstop-scale-chaos.png" alt="Without SoftStop: departments slam hot customers unevenly. With SoftStop: the same chaos hits a shared journal, then only permitted messages reach customers." width="100%" />
+  <img src="docs/brand/softstop-scale-chaos.png" alt="Without SoftStop: messages land and pressure climbs Happy to Churned. With SoftStop: the same chaos hits a shared journal; sparse allows keep pressure capped." width="100%" />
 </p>
 
-<p align="center"><em>Growth, CRM, Support, Ads, Product, and Agents don’t share a stop signal — so a few customers get slammed while others barely hear from you. SoftStop doesn’t quiet the attempt storm; it is the shared journal every system <code>check</code>s before anything lands.</em><br />
+<p align="center"><em>Growth, CRM, Support, Ads, Product, and Agents don’t share a stop signal — so a few customers accumulate pressure until they churn. SoftStop doesn’t quiet the attempt storm; it is the shared journal every system <code>check</code>s before anything lands.</em><br />
 <a href="https://softstop.vercel.app">See the interactive Why SoftStop canvases →</a></p>
 
 <p align="center">

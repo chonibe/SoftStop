@@ -22,7 +22,7 @@ Soft halt bar through a geometric **S** — permit/block without looking like a 
 | [softstop-wordmark.svg](softstop-wordmark.svg) | README / demo header |
 | [softstop-before-after.png](softstop-before-after.png) | Use-case diagram (many systems → one user) |
 | [softstop-use-cases.png](softstop-use-cases.png) | Marketing / UI / agents strip |
-| [softstop-scale-chaos.png](softstop-scale-chaos.png) / [softstop-scale-chaos.svg](softstop-scale-chaos.svg) | **README hero diagram** — multi-dept uneven blast vs SoftStop journal → Allow/Block |
+| [softstop-scale-chaos.png](softstop-scale-chaos.png) / [softstop-scale-chaos.svg](softstop-scale-chaos.svg) | **README hero diagram** — pressure meters Happy→Churned without SoftStop vs capped pressure with SoftStop |
 | [softstop-cover.svg](softstop-cover.svg) / [softstop-before-after.svg](softstop-before-after.svg) / [softstop-use-cases.svg](softstop-use-cases.svg) | Vector sources |
 
 ## Do

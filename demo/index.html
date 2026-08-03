@@ -929,6 +929,94 @@
         }
         .wf-cust.is-heat-med .wf-cust-badge { color: color-mix(in srgb, var(--ss-amber) 65%, var(--ss-muted)); }
         .wf-cust.is-heat-light .wf-cust-badge { color: var(--ss-muted); opacity: 0.7; }
+        /* Pressure meter + temperament (Happy → Churned) */
+        .wf-cust-meter {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 3px;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(154, 154, 162, 0.18);
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .wf-cust-meter-fill {
+            display: block;
+            height: 100%;
+            width: 0%;
+            border-radius: inherit;
+            background: var(--ss-ok);
+            transition: width 0.35s ease, background-color 0.35s ease;
+        }
+        .wf-cust.has-meter {
+            padding-bottom: 10px;
+        }
+        .wf-cust-mood {
+            margin-left: auto;
+            font-family: var(--oc-font-mono);
+            font-size: 0.52rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ss-ok);
+            transition: color 0.3s ease;
+            flex-shrink: 0;
+        }
+        .wf-cust[data-mood="happy"] .wf-cust-mood { color: var(--ss-ok); }
+        .wf-cust[data-mood="annoyed"] .wf-cust-mood { color: color-mix(in srgb, var(--ss-amber) 80%, #eab308); }
+        .wf-cust[data-mood="frustrated"] .wf-cust-mood { color: var(--ss-amber); }
+        .wf-cust[data-mood="angry"] .wf-cust-mood { color: color-mix(in srgb, var(--ss-danger) 75%, var(--ss-amber)); }
+        .wf-cust[data-mood="churned"] .wf-cust-mood { color: var(--ss-danger); }
+        .wf-cust[data-mood="happy"] .wf-cust-meter-fill { background: var(--ss-ok); }
+        .wf-cust[data-mood="annoyed"] .wf-cust-meter-fill {
+            background: color-mix(in srgb, var(--ss-amber) 70%, #eab308);
+        }
+        .wf-cust[data-mood="frustrated"] .wf-cust-meter-fill { background: var(--ss-amber); }
+        .wf-cust[data-mood="angry"] .wf-cust-meter-fill {
+            background: color-mix(in srgb, var(--ss-danger) 70%, var(--ss-amber));
+        }
+        .wf-cust[data-mood="churned"] .wf-cust-meter-fill { background: var(--ss-danger); width: 100% !important; }
+        .wf-cust.is-hit-flash .wf-cust-dot {
+            transform: scale(1.35);
+            transition: transform 0.12s ease-out;
+        }
+        .wf-cust.is-churned {
+            opacity: 0.42;
+            filter: grayscale(0.55);
+            border-color: color-mix(in srgb, var(--ss-danger) 55%, rgba(154,154,162,0.2)) !important;
+            background: color-mix(in srgb, var(--ss-danger) 10%, #141418) !important;
+            transform: translateX(10px);
+            box-shadow: none !important;
+            transition: opacity 0.5s ease, transform 0.55s ease, filter 0.5s ease;
+        }
+        .wf-cust.is-churned .wf-cust-dot {
+            background: var(--ss-danger) !important;
+            animation: none !important;
+            box-shadow: none !important;
+            position: relative;
+        }
+        .wf-cust.is-churned .wf-cust-dot::after {
+            content: "✕";
+            position: absolute;
+            inset: -5px 0 0 -1px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: var(--ss-danger);
+            line-height: 1;
+            text-shadow: 0 0 4px color-mix(in srgb, var(--ss-danger) 50%, transparent);
+        }
+        .wf-cust.is-churned .wf-cust-name {
+            text-decoration: line-through;
+            color: color-mix(in srgb, var(--ss-danger) 55%, var(--ss-muted));
+        }
+        .wf-canvas.is-clean .wf-cust[data-mood="happy"] .wf-cust-dot,
+        .wf-canvas.is-clean .wf-cust[data-mood="annoyed"] .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-ok) 70%, var(--ss-amber));
+        }
+        .wf-canvas.is-clean .wf-cust[data-mood="frustrated"] .wf-cust-dot {
+            background: color-mix(in srgb, var(--ss-amber) 65%, var(--ss-ok));
+            animation: none;
+        }
         @keyframes wf-cust-hit {
             0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-danger) 12%, transparent); transform: scale(1); }
             40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--ss-danger) 28%, transparent); transform: scale(1.25); }
@@ -1078,6 +1166,9 @@
             .wf-edges .wf-path.is-permit-allow { opacity: 0.9 !important; }
             .wf-edges .wf-path.is-permit-block { opacity: 0.55 !important; }
             .wf-node.is-hub.is-absorbing { box-shadow: none; }
+            .wf-cust-meter-fill { transition: none; }
+            .wf-cust.is-churned { transition: none; transform: none; }
+            .wf-cust.is-hit-flash .wf-cust-dot { transform: none; }
         }
         .wf-pair {
             display: grid;
@@ -2506,18 +2597,18 @@ if (!d.allowed) {
                 <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Thousands of customers. Many departments. One journal — or none.</h3>
                 <p class="description" style="text-align:left;margin:0 0 18px;max-width:44rem">
                     Growth, CRM, Support, Ads, Product, and Agents each fire urgency, discount, interruption, and reminder
-                    without seeing what the others already did. Pressure stacks per person. SoftStop doesn’t become your CDP —
-                    it is the authorize-only permit: every system <span class="code-chip">check</span>s and <span class="code-chip">record</span>s into one per-customer journal.
+                    without seeing what the others already did. Pressure climbs per person — Happy → Annoyed → Frustrated → Angry → Churned.
+                    SoftStop doesn’t become your CDP — it is the authorize-only permit: every system <span class="code-chip">check</span>s and <span class="code-chip">record</span>s into one per-customer journal so landings stay capped.
                 </p>
 
                 <div class="wf-pair" id="scalePair">
                     <div>
                         <p class="wf-pair-label is-bad">Without SoftStop · blind silos</p>
-                        <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments piling uneven notifications onto hot customers with no shared log">
+                        <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments pile messages onto customers; pressure climbs Happy to Churned with no shared stop">
                             <div class="wf-toolbar" aria-hidden="true">
                                 <span>Departments</span>
-                                <span>No shared log</span>
-                                <span>Hot customers</span>
+                                <span>Pressure builds</span>
+                                <span>Churn</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -2548,11 +2639,11 @@ if (!d.allowed) {
                     </div>
                     <div>
                         <p class="wf-pair-label is-good">With SoftStop · one journal</p>
-                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same department blast hits SoftStop first; only permitted messages reach customers">
+                        <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same department blast hits SoftStop; sparse allows keep customer pressure capped, churn rare">
                             <div class="wf-toolbar" aria-hidden="true">
                                 <span>Same blind fire</span>
                                 <span>SoftStop journal</span>
-                                <span>Permitted only</span>
+                                <span>Pressure capped</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -3826,6 +3917,204 @@ if (!d.allowed) {
             link.kind === 'main' && link.heat === 'light' && i % 5 === 0 ? 1 : 0;
     }
 
+    // Happy → Annoyed → Frustrated → Angry → Churned (matches demo temperament language)
+    const PRESSURE_MOODS = [
+        { id: 'happy', label: 'Happy', max: 0.2 },
+        { id: 'annoyed', label: 'Annoyed', max: 0.4 },
+        { id: 'frustrated', label: 'Frustrated', max: 0.65 },
+        { id: 'angry', label: 'Angry', max: 0.999 },
+        { id: 'churned', label: 'Churned', max: Infinity },
+    ];
+
+    function moodFromPressure(p) {
+        if (p >= 1) return PRESSURE_MOODS[4];
+        for (const m of PRESSURE_MOODS) {
+            if (p < m.max) return m;
+        }
+        return PRESSURE_MOODS[4];
+    }
+
+    function ensureCustomerMeters(root) {
+        root.querySelectorAll('[data-wf-node="tgt"]').forEach((el) => {
+            el.classList.add('has-meter');
+            if (!el.querySelector('.wf-cust-meter')) {
+                const meter = document.createElement('span');
+                meter.className = 'wf-cust-meter';
+                meter.setAttribute('aria-hidden', 'true');
+                meter.innerHTML = '<span class="wf-cust-meter-fill"></span>';
+                el.appendChild(meter);
+            }
+            let moodEl = el.querySelector('.wf-cust-mood');
+            if (!moodEl) {
+                moodEl = document.createElement('span');
+                moodEl.className = 'wf-cust-mood';
+                moodEl.setAttribute('aria-hidden', 'true');
+                const badge = el.querySelector('.wf-cust-badge');
+                if (badge) badge.replaceWith(moodEl);
+                else el.appendChild(moodEl);
+            }
+            if (!el.hasAttribute('data-mood')) {
+                applyPressureVisual(el, 0, false);
+            }
+        });
+    }
+
+    function applyPressureVisual(el, pressure, churned) {
+        const mood = churned ? PRESSURE_MOODS[4] : moodFromPressure(pressure);
+        const fill = el.querySelector('.wf-cust-meter-fill');
+        const moodEl = el.querySelector('.wf-cust-mood');
+        const pct = Math.round(Math.min(1, pressure) * 100);
+        el.setAttribute('data-mood', mood.id);
+        el.setAttribute('data-pressure', String(Math.round(pressure * 100) / 100));
+        if (fill) fill.style.width = `${pct}%`;
+        if (moodEl) moodEl.textContent = mood.label;
+        if (churned) {
+            el.classList.add('is-churned');
+            el.setAttribute('aria-label', `${el.querySelector('.wf-cust-name')?.textContent || 'customer'} churned`);
+        } else {
+            el.classList.remove('is-churned');
+            el.removeAttribute('aria-label');
+        }
+    }
+
+    function initCustomerPressure(root) {
+        ensureCustomerMeters(root);
+        const targets = [...root.querySelectorAll('[data-wf-node="tgt"]')];
+        const governed = root.classList.contains('is-clean');
+        if (root._pressure?.cycleTimer) clearTimeout(root._pressure.cycleTimer);
+        if (root._pressure?.softTimer) clearTimeout(root._pressure.softTimer);
+        root._pressure = {
+            governed,
+            values: targets.map(() => 0),
+            churned: targets.map(() => false),
+            targets,
+            cycleArmed: false,
+            cycleTimer: null,
+            softTimer: null,
+            hitCount: 0,
+        };
+        targets.forEach((el) => applyPressureVisual(el, 0, false));
+        if (governed && !reduce) {
+            scheduleSoftPressureCycle(root);
+        }
+    }
+
+    function flashCustomerHit(el) {
+        el.classList.add('is-hit-flash');
+        setTimeout(() => el.classList.remove('is-hit-flash'), 140);
+    }
+
+    function hitCustomer(root, custIndex, amount) {
+        const state = root._pressure;
+        if (!state || custIndex == null || custIndex < 0) return;
+        if (state.churned[custIndex]) return;
+        const el = state.targets[custIndex];
+        if (!el) return;
+
+        let next = state.values[custIndex] + amount;
+        // SoftStop board: sparse allows plateau in Annoyed — churn stays rare/absent
+        if (state.governed) {
+            next = Math.min(0.38, next);
+        } else {
+            next = Math.min(1, next);
+        }
+        state.values[custIndex] = next;
+        state.hitCount += 1;
+        flashCustomerHit(el);
+
+        const willChurn = !state.governed && next >= 1;
+        if (willChurn) state.churned[custIndex] = true;
+        applyPressureVisual(el, next, willChurn);
+
+        if (!state.governed) maybeScheduleChaosCycle(root);
+    }
+
+    function maybeScheduleChaosCycle(root) {
+        const state = root._pressure;
+        if (!state || state.cycleArmed || state.governed) return;
+        const hotChurned = state.targets.filter(
+            (t, i) => state.churned[i] && t.getAttribute('data-heat') === 'hot'
+        ).length;
+        // Story beat: hot victims tip into churn, then loop so the contrast stays readable
+        if (hotChurned >= 2 || (state.hitCount > 28 && hotChurned >= 1)) {
+            state.cycleArmed = true;
+            state.cycleTimer = setTimeout(() => resetPressureCycle(root), 2600);
+        }
+    }
+
+    function scheduleSoftPressureCycle(root) {
+        const state = root._pressure;
+        if (!state || !state.governed || reduce) return;
+        state.softTimer = setTimeout(() => {
+            // Gentle decay then rebuild — shows pressure stays capped under SoftStop
+            state.values = state.values.map((v) => Math.max(0, v * 0.15));
+            state.churned = state.churned.map(() => false);
+            state.targets.forEach((el, i) => applyPressureVisual(el, state.values[i], false));
+            state.hitCount = 0;
+            scheduleSoftPressureCycle(root);
+        }, 11000);
+    }
+
+    function resetPressureCycle(root) {
+        const state = root._pressure;
+        if (!state) return;
+        state.values = state.values.map(() => 0);
+        state.churned = state.churned.map(() => false);
+        state.cycleArmed = false;
+        state.hitCount = 0;
+        state.targets.forEach((el) => {
+            el.classList.remove('is-churned');
+            applyPressureVisual(el, 0, false);
+        });
+        // Arm the next churn story after another pile-on wave
+        state.cycleTimer = null;
+    }
+
+    function applyReducedMotionPressure(root) {
+        if (root._pressure?.cycleTimer) clearTimeout(root._pressure.cycleTimer);
+        if (root._pressure?.softTimer) clearTimeout(root._pressure.softTimer);
+        ensureCustomerMeters(root);
+        const targets = [...root.querySelectorAll('[data-wf-node="tgt"]')];
+        const governed = root.classList.contains('is-clean');
+        root._pressure = {
+            governed,
+            values: targets.map(() => 0),
+            churned: targets.map(() => false),
+            targets,
+            cycleArmed: true,
+            cycleTimer: null,
+            softTimer: null,
+            hitCount: 0,
+        };
+        targets.forEach((el, i) => {
+            const heat = el.getAttribute('data-heat') || 'light';
+            const allowed = Number(el.getAttribute('data-allowed') || '0');
+            let p = 0;
+            let churned = false;
+            if (governed) {
+                // End state: permitted customers plateau Annoyed; blocked stay Happy
+                p = allowed > 0 ? (heat === 'hot' ? 0.36 : 0.28) : 0.06;
+            } else if (heat === 'hot') {
+                p = 1;
+                churned = true;
+            } else if (heat === 'med') {
+                p = 0.72;
+            } else {
+                p = 0.18;
+            }
+            root._pressure.values[i] = p;
+            root._pressure.churned[i] = churned;
+            applyPressureVisual(el, p, churned);
+        });
+    }
+
+    function hitAmountForMsg(item) {
+        if (item.kind === 'allow') return 0.11;
+        if (item.hot || item.heat === 'hot') return 0.15;
+        if (item.heat === 'med') return 0.1;
+        return 0.055;
+    }
+
     function drawConvergeEdges(root) {
         const stage = root.querySelector('[data-wf-stage]');
         const svg = root.querySelector('[data-wf-edges]');
@@ -3874,6 +4163,8 @@ if (!d.allowed) {
                     weight: link.weight,
                     stagger: m * 0.18,
                     phase: 'chaos',
+                    // Inbound hits SoftStop hub — does not raise customer pressure
+                    custIndex: null,
                 });
             }
         });
@@ -3900,6 +4191,7 @@ if (!d.allowed) {
                     heat,
                     phase: 'order',
                     kind: 'allow',
+                    custIndex: ti,
                     loopDelay: 520 + ti * 80,
                     durationScale: 1.15,
                 });
@@ -3925,6 +4217,7 @@ if (!d.allowed) {
                         heat,
                         phase: 'order',
                         kind: 'block',
+                        custIndex: null,
                         loopDelay: 380 + ti * 60,
                         durationScale: 0.95,
                         maxT: 0.92,
@@ -3968,6 +4261,8 @@ if (!d.allowed) {
                 hot: m.hot,
                 heat: m.heat,
                 weight: m.weight,
+                custIndex: m.custIndex,
+                kind: m.kind || null,
                 durationScale: m.heat === 'hot' ? 0.75 : m.heat === 'med' ? 1 : 1.35,
                 loopDelay: m.heat === 'hot' ? 30 + (mi % 4) * 20 : m.heat === 'med' ? 140 : 420,
                 delayBias: (m.stagger || 0) * 400 + (m.heat === 'light' ? 500 : 0),
@@ -3980,6 +4275,7 @@ if (!d.allowed) {
                 hot: false,
                 heat: m.heat,
                 kind: m.kind,
+                custIndex: m.custIndex,
                 durationScale: m.durationScale || 1,
                 loopDelay: m.loopDelay || 500,
                 maxT: m.maxT || 1,
@@ -4027,6 +4323,7 @@ if (!d.allowed) {
                     hot: link.heat === 'hot',
                     heat: link.heat,
                     weight: link.weight,
+                    custIndex: link.custIndex,
                     stagger: m * 0.18,
                 });
             }
@@ -4048,6 +4345,7 @@ if (!d.allowed) {
                 hot: m.hot,
                 heat: m.heat,
                 weight: m.weight,
+                custIndex: m.custIndex,
                 durationScale: m.heat === 'hot' ? 0.75 : m.heat === 'med' ? 1 : 1.35,
                 loopDelay: m.heat === 'hot' ? 30 + (mi % 4) * 20 : m.heat === 'med' ? 140 : 420,
                 delayBias: (m.stagger || 0) * 400 + (m.heat === 'light' ? 500 : 0),
@@ -4078,6 +4376,7 @@ if (!d.allowed) {
             const duration = (item.hot ? 820 : isPermit ? 1300 : 1100) * scale + (i % 4) * 80;
             const delay = (item.delayBias || 0) + (i % 10) * 40 + (item.heat === 'hot' ? (i % 3) * 25 : (i % 5) * 70);
             const proxy = { t: 0 };
+            let landed = false;
             const place = (t) => {
                 const clamped = Math.min(maxT, Math.max(0, t * maxT));
                 const pt = track.getPointAtLength(clamped * len);
@@ -4101,10 +4400,17 @@ if (!d.allowed) {
                     }
                     if (item.kind === 'allow') {
                         circle.style.opacity = String(0.35 + peak * 0.55);
-                        return;
+                    } else {
+                        const base = item.hot ? 0.4 : item.heat === 'med' ? 0.28 : 0.18;
+                        circle.style.opacity = String(base + peak * (item.hot ? 0.6 : 0.55));
                     }
-                    const base = item.hot ? 0.4 : item.heat === 'med' ? 0.28 : 0.18;
-                    circle.style.opacity = String(base + peak * (item.hot ? 0.6 : 0.55));
+                    // Accumulate pressure when a particle lands on a customer
+                    const canHit = item.custIndex != null && item.kind !== 'block' && maxT >= 0.99;
+                    if (canHit && proxy.t >= 0.9 && !landed) {
+                        landed = true;
+                        hitCustomer(root, item.custIndex, hitAmountForMsg(item));
+                    }
+                    if (proxy.t < 0.12) landed = false;
                 },
             });
         });
@@ -4209,8 +4515,11 @@ if (!d.allowed) {
             root.querySelectorAll('.wf-path').forEach((p) => {
                 p.style.opacity = p.getAttribute('data-phase') === 'chaos' ? '0.85' : '0.9';
             });
+            applyReducedMotionPressure(root);
             return;
         }
+
+        initCustomerPressure(root);
 
         // Customers wait until SoftStop starts filtering outbound.
         targets.forEach((el) => {
@@ -4299,8 +4608,11 @@ if (!d.allowed) {
             root.querySelectorAll('.wf-path').forEach((p) => {
                 p.style.opacity = chaotic ? '0.85' : '1';
             });
+            if (chaotic) applyReducedMotionPressure(root);
             return;
         }
+
+        if (chaotic) initCustomerPressure(root);
 
         const tl = createTimeline({
             defaults: { ease: 'out(3)' },
