@@ -2,19 +2,42 @@
 
 > **v0.1 note:** Open-source launch leads with **SoftStop** — the **pressure / escalation permit** — not MCP IAM. MCP gateway positioning remains a longer-term commercial option; do not treat it as the current public product thesis. See [ROADMAP.md](ROADMAP.md).
 
-SoftStop should launch as credibility-first commercial open source software.
+## Decision (locked)
 
-The authorize-only pressure engine should be open source so engineers can inspect it, run it locally, self-host it, and embed it under email, SMS, in-app, pricing, and agent workflows.
+**Posture: standard-first, Cloud-optional.**
 
-The business is the enterprise control plane around that core (multi-tenant console, SSO, SIEM, distributed rate limits) — not a closed black-box gate for every check.
+Optimize for SoftStop becoming the named shared permit teams call before escalating. Treat paid Cloud as upside, not the survival plan. The core is easy to reproduce; that is accepted. Value is adoption and coordination, not proprietary cooldowns.
+
+### Best case
+
+SoftStop embeds across email, SMS, product UI, and agents. “Call SoftStop before you escalate” becomes habit. Multi-team orgs pull a control plane (policy UI, audit, SSO, distributed caps) because org complexity hurts more than DIY.
+
+### Worst case (accepted)
+
+Nobody pays. Teams use OSS SoftStop, fork it, or rebuild a tiny internal permit. SoftStop still works as an open tool, credibility asset, and optional integration/consulting surface. That outcome is OK.
+
+### Operating rules
+
+| Do | Don’t |
+|---|---|
+| Keep core MIT, self-host-first, simple `check` / `record` | Gate the hot path on Cloud |
+| Win on adoption (examples, `verify` / `health`, orphanRate, agent/Cursor install) | Build SSO/console before real embeds exist |
+| Leave seams for Cloud later (tenant id, policy version, audit export hooks) | Bet the company on license fees for a simple gate |
+| Measure success as **integrations that stick** first; ARR second | Treat “easy to clone” as failure — it is the distribution tax |
 
 ## Model
 
-SoftStop should use a dual-layer open-core model.
+Dual-layer open-core. Enforcement stays local; management is optional and paid.
 
-### Open Source
+```text
+Escalation systems --> SoftStop (self-hosted) --> allow / block
+                              |
+                     async sync / export (optional)
+                              |
+                       SoftStop Cloud (paid)
+```
 
-Free forever:
+### Open Source (free forever)
 
 - SoftStop core (deterministic pressure evaluation)
 - Default escalation policy pack
@@ -23,24 +46,23 @@ Free forever:
 - local development and CI usage (`verify`, `health`)
 - examples (Node, Python, browser, agent-touchpoint)
 
-### Commercial
+### Commercial (build only when pulled)
 
-Paid cloud and enterprise:
-
-- centralized management console
+- centralized management console / policy UI
 - compliance-grade audit ledger
-- human-in-the-loop approval workflows (optional)
 - Slack, PagerDuty, ticketing, and SIEM integrations
-- global distributed rate limiting
-- enterprise SSO
-- role-based administration
+- global / cross-team distributed rate limiting
+- enterprise SSO and role-based administration
 - hosted policy distribution and versioning
+- human-in-the-loop approval workflows (optional)
+
+Cloud must not be required for ordinary low-latency checks. Cached / local policy must keep working if Cloud is unreachable.
 
 ## Market Category
 
-SoftStop should be positioned as a **shared pressure permit** / escalation gate for end users.
+SoftStop is a **shared pressure permit** / escalation gate for end users.
 
-Do not market primarily as MCP IAM or agent tool firewall (crowded). First buyers are:
+Do not market primarily as MCP IAM or agent tool firewall (crowded). First adopters:
 
 - platform engineers on multi-agent / multi-automation products
 - product and lifecycle teams hitting cross-channel fatigue
@@ -52,22 +74,25 @@ Your company already caps messages inside one CRM. It does not share pressure st
 
 ## Launch Blueprint
 
-### Phase 1: Developer Traction
+### Phase 1: Developer Traction (current focus)
 
-- Launch SoftStop open source (pressure permit)
-- Ship Node / Python / browser examples
-- Publish SoftStop integration workflow and adoption contract
+- SoftStop open source (pressure permit)
+- Node / Python / browser / agent-touchpoint examples
+- Integration workflow and adoption contract
+- Make embed cheaper than reinventing the wiring
 
 ### Phase 2: Infrastructure Grounding
 
 - Dockerized self-host (already in repo)
 - Redis / Postgres adapters as needed
 - Docs for private VPC deployment
+- Light Cloud seams only (tenant, policy version, audit export) — not a full console
 
-### Phase 3: Enterprise Cloud
+### Phase 3: Enterprise Cloud (pull-triggered)
 
-- SoftStop Cloud / Enterprise control plane
-- SIEM streaming, SSO, policy distribution
+- SoftStop Cloud / control plane
+- SIEM streaming, SSO, policy distribution, distributed caps
+- Start only when real multi-team embeds ask for it
 
 ## Why Not Closed Source
 
@@ -75,7 +100,11 @@ Your company already caps messages inside one CRM. It does not share pressure st
 - Data sovereignty: pressure state and user ids stay in the customer's network
 - Ecosystem adoption: other tools embed an inspectable authorize-only API
 
-Open source earns trust and distribution. The enterprise business monetizes coordination, compliance, observability, and workflow.
+Open source earns trust and distribution. If anyone pays, they pay for coordination, compliance, observability, and multi-team workflow — not for hiding the permit logic.
+
+## Defensibility note
+
+Reproducing cooldowns and caps is easy. Wiring every touchpoint to one gate with `record`, low orphan rate, and one policy story is not. SoftStop competes on being the standard and the cheapest path to that wiring — not on secrecy.
 
 ## Longer-term option
 
