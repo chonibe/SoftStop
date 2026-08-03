@@ -23,6 +23,20 @@ SoftStop checks:
 - Frequency caps
 - Stacking protection
 
+## SoftStop SDK
+
+```bash
+npm i https://softstop.vercel.app/softstop.tgz
+# or: npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
+```
+
+```js
+import { SoftStop } from 'softstop'
+const softstop = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
+```
+
+Browser: `import { SoftStop } from 'https://softstop.vercel.app/sdk.js'`
+
 ## Integration Pattern
 
 ### Step 1: Check Before Acting

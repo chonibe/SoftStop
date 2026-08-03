@@ -1,15 +1,50 @@
 {
-  "name": "@governor/sdk",
-  "version": "0.0.0",
-  "description": "JavaScript client for Governor check/record (experimental package extraction).",
+  "name": "softstop",
+  "version": "0.1.0",
+  "description": "SoftStop JS/TS client — check before pressure, record after.",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts"
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "prepack": "pnpm run build"
   },
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chonibe/SoftStop.git",
+    "directory": "packages/sdk-js"
+  },
+  "homepage": "https://softstop.vercel.app",
+  "bugs": {
+    "url": "https://github.com/chonibe/SoftStop/issues"
+  },
+  "keywords": [
+    "softstop",
+    "governor",
+    "escalation",
+    "pressure",
+    "frequency-cap",
+    "cooldown",
+    "check-record",
+    "authorization"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

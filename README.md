@@ -56,54 +56,46 @@ The [live demo](https://softstop.vercel.app) is a **marketing-chaos example**: s
 
 ## Get started
 
-Self-host first (under 5 minutes):
+### One-liner SDK
+
+```bash
+npm i https://softstop.vercel.app/softstop.tgz
+```
+
+```js
+import { SoftStop } from 'softstop'
+
+const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
+const decision = await ss.check({ userId: 'user_123', actionType: 'urgency', surface: 'email' })
+
+if (!decision.allowed) {
+  await ss.record({
+    decisionId: decision.decisionId,
+    userId: 'user_123',
+    actionType: 'urgency',
+    outcome: 'blocked',
+    blockReason: decision.reason
+  })
+  return // do not escalate
+}
+// escalate, then record outcome: 'executed'
+```
+
+Not on the public npm registry yet — install via the hosted tarball or `github:chonibe/SoftStop#path:packages/sdk-js`. Browser CDN: `https://softstop.vercel.app/sdk.js`.
+
+### Self-host the API
 
 ```bash
 pnpm install
 pnpm dev
-```
-
-```bash
-# smoke-test
 pnpm softstop verify
-
-# check before escalating
-curl -X POST http://localhost:3000/v1/check \
-  -H 'content-type: application/json' \
-  -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'
 ```
 
 Docker: `docker compose up --build`
 
 ## The contract
 
-Authorize only — SoftStop does not send email, pick offers, or write copy.
-
-```js
-const base = process.env.SOFTSTOP_API_URL || "http://localhost:3000";
-const check = await fetch(`${base}/v1/check`, {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ userId: "user_123", actionType: "urgency", surface: "email" })
-}).then((r) => r.json());
-
-if (!check.allowed) {
-  await fetch(`${base}/v1/record`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      decisionId: check.decisionId,
-      userId: "user_123",
-      actionType: "urgency",
-      outcome: "blocked",
-      blockReason: check.reason
-    })
-  });
-  return;
-}
-
-// escalate, then record outcome: "executed"
-```
+Authorize only — SoftStop does not send email, pick offers, or write copy. Prefer the SDK above; raw `fetch` to `/v1/check` + `/v1/record` is equivalent.
 
 > Hosted APIs use `/api` instead of `/v1`. `GOVERNOR_API_URL` is accepted as a legacy alias for `SOFTSTOP_API_URL`.
 

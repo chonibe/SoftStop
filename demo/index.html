@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,104 +11,843 @@
     <meta property="og:image" content="assets/softstop-cover.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="assets/softstop-cover.png" />
+    <meta name="color-scheme" content="dark">
+    <link rel="preconnect" href="https://api.fontshare.com">
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&f[]=sentient@400i&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ss-ink: #0B0B0F;
+            --ss-ink-900: #141418;
+            --ss-ink-850: #1a1a20;
+            --ss-paper: #F7F5F0;
+            --ss-paper-dim: #bcbcc4;
+            --ss-muted: #8b8b96;
+            --ss-amber: #E8A317;
+            --ss-amber-mid: #c98a0f;
+            --ss-amber-deep: #9a6a0c;
+            --ss-sea: #3fb950;
+            --ss-danger: #f85149;
+            --ss-ok: #3fb950;
+
+            --oc-bg-page: var(--ss-ink);
+            --oc-bg-surface: var(--ss-ink-900);
+            --oc-bg-elevated: var(--ss-ink-850);
+            --oc-accent-primary: var(--ss-amber);
+            --oc-accent-primary-hover: var(--ss-amber-mid);
+            --oc-accent-primary-deep: var(--ss-amber-deep);
+            --oc-accent-secondary: var(--ss-sea);
+            --oc-text-primary: var(--ss-paper);
+            --oc-text-secondary: var(--ss-paper-dim);
+            --oc-text-muted: var(--ss-muted);
+            --oc-text-on-accent: #0B0B0F;
+            --oc-border-subtle: rgba(154, 154, 162, 0.18);
+            --oc-border-strong: rgba(247, 245, 240, 0.28);
+            --oc-surface-interactive: rgba(237, 237, 237, 0.08);
+            --oc-surface-interactive-hover: rgba(237, 237, 237, 0.14);
+            --oc-surface-secondary-soft: rgba(63, 185, 80, 0.14);
+            --oc-chart-line: rgba(237, 237, 237, 0.09);
+            --logo-glow: color-mix(in srgb, var(--ss-amber) 35%, transparent);
+
+            --oc-space-2: 0.5rem;
+            --oc-space-3: 0.75rem;
+            --oc-space-4: 1rem;
+            --oc-space-5: 1.5rem;
+            --oc-space-6: 2rem;
+            --oc-space-7: 3rem;
+            --oc-radius-control: 0.5rem;
+            --oc-font-display: "Switzer", system-ui, sans-serif;
+            --oc-font-body: "Switzer", system-ui, sans-serif;
+            --oc-font-serif: "Sentient", Georgia, serif;
+            --oc-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+            /* legacy aliases used by demo JS chrome */
+            --ink: var(--ss-ink);
+            --paper: var(--ss-paper);
+            --amber: var(--ss-amber);
+            --surface: var(--ss-ink-900);
+            --surface-2: var(--ss-ink-850);
+            --border: var(--oc-border-subtle);
+            --border-strong: var(--oc-border-strong);
+            --muted: var(--ss-muted);
+            --danger: var(--ss-danger);
+            --ok: var(--ss-ok);
+            --nav-h: 54px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: var(--oc-font-body);
+            background: var(--oc-bg-page);
+            color: var(--oc-text-primary);
+            font-size: 0.9375rem;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font: inherit; }
+        code, .code-chip {
+            font-family: var(--oc-font-mono);
+            font-size: 0.82em;
+            padding: 0.08rem 0.32rem;
+            border: 1px solid var(--oc-border-subtle);
+            background: color-mix(in srgb, var(--oc-bg-surface) 62%, transparent);
+            border-radius: 4px;
+            color: var(--oc-text-secondary);
+        }
+
+        /* —— Topbar (OpenClaw-style) —— */
+        .site-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--oc-space-5);
+            min-height: 54px;
+            padding: 0 32px;
+            border-bottom: 1px solid var(--oc-border-subtle);
+            background: color-mix(in srgb, var(--oc-bg-page) 78%, transparent);
+            backdrop-filter: saturate(140%) blur(16px);
+        }
+        .site-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: -0.01em;
+        }
+        .site-brand img { width: 22px; height: 22px; border-radius: 4px; }
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .site-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--oc-text-muted);
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .site-nav-link:hover { color: var(--oc-text-primary); background: var(--oc-surface-interactive); }
+        .site-nav-link.active { color: var(--oc-text-primary); }
+        .site-nav-icon { width: 14px; height: 14px; opacity: 0.85; }
+        .site-menu { display: none; }
+        .site-menu-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px; height: 40px;
+            border: 1px solid var(--oc-border-subtle);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--oc-text-primary);
+            cursor: pointer;
+        }
+        .site-burger { display: flex; flex-direction: column; gap: 4px; }
+        .site-burger span { display: block; width: 16px; height: 1.5px; background: currentColor; }
+        .site-menu-panel {
+            position: absolute;
+            right: 16px; top: 58px;
+            min-width: 200px;
+            padding: 8px;
+            border: 1px solid var(--oc-border-subtle);
+            border-radius: 10px;
+            background: var(--oc-bg-surface);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .site-menu[open] .site-menu-panel { display: flex; }
+        @media (max-width: 820px) {
+            .site-nav-desktop { display: none; }
+            .site-menu { display: block; position: relative; }
+            .site-topbar { padding: 0 16px; }
+        }
+
+        /* —— Layout rail —— */
+        .container { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; overflow-x: clip; }
+        .rail {
+            width: 100%;
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 0 var(--oc-space-7);
+            border-left: 1px solid var(--oc-border-subtle);
+            border-right: 1px solid var(--oc-border-subtle);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .rail > section { margin: 0; padding: 64px 0; border-top: 1px solid var(--oc-border-subtle); }
+        .rail > section:first-child { border-top: none; }
+        @media (max-width: 720px) {
+            .rail { border-left: none; border-right: none; padding: 0 20px; }
+            .rail > section { padding: var(--oc-space-7) 0; }
+        }
+
+        /* —— Hero —— */
+        .hero {
+            text-align: center;
+            border-bottom: 1px solid var(--oc-border-subtle);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: "";
+            position: absolute; inset: 0; z-index: 0;
+            pointer-events: none;
+            background-image: radial-gradient(var(--oc-chart-line) 1px, transparent 1.5px);
+            background-size: 26px 26px;
+            mask-image: linear-gradient(#000, #0000 90%);
+        }
+        .hero-art {
+            pointer-events: none;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            height: min(28vh, 260px);
+            overflow: hidden;
+            mask-image: linear-gradient(#0000 0%, #000 40% 68%, #0000 92%);
+        }
+        .hero-art pre {
+            margin: 0;
+            font-family: var(--oc-font-mono);
+            font-size: 11px;
+            line-height: 1.25;
+            letter-spacing: 1px;
+            color: var(--oc-accent-primary);
+            opacity: 0.55;
+            white-space: pre;
+        }
+        .hero-content {
+            position: relative; z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: -80px;
+            padding: 0 var(--oc-space-6) 68px;
+        }
+        .hero-mark {
+            width: 72px; height: 72px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 24px var(--logo-glow));
+            border-radius: 14px;
+        }
+        .hero-eyebrow {
+            font-family: var(--oc-font-mono);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--oc-accent-primary);
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .title {
+            font-family: var(--oc-font-display);
+            letter-spacing: -0.03em;
+            color: var(--oc-text-primary);
+            margin: 20px auto 22px;
+            font-size: clamp(2.4rem, 5.6vw, 3.8rem);
+            font-weight: 600;
+            line-height: 1.08;
+            max-width: 16ch;
+        }
+        .title em {
+            font-family: var(--oc-font-serif);
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: -0.015em;
+            color: var(--oc-accent-primary);
+        }
+        .description {
+            color: var(--oc-text-muted);
+            max-width: 620px;
+            margin: 0 auto;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: var(--oc-space-3);
+            margin-top: 36px;
+        }
+        .hero-cta, .oc-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--oc-space-2);
+            min-height: 44px;
+            padding: 0 var(--oc-space-5);
+            border: 1px solid var(--oc-accent-primary);
+            background: var(--oc-accent-primary);
+            color: var(--oc-text-on-accent);
+            font-family: var(--oc-font-mono);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: var(--oc-radius-control);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .hero-cta:hover, .oc-action-primary:hover {
+            background: color-mix(in srgb, var(--oc-accent-primary) 82%, #fff);
+            border-color: color-mix(in srgb, var(--oc-accent-primary) 82%, #fff);
+        }
+        .hero-cta-ghost, .oc-action-ghost {
+            background: var(--oc-bg-page);
+            color: var(--oc-text-primary);
+            border: 1px solid var(--oc-border-subtle);
+        }
+        .hero-cta-ghost:hover, .oc-action-ghost:hover {
+            background: var(--oc-surface-interactive);
+            border-color: var(--oc-border-strong);
+        }
+
+        /* —— Section chrome —— */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: var(--oc-space-4);
+            margin-bottom: 20px;
+        }
+        .section-title, .oc-eyebrow {
+            font-family: var(--oc-font-mono);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--oc-accent-primary);
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .section-link {
+            font-family: var(--oc-font-mono);
+            color: var(--oc-text-muted);
+            font-size: 0.76rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: color 0.15s;
+        }
+        .section-link:hover { color: var(--oc-text-primary); }
+        .section-kicker { /* compat for older sections */
+            font-family: var(--oc-font-mono);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--oc-accent-primary);
+            margin: 0 0 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* —— Code block / quickstart (OpenClaw) —— */
+        .quickstart { margin-bottom: 8px; }
+        .code-block {
+            background: var(--oc-bg-surface);
+            border: 1px solid var(--oc-border-subtle);
+            overflow: hidden;
+            border-radius: 0;
+        }
+        .code-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 12px 20px;
+            min-height: 46px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--oc-border-subtle);
+        }
+        .code-label {
+            font-family: var(--oc-font-mono);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--oc-text-muted);
+            align-self: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .mode-switch {
+            display: flex;
+            align-items: stretch;
+            gap: var(--oc-space-4);
+            margin-bottom: -1px;
+            margin-left: auto;
+        }
+        .mode-btn {
+            font-family: var(--oc-font-mono);
+            color: var(--oc-text-muted);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            padding: 14px 2px;
+            font-size: 0.72rem;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .mode-btn:hover { color: var(--oc-text-primary); }
+        .mode-btn.active {
+            color: var(--oc-accent-primary);
+            border-bottom-color: var(--oc-accent-primary);
+            font-weight: 600;
+        }
+        .code-content {
+            font-family: var(--oc-font-mono);
+            padding: 18px 20px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .code-content[hidden] { display: none !important; }
+        .code-line {
+            display: flex;
+            align-items: center;
+            gap: var(--oc-space-2);
+            padding: 4px 0;
+        }
+        .code-line.comment { color: var(--oc-text-muted); font-style: italic; }
+        .code-line.cmd { color: var(--oc-text-primary); }
+        .code-prompt { color: var(--oc-accent-primary); user-select: none; }
+        .code-cmd-text { flex: 1; min-width: 0; overflow-x: auto; white-space: pre; }
+        .copy-line-btn {
+            opacity: 0.6;
+            border-radius: var(--oc-radius-control);
+            background: var(--oc-surface-interactive);
+            width: 28px; height: 28px;
+            color: var(--oc-text-muted);
+            cursor: pointer;
+            border: none;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: auto;
+            transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+        }
+        .code-line:hover .copy-line-btn { opacity: 1; }
+        .copy-line-btn:hover { background: var(--oc-surface-interactive-hover); color: var(--oc-text-primary); }
+        .copy-line-btn.copied { opacity: 1; background: var(--oc-surface-secondary-soft); color: var(--oc-accent-secondary); }
+        .copy-line-btn svg { width: 14px; height: 14px; }
+        .quickstart-note {
+            margin-top: var(--oc-space-4);
+            color: var(--oc-text-muted);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .usage-block {
+            margin-top: 16px;
+            background: var(--oc-bg-surface);
+            border: 1px solid var(--oc-border-subtle);
+            overflow: hidden;
+        }
+        .usage-block pre {
+            margin: 0;
+            padding: 18px 20px;
+            font-family: var(--oc-font-mono);
+            font-size: 0.82rem;
+            line-height: 1.65;
+            color: var(--oc-text-secondary);
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* —— How / feature tiles —— */
+        .flow-rail {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 860px) { .flow-rail { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 520px) { .flow-rail { grid-template-columns: 1fr; } }
+        .flow-step {
+            border: 1px solid var(--oc-border-subtle);
+            background: var(--oc-bg-surface);
+            padding: 18px 16px;
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        .flow-step.is-visible { opacity: 1; transform: none; }
+        .flow-num {
+            font-family: var(--oc-font-mono);
+            font-size: 0.72rem;
+            color: var(--oc-accent-primary);
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+        .flow-title {
+            font-family: var(--oc-font-display);
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .flow-outcome {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 640px) { .flow-outcome { grid-template-columns: 1fr; } }
+        .outcome-chip {
+            border: 1px solid var(--oc-border-subtle);
+            padding: 16px;
+            background: color-mix(in srgb, var(--oc-bg-surface) 80%, transparent);
+        }
+        .outcome-chip.landed { border-color: color-mix(in srgb, var(--ss-danger) 35%, transparent); }
+        .outcome-chip.blocked { border-color: color-mix(in srgb, var(--ss-amber) 40%, transparent); }
+        .action-tile {
+            border: 1px solid var(--oc-border-subtle);
+            background: var(--oc-bg-surface);
+            padding: 14px;
+        }
+        .benefit-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 760px) { .benefit-row { grid-template-columns: 1fr; } }
+        .benefit-card {
+            border: 1px solid var(--oc-border-subtle);
+            background: var(--oc-bg-surface);
+            padding: 20px 18px;
+        }
+        .oss-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+
+        /* —— Footer —— */
+        .site-footer {
+            border-top: 1px solid var(--oc-border-subtle);
+            padding: 28px 0 40px;
+        }
+        .footer-inner {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 0 var(--oc-space-7);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--oc-text-muted);
+            font-size: 0.85rem;
+        }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; }
+        .footer-links a:hover { color: var(--oc-text-primary); }
+
+        /* —— Demo chrome (kept functional) —— */
+        #topChrome { display: none; } /* replaced by site-topbar */
+        #demoChrome {
+            position: sticky;
+            top: 54px;
+            z-index: 60;
+            border-bottom: 1px solid var(--oc-border-subtle);
+            background: color-mix(in srgb, var(--oc-bg-page) 88%, transparent);
+            backdrop-filter: blur(12px);
+        }
+        .ss-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            border-radius: 999px;
+            border: 1px solid var(--oc-border-strong);
+            background: var(--oc-bg-surface);
+            cursor: pointer;
+        }
+        .ss-switch-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--oc-text-muted);
+            padding: 0 8px 0 10px;
+        }
+        .ss-switch-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--oc-font-mono);
+            background: rgba(248, 81, 73, 0.12);
+            color: #ff7b72;
+        }
+        body.mode-on .ss-switch { border-color: color-mix(in srgb, var(--ss-amber) 50%, transparent); background: color-mix(in srgb, var(--ss-amber) 6%, transparent); }
+        body.mode-on .ss-switch-pill { background: color-mix(in srgb, var(--ss-amber) 18%, transparent); color: var(--ss-amber); }
+        .persona-btn, .user-btn {
+            font-family: var(--oc-font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 10px;
+            border: none;
+            background: transparent;
+            color: var(--oc-text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .persona-btn.active-user, .user-btn.active-user {
+            background: var(--oc-surface-interactive);
+            color: var(--oc-text-primary);
+        }
+        .stat-tile {
+            border: 1px solid var(--oc-border-subtle);
+            background: var(--oc-bg-surface);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 28px;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: var(--oc-border-subtle);
+        }
+        @media (min-width: 768px) { .timeline-line { left: 50%; } }
+
+        /* Drawer */
+        .drawer-overlay {
+            position: fixed; inset: 0; z-index: 80;
+            background: rgba(0,0,0,0.45);
+        }
+        .drawer-overlay.open { display: block; }
+        #decisionDrawer {
+            position: fixed;
+            z-index: 85;
+            top: 0; right: 0; bottom: 0;
+            width: min(360px, 100%);
+            background: var(--oc-bg-surface);
+            border-left: 1px solid var(--oc-border-subtle);
+            transform: translateX(100%);
+            transition: transform 0.25s cubic-bezier(0.23,1,0.32,1);
+            display: flex;
+            flex-direction: column;
+        }
+        #decisionDrawer.open { transform: translateX(0); }
+        @media (max-width: 1023px) {
+            #decisionDrawer {
+                top: auto; left: 0; right: 0; bottom: 0;
+                width: 100%; height: min(78vh, 640px);
+                border-left: none;
+                border-top: 1px solid var(--oc-border-subtle);
+                border-radius: 16px 16px 0 0;
+                transform: translateY(100%);
+            }
+            #decisionDrawer.open { transform: translateY(0); }
+        }
+
+        /* Tailwind-ish utility stubs used by demo markup */
+        .font-display { font-family: var(--oc-font-display); }
+        .font-mono { font-family: var(--oc-font-mono); }
+        .text-stop-amber, .text-accent-yellow, .text-accent-purple { color: var(--ss-amber); }
+        .text-accent-red { color: var(--ss-danger); }
+        .text-accent-green { color: var(--ss-ok); }
+        .text-accent-orange { color: #f97316; }
+        .text-paper { color: var(--ss-paper); }
+        .text-slate-400 { color: #94a3b8; }
+        .text-slate-500 { color: #64748b; }
+        .text-slate-600 { color: #475569; }
+        .bg-accent-red\/20 { background: rgba(248,81,73,0.2); }
+        .bg-stop-amber\/20 { background: rgba(232,163,23,0.2); }
+        .bg-accent-green { background: var(--ss-ok); }
+        .bg-accent-red { background: var(--ss-danger); }
+        .bg-white\/10 { background: rgba(255,255,255,0.1); }
+        .bg-white\/\[0\.02\] { background: rgba(255,255,255,0.02); }
+        .bg-white\/\[0\.08\] { background: rgba(255,255,255,0.08); }
+        .border-white\/10 { border-color: rgba(255,255,255,0.1); }
+        .border-white\/\[0\.06\] { border-color: rgba(255,255,255,0.06); }
+        .border-white\/\[0\.08\] { border-color: rgba(255,255,255,0.08); }
+        .hover\:bg-white\/5:hover { background: rgba(255,255,255,0.05); }
+        .hover\:text-paper:hover { color: var(--ss-paper); }
+        .max-w-6xl { max-width: 72rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+        .py-14 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+        .pt-14 { padding-top: 3.5rem; }
+        .pb-6 { padding-bottom: 1.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-10 { margin-bottom: 2.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-10 { margin-top: 2.5rem; }
+        .mt-14 { margin-top: 3.5rem; }
+        .ml-auto { margin-left: auto; }
+        .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
+        .grid { display: grid; }
+        .hidden { display: none; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .flex-wrap { flex-wrap: wrap; }
+        .flex-1 { flex: 1 1 0%; }
+        .gap-0\.5 { gap: 0.125rem; }
+        .gap-1\.5 { gap: 0.375rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-x-3 { column-gap: 0.75rem; }
+        .gap-y-2 { row-gap: 0.5rem; }
+        .min-w-0 { min-width: 0; }
+        .min-w-\[8rem\] { min-width: 8rem; }
+        .max-w-xs { max-width: 20rem; }
+        .max-w-xl { max-width: 36rem; }
+        .max-w-2xl { max-width: 42rem; }
+        .max-w-3xl { max-width: 48rem; }
+        .w-1 { width: 0.25rem; }
+        .w-1\.5 { width: 0.375rem; }
+        .w-2 { width: 0.5rem; }
+        .w-4 { width: 1rem; }
+        .w-8 { width: 2rem; }
+        .h-1 { height: 0.25rem; }
+        .h-1\.5 { height: 0.375rem; }
+        .h-4 { height: 1rem; }
+        .h-full { height: 100%; }
+        .rounded-full { border-radius: 999px; }
+        .rounded-md { border-radius: 0.375rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .border { border-width: 1px; border-style: solid; }
+        .border-b { border-bottom: 1px solid var(--oc-border-subtle); }
+        .border-t { border-top: 1px solid var(--oc-border-subtle); }
+        .shrink-0 { flex-shrink: 0; }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-\[9px\] { font-size: 9px; }
+        .text-\[10px\] { font-size: 10px; }
+        .text-\[11px\] { font-size: 11px; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-medium { font-weight: 500; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-tight { letter-spacing: -0.02em; }
+        .tracking-wide { letter-spacing: 0.04em; }
+        .tracking-wider { letter-spacing: 0.08em; }
+        .tracking-\[0\.12em\] { letter-spacing: 0.12em; }
+        .tracking-\[0\.14em\] { letter-spacing: 0.14em; }
+        .tracking-\[0\.16em\] { letter-spacing: 0.16em; }
+        .leading-none { line-height: 1; }
+        .leading-relaxed { line-height: 1.65; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .min-h-\[48vh\] { min-height: 48vh; }
+        .scroll-mt-14 { scroll-margin-top: 3.5rem; }
+        .opacity-0 { opacity: 0; }
+        .opacity-80 { opacity: 0.8; }
+        .transition-all { transition: all 0.3s; }
+        .transition-opacity { transition: opacity 1s; }
+        .transition-colors { transition: color 0.15s, background 0.15s, border-color 0.15s; }
+        .duration-500 { transition-duration: 0.5s; }
+        .duration-1000 { transition-duration: 1s; }
+        .bg-stop-amber { background: var(--ss-amber); }
+        .p-0\.5 { padding: 0.125rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-5 { padding: 1.25rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .pb-2 { padding-bottom: 0.5rem; }
+        .pb-8 { padding-bottom: 2rem; }
+        .pt-4 { padding-top: 1rem; }
+        .left-1\/2 { left: 50%; }
+        .-translate-x-1\/2 { transform: translateX(-50%); }
+        .top-2 { top: 0.5rem; }
+        .max-h-56 { max-height: 14rem; }
+        .italic { font-style: italic; }
+        .font-sans { font-family: var(--oc-font-body); }
+        .overscroll-contain { overscroll-behavior: contain; }
+        .border-accent-red\/25 { border-color: rgba(248,81,73,0.25); }
+        .border-accent-green\/25 { border-color: rgba(63,185,80,0.25); }
+        .bg-accent-red\/\[0\.04\] { background: rgba(248,81,73,0.04); }
+        .bg-accent-green\/\[0\.04\] { background: rgba(63,185,80,0.04); }
+        .text-white\/15 { color: rgba(255,255,255,0.15); }
+        @media (min-width: 640px) {
+            .sm\:inline { display: inline; }
+            .sm\:inline-flex { display: inline-flex; }
+        }
+        @media (min-width: 768px) {
+            .md\:flex { display: flex; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .md\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .md\:py-14 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+            .md\:pt-16 { padding-top: 4rem; }
+            .md\:text-2xl { font-size: 1.5rem; }
+            .md\:text-3xl { font-size: 1.875rem; }
+            .md\:text-4xl { font-size: 2.25rem; }
+        }
+        @media (min-width: 1024px) {
+            .lg\:hidden { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .flow-step { opacity: 1 !important; transform: none !important; }
+        }
+
+        /* Demo notification / timeline leftovers from previous styles */
+        .notification, .touch-card, .day-marker { /* filled by inline demo styles if needed */ }
+    </style>
+    <!-- Keep a thin Tailwind CDN for residual demo utility classes not stubbed above -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['IBM Plex Sans', 'sans-serif'],
-                        display: ['Syne', 'sans-serif'],
-                        mono: ['IBM Plex Mono', 'monospace']
+                        sans: ['Switzer', 'system-ui', 'sans-serif'],
+                        display: ['Switzer', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SF Mono', 'Menlo', 'monospace']
                     },
                     colors: {
                         deep: '#0B0B0F',
                         ink: '#0B0B0F',
                         paper: '#F7F5F0',
-                        surface: '#121218',
-                        'surface-2': '#1a1a22',
-                        'surface-3': '#25252e',
+                        surface: '#141418',
+                        'surface-2': '#1a1a20',
                         accent: '#E8A317',
                         'stop-amber': '#E8A317',
-                        'accent-green': '#10b981',
-                        'accent-red': '#ef4444',
+                        'accent-green': '#3fb950',
+                        'accent-red': '#f85149',
                         'accent-orange': '#f97316',
                         'accent-purple': '#E8A317',
                         'accent-yellow': '#E8A317',
-                        'accent-pink': '#f43f5e',
-                        'accent-cyan': '#22d3ee',
                     }
                 }
             }
         }
     </script>
-    <style>
-        :root {
-            --ink: #0B0B0F;
-            --paper: #F7F5F0;
-            --amber: #E8A317;
-            --surface: #111116;
-            --surface-2: #16161d;
-            --border: rgba(247, 245, 240, 0.09);
-            --border-strong: rgba(247, 245, 240, 0.16);
-            --muted: #8b8b96;
-            --danger: #f85149;
-            --ok: #3fb950;
-            --nav-h: 56px;
-        }
-        body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            background: var(--ink);
-            color: var(--paper);
-            padding-top: var(--nav-h);
-        }
-        .font-display { font-family: 'Syne', sans-serif; }
-        .font-mono { font-family: 'IBM Plex Mono', monospace; }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(232,163,23,0.08), transparent 55%),
-                radial-gradient(ellipse 50% 35% at 100% 0%, rgba(247,245,240,0.03), transparent 50%);
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
-        body > * { position: relative; z-index: 1; }
-
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .reveal { animation: fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-        .reveal-d1 { animation-delay: 0.08s; }
-        .reveal-d2 { animation-delay: 0.16s; }
-        .reveal-d3 { animation-delay: 0.24s; }
-
-        #topChrome {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 70;
-            height: var(--nav-h);
-            background: rgba(11,11,15,0.9);
-            backdrop-filter: blur(14px) saturate(1.15);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .ss-switch {
+<style id="demo-legacy">
+.ss-switch {
             display: inline-flex;
             align-items: center;
             gap: 0;
@@ -524,30 +1263,41 @@
         @media (hover: none) {
             button, a { -webkit-tap-highlight-color: transparent; }
         }
-    </style>
+    
+/* SoftStop amber halt accents */
+.timeline-dot.blocked { border-color: var(--amber); background: rgba(232,163,23,0.25); }
+.timeline-dot.landed { border-color: var(--danger); }
+</style>
 </head>
-<body class="bg-deep text-white antialiased mode-off">
+<body class="mode-off">
 
-    <!-- Minimal OSS nav — no demo chrome here -->
-    <header id="topChrome">
-        <div class="h-14 px-4 md:px-6 flex items-center gap-4 max-w-6xl mx-auto">
-            <a href="#" class="flex items-center gap-2.5 shrink-0 group">
-                <img src="assets/softstop-mark-dark.png" width="28" height="28" alt="" class="opacity-95 group-hover:opacity-100 transition-opacity" />
-                <span class="font-display font-bold text-[15px] tracking-tight">SoftStop</span>
+    <header class="site-topbar">
+        <a href="#" class="site-brand" aria-label="SoftStop home">
+            <img src="assets/softstop-mark-dark.png" alt="" width="22" height="22" />
+            <span>SoftStop</span>
+        </a>
+        <nav class="site-nav site-nav-desktop" aria-label="Main">
+            <a href="#quickstart" class="site-nav-link active">Product</a>
+            <a href="#how" class="site-nav-link">How it works</a>
+            <a href="#demo" class="site-nav-link">Demo</a>
+            <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="site-nav-link" target="_blank" rel="noopener">Docs</a>
+            <a href="https://github.com/chonibe/SoftStop" class="site-nav-link" target="_blank" rel="noopener">
+                <svg class="site-nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                GitHub
             </a>
-            <nav class="hidden sm:flex items-center gap-5 text-[13px] text-slate-500 ml-2">
-                <a href="#quickstart" class="hover:text-paper transition-colors">Get started</a>
-                <a href="#how" class="hover:text-paper transition-colors">How it works</a>
-                <a href="#demo" class="hover:text-paper transition-colors">Demo</a>
-                <a href="#why" class="hover:text-paper transition-colors">Why SoftStop</a>
+        </nav>
+        <details class="site-menu">
+            <summary class="site-menu-toggle" aria-label="Toggle main navigation">
+                <span class="site-burger" aria-hidden="true"><span></span><span></span><span></span></span>
+            </summary>
+            <nav class="site-menu-panel" aria-label="Main">
+                <a href="#quickstart" class="site-nav-link">Product</a>
+                <a href="#how" class="site-nav-link">How it works</a>
+                <a href="#demo" class="site-nav-link">Demo</a>
+                <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="site-nav-link">Docs</a>
+                <a href="https://github.com/chonibe/SoftStop" class="site-nav-link">GitHub</a>
             </nav>
-            <div class="flex-1"></div>
-            <a href="https://github.com/chonibe/SoftStop" class="inline-flex items-center gap-2 text-[13px] font-medium text-slate-400 hover:text-paper transition-colors">
-                <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-                <span class="hidden md:inline">GitHub</span>
-            </a>
-            <a href="#quickstart" class="hero-cta-primary hidden sm:inline-flex items-center px-3.5 py-1.5 text-[12px]">Get started</a>
-        </div>
+        </details>
     </header>
 
     <div id="drawerOverlay" class="drawer-overlay" hidden></div>
@@ -634,150 +1384,157 @@
         </div>
     </aside>
 
-    <main class="min-h-screen">
 
-        <!-- Hero: OSS project homepage -->
-        <section class="relative overflow-hidden border-b border-white/[0.06]">
-            <div class="pointer-events-none absolute inset-0 opacity-[0.35]" style="background-image:linear-gradient(rgba(247,245,240,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(247,245,240,0.04) 1px, transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 65% 55% at 40% 35%, black, transparent);"></div>
-            <div class="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-16 md:pb-20">
-                <div class="flex flex-wrap items-center gap-3 mb-8 reveal">
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.12em] text-slate-500 border border-white/10 rounded-md px-2.5 py-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-stop-amber"></span>
-                        Open source · MIT
-                    </span>
-                    <a href="https://github.com/chonibe/SoftStop" class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-500 hover:text-paper border border-white/10 rounded-md px-2.5 py-1 transition-colors">
-                        github.com/chonibe/SoftStop
-                    </a>
-                </div>
-                <img src="assets/softstop-mark-dark.png" width="56" height="56" alt="" class="mb-7 reveal reveal-d1" />
-                <h1 class="font-display text-[clamp(3rem,7.5vw,5rem)] font-extrabold tracking-tight text-paper leading-[0.95] mb-5 max-w-3xl reveal reveal-d1">SoftStop</h1>
-                <p class="text-xl md:text-2xl text-paper/90 font-medium max-w-2xl leading-snug mb-4 reveal reveal-d2">
-                    Doesn't make software smarter.<br class="hidden sm:inline" /> Makes it stop when it should.
+
+    <main class="container">
+        <header class="hero">
+            <div class="hero-art" aria-hidden="true"><pre>                :::
+             :::::::::
+          :::::::::::::::          halt
+       :::::::::::::::::::::::
+    ::::::::             ::::::::
+  ::::::                     ::::::
+ :::::                         :::::
+:::::           STOP            :::::
+ :::::                         :::::
+  ::::::                     ::::::
+    ::::::::             ::::::::
+       :::::::::::::::::::::::
+          :::::::::::::::
+             :::::::::
+                :::
+</pre></div>
+            <div class="hero-content">
+                <img class="hero-mark" src="assets/softstop-mark-dark.png" width="72" height="72" alt="" />
+                <p class="hero-eyebrow">Open source · Authorize-only permit</p>
+                <h1 class="title">Makes software <em>stop</em> when it should.</h1>
+                <p class="description">
+                    The shared permit before any system raises pressure on a user.<br />
+                    One <code>check</code> before urgency, discount, interruption, or reminder — then <code>record</code>.
                 </p>
-                <p class="text-base md:text-[17px] text-slate-400 max-w-xl leading-relaxed mb-10 reveal reveal-d2">
-                    The shared authorize-only permit before any system raises pressure on a user.
-                    One <span class="code-chip">check</span> before urgency, discount, interruption, or reminder — then <span class="code-chip">record</span>.
-                </p>
-                <div class="flex flex-col sm:flex-row flex-wrap gap-3 reveal reveal-d3">
-                    <a href="#quickstart" class="hero-cta-primary inline-flex items-center justify-center gap-2 py-3 px-6 text-sm">Get started</a>
-                    <a href="https://github.com/chonibe/SoftStop" class="hero-cta-secondary inline-flex items-center justify-center gap-2 py-3 px-6 text-sm">
-                        <svg class="w-4 h-4 opacity-80" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-                        View on GitHub
-                    </a>
-                    <a href="#demo" class="hero-cta-ghost inline-flex items-center justify-center py-3 px-4 text-sm">Try the live demo →</a>
+                <div class="hero-actions">
+                    <a href="#quickstart" class="hero-cta oc-action oc-action-primary">Get started</a>
+                    <a href="#demo" class="hero-cta hero-cta-ghost oc-action oc-action-ghost">Try the live demo</a>
                 </div>
             </div>
-        </section>
+        </header>
 
-        <!-- Quickstart -->
-        <section id="quickstart" class="border-b border-white/[0.06]">
-            <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
-                <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
-                    <div>
-                        <p class="section-kicker mb-3">Quick start</p>
-                        <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight">Copy, paste, run</h2>
-                        <p class="text-slate-400 mt-2 max-w-xl text-sm md:text-base">Self-host in under five minutes. SoftStop decides whether systems may raise pressure — not what they say.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="https://github.com/chonibe/SoftStop" class="hero-cta-secondary inline-flex items-center gap-2 py-2 px-3.5 text-xs">GitHub</a>
-                        <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="hero-cta-ghost inline-flex items-center py-2 px-3 text-xs">Docs →</a>
-                    </div>
+        <div class="rail">
+            <section id="quickstart" class="quickstart">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Start</h2>
                 </div>
-
-                <div class="snippet-tabs" role="tablist" aria-label="Quick start snippets">
-                    <button type="button" class="snippet-tab active" data-snippet-tab="install" role="tab" aria-selected="true">Install</button>
-                    <button type="button" class="snippet-tab" data-snippet-tab="verify" role="tab" aria-selected="false">Verify</button>
-                    <button type="button" class="snippet-tab" data-snippet-tab="check" role="tab" aria-selected="false">check</button>
-                    <button type="button" class="snippet-tab" data-snippet-tab="sdk" role="tab" aria-selected="false">SDK</button>
-                </div>
-
-                <div class="snippet-panel active" data-snippet-panel="install">
-                    <div class="install-block">
-                        <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">Terminal · self-host</span>
-                            <button type="button" data-copy="#installCmd" class="copy-btn">Copy</button>
+                <div class="code-block" data-quickstart>
+                    <div class="code-header">
+                        <span class="code-label">install</span>
+                        <div class="mode-switch" role="tablist" aria-label="Install modes">
+                            <button type="button" class="mode-btn active" data-mode="oneliner" role="tab" aria-selected="true">One-liner</button>
+                            <button type="button" class="mode-btn" data-mode="sdk" role="tab" aria-selected="false">SDK</button>
+                            <button type="button" class="mode-btn" data-mode="selfhost" role="tab" aria-selected="false">Self-host</button>
+                            <button type="button" class="mode-btn" data-mode="curl" role="tab" aria-selected="false">curl</button>
                         </div>
-                        <pre id="installCmd">git clone https://github.com/chonibe/SoftStop.git
-cd SoftStop
-pnpm install
-pnpm dev</pre>
                     </div>
-                </div>
-                <div class="snippet-panel" data-snippet-panel="verify">
-                    <div class="install-block">
-                        <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">Smoke test · orphanRate must stay low</span>
-                            <button type="button" data-copy="#verifyCmd" class="copy-btn">Copy</button>
-                        </div>
-                        <pre id="verifyCmd">pnpm softstop verify
 
-# or
-curl -X POST http://localhost:3000/v1/verify
-curl http://localhost:3000/v1/health</pre>
-                    </div>
-                </div>
-                <div class="snippet-panel" data-snippet-panel="check">
-                    <div class="install-block">
-                        <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">POST /v1/check · before escalate</span>
-                            <button type="button" data-copy="#checkCmd" class="copy-btn">Copy</button>
+                    <div id="code-oneliner" class="code-content" data-mode-panel="oneliner">
+                        <div class="code-line comment"># Real package tarball from softstop.vercel.app (not on npm registry yet)</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>npm i https://softstop.vercel.app/softstop.tgz</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
                         </div>
-                        <pre id="checkCmd">curl -X POST http://localhost:3000/v1/check \
-  -H 'content-type: application/json' \
-  -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'</pre>
                     </div>
-                </div>
-                <div class="snippet-panel" data-snippet-panel="sdk">
-                    <div class="install-block">
-                        <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">check → allow/block → record</span>
-                            <button type="button" data-copy="#sdkCmd" class="copy-btn">Copy</button>
-                        </div>
-                        <pre id="sdkCmd">const base = process.env.SOFTSTOP_API_URL || "http://localhost:3000";
-const check = await fetch(`${base}/v1/check`, {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({
-    userId: "user_123",
-    actionType: "urgency", // urgency | discount | interruption | reminder
-    surface: "email"
-  })
-}).then((r) => r.json());
 
-if (!check.allowed) {
-  await fetch(`${base}/v1/record`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      decisionId: check.decisionId,
-      userId: "user_123",
-      actionType: "urgency",
-      outcome: "blocked",
-      blockReason: check.reason
-    })
-  });
-  return; // do not escalate
+                    <div id="code-sdk" class="code-content" data-mode-panel="sdk" hidden>
+                        <div class="code-line comment"># From GitHub (same package name: softstop)</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>npm i 'github:chonibe/SoftStop#path:packages/sdk-js'</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        </div>
+                        <div class="code-line comment"># Browser CDN — no install</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>import { SoftStop } from 'https://softstop.vercel.app/sdk.js'</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="code-selfhost" class="code-content" data-mode-panel="selfhost" hidden>
+                        <div class="code-line comment"># Run the SoftStop API locally</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>git clone https://github.com/chonibe/SoftStop.git && cd SoftStop && pnpm install && pnpm dev</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        </div>
+                        <div class="code-line comment"># Smoke test — orphanRate must stay low</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>pnpm softstop verify</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="code-curl" class="code-content" data-mode-panel="curl" hidden>
+                        <div class="code-line comment"># check before escalate (local /v1 — hosted uses /api)</div>
+                        <div class="code-line cmd">
+                            <span class="code-prompt">$</span>
+                            <span class="code-cmd-text" data-copy-text>curl -X POST http://localhost:3000/v1/check -H 'content-type: application/json' -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'</span>
+                            <button type="button" class="copy-line-btn" title="Copy" aria-label="Copy">
+                                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="usage-block" id="sdkUsage">
+                    <div class="code-header">
+                        <span class="code-label">usage</span>
+                        <button type="button" class="copy-line-btn" style="margin:9px 0;align-self:center" data-copy-target="#usagePre" title="Copy usage" aria-label="Copy usage">
+                            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
+                    </div>
+                    <pre id="usagePre">import { SoftStop } from 'softstop'
+
+const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
+const decision = await ss.check({ userId: 'user_123', actionType: 'urgency', surface: 'email' })
+
+if (!decision.allowed) {
+  await ss.record({ decisionId: decision.decisionId, userId: 'user_123', actionType: 'urgency', outcome: 'blocked', blockReason: decision.reason })
+  return // do not escalate
 }
-
-// escalate, then record outcome: "executed"</pre>
-                    </div>
+// escalate, then record outcome: 'executed'</pre>
                 </div>
 
-                <p class="mt-5 text-sm text-slate-500 max-w-2xl">
-                    Hosted APIs use <span class="code-chip">/api</span> instead of <span class="code-chip">/v1</span>.
-                    Docker: <span class="code-chip">docker compose up --build</span>
+                <p class="quickstart-note">
+                    Package name is <code>softstop</code>. Install via tarball or GitHub path until published to npm.
+                    Hosted APIs use <code>/api</code> instead of <code>/v1</code>.
                 </p>
-            </div>
-        </section>
+            </section>
 
-        <!-- How it works -->
-        <section id="how" class="border-b border-white/[0.06] bg-white/[0.015]">
-            <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
-                <p class="section-kicker mb-3">How it works</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">Escalate → check → allow or block → record</h2>
-                <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">
-                    SoftStop is an authorize-only permit. Same gate for marketing, product UI, and agents.
-                </p>
+            <section id="how">
+                <div class="section-header">
+                    <h2 class="section-title">How it works</h2>
+                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="section-link">Docs →</a>
+                </div>
+                <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Escalate → check → allow or block → record</h3>
+                <p class="description" style="text-align:left;margin:0 0 28px;max-width:42rem">SoftStop is an authorize-only permit. Same gate for marketing, product UI, and agents.</p>
 
                 <div class="flow-rail" id="flowRail">
                     <div class="flow-step" data-flow-step>
@@ -820,8 +1577,8 @@ if (!check.allowed) {
                 </div>
 
                 <div class="mt-14">
-                    <p class="section-kicker mb-3">Action types</p>
-                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-6">Four ways pressure shows up</h3>
+                    <p class="section-kicker">Action types</p>
+                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-6" style="margin:0 0 20px">Four ways pressure shows up</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="actionTiles">
                         <div class="action-tile">
                             <div class="font-mono text-stop-amber text-sm mb-2">urgency</div>
@@ -841,34 +1598,8 @@ if (!check.allowed) {
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-10 grid md:grid-cols-2 gap-6 md:gap-10">
-                    <div>
-                        <h3 class="text-sm font-semibold text-paper mb-3">SoftStop does</h3>
-                        <ul class="space-y-2 text-sm text-slate-400">
-                            <li><span class="code-chip">check</span> → allow or block</li>
-                            <li><span class="code-chip">record</span> the outcome</li>
-                            <li>Enforce cooldowns &amp; caps across systems</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold text-paper mb-3">SoftStop does not</h3>
-                        <ul class="space-y-2 text-sm text-slate-400">
-                            <li>Send messages</li>
-                            <li>Personalize content</li>
-                            <li>Optimize conversion</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm" id="docs">
-                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="text-slate-400 hover:text-stop-amber transition-colors">Docs</a>
-                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/BEFORE_AFTER.md" class="text-slate-400 hover:text-stop-amber transition-colors">Before / after</a>
-                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/GOVERNOR_INTEGRATION_WORKFLOW.md" class="text-slate-400 hover:text-stop-amber transition-colors">Integration</a>
-                    <a href="https://github.com/chonibe/SoftStop/tree/main/examples" class="text-slate-400 hover:text-stop-amber transition-colors">Examples</a>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
         <!-- Live demo -->
         <section id="demo" class="scroll-mt-14">
@@ -990,13 +1721,16 @@ if (!check.allowed) {
             </section>
         </section>
 
-        <!-- Why SoftStop / OSS -->
-        <section id="why" class="border-t border-white/[0.06]">
-            <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
-                <p class="section-kicker mb-3">Open source</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">Why SoftStop</h2>
-                <p class="text-slate-400 max-w-2xl leading-relaxed mb-8">
-                    One shared permit before any system raises pressure — so marketing, product, and agents stop stacking on the same user.
+
+        <div class="rail">
+            <section id="why">
+                <div class="section-header">
+                    <h2 class="section-title">Why SoftStop</h2>
+                    <a href="https://github.com/chonibe/SoftStop" class="section-link">GitHub →</a>
+                </div>
+                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">One shared permit before pressure</h3>
+                <p class="description" style="text-align:left;margin:0 0 28px;max-width:42rem">
+                    Marketing, product, and agents stop stacking on the same user. SoftStop authorizes — it does not send mail or write copy.
                 </p>
                 <div class="benefit-row">
                     <div class="benefit-card">
@@ -1013,30 +1747,24 @@ if (!check.allowed) {
                     </div>
                 </div>
                 <div class="oss-cta-row">
-                    <a href="https://github.com/chonibe/SoftStop" class="hero-cta-primary inline-flex items-center gap-2 py-3 px-5 text-sm">
-                        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-                        Star on GitHub
-                    </a>
-                    <a href="#quickstart" class="hero-cta-secondary inline-flex items-center py-3 px-5 text-sm">Install SoftStop</a>
-                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="hero-cta-ghost inline-flex items-center py-3 px-4 text-sm">Read the docs</a>
-                    <a href="https://github.com/chonibe/SoftStop/tree/main/examples" class="hero-cta-ghost inline-flex items-center py-3 px-4 text-sm">Examples</a>
+                    <a href="https://github.com/chonibe/SoftStop" class="hero-cta oc-action oc-action-primary">Star on GitHub</a>
+                    <a href="#quickstart" class="hero-cta hero-cta-ghost oc-action oc-action-ghost">Install SoftStop</a>
+                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="hero-cta hero-cta-ghost oc-action oc-action-ghost">Read the docs</a>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
-        <footer class="border-t border-white/[0.06]">
-            <div class="max-w-6xl mx-auto px-4 md:px-6 py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-slate-500">
-                <div class="flex items-center gap-2.5">
-                    <img src="assets/softstop-mark-dark.png" width="20" height="20" alt="" />
-                    <span class="font-display font-semibold text-paper text-[13px]">SoftStop</span>
-                    <span class="text-white/20">·</span>
-                    <span>MIT License</span>
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <div class="flex items-center gap-2">
+                    <img src="assets/softstop-mark-dark.png" width="18" height="18" alt="" />
+                    <span>SoftStop — MIT</span>
                 </div>
-                <div class="flex flex-wrap gap-x-5 gap-y-2">
-                    <a href="https://github.com/chonibe/SoftStop" class="hover:text-paper transition-colors">GitHub</a>
-                    <a href="#how" class="hover:text-paper transition-colors">How it works</a>
-                    <a href="#quickstart" class="hover:text-paper transition-colors">Get started</a>
-                    <a href="#demo" class="hover:text-paper transition-colors">Demo</a>
+                <div class="footer-links">
+                    <a href="#quickstart">Get started</a>
+                    <a href="#demo">Demo</a>
+                    <a href="https://github.com/chonibe/SoftStop">GitHub</a>
+                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md">Docs</a>
                 </div>
             </div>
         </footer>
@@ -2075,39 +2803,51 @@ if (!check.allowed) {
         if (e.key === 'Escape') closeDrawer();
     });
 
-    // Snippet tabs
-    document.querySelectorAll('[data-snippet-tab]').forEach((tab) => {
-        tab.addEventListener('click', () => {
-            const id = tab.getAttribute('data-snippet-tab');
-            document.querySelectorAll('[data-snippet-tab]').forEach((t) => {
-                t.classList.toggle('active', t === tab);
-                t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+    // OpenClaw-style install mode tabs
+    document.querySelectorAll('[data-mode]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const mode = btn.getAttribute('data-mode');
+            document.querySelectorAll('[data-mode]').forEach((b) => {
+                const on = b === btn;
+                b.classList.toggle('active', on);
+                b.setAttribute('aria-selected', on ? 'true' : 'false');
             });
-            document.querySelectorAll('[data-snippet-panel]').forEach((panel) => {
-                panel.classList.toggle('active', panel.getAttribute('data-snippet-panel') === id);
+            document.querySelectorAll('[data-mode-panel]').forEach((panel) => {
+                panel.hidden = panel.getAttribute('data-mode-panel') !== mode;
             });
         });
     });
 
-    // Copy install / SDK snippets
-    document.querySelectorAll('[data-copy]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            const target = document.querySelector(btn.getAttribute('data-copy'));
-            if (!target) return;
-            const text = target.innerText.trim();
-            try {
-                await navigator.clipboard.writeText(text);
-                const prev = btn.textContent;
-                btn.classList.add('copied');
-                btn.textContent = 'Copied';
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    btn.textContent = prev;
-                }, 1400);
-            } catch (_) {
-                btn.textContent = 'Failed';
-                setTimeout(() => { btn.textContent = 'Copy'; }, 1400);
+    async function copyText(btn, text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            btn.classList.add('copied');
+            const copyIcon = btn.querySelector('.copy-icon');
+            const checkIcon = btn.querySelector('.check-icon');
+            if (copyIcon) copyIcon.hidden = true;
+            if (checkIcon) checkIcon.hidden = false;
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                if (copyIcon) copyIcon.hidden = false;
+                if (checkIcon) checkIcon.hidden = true;
+            }, 1400);
+        } catch (_) {
+            btn.classList.add('copy-failed');
+            setTimeout(() => btn.classList.remove('copy-failed'), 1400);
+        }
+    }
+
+    document.querySelectorAll('.copy-line-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetSel = btn.getAttribute('data-copy-target');
+            if (targetSel) {
+                const el = document.querySelector(targetSel);
+                if (el) copyText(btn, el.innerText.trim());
+                return;
             }
+            const line = btn.closest('.code-line');
+            const span = line && line.querySelector('[data-copy-text]');
+            if (span) copyText(btn, span.innerText.trim());
         });
     });
 
@@ -2175,3 +2915,4 @@ if (!check.allowed) {
     </script>
 </body>
 </html>
+

@@ -27,7 +27,7 @@
 
 ## Later (optional)
 
-- Publish `@softstop/*` packages for embed
+- Publish `softstop` to the public npm registry (tarball + GitHub path install work today)
 - Thin agent adapters that call SoftStop before **user-facing** escalations
 - Commercial control plane (SSO, SIEM, distributed caps, policy UI) — pull-triggered; see [commercial-strategy.md](commercial-strategy.md)
 - Experimental MCP extraction remains under [archive/mcp-gateway](../archive/mcp-gateway)

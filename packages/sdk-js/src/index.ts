@@ -2,13 +2,18 @@ export type ActionType = "urgency" | "discount" | "interruption" | "reminder";
 export type Surface = "email" | "sms" | "push" | "in-app";
 export type Outcome = "executed" | "blocked" | "downgraded";
 
-export interface GovernorClientOptions {
-  /** API base URL. Default path prefix: /v1 on localhost, /api otherwise. */
+export interface SoftStopOptions {
+  /** SoftStop API base URL (alias of `baseUrl`). */
+  url?: string;
+  /** SoftStop API base URL. Default: http://localhost:3000 */
   baseUrl?: string;
   apiKey?: string;
-  /** Override path prefix (`/v1` or `/api`). */
+  /** Override path prefix (`/v1` local, `/api` hosted). */
   prefix?: "/v1" | "/api";
 }
+
+/** @deprecated Prefer SoftStopOptions */
+export type GovernorClientOptions = SoftStopOptions;
 
 export interface CheckRequest {
   userId: string;
@@ -36,6 +41,7 @@ export interface RecordRequest {
     ignored?: boolean;
     hesitated?: boolean;
   };
+  context?: Record<string, unknown>;
 }
 
 function defaultPrefix(baseUrl: string): "/v1" | "/api" {
@@ -47,13 +53,24 @@ function defaultPrefix(baseUrl: string): "/v1" | "/api" {
   }
 }
 
-export class GovernorClient {
+/**
+ * SoftStop client — authorize-only pressure permit.
+ *
+ * ```js
+ * import { SoftStop } from 'softstop'
+ * const ss = new SoftStop({ url: 'http://localhost:3000' })
+ * const decision = await ss.check({ userId: 'u1', actionType: 'urgency' })
+ * await ss.record({ … })
+ * ```
+ */
+export class SoftStop {
   private readonly baseUrl: string;
   private readonly prefix: "/v1" | "/api";
   private readonly apiKey?: string;
 
-  constructor(options: GovernorClientOptions = {}) {
-    this.baseUrl = (options.baseUrl ?? "http://localhost:3000").replace(/\/$/, "");
+  constructor(options: SoftStopOptions = {}) {
+    const raw = options.url ?? options.baseUrl ?? "http://localhost:3000";
+    this.baseUrl = String(raw).replace(/\/$/, "");
     this.prefix = options.prefix ?? defaultPrefix(this.baseUrl);
     this.apiKey = options.apiKey;
   }
@@ -71,6 +88,9 @@ export class GovernorClient {
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
+    if (!response.ok) {
+      throw new Error(`SoftStop check failed: ${response.status} ${response.statusText}`);
+    }
     return response.json() as Promise<CheckResponse>;
   }
 
@@ -80,6 +100,9 @@ export class GovernorClient {
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
+    if (!response.ok) {
+      throw new Error(`SoftStop record failed: ${response.status} ${response.statusText}`);
+    }
     return response.json() as Promise<{ ok?: boolean }>;
   }
 
@@ -89,25 +112,41 @@ export class GovernorClient {
       headers: this.headers(),
       body: JSON.stringify({})
     });
+    if (!response.ok) {
+      throw new Error(`SoftStop verify failed: ${response.status} ${response.statusText}`);
+    }
     return response.json() as Promise<{ ok?: boolean; message?: string }>;
+  }
+
+  async health(): Promise<Record<string, unknown>> {
+    const response = await fetch(`${this.baseUrl}${this.prefix}/health`, {
+      method: "GET",
+      headers: this.headers()
+    });
+    if (!response.ok) {
+      throw new Error(`SoftStop health failed: ${response.status} ${response.statusText}`);
+    }
+    return response.json() as Promise<Record<string, unknown>>;
   }
 }
 
+/** @deprecated Use SoftStop */
+export class GovernorClient extends SoftStop {}
+
 /** @deprecated Use check/record. Kept for experimental MCP authorize path. */
 export async function authorize(
-  options: GovernorClientOptions & { payload: unknown }
+  options: SoftStopOptions & { payload: unknown }
 ): Promise<unknown> {
-  const client = new GovernorClient(options);
-  const response = await fetch(
-    `${(options.baseUrl ?? "http://localhost:3000").replace(/\/$/, "")}/v1/authorize`,
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...(options.apiKey ? { authorization: `Bearer ${options.apiKey}` } : {})
-      },
-      body: JSON.stringify(options.payload)
-    }
-  );
+  const base = (options.url ?? options.baseUrl ?? "http://localhost:3000").replace(/\/$/, "");
+  const response = await fetch(`${base}/v1/authorize`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...(options.apiKey ? { authorization: `Bearer ${options.apiKey}` } : {})
+    },
+    body: JSON.stringify(options.payload)
+  });
   return response.json();
 }
+
+export default SoftStop;

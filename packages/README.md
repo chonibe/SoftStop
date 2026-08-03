@@ -1,11 +1,16 @@
-# SoftStop experimental packages
+# SoftStop packages
 
-The public SoftStop product is the pressure permit in [`governor/`](../governor/), not these packages.
+## Public client SDK
 
-This workspace holds an **experimental** library extraction (`@governor/core`, gateway, server, storage) oriented toward tool-call authorization. For launch positioning see:
+[`sdk-js/`](./sdk-js) publishes as **`softstop`** — the tiny JS/TS client for `check` / `record`.
 
-- [Root README](../README.md)
-- [archive/mcp-gateway](../archive/mcp-gateway)
-- [docs/ROADMAP.md](../docs/ROADMAP.md)
+```bash
+npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
+# or: npm i https://softstop.vercel.app/softstop.tgz
+```
 
-Do not treat these packages as the SoftStop v0.1 homepage API.
+Browser CDN: `https://softstop.vercel.app/sdk.js`
+
+## Experimental extraction
+
+`@governor/core`, gateway, server, storage remain an experimental library extraction oriented toward tool-call authorization. The public SoftStop product is the pressure permit in [`governor/`](../governor/). See [Root README](../README.md), [archive/mcp-gateway](../archive/mcp-gateway), [docs/ROADMAP.md](../docs/ROADMAP.md).

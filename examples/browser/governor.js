@@ -377,3 +377,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { GovernorClient };
 }
+
+
+// SoftStop SDK alias — prefer examples/browser/softstop.js or https://softstop.vercel.app/sdk.js
+var SoftStop = GovernorClient;
+if (typeof window !== "undefined") window.SoftStop = SoftStop;
