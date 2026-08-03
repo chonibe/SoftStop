@@ -113,11 +113,51 @@
         .glow { animation: glow 2s ease-in-out infinite; }
         .shake { animation: shake 0.3s ease-in-out; }
         
-        .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
+        .pressure-card { opacity: 0; transform: translateX(-20px); transition: all 0.35s ease-out; }
         .pressure-card.visible { opacity: 1; transform: translateX(0); }
-        .pressure-card.blocked { opacity: 0.6; }
+        .pressure-card.landed {
+            border-color: rgba(239, 68, 68, 0.35);
+            background: rgba(239, 68, 68, 0.06);
+        }
+        .pressure-card.blocked {
+            opacity: 1;
+            border-style: dashed;
+            border-color: rgba(232, 163, 23, 0.55);
+            background: rgba(11, 11, 15, 0.85);
+            position: relative;
+        }
+        .pressure-card.blocked .msg-subject {
+            text-decoration: line-through;
+            color: #78716c;
+        }
         .pressure-card.blocked .block-reason {
             display: block !important;
+        }
+        .pressure-card.blocked::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 3px;
+            background: #E8A317;
+            border-radius: 8px 8px 0 0;
+            pointer-events: none;
+        }
+        body.mode-on #timeline { --mode-accent: #E8A317; }
+        body.mode-off #timeline { --mode-accent: #ef4444; }
+        #modeBanner {
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+        #modeBanner.off {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fecaca;
+        }
+        #modeBanner.on {
+            background: rgba(232, 163, 23, 0.12);
+            border-color: rgba(232, 163, 23, 0.45);
+            color: #fde68a;
         }
         
         .timeline-line { 
@@ -271,22 +311,27 @@
     </div>
     
     <!-- Fixed SoftStop Toggle Button -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70]">
-        <button id="softstopBtnFixed" class="bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-6 py-4 transition-all text-left group shadow-2xl backdrop-blur-sm">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70] flex flex-col items-center gap-2 w-[min(92vw,420px)]">
+        <button id="softstopBtnFixed" class="w-full bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-5 py-3.5 transition-all text-left group shadow-2xl backdrop-blur-sm">
             <div class="flex items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div id="softstopIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all"></div>
-                    <div>
-                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
-                          <img src="assets/softstop-icon.png" width="16" height="16" alt="" />
+                <div class="flex items-center gap-3 min-w-0">
+                    <div id="softstopIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all shrink-0"></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
                           SoftStop
                         </div>
-                        <div id="softstopLabelFixed" class="font-bold text-white">OFF</div>
+                        <div class="flex items-baseline gap-2">
+                          <span id="softstopLabelFixed" class="font-bold text-white text-lg">OFF</span>
+                          <span id="softstopModeHint" class="text-xs text-accent-red truncate">every escalation lands</span>
+                        </div>
                     </div>
                 </div>
-                <div class="text-xs text-slate-500 group-hover:text-white transition-colors">Tap to toggle</div>
+                <div class="text-[10px] text-slate-500 group-hover:text-white transition-colors shrink-0 uppercase tracking-wide">Tap</div>
             </div>
         </button>
+        <div id="modeBanner" class="mode-banner off w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm">
+            <span id="modeBannerText">SoftStop OFF — scroll the chaos. Then turn SoftStop ON and compare.</span>
+        </div>
     </div>
     
     <!-- Fixed Sidebar -->
@@ -551,7 +596,8 @@
                 <p class="text-[11px] tracking-[0.2em] uppercase text-stop-amber font-semibold mb-4">Example · marketing chaos</p>
                 <h1 class="font-display text-3xl md:text-5xl font-semibold tracking-tight mb-4">44 days, one user, every channel</h1>
                 <p class="text-lg text-slate-400 mb-6 leading-relaxed">
-                    Scroll the story. Toggle SoftStop at the top. You’re watching what happens when escalations don’t share a permit — then what SoftStop changes.
+                    Scroll SoftStop <span class="text-accent-red font-medium">OFF</span> — every touch is marked <span class="text-accent-red font-medium">LANDED</span>.
+                    Toggle SoftStop <span class="text-stop-amber font-medium">ON</span> — excess touches show <span class="text-stop-amber font-medium">BLOCKED</span> with the rule that stopped them.
                 </p>
                 <div class="flex flex-wrap justify-center gap-2 mb-10 text-xs md:text-sm">
                     <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Email</span>
@@ -1347,58 +1393,90 @@
         els.blockedCount.textContent = state.blocked;
     }
 
-    function shouldBlock(event) {
-        if (!state.softstopEnabled) return null;
-        
-        // Check various blocking rules and return reason
-        if (state.pressure > 50) {
+    function shouldBlock(event, ctx) {
+        // ctx: { softstopEnabled, pressure, counts } — does not mutate
+        if (!ctx.softstopEnabled) return null;
+
+        if (ctx.pressure > 50) {
             return {
                 blocked: true,
                 rule: 'PRESSURE_LIMIT',
-                reason: `User pressure at ${state.pressure}% (limit: 50%)`,
-                suggestion: 'Wait for cooldown or reduce intensity'
+                reason: `Pressure already ${ctx.pressure}% (cap 50%)`,
+                suggestion: 'Cooldown — do not escalate further'
             };
         }
-        if (event.type === 'urgency' && state.pressure > 30) {
+        if (event.type === 'urgency' && ctx.pressure > 30) {
             return {
                 blocked: true,
                 rule: 'URGENCY_COOLDOWN',
-                reason: `Urgency blocked at ${state.pressure}% pressure`,
-                suggestion: 'User already received urgency messaging'
+                reason: `Urgency blocked while pressure is ${ctx.pressure}%`,
+                suggestion: 'Use a softer reminder or wait'
             };
         }
         if (event.pressure > 14) {
             return {
                 blocked: true,
                 rule: 'HIGH_PRESSURE_ACTION',
-                reason: `Action intensity ${event.pressure} exceeds limit (14)`,
-                suggestion: 'Use lower-pressure alternative'
+                reason: `Intensity +${event.pressure} exceeds single-touch cap (14)`,
+                suggestion: 'Lower-intensity channel or copy'
             };
         }
-        
-        // Channel-specific limits
-        const channelLimits = { email: 3, sms: 1, push: 2, popup: 1, ad: 2, social: 1 };
-        if (channelLimits[event.channel] && state.counts[event.channel] >= channelLimits[event.channel]) {
+
+        const channelLimits = { email: 3, sms: 1, push: 2, popup: 1, ad: 2, social: 1, badge: 2, chat: 1 };
+        if (channelLimits[event.channel] != null && (ctx.counts[event.channel] || 0) >= channelLimits[event.channel]) {
             return {
                 blocked: true,
                 rule: 'CHANNEL_LIMIT',
-                reason: `${event.channel.toUpperCase()} limit reached (${channelLimits[event.channel]}/day)`,
-                suggestion: `Try a different channel`
+                reason: `${event.channel.toUpperCase()} already hit ${channelLimits[event.channel]} touches`,
+                suggestion: 'Different channel or wait for reset'
             };
         }
-        
+
         return null;
+    }
+
+    function simulateJourney(events, softstopOn) {
+        const ctx = {
+            softstopEnabled: softstopOn,
+            pressure: 0,
+            counts: { email: 0, sms: 0, push: 0, popup: 0, badge: 0, chat: 0, ad: 0, social: 0 }
+        };
+        const decisions = new Map(); // key -> { decision, blockResult, pressureAfter }
+        let blocked = 0;
+        let totalTouches = 0;
+
+        events.forEach((event) => {
+            const key = event.date + event.channel + event.subject;
+            if (event.isUser) {
+                ctx.pressure = Math.max(0, ctx.pressure + event.pressure);
+                decisions.set(key, { decision: 'USER_ACTION', blockResult: null, pressureAfter: ctx.pressure });
+                return;
+            }
+            const blockResult = shouldBlock(event, ctx);
+            if (blockResult) {
+                blocked++;
+                ctx.pressure = Math.max(0, ctx.pressure - 5);
+                decisions.set(key, { decision: 'BLOCKED', blockResult, pressureAfter: ctx.pressure });
+            } else {
+                if (ctx.counts[event.channel] !== undefined) ctx.counts[event.channel]++;
+                totalTouches++;
+                ctx.pressure += event.pressure;
+                decisions.set(key, { decision: 'ALLOWED', blockResult: null, pressureAfter: ctx.pressure });
+            }
+        });
+
+        return { decisions, blocked, totalTouches, finalPressure: ctx.pressure, counts: ctx.counts };
     }
 
     function processEvent(event, card) {
         const key = event.date + event.channel + event.subject;
         if (state.visibleEvents.has(key)) return;
         state.visibleEvents.add(key);
-        
+
         const isUser = card.dataset.isUser === 'true';
-        
+        const preset = card.dataset.decision;
+
         if (isUser) {
-            // User actions - just update pressure (can be negative = relief)
             state.pressure = Math.max(0, state.pressure + event.pressure);
             card.classList.add('visible');
             logDecision(event, 'USER_ACTION');
@@ -1406,38 +1484,25 @@
             updateStats();
             return;
         }
-        
-        const blockResult = shouldBlock(event);
-        
-        if (blockResult && blockResult.blocked) {
+
+        if (preset === 'BLOCKED') {
             state.blocked++;
-            card.classList.add('blocked');
-            
-            // Populate block reason in the card
-            const ruleEl = card.querySelector('.block-rule');
-            const reasonEl = card.querySelector('.block-reason-text');
-            const suggestionEl = card.querySelector('.block-suggestion');
-            if (ruleEl) ruleEl.textContent = blockResult.rule;
-            if (reasonEl) reasonEl.textContent = `Reason: ${blockResult.reason}`;
-            if (suggestionEl) suggestionEl.textContent = `💡 ${blockResult.suggestion}`;
-            
-            // Log the blocked decision
+            card.classList.add('blocked', 'visible');
+            const blockResult = {
+                rule: card.dataset.blockRule || 'SOFTSTOP',
+                reason: card.dataset.blockReason || 'Blocked by SoftStop',
+                suggestion: card.dataset.blockSuggestion || ''
+            };
             logDecision(event, 'BLOCKED', blockResult);
-            
-            // Blocking prevents new pressure AND provides relief
             state.pressure = Math.max(0, state.pressure - 5);
         } else {
-            if (state.counts[event.channel] !== undefined) {
-                state.counts[event.channel]++;
-            }
+            if (state.counts[event.channel] !== undefined) state.counts[event.channel]++;
             state.totalTouches++;
             state.pressure += event.pressure;
-            
-            // Log allowed decision
+            card.classList.add('landed', 'visible');
             logDecision(event, 'ALLOWED');
         }
-        
-        card.classList.add('visible');
+
         updatePressure();
         updateStats();
     }
@@ -1445,38 +1510,54 @@
     function buildTimeline() {
         const dates = getUniqueDates();
         let html = '';
-        
         const filteredEvents = getFilteredEvents();
-        
+        const sim = simulateJourney(filteredEvents, state.softstopEnabled);
+
         dates.forEach((date, dayIndex) => {
             const dayEvents = filteredEvents.filter(e => e.date === date);
             const formattedDate = formatDate(date);
-            
+            const dayBlocked = dayEvents.filter(e => {
+                const d = sim.decisions.get(e.date + e.channel + e.subject);
+                return d && d.decision === 'BLOCKED';
+            }).length;
+            const daySent = dayEvents.filter(e => {
+                const d = sim.decisions.get(e.date + e.channel + e.subject);
+                return d && d.decision === 'ALLOWED';
+            }).length;
+
             html += `
                 <div class="day-section mb-8 md:mb-12 relative pl-8 md:pl-16" data-date="${date}" data-day="${dayIndex + 1}">
                     <div class="timeline-dot" data-day="${dayIndex + 1}"></div>
-                    <div class="flex items-center gap-2 md:gap-3 mb-4">
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
                         <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">${formattedDate}</span>
-                        <span class="text-xs text-slate-600">${dayEvents.length} touch${dayEvents.length > 1 ? 'es' : ''}</span>
+                        ${state.softstopEnabled
+                            ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-red/15 text-accent-red">${daySent} landed</span>
+                               <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stop-amber/15 text-stop-amber">${dayBlocked} blocked</span>`
+                            : `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-red/15 text-accent-red">${daySent} landed · none blocked</span>`
+                        }
                     </div>
                     <div class="space-y-3">
             `;
-            
-                    dayEvents.forEach(event => {
+
+            dayEvents.forEach(event => {
                 const cfg = channelConfig[event.channel];
                 const isUser = event.isUser;
                 const hasTrigger = event.trigger;
-                
+                const key = event.date + event.channel + event.subject;
+                const decision = sim.decisions.get(key);
+                const isBlocked = decision && decision.decision === 'BLOCKED';
+                const block = decision && decision.blockResult;
+
                 if (isUser) {
-                    // User action card - styled differently
                     html += `
                         <div class="pressure-card user-action relative rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color}"
-                             data-date="${event.date}" 
+                             data-date="${event.date}"
                              data-channel="${event.channel}"
                              data-subject="${event.subject}"
                              data-type="${event.type}"
                              data-pressure="${event.pressure}"
-                             data-is-user="true">
+                             data-is-user="true"
+                             data-decision="USER_ACTION">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 bg-accent-green/20 rounded-lg flex items-center justify-center flex-shrink-0">${getChannelLogo(event.channel, event.subject)}</div>
                                 <div class="flex-1 min-w-0">
@@ -1489,44 +1570,107 @@
                             </div>
                         </div>
                     `;
-                } else {
-                    // Platform pressure card
+                } else if (isBlocked) {
                     html += `
-                        <div class="pressure-card relative bg-surface rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color} border border-white/5"
-                             data-date="${event.date}" 
+                        <div class="pressure-card blocked relative rounded-lg md:rounded-xl p-3 md:p-4 border border-dashed"
+                             data-date="${event.date}"
                              data-channel="${event.channel}"
                              data-subject="${event.subject}"
                              data-type="${event.type}"
-                             data-pressure="${event.pressure}">
+                             data-pressure="${event.pressure}"
+                             data-decision="BLOCKED"
+                             data-block-rule="${block.rule}"
+                             data-block-reason="${block.reason.replace(/"/g, '&quot;')}"
+                             data-block-suggestion="${(block.suggestion || '').replace(/"/g, '&quot;')}">
+                            <div class="flex items-start gap-3 relative z-10">
+                                <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center flex-shrink-0 opacity-50">${getChannelLogo(event.channel, event.subject)}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="text-[10px] uppercase font-bold tracking-wide bg-stop-amber text-ink px-2 py-0.5 rounded">BLOCKED</span>
+                                        <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
+                                        <span class="text-[10px] text-slate-600 line-through">+${event.pressure} pressure</span>
+                                        <span class="text-[10px] text-stop-amber font-mono">→ 0</span>
+                                    </div>
+                                    <div class="msg-subject font-semibold text-sm">${event.subject}</div>
+                                    <div class="block-reason mt-3 bg-stop-amber/10 border border-stop-amber/30 rounded-lg p-3">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-stop-amber font-bold text-xs">SoftStop stopped this</span>
+                                            <span class="text-[10px] bg-stop-amber/20 text-stop-amber px-2 py-0.5 rounded font-mono">${block.rule}</span>
+                                        </div>
+                                        <div class="text-xs text-slate-400">${block.reason}</div>
+                                        <div class="text-[10px] text-slate-500 mt-1">${block.suggestion || ''}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="pressure-card landed relative bg-surface rounded-lg md:rounded-xl p-3 md:p-4 border-l-4 ${cfg.color} border border-white/5"
+                             data-date="${event.date}"
+                             data-channel="${event.channel}"
+                             data-subject="${event.subject}"
+                             data-type="${event.type}"
+                             data-pressure="${event.pressure}"
+                             data-decision="ALLOWED">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center flex-shrink-0">${getChannelLogo(event.channel, event.subject)}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="text-[10px] uppercase font-bold tracking-wide bg-accent-red/20 text-accent-red px-2 py-0.5 rounded">LANDED</span>
                                         <span class="text-[10px] text-slate-500 uppercase font-bold">${cfg.label}</span>
-                                        <span class="text-[10px] text-slate-600">+${event.pressure} pressure</span>
-                                        ${hasTrigger ? `<span class="text-[10px] bg-accent-orange/20 text-accent-orange px-1.5 py-0.5 rounded">← triggered by: ${event.trigger.replace('_', ' ')}</span>` : ''}
+                                        <span class="text-[10px] text-accent-red font-mono">+${event.pressure} pressure</span>
+                                        ${hasTrigger ? `<span class="text-[10px] bg-accent-orange/20 text-accent-orange px-1.5 py-0.5 rounded">← ${event.trigger.replace('_', ' ')}</span>` : ''}
                                     </div>
-                                    <div class="font-semibold text-sm">${event.subject}</div>
+                                    <div class="font-semibold text-sm msg-subject">${event.subject}</div>
                                 </div>
-                            </div>
-                            <!-- Block reason (shown when blocked) -->
-                            <div class="block-reason hidden mt-3 bg-accent-green/10 border border-accent-green/30 rounded-lg p-3">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-accent-green font-bold text-xs">🛡️ BLOCKED</span>
-                                    <span class="block-rule text-[10px] bg-accent-green/20 text-accent-green px-2 py-0.5 rounded font-mono"></span>
-                                </div>
-                                <div class="block-reason-text text-xs text-slate-400"></div>
-                                <div class="block-suggestion text-[10px] text-slate-500 mt-1 italic"></div>
                             </div>
                         </div>
                     `;
                 }
             });
-            
+
             html += `</div></div>`;
         });
-        
+
         els.timelineEntries.innerHTML = html;
+        document.body.classList.toggle('mode-on', state.softstopEnabled);
+        document.body.classList.toggle('mode-off', !state.softstopEnabled);
+        updateModeChrome();
+    }
+
+    function updateModeChrome() {
+        const banner = document.getElementById('modeBanner');
+        const bannerText = document.getElementById('modeBannerText');
+        const modeHint = document.getElementById('softstopModeHint');
+        const softstopIndicatorFixed = document.getElementById('softstopIndicatorFixed');
+        const softstopLabelFixed = document.getElementById('softstopLabelFixed');
+
+        if (state.softstopEnabled) {
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
+            if (els.softstopLabel) els.softstopLabel.textContent = 'ON';
+            if (els.softstopHint) els.softstopHint.textContent = 'Amber = SoftStop blocked it. Red LANDED = still allowed.';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all shrink-0';
+            if (softstopLabelFixed) softstopLabelFixed.textContent = 'ON';
+            if (modeHint) {
+                modeHint.textContent = 'only allowed escalations pass';
+                modeHint.className = 'text-xs text-stop-amber truncate';
+            }
+            if (banner) banner.className = 'mode-banner on w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm';
+            if (bannerText) bannerText.textContent = 'SoftStop ON — blocked touches show amber + strikethrough. Compare by toggling OFF.';
+        } else {
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
+            if (els.softstopLabel) els.softstopLabel.textContent = 'OFF';
+            if (els.softstopHint) els.softstopHint.textContent = 'Every escalation lands. Turn SoftStop ON to see blocks.';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all shrink-0';
+            if (softstopLabelFixed) softstopLabelFixed.textContent = 'OFF';
+            if (modeHint) {
+                modeHint.textContent = 'every escalation lands';
+                modeHint.className = 'text-xs text-accent-red truncate';
+            }
+            if (banner) banner.className = 'mode-banner off w-full text-center text-xs md:text-sm font-medium px-3 py-2 rounded-xl border backdrop-blur-sm';
+            if (bannerText) bannerText.textContent = 'SoftStop OFF — every touch LANDED (red). Tap SoftStop ON, then scroll again to compare.';
+        }
     }
 
     function setupObservers() {
@@ -1602,31 +1746,7 @@
         state.currentDay = 1;
         decisionLog.length = 0;
         
-        // Update both indicators (sidebar and fixed)
-        const softstopIndicatorFixed = document.getElementById('softstopIndicatorFixed');
-        const softstopLabelFixed = document.getElementById('softstopLabelFixed');
-        
-        if (state.softstopEnabled) {
-            // Sidebar indicator
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
-            if (els.softstopLabel) els.softstopLabel.textContent = 'ON';
-            if (els.softstopHint) els.softstopHint.textContent = 'SoftStop is protecting this user. The story changes!';
-            
-            // Fixed button
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all';
-            if (softstopLabelFixed) softstopLabelFixed.textContent = 'ON';
-        } else {
-            // Sidebar indicator
-            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
-            if (els.softstopLabel) els.softstopLabel.textContent = 'OFF';
-            if (els.softstopHint) els.softstopHint.textContent = 'Use the button to toggle SoftStop';
-            
-            // Fixed button
-            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all';
-            if (softstopLabelFixed) softstopLabelFixed.textContent = 'OFF';
-        }
-        
-        // Rebuild timeline with different events based on SoftStop state
+        // Rebuild timeline with SoftStop decisions baked into card visuals
         buildTimeline();
         setupObservers();
         updatePressure();
