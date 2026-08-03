@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftStop — Makes software stop when it should</title>
     <meta name="description" content="SoftStop is the shared per-customer pressure journal. Every system check/records into one permit — urgency, discount, interruption, reminder — so no channel is blind.">
-    <link rel="icon" href="assets/softstop-mark-dark.png" type="image/png" />
+    <link rel="icon" href="assets/softstop-icon.png?v=beaver11" type="image/png" />
     <meta property="og:title" content="SoftStop" />
     <meta property="og:description" content="Doesn't make software smarter. Makes it stop when it should." />
     <meta property="og:image" content="assets/softstop-cover.png" />
@@ -242,10 +242,11 @@
             .hero-content { padding: 52px 20px 48px; }
         }
         .hero-mark {
-            width: 72px; height: 72px;
+            width: 96px; height: 96px;
             margin-bottom: 10px;
             filter: drop-shadow(0 0 24px var(--logo-glow));
-            border-radius: 14px;
+            border-radius: 0;
+            object-fit: contain;
         }
         .hero-eyebrow {
             font-family: var(--oc-font-mono);
@@ -491,8 +492,9 @@
         .wf-stage {
             position: relative;
             z-index: 1;
-            padding: 36px 28px 40px;
+            padding: 96px 28px 40px;
             min-height: 420px;
+            overflow: visible;
         }
         .wf-stage-grid {
             position: relative;
@@ -502,6 +504,7 @@
             gap: 0 8px;
             align-items: center;
             min-height: 348px;
+            overflow: visible;
         }
         .wf-edges {
             position: absolute;
@@ -541,8 +544,9 @@
             flex-direction: column;
             gap: 10px;
             justify-content: center;
+            overflow: visible;
         }
-        .wf-col-hub { align-items: center; }
+        .wf-col-hub { align-items: center; overflow: visible; }
         .wf-col-out { gap: 28px; }
         .wf-spacer { /* flex gutter for SVG edges */ min-width: 0; }
 
@@ -564,10 +568,27 @@
         }
         .wf-node.is-hub {
             flex-direction: column;
-            align-items: stretch;
+            align-items: center;
+            justify-content: center;
             gap: 0;
+            padding: 8px;
+            min-width: 112px;
+            width: 112px;
+            height: 128px;
+            min-height: 128px;
+            position: relative;
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+        }
+        .wf-node.is-hub.has-journal {
+            align-items: stretch;
+            width: auto;
+            height: auto;
+            min-height: 0;
             padding: 0;
             min-width: 188px;
+            overflow: visible;
             background: linear-gradient(180deg, #222228 0%, #16161c 100%);
             border-color: color-mix(in srgb, var(--ss-amber) 42%, rgba(154,154,162,0.2));
             box-shadow:
@@ -616,19 +637,44 @@
         .wf-hub-head {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 14px 12px;
+            justify-content: center;
+            gap: 0;
+            padding: 0;
+            border-bottom: none;
+        }
+        .wf-node.is-hub.has-journal .wf-hub-head {
+            justify-content: center;
+            gap: 0;
+            padding: 10px 14px 8px;
             border-bottom: 1px solid rgba(154, 154, 162, 0.14);
+            overflow: visible;
+            position: relative;
+            z-index: 4;
         }
         .wf-hub-mark {
-            width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
-            background: var(--ss-amber);
-            color: var(--ss-ink);
+            width: 88px; height: 88px; border-radius: 0; flex-shrink: 0;
+            overflow: visible;
+            background: transparent;
             display: grid; place-items: center;
-            font-family: var(--oc-font-display);
-            font-weight: 700;
-            font-size: 0.72rem;
-            letter-spacing: -0.02em;
+            padding: 0;
+        }
+        .wf-hub-mark img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .wf-node.is-hub.has-journal .wf-hub-mark {
+            width: 176px;
+            height: 176px;
+            margin: -78px auto -18px;
+            transform: scale(1.28);
+            transform-origin: center bottom;
+            pointer-events: none;
+        }
+        .wf-node.is-hub.has-journal .wf-hub-mark img {
+            width: 176px;
+            height: 176px;
+            max-width: none;
         }
         .wf-hub-title {
             font-family: var(--oc-font-display);
@@ -649,6 +695,8 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            position: relative;
+            z-index: 5;
         }
         .wf-hub-row {
             display: flex;
@@ -685,9 +733,11 @@
         .wf-port.in { left: -5px; top: 50%; transform: translateY(-50%); }
         .wf-port.amber { border-color: var(--ss-amber); background: color-mix(in srgb, var(--ss-amber) 35%, #2a2a32); }
         .wf-port.ok { border-color: var(--ss-ok); background: color-mix(in srgb, var(--ss-ok) 30%, #2a2a32); }
-        .wf-node.is-hub .wf-port.in { top: 50%; }
-        .wf-node.is-hub .wf-port.out-allow { right: -5px; top: 38%; transform: translateY(-50%); }
-        .wf-node.is-hub .wf-port.out-block { right: -5px; top: 68%; transform: translateY(-50%); }
+        .wf-node.is-hub .wf-port.in { left: -5px; top: 50%; transform: translateY(-50%); }
+        .wf-node.is-hub .wf-port.out-allow { right: -5px; top: 30%; transform: translateY(-50%); }
+        .wf-node.is-hub .wf-port.out-block { right: -5px; top: 70%; transform: translateY(-50%); }
+        .wf-node.is-hub.has-journal .wf-port.out-allow { top: 38%; }
+        .wf-node.is-hub.has-journal .wf-port.out-block { top: 68%; }
 
         .wf-toolbar {
             position: absolute;
@@ -782,11 +832,15 @@
             min-height: 40px;
         }
         .wf-canvas.is-strip .wf-node.is-hub {
-            min-width: 150px;
+            min-width: 0;
+            width: auto;
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
         }
         .wf-canvas.is-strip .wf-hub-body { display: none; }
         .wf-canvas.is-strip .wf-hub-head {
-            padding: 12px;
+            padding: 0;
             border-bottom: none;
         }
         .wf-canvas.is-mini {
@@ -807,10 +861,16 @@
             padding: 8px 10px 8px 8px;
             min-height: 40px;
         }
-        .wf-canvas.is-mini .wf-node.is-hub { min-width: 0; width: 100%; }
+        .wf-canvas.is-mini .wf-node.is-hub {
+            min-width: 0;
+            width: auto;
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+        }
         .wf-canvas.is-mini .wf-hub-body { display: none; }
         .wf-canvas.is-mini .wf-hub-head {
-            padding: 11px 12px;
+            padding: 0;
             border-bottom: none;
         }
         .wf-canvas.is-broken {
@@ -836,7 +896,7 @@
             align-items: center;
         }
         .wf-canvas.is-scale.is-clean .wf-stage-grid {
-            grid-template-columns: minmax(100px, 1fr) 0.35fr minmax(120px, 148px) 0.4fr minmax(118px, 1fr);
+            grid-template-columns: minmax(100px, 1fr) 0.35fr minmax(120px, 132px) 0.4fr minmax(118px, 1fr);
             min-height: 340px;
         }
         .wf-canvas.is-scale.is-clean .wf-stage {
@@ -847,13 +907,23 @@
             min-height: 38px;
         }
         .wf-canvas.is-scale .wf-node.is-hub {
-            min-width: 0;
-            width: 100%;
+            min-width: 112px;
+            width: 112px;
+            height: 128px;
+            justify-self: center;
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+            padding: 8px;
         }
         .wf-canvas.is-scale .wf-hub-body { display: none; }
         .wf-canvas.is-scale .wf-hub-head {
-            padding: 10px 11px;
+            padding: 0;
             border-bottom: none;
+        }
+        .wf-canvas.is-scale .wf-hub-mark {
+            width: 100px;
+            height: 100px;
         }
         .wf-canvas.is-scale .wf-col-systems { gap: 7px; }
         .wf-canvas.is-scale .wf-col-out { gap: 10px; }
@@ -2071,7 +2141,7 @@
 
     <header class="site-topbar">
         <a href="#" class="site-brand" aria-label="SoftStop home">
-            <img src="assets/softstop-mark-dark.png" alt="" width="22" height="22" />
+            <img src="assets/softstop-icon.png?v=beaver11" alt="" width="22" height="22" />
             <span>SoftStop</span>
         </a>
         <nav class="site-nav site-nav-desktop" aria-label="Main">
@@ -2187,7 +2257,7 @@
     <main class="page">
         <header class="hero">
             <div class="hero-content">
-                <img class="hero-mark" src="assets/softstop-mark-dark.png" width="72" height="72" alt="" />
+                <img class="hero-mark" src="assets/softstop-icon.png?v=beaver11" width="96" height="96" alt="" />
                 <p class="hero-eyebrow">Open source · Shared pressure journal</p>
                 <div class="hero-rotator" aria-live="polite">
                     <h1 class="title" id="heroTitle">One journal.<br /><em>Every</em> system asks it.</h1>
@@ -2309,16 +2379,12 @@ if (!d.allowed) {
 
                         <div class="wf-col wf-col-hub">
                             <div class="wf-mobile-flow" aria-hidden="true">↓ converge ↓</div>
-                            <div class="wf-node is-hub" data-wf-node="hub" id="wfHub">
+                            <div class="wf-node is-hub has-journal" data-wf-node="hub" id="wfHub" aria-label="SoftStop">
                                 <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
                                 <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
                                 <span class="wf-port out-block amber" data-port="out-block" aria-hidden="true"></span>
                                 <div class="wf-hub-head">
-                                    <div class="wf-hub-mark" aria-hidden="true">SS</div>
-                                    <div>
-                                        <div class="wf-hub-title">SoftStop</div>
-                                        <div class="wf-hub-sub">Shared journal · cust_1042</div>
-                                    </div>
+                                    <div class="wf-hub-mark" aria-hidden="true"><img src="assets/beaver-journal.png?v=beaver12" alt="" width="176" height="176" /></div>
                                 </div>
                                 <div class="wf-hub-body" id="journalFeed">
                                     <div class="wf-hub-row" data-entry><span>email · urgency</span><span class="tag ok">allow</span></div>
@@ -2429,20 +2495,12 @@ if (!d.allowed) {
                                 <div class="wf-spacer" aria-hidden="true"></div>
                                 <div class="wf-col wf-col-hub">
                                     <div class="wf-mobile-flow" aria-hidden="true">↓ check ↓</div>
-                                    <div class="wf-node is-hub" data-wf-node="hub">
+                                    <div class="wf-node is-hub" data-wf-node="hub" aria-label="SoftStop">
                                         <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
                                         <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
                                         <span class="wf-port out-block amber" data-port="out-block" aria-hidden="true"></span>
                                         <div class="wf-hub-head">
-                                            <div class="wf-hub-mark" aria-hidden="true">SS</div>
-                                            <div>
-                                                <div class="wf-hub-title">SoftStop</div>
-                                                <div class="wf-hub-sub">check · actionType</div>
-                                            </div>
-                                        </div>
-                                        <div class="wf-hub-body">
-                                            <div class="wf-hub-row" data-entry style="opacity:1"><span>policy permit</span><span class="tag ok">ask</span></div>
-                                            <div class="wf-hub-row" data-entry style="opacity:1"><span>journal write</span><span class="tag no">record</span></div>
+                                            <div class="wf-hub-mark" aria-hidden="true"><img src="assets/beaver-check.png?v=beaver11" alt="" width="88" height="88" /></div>
                                         </div>
                                     </div>
                                     <div class="wf-mobile-flow" aria-hidden="true">↓ permit ↓</div>
@@ -2659,16 +2717,12 @@ if (!d.allowed) {
                                     <div class="wf-spacer" aria-hidden="true"></div>
                                     <div class="wf-col wf-col-hub">
                                         <div class="wf-mobile-flow" aria-hidden="true">↓ same blast → journal ↓</div>
-                                        <div class="wf-node is-hub" data-wf-node="hub">
+                                        <div class="wf-node is-hub" data-wf-node="hub" aria-label="SoftStop">
                                             <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
                                             <span class="wf-port out-allow ok" data-port="out-allow" aria-hidden="true"></span>
                                             <span class="wf-port out-block amber" data-port="out-block" aria-hidden="true"></span>
                                             <div class="wf-hub-head">
-                                                <div class="wf-hub-mark" aria-hidden="true">SS</div>
-                                                <div>
-                                                    <div class="wf-hub-title">SoftStop</div>
-                                                    <div class="wf-hub-sub">per-customer journal</div>
-                                                </div>
+                                                <div class="wf-hub-mark" aria-hidden="true"><img src="assets/beaver-gate.png?v=beaver12" alt="" width="96" height="96" /></div>
                                             </div>
                                         </div>
                                         <div class="wf-mobile-flow" aria-hidden="true">↓ allow / block ↓</div>
@@ -2715,7 +2769,7 @@ if (!d.allowed) {
         <footer class="site-footer">
             <div class="footer-inner">
                 <div class="flex items-center gap-2">
-                    <img src="assets/softstop-mark-dark.png" width="18" height="18" alt="" />
+                    <img src="assets/softstop-icon.png?v=beaver11" width="18" height="18" alt="" />
                     <span>SoftStop — MIT</span>
                 </div>
                 <div class="footer-links">
@@ -4115,6 +4169,47 @@ if (!d.allowed) {
         return 0.055;
     }
 
+    function drawFlowEdges(root) {
+        const stage = root.querySelector('[data-wf-stage]');
+        const svg = root.querySelector('[data-wf-edges]');
+        const hub = root.querySelector('[data-wf-node="hub"]');
+        if (!stage || !svg || !hub) return;
+        if (window.matchMedia('(max-width: 860px)').matches) {
+            svg.innerHTML = '';
+            return;
+        }
+
+        const stageRect = sizeSvg(stage, svg);
+        const hubIn = hub.querySelector('[data-port="in"]');
+        const hubAllow = hub.querySelector('[data-port="out-allow"]');
+        const hubBlock = hub.querySelector('[data-port="out-block"]');
+        const allowNode = root.querySelector('[data-port-in="allow"] [data-port="in"]');
+        const blockNode = root.querySelector('[data-port-in="block"] [data-port="in"]');
+        if (!hubIn || !hubAllow || !hubBlock || !allowNode || !blockNode) return;
+
+        const toHub = portCenter(hubIn, stageRect);
+        const fromAllow = portCenter(hubAllow, stageRect);
+        const fromBlock = portCenter(hubBlock, stageRect);
+        const toAllow = portCenter(allowNode, stageRect);
+        const toBlock = portCenter(blockNode, stageRect);
+
+        const parts = [];
+        root.querySelectorAll('[data-wf-node="src"] [data-port="out"]').forEach((port, i) => {
+            const from = portCenter(port, stageRect);
+            const d = bezier(from.x, from.y, toHub.x, toHub.y, (i - 1.5) * 10);
+            parts.push(`<path class="wf-path is-amber" data-edge="in-${i}" d="${d}" />`);
+            parts.push(`<path class="wf-pulse" data-pulse="in-${i}" d="${d}" />`);
+        });
+
+        const dAllow = bezier(fromAllow.x, fromAllow.y, toAllow.x, toAllow.y, -8);
+        const dBlock = bezier(fromBlock.x, fromBlock.y, toBlock.x, toBlock.y, 8);
+        parts.push(`<path class="wf-path is-ok" data-edge="out-allow" d="${dAllow}" />`);
+        parts.push(`<path class="wf-pulse is-ok" data-pulse="out-allow" d="${dAllow}" />`);
+        parts.push(`<path class="wf-path is-amber" data-edge="out-block" d="${dBlock}" />`);
+        parts.push(`<path class="wf-pulse" data-pulse="out-block" d="${dBlock}" />`);
+        svg.innerHTML = parts.join('');
+    }
+
     function drawConvergeEdges(root) {
         const stage = root.querySelector('[data-wf-stage]');
         const svg = root.querySelector('[data-wf-edges]');
@@ -4356,7 +4451,7 @@ if (!d.allowed) {
         const kind = root.getAttribute('data-wf');
         if (kind === 'chaos') drawChaosEdges(root);
         else if (kind === 'converge') drawConvergeEdges(root);
-        else drawConvergeEdges(root);
+        else drawFlowEdges(root);
     }
 
     function pulseChaosMessages(root, which = 'all') {
@@ -4670,11 +4765,17 @@ if (!d.allowed) {
 
     function bindBoard(root) {
         boards.push(root);
+        root.querySelectorAll('.wf-hub-mark img').forEach((img) => {
+            if (!img.complete) {
+                img.addEventListener('load', () => drawBoardEdges(root), { once: true });
+            }
+        });
         const io = new IntersectionObserver((entries) => {
             for (const entry of entries) {
                 if (!entry.isIntersecting) continue;
                 io.unobserve(entry.target);
-                playBoard(root);
+                // Wait a frame so hub image layout is settled before edge geometry
+                requestAnimationFrame(() => playBoard(root));
             }
         }, { threshold: 0.18 });
         io.observe(root);

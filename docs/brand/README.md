@@ -2,7 +2,9 @@
 
 ## Mark
 
-Soft halt bar through a geometric **S** — permit/block without looking like a hard stop light or security shield.
+**Locked mascot:** fluffy beaver peeping over a log (`masters/beaver-canonical-locked.png`). All pose variants must match this face — do not redesign.
+
+Beaver on a log — SoftStop’s soft halt as a dam on pressure. Default app icon is the beaver tile; geometric **S** marks remain for wordmark companions.
 
 - Ink: `#0B0B0F`
 - Paper: `#F7F5F0`
@@ -12,8 +14,14 @@ Soft halt bar through a geometric **S** — permit/block without looking like a 
 
 | File | Use |
 |------|-----|
-| [softstop-icon.png](softstop-icon.png) / [softstop-icon.svg](softstop-icon.svg) | **Default** — app icon, favicon, README hero (rounded tile) |
-| [softstop-cover.png](softstop-cover.png) | Social / OG default (~1200×630, logo only) |
+| [softstop-icon.png](softstop-icon.png) / [softstop-beaver-icon.png](softstop-beaver-icon.png) | **Default** — app icon, favicon, README hero (beaver on log, rounded tile) |
+| [beaver-default.png](beaver-default.png) / [softstop-beaver-icon.png](softstop-beaver-icon.png) | Default pose (same as softstop-icon) |
+| [beaver-journal.png](beaver-journal.png) | Journal / hub pose |
+| [beaver-check.png](beaver-check.png) | Allow / check pose |
+| [beaver-gate.png](beaver-gate.png) | Gate / block pose |
+| [masters/beaver-canonical-locked.png](masters/beaver-canonical-locked.png) | **Locked** face reference — do not redesign |
+| [softstop-icon.svg](softstop-icon.svg) | Legacy geometric S tile (SVG) |
+| [softstop-cover.png](softstop-cover.png) | Social / OG default (~1200×630, centered beaver tile, logo only) |
 | [softstop-mark.png](softstop-mark.png) | Transparent mark on light backgrounds (ink S) |
 | [softstop-mark-dark.png](softstop-mark-dark.png) | Transparent mark on dark backgrounds (paper S) |
 | [softstop-mark.svg](softstop-mark.svg) | Vector — light |
