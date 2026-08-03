@@ -1,83 +1,74 @@
-# SoftStop
+<p align="center">
+  <img src="docs/brand/softstop-mark.svg" width="72" height="72" alt="SoftStop mark" />
+</p>
 
-SoftStop — the shared permit before any system raises pressure on a user.
+<h1 align="center">SoftStop</h1>
 
-SoftStop doesn’t make software smarter. It makes it stop when it should.
+<p align="center"><strong>The shared permit before any system raises pressure on a user.</strong></p>
 
-It is a tiny authorize-only control layer that decides whether automated escalation (`urgency`, `discount`, `interruption`, `reminder`) is allowed for a user right now. It does not write copy, pick offers, or optimize conversion. It only permits or blocks pressure — and records what happened so caps and cooldowns stay honest.
+<p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
-```text
-Escalation systems (email, SMS, push, in-app, pricing, agents)
-  |
-  v
-SoftStop  (check → allow | deny)
-  |
-  v
-User
-```
+<p align="center">
+  <a href="docs/README.md">Docs</a> ·
+  <a href="#get-started">Quickstart</a> ·
+  <a href="https://governer.vercel.app">Live demo</a> ·
+  <a href="governor/README.md">API</a> ·
+  <a href="examples/README.md">Examples</a> ·
+  <a href="SECURITY.md">Security</a>
+</p>
 
-## Why
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0B0B0F?style=flat-square" alt="MIT" /></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/node-%3E%3D18-E8A317?style=flat-square" alt="Node 18+" /></a>
+  <a href="docker-compose.yml"><img src="https://img.shields.io/badge/docker-compose-0B0B0F?style=flat-square" alt="Docker" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-0.1.0-E8A317?style=flat-square" alt="0.1.0" /></a>
+</p>
 
-Many systems can push the same person: onboarding, marketing, pricing rules, popups, AI agents. Each is reasonable alone. Together they over-pressure users. SoftStop is the shared gate they ask before raising pressure.
+<p align="center">
+  <img src="docs/brand/softstop-cover.svg" alt="SoftStop — shared permit before pressure" width="100%" />
+</p>
 
-Not a messaging platform (like Braze). Not an agent tool firewall (like MCP gateways). A **pressure permit** any surface can call.
+<p align="center">
+  <img src="docs/brand/softstop-before-after.svg" alt="Without SoftStop pressure stacks; with SoftStop only allowed escalations pass" width="100%" />
+</p>
 
-## Quick start (local, under 5 minutes)
+Scroll the full story (email, SMS, push, in-app stacking → SoftStop on): **[Live demo](https://governer.vercel.app)**
 
-Self-host is the primary path.
+## Get started
+
+Self-host first (under 5 minutes):
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-API listens on `http://localhost:3000` with in-memory storage by default.
-
 ```bash
-# Verify integration
-GOVERNOR_API_URL=http://localhost:3000 pnpm governor verify
+# smoke-test
+pnpm softstop verify
 
-# Check before escalating
+# check before escalating
 curl -X POST http://localhost:3000/v1/check \
   -H 'content-type: application/json' \
   -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'
 ```
 
-Or with Docker:
+Docker: `docker compose up --build`
 
-```bash
-docker compose up --build
-```
+## The contract
 
-### Optional hosted demo
-
-For a quick try without running a server: [https://governer.vercel.app](https://governer.vercel.app)  
-Use self-host for production and for contributing.
-
-Env: `GOVERNOR_API_URL` (and optional `SOFTSTOP_API_URL` alias) — see [.env.example](.env.example).
-
-## Integration pattern
+Authorize only — SoftStop does not send email, pick offers, or write copy.
 
 ```js
-const base =
-  process.env.SOFTSTOP_API_URL ||
-  process.env.GOVERNOR_API_URL ||
-  "http://localhost:3000";
-const prefix = /localhost|127\.0\.0\.1/.test(new URL(base).hostname) ? "/v1" : "/api";
-
-const check = await fetch(`${base}${prefix}/check`, {
+const base = process.env.SOFTSTOP_API_URL || "http://localhost:3000";
+const check = await fetch(`${base}/v1/check`, {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({
-    userId: "user_123",
-    actionType: "urgency", // urgency | discount | interruption | reminder
-    surface: "email"       // email | sms | push | in-app
-  })
+  body: JSON.stringify({ userId: "user_123", actionType: "urgency", surface: "email" })
 }).then((r) => r.json());
 
 if (!check.allowed) {
-  // skip or downgrade; still record
-  await fetch(`${base}${prefix}/record`, {
+  await fetch(`${base}/v1/record`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -91,76 +82,43 @@ if (!check.allowed) {
   return;
 }
 
-// perform escalation, then:
-await fetch(`${base}${prefix}/record`, {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({
-    decisionId: check.decisionId,
-    userId: "user_123",
-    actionType: "urgency",
-    outcome: "executed"
-  })
-});
+// escalate, then record outcome: "executed"
 ```
+
+> Hosted APIs use `/api` instead of `/v1`. `GOVERNOR_API_URL` is accepted as a legacy alias for `SOFTSTOP_API_URL`.
 
 | actionType | Meaning |
 |---|---|
-| `urgency` | Time pressure ("ends tonight", "only 2 left") |
-| `discount` | Price / promo pressure |
-| `interruption` | Modal, popup, forced attention |
+| `urgency` | Time pressure |
+| `discount` | Price / promo |
+| `interruption` | Modal / popup |
 | `reminder` | Soft nudge |
 
-## Default policy pack
+## When to use
 
-Deterministic rules (no ML): per-type cooldowns, per-type caps, a global cap, and stack protection. See [docs/default-policy-pack.md](docs/default-policy-pack.md).
+- Many systems (lifecycle, pricing, UI, agents) can push the **same** user and don't share state
+- Platform / marketplace agents collide with your own automations
+- You need a tiny gate under Braze/Resend/modals — not another messaging platform or MCP tool firewall
 
-## Adoption contract
+## Adoption
 
-SoftStop only protects users when every escalation touchpoint calls `check` and a matching `record`. Misuse creates false confidence. Read [docs/ADOPTION_CONTRACT.md](docs/ADOPTION_CONTRACT.md) and use:
+SoftStop only protects users when every escalation touchpoint calls `check` and a matching `record`. Misuse creates false confidence.
 
-- `POST /v1/verify` — smoke-test the API
+- `POST /v1/verify` — integration smoke test
 - `GET /v1/health` — orphan rate, block rate, health score
 
-Agent-assisted integration: [docs/GOVERNOR_INTEGRATION_WORKFLOW.md](docs/GOVERNOR_INTEGRATION_WORKFLOW.md) (SoftStop workflow; API paths unchanged).
+Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
 
 ## Examples
 
-- [examples/nodejs](examples/nodejs) — server-side email / SMS / jobs
-- [examples/python](examples/python) — Python client
-- [examples/browser](examples/browser) — in-app modals
-- [examples/agent-touchpoint](examples/agent-touchpoint) — agent calls SoftStop before a user-facing escalation
-- [demo/game](demo/game) — optional full-surface demo
+- [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
+- [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human
+- [Scroll demo](demo/index.html) — the product story
 
-## Repository map
+## Docs
 
-```text
-governor/                 SoftStop HTTP API + rules engine + tests (product core)
-examples/                 Node, Python, browser, agent-touchpoint
-scripts/                  CLI (verify, health, check, test)
-docs/                     Adoption contract, policy pack, press kit
-demo/                     Optional demos
-archive/mcp-gateway/      Experimental MCP / tool-call extraction (not v0.1 product)
-```
+Start at the [docs hub](docs/README.md): concept, self-host, policy pack, integration workflow, API.
 
-## Persistence
+---
 
-Default: in-memory (fine for local demos).
-
-For Postgres via Supabase, set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (see [.env.example](.env.example)) and run migrations under [governor/api/db/migrations](governor/api/db/migrations).
-
-Full self-host notes: [docs/SELF_HOST.md](docs/SELF_HOST.md).
-
-## Open core
-
-MIT-licensed engine and self-hosted API stay free. A future commercial control plane can add multi-tenant consoles, SSO, SIEM, and distributed rate limits — without closing the authorize-only core.
-
-## Status
-
-v0.1 product: **SoftStop** escalation / pressure permit.  
-Experimental MCP gateway code lives under [archive/mcp-gateway](archive/mcp-gateway) — not the homepage product.
-
-## Launch kit
-
-- [Press release](docs/press/SOFTSTOP_PRESS_RELEASE.md)
-- [Show HN / Product Hunt](docs/press/LAUNCH_BLURBS.md)
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Adopters](ADOPTERS.md) · [Press](docs/press/SOFTSTOP_PRESS_RELEASE.md) · [License](LICENSE)

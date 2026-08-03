@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" role="img" aria-label="Without SoftStop vs with SoftStop">
+  <rect width="960" height="420" fill="#F7F5F0"/>
+  <!-- Without -->
+  <text x="48" y="48" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0B0B0F">Without SoftStop</text>
+  <g font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="13" fill="#44403C">
+    <rect x="48" y="72" width="200" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="60" y="94">email · urgency</text>
+    <rect x="48" y="118" width="200" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="60" y="140">sms · discount</text>
+    <rect x="48" y="164" width="200" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="60" y="186">in-app · interruption</text>
+    <rect x="48" y="210" width="200" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="60" y="232">agent · reminder</text>
+  </g>
+  <path d="M270 160 H340" stroke="#A8A29A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="390" cy="160" r="36" fill="#0B0B0F"/>
+  <text x="390" y="166" text-anchor="middle" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="12" fill="#F7F5F0">User</text>
+  <text x="320" y="280" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="14" fill="#B45309">Pressure stacks</text>
+
+  <!-- divider -->
+  <line x1="480" y1="40" x2="480" y2="380" stroke="#D6D3D1" stroke-width="2"/>
+
+  <!-- With -->
+  <text x="520" y="48" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0B0B0F">With SoftStop</text>
+  <g font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="13" fill="#44403C">
+    <rect x="520" y="72" width="180" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="532" y="94">email · urgency</text>
+    <rect x="520" y="118" width="180" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="532" y="140">sms · discount</text>
+    <rect x="520" y="164" width="180" height="36" rx="8" fill="#fff" stroke="#D6D3D1"/>
+    <text x="532" y="186">in-app · interrupt</text>
+  </g>
+  <path d="M720 140 H780" stroke="#A8A29A" stroke-width="2"/>
+  <!-- SoftStop gate -->
+  <rect x="780" y="100" width="64" height="80" rx="12" fill="#0B0B0F"/>
+  <rect x="790" y="134" width="44" height="8" rx="4" fill="#E8A317"/>
+  <text x="812" y="198" text-anchor="middle" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="11" fill="#0B0B0F">check</text>
+  <path d="M860 140 H900" stroke="#A8A29A" stroke-width="2"/>
+  <circle cx="930" cy="140" r="28" fill="#0B0B0F"/>
+  <text x="930" y="145" text-anchor="middle" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="11" fill="#F7F5F0">User</text>
+  <text x="700" y="280" font-family="ui-sans-serif, system-ui, Helvetica, Arial, sans-serif" font-size="14" fill="#047857">Only allowed escalations pass</text>
+</svg>

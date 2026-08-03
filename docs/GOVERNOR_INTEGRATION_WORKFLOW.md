@@ -32,6 +32,8 @@ For **each** escalation, wrap with:
 2. **Record after** – Call `record(decisionId, userId, actionType, outcome)` after (or when blocked)
 3. **When blocked** – Pass `blockReason` from check for accurate audit reports
 
+**Policy:** SoftStop uses the default pack unless the server was started with `SOFTSTOP_POLICY` / `SOFTSTOP_POLICY_FILE` (presets in `policies/*.json`). Integrators usually do not change policy per touchpoint — they pick the right `actionType`. See [default-policy-pack.md](default-policy-pack.md).
+
 ## 4. actionType Mapping
 
 | Content type | actionType |

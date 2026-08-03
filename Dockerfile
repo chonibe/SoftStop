@@ -16,6 +16,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 COPY governor ./governor
 COPY demo ./demo
+COPY policies ./policies
 COPY tsconfig.json ./
 COPY scripts ./scripts
 EXPOSE 3000

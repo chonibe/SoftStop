@@ -21,7 +21,13 @@ const envSchema = z.object({
     z.string().min(1).optional()
   ),
   /** Force in-memory storage even if Supabase env vars are present (local/CI). */
-  GOVERNOR_STORAGE: z.preprocess(emptyToUndefined, z.enum(["memory", "supabase"]).optional())
+  GOVERNOR_STORAGE: z.preprocess(emptyToUndefined, z.enum(["memory", "supabase"]).optional()),
+  /** Policy JSON path (overrides preset). */
+  SOFTSTOP_POLICY_FILE: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  GOVERNOR_POLICY_FILE: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  /** Preset: default | strict | lenient */
+  SOFTSTOP_POLICY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  GOVERNOR_POLICY: z.preprocess(emptyToUndefined, z.string().min(1).optional())
 });
 
 const parsed = envSchema.safeParse(process.env);

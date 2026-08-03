@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Storage } from "./storage/storage";
 import { env } from "./env";
 import { resolveTenantId } from "./keys";
+import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import {
   handleCheck,
   handleRecord,
@@ -15,14 +16,25 @@ import {
   handleInsights
 } from "./handlers";
 
-const mountRoutes = (app: express.Express, storage: Storage, prefix: "/v1" | "/api") => {
+export interface CreateAppOptions {
+  rulesConfig?: GovernorRulesConfig;
+  policySource?: string;
+}
+
+const mountRoutes = (
+  app: express.Express,
+  storage: Storage,
+  prefix: "/v1" | "/api",
+  rulesConfig: GovernorRulesConfig,
+  policySource: string
+) => {
   app.post(`${prefix}/check`, async (req, res) => {
-    const result = await handleCheck(storage, req.body);
+    const result = await handleCheck(storage, req.body, rulesConfig);
     return res.status(result.status).json(result.body);
   });
 
   app.post(`${prefix}/record`, async (req, res) => {
-    const result = await handleRecord(storage, req.body);
+    const result = await handleRecord(storage, req.body, rulesConfig);
     return res.status(result.status).json(result.body);
   });
 
@@ -37,19 +49,29 @@ const mountRoutes = (app: express.Express, storage: Storage, prefix: "/v1" | "/a
 
   app.post(`${prefix}/verify`, async (req, res) => {
     const tenantId = await resolveTenantId(storage, req, "body");
-    const result = await handleVerify(storage, tenantId);
+    const result = await handleVerify(storage, tenantId, rulesConfig);
     return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/policy`, (_req, res) => {
+    return res.status(200).json({
+      ok: true,
+      source: policySource,
+      policy: rulesConfig
+    });
   });
 };
 
-export const createApp = (storage: Storage) => {
+export const createApp = (storage: Storage, options: CreateAppOptions = {}) => {
+  const rulesConfig = options.rulesConfig ?? defaultRulesConfig;
+  const policySource = options.policySource ?? "builtin:defaultRulesConfig";
   const app = express();
   app.use(cors());
   app.use(express.json());
 
   // Local and self-host use /v1; hosted demo and some examples use /api.
-  mountRoutes(app, storage, "/v1");
-  mountRoutes(app, storage, "/api");
+  mountRoutes(app, storage, "/v1", rulesConfig, policySource);
+  mountRoutes(app, storage, "/api", rulesConfig, policySource);
 
   app.get("/v1/report", async (req, res) => {
     const from = req.query.from ? String(req.query.from) : undefined;

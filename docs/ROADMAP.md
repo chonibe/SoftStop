@@ -1,6 +1,6 @@
 # SoftStop Roadmap
 
-## v0.1 (current launch)
+## v0.1 (shipped)
 
 **Product:** SoftStop — shared pressure / escalation permit.
 
@@ -10,15 +10,22 @@
 - Adoption contract (`verify`, `health`)
 - Node / Python / browser examples + agent-touchpoint
 
+## v0.1.x (active)
+
+- **JSON policy packs + presets** (`policies/default|strict|lenient.json`)
+- `SOFTSTOP_POLICY` / `SOFTSTOP_POLICY_FILE` env loading
+- CLI `policy show` / `policy validate`
+- SoftStop-branded before/after demo at `/demo`
+
 ## Explicitly not v0.1
 
 - MCP tool-call gateway as the homepage product
 - ML personalization / send-time optimization
-- Paid multi-tenant control plane
+- Paid multi-tenant control plane / hosted policy UI
 
 ## Later (optional)
 
 - Publish `@softstop/*` packages for embed
 - Thin agent adapters that call SoftStop before **user-facing** escalations
-- Commercial control plane (SSO, SIEM, distributed caps)
+- Commercial control plane (SSO, SIEM, distributed caps, policy UI)
 - Experimental MCP extraction remains under [archive/mcp-gateway](../archive/mcp-gateway)

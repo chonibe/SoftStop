@@ -14,7 +14,7 @@ pnpm dev
 Against a local server:
 
 ```bash
-GOVERNOR_API_URL=http://localhost:3000 pnpm governor verify
+pnpm softstop verify
 ```
 
 ## Design principles
@@ -23,19 +23,19 @@ GOVERNOR_API_URL=http://localhost:3000 pnpm governor verify
 - **Deterministic.** Rules are explicit (cooldowns, caps, stack protection). No ML in the core path.
 - **Adoption verifiable.** Prefer changes that improve `verify`, `health`, and the [adoption contract](docs/ADOPTION_CONTRACT.md).
 - **Storage behind interfaces.** Keep HTTP and Supabase adapters at the edges.
-- **Pressure is the product.** MCP / tool-call adapters under `archive/mcp-gateway/` are experimental; do not expand them as the primary API without an explicit decision.
+- **Pressure is the product.** MCP / tool-call adapters under `archive/mcp-gateway/` are experimental.
+
+Note: the HTTP engine lives under `governor/` for historical reasons; the product name is SoftStop.
 
 ## Pull requests
 
-Before opening a pull request:
-
 - Add or update tests under `governor/tests/` for rule or API behavior.
-- Document new decision reasons or config fields in `docs/default-policy-pack.md` when relevant.
-- Keep examples runnable against `http://localhost:3000` with minimal setup.
-- Avoid coupling the rules engine to email/SMS/UI SDKs.
+- Document new decision reasons in `docs/default-policy-pack.md` when relevant.
+- Keep examples runnable against `http://localhost:3000`.
+- Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Language
 
-Prefer: SoftStop, escalation permit, pressure gate, check/record, cooldown, frequency cap, adoption contract.
+Prefer: SoftStop, escalation permit, pressure gate, check/record, cooldown, adoption contract.
 
-Avoid framing SoftStop as an AI safety, alignment, or model-evaluation framework. Avoid leading with “MCP firewall” unless documenting experimental adapters.
+Avoid framing SoftStop as an AI safety or MCP firewall product on the homepage.

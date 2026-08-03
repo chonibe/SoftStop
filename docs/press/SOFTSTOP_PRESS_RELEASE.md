@@ -6,7 +6,7 @@
 
 *A shared permit any automation calls before raising urgency, discounts, interruptions, or reminders on a user.*
 
-**[City, Date]** — Today, [Company] is open-sourcing **SoftStop**, a tiny authorize-only control layer that stops automated systems from over-pushing people.
+**[City, Date]** — Today, SoftStop is open-sourcing **SoftStop**, a tiny authorize-only control layer that stops automated systems from over-pushing people.
 
 Modern products don’t fail because one message is too aggressive. They fail because many systems each push “a little,” with no shared view of how much pressure a user has already taken. Lifecycle email, upgrade modals, promo engines, and AI agents all act alone. Users feel harassed. Trust erodes. Discounts get burned. Churn shows up late.
 
@@ -21,7 +21,7 @@ Via two calls:
 
 SoftStop does not write copy, pick offers, or optimize conversion. It only gates escalation — across surfaces — with deterministic rules: cooldowns, per-type caps, global caps, and stack protection. No machine learning.
 
-“Software knows how to push. It doesn’t know when to stop,” said [Founder Name], [Title] at [Company]. “A frequency cap inside one marketing tool can’t see your pricing rules, your in-app modal, or your merchant’s AI agent. SoftStop is the shared permit those systems call before they escalate the same human.”
+“Software knows how to push. It doesn’t know when to stop,” said the SoftStop maintainers. “A frequency cap inside one marketing tool can’t see your pricing rules, your in-app modal, or your merchant’s AI agent. SoftStop is the shared permit those systems call before they escalate the same human.”
 
 **Why this matters now**
 
@@ -33,23 +33,14 @@ Companies already govern spam, abuse, payments, and rate limits. Escalation itse
 - HTTP `check` / `record` API with self-hostable storage
 - Integration verification and health metrics so teams know the gate is actually adopted — not silently bypassed
 - Drop-in examples for Node.js, Python, and browser surfaces
+- Interactive scroll demo: feel multi-channel pressure, then SoftStop on
 
 SoftStop is MIT-licensed. It sits under existing tools — email, SMS, in-app UI, agent workflows — without replacing them.
 
 **Availability**
 
-SoftStop is available now at **[GitHub URL]**. Docs and a five-minute quickstart: **[Docs URL]**. Self-host locally or with Docker; optional hosted demo at https://governer.vercel.app.
-
-**About [Company]**
-
-[Company] builds infrastructure that makes automated systems stop when they should. More at **[Website]**.
-
-**Media contact**  
-[Name]  
-[Email]  
-[Phone]
-
----
+SoftStop is available now at **https://github.com/chonibe/SoftStop**.  
+Live demo: **https://governer.vercel.app**. Self-host locally or with Docker.
 
 **Boilerplate one-liner**
 

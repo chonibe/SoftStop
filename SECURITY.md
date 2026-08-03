@@ -2,9 +2,11 @@
 
 SoftStop sits on the path where automated systems escalate pressure toward end users (email, SMS, push, in-app, pricing, agents). Treat per-user pressure state, decision logs, and API keys as sensitive infrastructure data.
 
-## Reporting issues
+## Reporting a vulnerability
 
-Please report security issues privately to the maintainers before public disclosure.
+**Preferred:** [GitHub private security advisories](https://github.com/chonibe/SoftStop/security/advisories/new) for this repository.
+
+Please do not open public issues for undisclosed vulnerabilities.
 
 ## Security model
 

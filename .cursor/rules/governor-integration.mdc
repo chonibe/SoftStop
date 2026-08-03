@@ -13,6 +13,7 @@ When the user asks to **"add SoftStop"**, **"add Governor"**, **"integrate SoftS
 4. **Map actionType**: urgency (time pressure) | discount (price/promo) | interruption (modal/popup) | reminder (soft nudge)
 5. **When blocked** – Always call `record()` with `outcome: "blocked"` and `blockReason` from check
 6. **Verify** after edits: `curl -X POST $GOVERNOR_API_URL/api/verify` (or `/v1/verify` on localhost)
+7. **Policy** – Do not invent per-touchpoint rules. Server uses `policies/*.json` presets (`SOFTSTOP_POLICY=default|strict|lenient`) or `SOFTSTOP_POLICY_FILE`. Integrators map `actionType` only.
 
 Product: **SoftStop** — shared permit before raising pressure on a user.
 

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Governor | Multi-Channel Timeline Demo</title>
-    <meta name="description" content="Scroll through 44 days of pressure across email, SMS, push, and in-app. Feel the chaos. Then see Governor stop it.">
+    <title>SoftStop | Multi-Channel Timeline Demo</title>
+    <meta name="description" content="Scroll through 44 days of pressure across email, SMS, push, and in-app. Feel the chaos. Then SoftStop makes it stop.">
+    <link rel="icon" href="../docs/brand/softstop-mark.svg" type="image/svg+xml" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -207,17 +208,17 @@
             }
         }
         
-        /* Fixed Governor Button */
-        #governorBtnFixed {
+        /* Fixed SoftStop Button */
+        #softstopBtnFixed {
             min-width: 240px;
         }
         
         @media (max-width: 640px) {
-            #governorBtnFixed {
+            #softstopBtnFixed {
                 min-width: auto;
                 padding: 1rem 1.5rem;
             }
-            #governorBtnFixed .text-xs:last-child {
+            #softstopBtnFixed .text-xs:last-child {
                 display: none;
             }
         }
@@ -261,15 +262,18 @@
         </div>
     </div>
     
-    <!-- Fixed Governor Toggle Button -->
+    <!-- Fixed SoftStop Toggle Button -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 lg:top-6 lg:bottom-auto lg:left-1/2 lg:-translate-x-1/2 z-[70]">
-        <button id="governorBtnFixed" class="bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-6 py-4 transition-all text-left group shadow-2xl backdrop-blur-sm">
+        <button id="softstopBtnFixed" class="bg-surface-2 hover:bg-surface-3 border border-white/20 rounded-2xl px-6 py-4 transition-all text-left group shadow-2xl backdrop-blur-sm">
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-3">
-                    <div id="governorIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all"></div>
+                    <div id="softstopIndicatorFixed" class="w-4 h-4 rounded-full bg-accent-red transition-all"></div>
                     <div>
-                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider">Governor</div>
-                        <div id="governorLabelFixed" class="font-bold text-white">OFF</div>
+                        <div class="text-xs text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
+                          <img src="../docs/brand/softstop-mark.svg" width="16" height="16" alt="" />
+                          SoftStop
+                        </div>
+                        <div id="softstopLabelFixed" class="font-bold text-white">OFF</div>
                     </div>
                 </div>
                 <div class="text-xs text-slate-500 group-hover:text-white transition-colors">Tap to toggle</div>
@@ -284,7 +288,7 @@
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black">G</div>
                 <div>
-                    <div class="font-bold text-lg">Governor</div>
+                    <div class="font-bold text-lg">SoftStop</div>
                     <div class="text-xs text-slate-500">Multi-Channel Demo</div>
                 </div>
             </div>
@@ -425,16 +429,16 @@
             </div>
         </div>
         
-        <!-- Governor Info (Sidebar) -->
+        <!-- SoftStop Info (Sidebar) -->
         <div class="p-6 border-b border-white/5">
-            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">Governor Status</div>
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-3">SoftStop Status</div>
             <div class="bg-surface-2 border border-white/10 rounded-xl p-4">
                 <div class="flex items-center gap-3 mb-2">
-                    <div id="governorIndicator" class="w-4 h-4 rounded-full bg-accent-red"></div>
-                    <span id="governorLabel" class="font-bold">OFF</span>
+                    <div id="softstopIndicator" class="w-4 h-4 rounded-full bg-accent-red"></div>
+                    <span id="softstopLabel" class="font-bold">OFF</span>
                 </div>
-                <p id="governorHint" class="text-xs text-slate-500 mt-2">
-                    Use the button to toggle Governor
+                <p id="softstopHint" class="text-xs text-slate-500 mt-2">
+                    Use the button to toggle SoftStop
                 </p>
             </div>
         </div>
@@ -469,10 +473,10 @@
                     The missing pressure regulator for multi-agent platforms
                 </div>
                 <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    Governor Is a Pressure Regulator
+                    SoftStop Is a Pressure Regulator
                 </h1>
                 <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-3xl mx-auto">
-                    Governor doesn't decide what to show next.<br class="hidden md:block"/>
+                    SoftStop doesn't decide what to show next.<br class="hidden md:block"/>
                     <span class="text-white font-bold">It decides when escalation should stop.</span>
                 </p>
                 
@@ -536,7 +540,7 @@
             </div>
             <div class="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
                 <p class="text-2xl md:text-3xl text-white font-medium mb-8 leading-relaxed">
-                    Governor reduced our user complaints by 73%. Our AI agents now feel <span class="text-accent-green">helpful, not pushy</span>.
+                    SoftStop reduced our user complaints by 73%. Our AI agents now feel <span class="text-accent-green">helpful, not pushy</span>.
                 </p>
                 <div class="flex items-center justify-center gap-4">
                     <div class="w-12 h-12 bg-gradient-to-br from-accent to-accent-purple rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -559,7 +563,7 @@
                     </div>
                     <h2 class="text-4xl md:text-5xl font-black mb-4">Each User Has Their Own Pressure State</h2>
                     <p class="text-xl text-slate-400 max-w-3xl mx-auto">
-                        Governor tracks <span class="text-white font-bold">pressure per user</span>. Different users can be in different states at the same moment, so the same escalation can be allowed for one and blocked for another.
+                        SoftStop tracks <span class="text-white font-bold">pressure per user</span>. Different users can be in different states at the same moment, so the same escalation can be allowed for one and blocked for another.
                     </p>
                     <div class="text-sm text-slate-500 mt-3">
                         By regulating pressure, users move at their own pace — indirectly, not by design.
@@ -570,7 +574,7 @@
                 <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden mb-12">
                     <div class="bg-surface-2 px-6 py-4 border-b border-white/10">
                         <h3 class="font-bold text-lg">Same Escalation → Different Pressure → Different Decision</h3>
-                        <p class="text-sm text-slate-400 mt-1">Marketing wants to send a "Flash Sale" popup to all users. Governor checks pressure for each user individually.</p>
+                        <p class="text-sm text-slate-400 mt-1">Marketing wants to send a "Flash Sale" popup to all users. SoftStop checks pressure for each user individually.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
                         <!-- User 1: Sarah -->
@@ -671,7 +675,7 @@
                 <!-- Clean Distinction -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                     <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-red">❌ What Governor is NOT</h3>
+                        <h3 class="font-bold text-lg mb-4 text-accent-red">❌ What SoftStop is NOT</h3>
                         <ul class="space-y-2 text-sm text-slate-400">
                             <li>• Decide when to upsell</li>
                             <li>• Decide which funnel stage a user is in</li>
@@ -682,8 +686,8 @@
                         <div class="text-xs text-slate-500 mt-3">Those are optimization systems.</div>
                     </div>
                     <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ What Governor DOES</h3>
-                        <div class="text-sm text-slate-400 mb-4">Governor answers only this:</div>
+                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ What SoftStop DOES</h3>
+                        <div class="text-sm text-slate-400 mb-4">SoftStop answers only this:</div>
                         <div class="bg-deep border border-white/10 rounded-lg p-4 font-mono text-sm">
                             <span class="text-white">Is it appropriate to increase pressure on this user right now?</span>
                         </div>
@@ -691,7 +695,7 @@
                     </div>
                 </div>
                 
-                <!-- What Governor Tracks -->
+                <!-- What SoftStop Tracks -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-surface border border-white/10 rounded-xl p-6">
                         <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
@@ -740,16 +744,16 @@
                         </div>
                         <div class="grid grid-cols-1 gap-3 text-xs text-slate-400 mb-4">
                             <div class="bg-surface-2 rounded-lg p-3">
-                                <div class="font-bold text-accent-red mb-1">Without Governor</div>
+                                <div class="font-bold text-accent-red mb-1">Without SoftStop</div>
                                 User hesitates → system escalates → user resists → trust drops → funnel breaks
                             </div>
                             <div class="bg-surface-2 rounded-lg p-3">
-                                <div class="font-bold text-accent-green mb-1">With Governor</div>
+                                <div class="font-bold text-accent-green mb-1">With SoftStop</div>
                                 User hesitates → system pauses → user continues at own pace → trust remains
                             </div>
                         </div>
                         <div class="text-xs text-slate-500">
-                            Funnels = engines • UX = steering • Governor = brake + traction control
+                            Funnels = engines • UX = steering • SoftStop = brake + traction control
                         </div>
                         <div class="text-xs text-slate-500 mt-2">
                             Example: No urgency modal, no discount email, no repeated reminders — user can still convert without being chased.
@@ -763,7 +767,7 @@
         <section id="how-it-works" class="py-24 bg-surface">
             <div class="max-w-6xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Works</h2>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How SoftStop Works</h2>
                     <p class="text-xl text-slate-400">A single permission check between intent and action.</p>
                 </div>
                 
@@ -792,10 +796,10 @@
                         <!-- Step 2 -->
                         <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
                             <div class="w-12 h-12 bg-accent-purple/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-purple mb-4 transition-all hover:scale-110">2</div>
-                            <h3 class="text-2xl font-bold mb-3">Governor Checks</h3>
+                            <h3 class="text-2xl font-bold mb-3">SoftStop Checks</h3>
                             <p class="text-slate-400 mb-6">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
                             <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                                <div class="text-slate-500">// Governor response</div>
+                                <div class="text-slate-500">// SoftStop response</div>
                                 <div class="text-accent-red">BLOCKED</div>
                                 <div class="text-slate-500 text-xs mt-1">reason: "Pressure limit"</div>
                             </div>
@@ -817,21 +821,21 @@
             </div>
         </section>
 
-        <!-- Governor in the Flow -->
+        <!-- SoftStop in the Flow -->
         <section class="py-24 bg-gradient-to-b from-surface to-deep">
             <div class="max-w-6xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">Governor Lives in the Flow</h2>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">SoftStop Lives in the Flow</h2>
                     <p class="text-xl text-slate-400 max-w-3xl mx-auto">
-                        Governor doesn't replace your optimization systems. It sits <span class="text-white font-bold">between decision and execution</span> as a safety layer.
+                        SoftStop doesn't replace your optimization systems. It sits <span class="text-white font-bold">between decision and execution</span> as a safety layer.
                     </p>
                 </div>
                 
-                <!-- Without Governor -->
+                <!-- Without SoftStop -->
                 <div class="mb-12">
                     <div class="text-center mb-6">
                         <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold">
-                            ❌ Without Governor: Each agent fires independently — no coordination
+                            ❌ Without SoftStop: Each agent fires independently — no coordination
                         </div>
                     </div>
                     
@@ -906,11 +910,11 @@
                     </div>
                 </div>
                 
-                <!-- With Governor -->
+                <!-- With SoftStop -->
                 <div>
                     <div class="text-center mb-6">
                         <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold">
-                            ✅ With Governor: All agents ask permission — coordinated execution
+                            ✅ With SoftStop: All agents ask permission — coordinated execution
                         </div>
                     </div>
                     
@@ -935,7 +939,7 @@
                             </div>
                         </div>
                         
-                        <!-- Arrows pointing to Governor -->
+                        <!-- Arrows pointing to SoftStop -->
                         <div class="hidden lg:flex flex-col items-center justify-center">
                             <div class="text-3xl text-accent">→</div>
                             <div class="text-3xl text-accent">→</div>
@@ -943,14 +947,14 @@
                             <div class="text-3xl text-accent">→</div>
                         </div>
                         
-                        <!-- Governor (Central Gate) -->
+                        <!-- SoftStop (Central Gate) -->
                         <div class="bg-accent/10 border-2 border-accent rounded-2xl p-6 relative">
                             <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
                                 PERMISSION GATE
                             </div>
                             <div class="text-center mt-2">
                                 <div class="text-5xl mb-3">🛡️</div>
-                                <div class="font-black text-xl mb-2">Governor</div>
+                                <div class="font-black text-xl mb-2">SoftStop</div>
                                 <div class="text-xs text-slate-400 mb-3">Checks per-user state</div>
                                 <div class="space-y-1 text-xs text-left">
                                     <div class="flex items-center gap-2">
@@ -1031,7 +1035,7 @@
                 <div class="mt-12 max-w-4xl mx-auto">
                     <div class="bg-surface-2 border border-white/10 rounded-2xl p-8">
                         <div class="text-center mb-6">
-                            <div class="text-2xl font-black mb-2">Governor is NOT a replacement</div>
+                            <div class="text-2xl font-black mb-2">SoftStop is NOT a replacement</div>
                             <p class="text-slate-400">It's a layer that works with your existing systems</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1046,7 +1050,7 @@
                                 <div class="text-xs text-accent-green mt-3 font-bold">✓ Still does all of this</div>
                             </div>
                             <div class="bg-surface rounded-xl p-6">
-                                <div class="font-bold text-accent-green mb-3">Governor Adds</div>
+                                <div class="font-bold text-accent-green mb-3">SoftStop Adds</div>
                                 <ul class="space-y-2 text-sm text-slate-400">
                                     <li>• Cross-agent coordination</li>
                                     <li>• Per-user pressure limits</li>
@@ -1061,16 +1065,16 @@
             </div>
         </section>
         
-        <!-- How Governor Decides "Appropriate" -->
+        <!-- How SoftStop Decides "Appropriate" -->
         <section class="py-24 bg-deep">
             <div class="max-w-5xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">How Governor Decides "Appropriate"</h2>
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">How SoftStop Decides "Appropriate"</h2>
                     <p class="text-xl text-slate-400">
-                        Governor doesn't "know" in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
+                        SoftStop doesn't "know" in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
                     </p>
                     <div class="mt-6 max-w-3xl mx-auto bg-surface-2 border border-accent/20 rounded-xl p-4">
-                        <div class="text-sm text-white font-bold mb-2">The ONLY question Governor asks:</div>
+                        <div class="text-sm text-white font-bold mb-2">The ONLY question SoftStop asks:</div>
                         <div class="text-lg text-accent">"Has this user already received enough pressure of this type within the defined limits?"</div>
                     </div>
                 </div>
@@ -1089,7 +1093,7 @@
                     </div>
                     <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
                         <h3 class="font-bold text-lg mb-4 text-accent-red">🚫 Banned Signals</h3>
-                        <p class="text-xs text-slate-400 mb-4">These turn Governor into an optimizer.</p>
+                        <p class="text-xs text-slate-400 mb-4">These turn SoftStop into an optimizer.</p>
                         <ul class="space-y-3 text-sm text-slate-400">
                             <li><span class="text-white font-medium">Funnel stage</span> — awareness, consideration, conversion labels</li>
                             <li><span class="text-white font-medium">Intent scores</span> — high intent, conversion likelihood, propensity</li>
@@ -1124,14 +1128,14 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                     <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-3 text-accent-red">❌ What Governor Does NOT Do</h3>
+                        <h3 class="font-bold text-lg mb-3 text-accent-red">❌ What SoftStop Does NOT Do</h3>
                         <div class="bg-deep rounded-lg p-4 text-sm text-slate-400 italic">
                             "User is highly engaged, so a discount would help them convert."
                         </div>
-                        <div class="text-xs text-slate-500 mt-2">This is optimization logic. Not Governor's job.</div>
+                        <div class="text-xs text-slate-500 mt-2">This is optimization logic. Not SoftStop's job.</div>
                     </div>
                     <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-3 text-accent-green">✅ What Governor DOES Do</h3>
+                        <h3 class="font-bold text-lg mb-3 text-accent-green">✅ What SoftStop DOES Do</h3>
                         <div class="bg-deep rounded-lg p-4 text-sm text-white">
                             "A discount was already shown 3 days ago. Policy allows max 1 per 14 days. Block."
                         </div>
@@ -1180,7 +1184,7 @@
             <div class="max-w-5xl mx-auto px-6 md:px-12">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl md:text-5xl font-black mb-4">One API. Total Control.</h2>
-                    <p class="text-xl text-slate-400">Governor integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
+                    <p class="text-xl text-slate-400">SoftStop integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
                 </div>
                 
                 <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden">
@@ -1194,7 +1198,7 @@
                     <!-- Code -->
                     <div class="p-6 md:p-8 font-mono text-sm overflow-x-auto">
 <pre class="text-slate-300"><span class="text-slate-500">// Before any escalation</span>
-<span class="text-purple-400">const</span> decision = <span class="text-purple-400">await</span> governor.<span class="text-blue-400">check</span>({
+<span class="text-purple-400">const</span> decision = <span class="text-purple-400">await</span> softstop.<span class="text-blue-400">check</span>({
   <span class="text-cyan-400">userId</span>: <span class="text-green-400">"user_123"</span>,
   <span class="text-cyan-400">agentId</span>: <span class="text-green-400">"sales-agent"</span>,
   <span class="text-cyan-400">escalationType</span>: <span class="text-green-400">"popup"</span>,
@@ -1219,7 +1223,7 @@
             <div class="max-w-4xl mx-auto px-6 md:px-12">
                 <h2 class="text-4xl md:text-5xl font-black mb-6">See It In Action</h2>
                 <p class="text-xl text-slate-400 mb-12">
-                    Scroll through 44 days of real user pressure. Watch different outcomes with Governor ON vs OFF.
+                    Scroll through 44 days of real user pressure. Watch different outcomes with SoftStop ON vs OFF.
                 </p>
                 <a href="#demo" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl text-lg">
                     Launch Interactive Demo →
@@ -1277,11 +1281,11 @@
                 
                 <!-- Outcome comparison -->
                 <div id="outcomeComparison" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
-                    <!-- Without Governor -->
+                    <!-- Without SoftStop -->
                     <div id="outcomeWithout" class="bg-accent-red/10 border border-accent-red/30 rounded-xl p-6 text-left">
                         <div class="flex items-center gap-2 mb-3">
                             <span class="text-2xl">❌</span>
-                            <span class="font-bold text-accent-red">Without Governor</span>
+                            <span class="font-bold text-accent-red">Without SoftStop</span>
                         </div>
                         <div id="outcomeWithoutText" class="text-sm text-slate-400 space-y-2">
                             <div>💀 User churned</div>
@@ -1291,11 +1295,11 @@
                         </div>
                     </div>
                     
-                    <!-- With Governor -->
+                    <!-- With SoftStop -->
                     <div id="outcomeWith" class="bg-accent-green/10 border border-accent-green/30 rounded-xl p-6 text-left">
                         <div class="flex items-center gap-2 mb-3">
                             <span class="text-2xl">✅</span>
-                            <span class="font-bold text-accent-green">With Governor</span>
+                            <span class="font-bold text-accent-green">With SoftStop</span>
                         </div>
                         <div id="outcomeWithText" class="text-sm text-slate-400 space-y-2">
                             <div>😊 User retained</div>
@@ -1325,7 +1329,7 @@
                     </div>
                 </div>
                 <a href="#" onclick="location.reload()" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-all">
-                    Try Again with Governor ON
+                    Try Again with SoftStop ON
                 </a>
             </div>
         </section>
@@ -1522,7 +1526,7 @@
     ];
     
     // SARAH's Journey - VIP user with low tolerance
-    // Events have 'requiresGovernorOff' or 'requiresGovernorOn' flags for conditional display
+    // Events have 'requiresSoftStopOff' or 'requiresSoftStopOn' flags for conditional display
     const sarahEvents = [
         { date: '2025-12-06', channel: 'user', subject: 'Sarah signed up (VIP tier from referral)', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-06', channel: 'email', subject: 'Welcome VIP! Exclusive 500% bonus inside 🎁', type: 'onboarding', pressure: 5 },
@@ -1534,34 +1538,34 @@
         { date: '2025-12-07', channel: 'push', subject: 'Spin now before bonus expires!', type: 'urgency', pressure: 12 },
         
         // WITHOUT GOVERNOR: Sarah gets overwhelmed
-        { date: '2025-12-08', channel: 'user', subject: 'Sarah unsubscribed from SMS immediately', type: 'action', pressure: -15, isUser: true, requiresGovernorOff: true },
-        { date: '2025-12-08', channel: 'email', subject: 'We noticed you unsubscribed - 100 free coins!', type: 'winback', pressure: 15, trigger: 'sms_unsub', requiresGovernorOff: true },
-        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Come back Sarah! VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'sms_unsub', requiresGovernorOff: true },
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah unsubscribed from SMS immediately', type: 'action', pressure: -15, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-08', channel: 'email', subject: 'We noticed you unsubscribed - 100 free coins!', type: 'winback', pressure: 15, trigger: 'sms_unsub', requiresSoftStopOff: true },
+        { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Come back Sarah! VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'sms_unsub', requiresSoftStopOff: true },
         
         // WITH GOVERNOR: Sarah has a good experience
-        { date: '2025-12-08', channel: 'user', subject: 'Sarah played slots for 20 minutes', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
-        { date: '2025-12-08', channel: 'email', subject: 'Your weekly VIP digest 💎', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        { date: '2025-12-08', channel: 'user', subject: 'Sarah played slots for 20 minutes', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Your weekly VIP digest 💎', type: 'digest', pressure: 3, requiresSoftStopOn: true },
         
         // WITHOUT GOVERNOR: More pressure
-        { date: '2025-12-09', channel: 'email', subject: 'Sarah, exclusive VIP jackpot tonight!', type: 'promo', pressure: 12, requiresGovernorOff: true },
-        { date: '2025-12-09', channel: 'popup', subject: 'VIP EXCLUSIVE: Triple deposit bonus!', type: 'urgency', pressure: 18, requiresGovernorOff: true },
+        { date: '2025-12-09', channel: 'email', subject: 'Sarah, exclusive VIP jackpot tonight!', type: 'promo', pressure: 12, requiresSoftStopOff: true },
+        { date: '2025-12-09', channel: 'popup', subject: 'VIP EXCLUSIVE: Triple deposit bonus!', type: 'urgency', pressure: 18, requiresSoftStopOff: true },
         
         // WITH GOVERNOR: Respectful engagement
-        { date: '2025-12-09', channel: 'user', subject: 'Sarah won $25 on slots!', type: 'action', pressure: -8, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-09', channel: 'user', subject: 'Sarah won $25 on slots!', type: 'action', pressure: -8, isUser: true, requiresSoftStopOn: true },
         
         // WITHOUT GOVERNOR: Sarah churns
-        { date: '2025-12-10', channel: 'user', subject: 'Sarah marked 2 emails as spam', type: 'action', pressure: -20, isUser: true, requiresGovernorOff: true },
-        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Sarah, we miss you! 🎁"', type: 'retarget', pressure: 14, trigger: 'low_engagement', requiresGovernorOff: true },
-        { date: '2025-12-10', channel: 'social', subject: '[Instagram DM] "Hi Sarah, any issues with your account?"', type: 'outreach', pressure: 18, trigger: 'low_engagement', requiresGovernorOff: true },
-        { date: '2025-12-11', channel: 'user', subject: 'Sarah deleted her account', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah marked 2 emails as spam', type: 'action', pressure: -20, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Sarah, we miss you! 🎁"', type: 'retarget', pressure: 14, trigger: 'low_engagement', requiresSoftStopOff: true },
+        { date: '2025-12-10', channel: 'social', subject: '[Instagram DM] "Hi Sarah, any issues with your account?"', type: 'outreach', pressure: 18, trigger: 'low_engagement', requiresSoftStopOff: true },
+        { date: '2025-12-11', channel: 'user', subject: 'Sarah deleted her account', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
         
         // WITH GOVERNOR: Sarah becomes loyal
-        { date: '2025-12-10', channel: 'user', subject: 'Sarah made another $50 deposit', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
-        { date: '2025-12-10', channel: 'email', subject: 'Thanks VIP! Your balance is ready', type: 'transactional', pressure: 2, requiresGovernorOn: true },
-        { date: '2025-12-12', channel: 'user', subject: 'Sarah referred a friend', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
-        { date: '2025-12-12', channel: 'email', subject: 'Referral bonus credited! 🎉', type: 'transactional', pressure: 2, requiresGovernorOn: true },
-        { date: '2025-12-15', channel: 'email', subject: 'Your weekly VIP update', type: 'digest', pressure: 3, requiresGovernorOn: true },
-        { date: '2025-12-15', channel: 'user', subject: 'Sarah upgraded to VIP Plus tier', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
+        { date: '2025-12-10', channel: 'user', subject: 'Sarah made another $50 deposit', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-10', channel: 'email', subject: 'Thanks VIP! Your balance is ready', type: 'transactional', pressure: 2, requiresSoftStopOn: true },
+        { date: '2025-12-12', channel: 'user', subject: 'Sarah referred a friend', type: 'action', pressure: -15, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Referral bonus credited! 🎉', type: 'transactional', pressure: 2, requiresSoftStopOn: true },
+        { date: '2025-12-15', channel: 'email', subject: 'Your weekly VIP update', type: 'digest', pressure: 3, requiresSoftStopOn: true },
+        { date: '2025-12-15', channel: 'user', subject: 'Sarah upgraded to VIP Plus tier', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
     ];
     
     // MIKE's Journey - New user, light engagement
@@ -1577,42 +1581,42 @@
         
         // WITHOUT GOVERNOR: Mike gets overwhelmed with follow-ups
         { date: '2025-12-12', channel: 'user', subject: 'Mike opened the app but didn\'t play', type: 'action', pressure: -2, isUser: true },
-        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresGovernorOff: true },
-        { date: '2025-12-12', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
-        { date: '2025-12-12', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-12', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-12', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresSoftStopOff: true },
         
-        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresGovernorOff: true },
-        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresGovernorOff: true },
-        { date: '2025-12-15', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresGovernorOff: true },
-        { date: '2025-12-15', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresGovernorOff: true },
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-15', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-15', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresSoftStopOff: true },
         
-        { date: '2025-12-18', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresGovernorOff: true },
-        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 12, requiresGovernorOff: true },
-        { date: '2025-12-20', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresGovernorOff: true },
+        { date: '2025-12-18', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 12, requiresSoftStopOff: true },
+        { date: '2025-12-20', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresSoftStopOff: true },
         
-        { date: '2025-12-25', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
-        { date: '2025-12-28', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresGovernorOff: true },
-        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year! We miss you...', type: 'winback', pressure: 6, requiresGovernorOff: true },
-        { date: '2026-01-05', channel: 'user', subject: 'Mike hasn\'t logged in for 2 weeks', type: 'action', pressure: 0, isUser: true, requiresGovernorOff: true },
+        { date: '2025-12-25', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-28', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresSoftStopOff: true },
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year! We miss you...', type: 'winback', pressure: 6, requiresSoftStopOff: true },
+        { date: '2026-01-05', channel: 'user', subject: 'Mike hasn\'t logged in for 2 weeks', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
         
         // WITH GOVERNOR: Mike has a good steady experience
-        { date: '2025-12-12', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresGovernorOn: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresSoftStopOn: true },
         
-        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresGovernorOn: true },
+        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresSoftStopOn: true },
         
-        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
-        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresGovernorOn: true },
+        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresSoftStopOn: true },
         
-        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresGovernorOn: true },
-        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresGovernorOn: true },
+        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresSoftStopOn: true },
         
-        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 4, requiresGovernorOn: true },
+        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 4, requiresSoftStopOn: true },
         
-        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 3, requiresGovernorOn: true },
-        { date: '2026-01-01', channel: 'user', subject: 'Mike shared the app with a friend', type: 'action', pressure: -5, isUser: true, requiresGovernorOn: true },
+        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 3, requiresSoftStopOn: true },
+        { date: '2026-01-01', channel: 'user', subject: 'Mike shared the app with a friend', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
         
-        { date: '2026-01-05', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresGovernorOn: true },
-        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresGovernorOn: true },
+        { date: '2026-01-05', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
+        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresSoftStopOn: true },
     ];
     
     // All user journeys
@@ -1622,7 +1626,7 @@
         mike: mikeEvents
     };
     
-    // User outcomes - what happens without vs with Governor
+    // User outcomes - what happens without vs with SoftStop
     const userOutcomes = {
         choni: {
             without: {
@@ -1663,7 +1667,7 @@
             with: {
                 icon: '💎',
                 title: 'Sarah is VIP for Life',
-                subtitle: 'Governor protected her experience',
+                subtitle: 'SoftStop protected her experience',
                 items: [
                     '💎 Upgraded to VIP Plus',
                     '📬 Prefers email once weekly',
@@ -1703,7 +1707,7 @@
 
     // State
     const state = {
-        governorEnabled: false,
+        softstopEnabled: false,
         pressure: 0,
         maxPressure: 0,
         blocked: 0,
@@ -1730,9 +1734,9 @@
         countSocial: document.getElementById('countSocial'),
         totalCount: document.getElementById('totalCount'),
         blockedCount: document.getElementById('blockedCount'),
-        governorIndicator: document.getElementById('governorIndicator'),
-        governorLabel: document.getElementById('governorLabel'),
-        governorHint: document.getElementById('governorHint'),
+        softstopIndicator: document.getElementById('softstopIndicator'),
+        softstopLabel: document.getElementById('softstopLabel'),
+        softstopHint: document.getElementById('softstopHint'),
         timelineEntries: document.getElementById('timelineEntries'),
         endSection: document.getElementById('endSection'),
     };
@@ -1801,9 +1805,9 @@
 
     function getFilteredEvents() {
         return pressureEvents.filter(event => {
-            // Filter based on Governor state for conditional events
-            if (event.requiresGovernorOff && state.governorEnabled) return false;
-            if (event.requiresGovernorOn && !state.governorEnabled) return false;
+            // Filter based on SoftStop state for conditional events
+            if (event.requiresSoftStopOff && state.softstopEnabled) return false;
+            if (event.requiresSoftStopOn && !state.softstopEnabled) return false;
             return true;
         });
     }
@@ -1821,13 +1825,13 @@
         { emoji: '💀', label: 'Churned', desc: 'User lost forever', color: 'text-slate-500', stepColor: 'bg-slate-500' },
     ];
     
-    // Protected mood when Governor is ON
-    const protectedMood = { emoji: '😌', label: 'Protected', desc: 'Governor is shielding this user', color: 'text-accent-green', stepColor: 'bg-accent-green' };
+    // Protected mood when SoftStop is ON
+    const protectedMood = { emoji: '😌', label: 'Protected', desc: 'SoftStop is shielding this user', color: 'text-accent-green', stepColor: 'bg-accent-green' };
     const recoveringMood = { emoji: '🙂', label: 'Recovering', desc: 'Pressure decreasing, trust rebuilding', color: 'text-accent-cyan', stepColor: 'bg-accent-cyan' };
     
     function updateTemperament() {
-        // When Governor is ON, show protected/recovering state
-        if (state.governorEnabled) {
+        // When SoftStop is ON, show protected/recovering state
+        if (state.softstopEnabled) {
             const mood = state.blocked > 0 ? protectedMood : recoveringMood;
             document.getElementById('moodEmoji').textContent = mood.emoji;
             document.getElementById('moodLabel').textContent = mood.label;
@@ -1949,14 +1953,14 @@
             withEl.innerHTML = outcomes.with.items.map(item => `<div>${item}</div>`).join('');
         }
         
-        // Update main message based on Governor state
-        if (state.governorEnabled) {
+        // Update main message based on SoftStop state
+        if (state.softstopEnabled) {
             endIcon.textContent = outcomes.with.icon;
             endTitle.textContent = outcomes.with.title;
             endTitle.className = 'text-4xl font-black mb-4 text-accent-green';
             endText.textContent = outcomes.with.subtitle;
             
-            // Highlight the "With Governor" panel
+            // Highlight the "With SoftStop" panel
             document.getElementById('outcomeWithout').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
             document.getElementById('outcomeWith').className = 'bg-accent-green/10 border border-accent-green/50 rounded-xl p-6 text-left ring-2 ring-accent-green/50';
         } else {
@@ -1965,7 +1969,7 @@
             endTitle.className = 'text-4xl font-black mb-4 text-accent-red';
             endText.textContent = outcomes.without.subtitle;
             
-            // Highlight the "Without Governor" panel
+            // Highlight the "Without SoftStop" panel
             document.getElementById('outcomeWithout').className = 'bg-accent-red/10 border border-accent-red/50 rounded-xl p-6 text-left ring-2 ring-accent-red/50';
             document.getElementById('outcomeWith').className = 'bg-surface-2 border border-white/10 rounded-xl p-6 text-left opacity-50';
         }
@@ -2040,7 +2044,7 @@
     }
 
     function shouldBlock(event) {
-        if (!state.governorEnabled) return null;
+        if (!state.softstopEnabled) return null;
         
         // Check various blocking rules and return reason
         if (state.pressure > 50) {
@@ -2236,8 +2240,8 @@
                         dot.classList.toggle('active', parseInt(dot.dataset.day) === day);
                     });
                     
-                    if (day >= 10 && !state.governorEnabled) {
-                        els.governorHint.classList.remove('hidden');
+                    if (day >= 10 && !state.softstopEnabled) {
+                        els.softstopHint.classList.remove('hidden');
                     }
                 }
             });
@@ -2267,9 +2271,9 @@
                     document.getElementById('finalBlocked').textContent = state.blocked;
                     document.getElementById('finalPressure').textContent = state.maxPressure;
                     
-                    if (state.governorEnabled && state.blocked > 0) {
+                    if (state.softstopEnabled && state.blocked > 0) {
                         document.getElementById('endIcon').textContent = '😊';
-                        document.getElementById('endTitle').textContent = 'Governor Protected You';
+                        document.getElementById('endTitle').textContent = 'SoftStop Protected You';
                         document.getElementById('endText').textContent = `${state.blocked} touches blocked across all channels.`;
                     }
                 }
@@ -2281,10 +2285,10 @@
         endObserver.observe(els.endSection);
     }
 
-    function toggleGovernor() {
-        state.governorEnabled = !state.governorEnabled;
+    function toggleSoftStop() {
+        state.softstopEnabled = !state.softstopEnabled;
         
-        // Reset state for fresh playthrough with new Governor setting
+        // Reset state for fresh playthrough with new SoftStop setting
         state.pressure = 0;
         state.maxPressure = 0;
         state.blocked = 0;
@@ -2295,30 +2299,30 @@
         decisionLog.length = 0;
         
         // Update both indicators (sidebar and fixed)
-        const governorIndicatorFixed = document.getElementById('governorIndicatorFixed');
-        const governorLabelFixed = document.getElementById('governorLabelFixed');
+        const softstopIndicatorFixed = document.getElementById('softstopIndicatorFixed');
+        const softstopLabelFixed = document.getElementById('softstopLabelFixed');
         
-        if (state.governorEnabled) {
+        if (state.softstopEnabled) {
             // Sidebar indicator
-            if (els.governorIndicator) els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
-            if (els.governorLabel) els.governorLabel.textContent = 'ON';
-            if (els.governorHint) els.governorHint.textContent = 'Governor is protecting this user. The story changes!';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-green';
+            if (els.softstopLabel) els.softstopLabel.textContent = 'ON';
+            if (els.softstopHint) els.softstopHint.textContent = 'SoftStop is protecting this user. The story changes!';
             
             // Fixed button
-            if (governorIndicatorFixed) governorIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all';
-            if (governorLabelFixed) governorLabelFixed.textContent = 'ON';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-green transition-all';
+            if (softstopLabelFixed) softstopLabelFixed.textContent = 'ON';
         } else {
             // Sidebar indicator
-            if (els.governorIndicator) els.governorIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
-            if (els.governorLabel) els.governorLabel.textContent = 'OFF';
-            if (els.governorHint) els.governorHint.textContent = 'Use the button to toggle Governor';
+            if (els.softstopIndicator) els.softstopIndicator.className = 'w-4 h-4 rounded-full bg-accent-red';
+            if (els.softstopLabel) els.softstopLabel.textContent = 'OFF';
+            if (els.softstopHint) els.softstopHint.textContent = 'Use the button to toggle SoftStop';
             
             // Fixed button
-            if (governorIndicatorFixed) governorIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all';
-            if (governorLabelFixed) governorLabelFixed.textContent = 'OFF';
+            if (softstopIndicatorFixed) softstopIndicatorFixed.className = 'w-4 h-4 rounded-full bg-accent-red transition-all';
+            if (softstopLabelFixed) softstopLabelFixed.textContent = 'OFF';
         }
         
-        // Rebuild timeline with different events based on Governor state
+        // Rebuild timeline with different events based on SoftStop state
         buildTimeline();
         setupObservers();
         updatePressure();
@@ -2335,9 +2339,9 @@
     }
     
     // Attach to fixed button
-    const governorBtnFixed = document.getElementById('governorBtnFixed');
-    if (governorBtnFixed) {
-        governorBtnFixed.addEventListener('click', toggleGovernor);
+    const softstopBtnFixed = document.getElementById('softstopBtnFixed');
+    if (softstopBtnFixed) {
+        softstopBtnFixed.addEventListener('click', toggleSoftStop);
     }
 
     // User switching function

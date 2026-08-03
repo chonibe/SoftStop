@@ -3,6 +3,7 @@ import { formatExplanation } from "./clarity";
 import { checkSchema, recordSchema } from "./schemas";
 import { Storage } from "./storage/storage";
 import { applyOutcome, emptyState, evaluateCheck } from "./rules/engine";
+import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import { OutcomeType } from "./types";
 
 function parseReportPeriod(from?: string, to?: string): { from: string; to: string } {
@@ -45,7 +46,8 @@ export const handleHealth = async (
 
 export const handleVerify = async (
   storage: Storage,
-  tenantId?: string
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ): Promise<{ status: number; body: unknown }> => {
   const tid = tenantId ?? DEFAULT_TENANT;
   const testUserId = `_gov_verify_${Date.now()}`;
@@ -53,7 +55,7 @@ export const handleVerify = async (
   const now = new Date();
 
   const state = (await storage.getUserState(testUserId, tid)) ?? emptyState();
-  const decision = evaluateCheck(state, "reminder", now);
+  const decision = evaluateCheck(state, "reminder", now, rulesConfig);
 
   if (!decision.allowed) {
     return {
@@ -80,7 +82,8 @@ export const handleVerify = async (
     "reminder",
     "executed",
     {},
-    now
+    now,
+    rulesConfig
   );
 
   await storage.insertEvent({
@@ -120,7 +123,8 @@ export const handleVerify = async (
 
 export const handleCheck = async (
   storage: Storage,
-  payload: unknown
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ) => {
   const parsed = checkSchema.safeParse(payload);
   if (!parsed.success) {
@@ -131,7 +135,7 @@ export const handleCheck = async (
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
-  const decision = evaluateCheck(state, actionType, now);
+  const decision = evaluateCheck(state, actionType, now, rulesConfig);
   const decisionId = randomUUID();
 
   await storage.insertEvent({
@@ -161,7 +165,8 @@ export const handleCheck = async (
 
 export const handleRecord = async (
   storage: Storage,
-  payload: unknown
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ) => {
   const parsed = recordSchema.safeParse(payload);
   if (!parsed.success) {
@@ -178,7 +183,8 @@ export const handleRecord = async (
     actionType,
     outcome as OutcomeType,
     signals,
-    now
+    now,
+    rulesConfig
   );
 
   const eventContext: Record<string, unknown> = context ? { ...context, signals } : { signals };

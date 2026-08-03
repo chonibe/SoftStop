@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
-    "governor": "node scripts/governor-cli.js"
+    "governor": "node scripts/governor-cli.js",
+    "softstop": "node scripts/governor-cli.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
@@ -58,6 +59,7 @@
   ],
   "license": "MIT",
   "bin": {
-    "governor": "./scripts/governor-cli.js"
+    "governor": "./scripts/governor-cli.js",
+    "softstop": "./scripts/governor-cli.js"
   }
 }

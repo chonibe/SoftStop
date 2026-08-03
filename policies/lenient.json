@@ -1,0 +1,17 @@
+{
+  "cooldownHours": {
+    "urgency": 6,
+    "discount": 6,
+    "interruption": 3,
+    "reminder": 1
+  },
+  "typeCap": {
+    "urgency": 3,
+    "discount": 3,
+    "interruption": 4,
+    "reminder": 6
+  },
+  "globalCap": 10,
+  "windowHours": 24,
+  "stackingWindowMinutes": 5
+}
