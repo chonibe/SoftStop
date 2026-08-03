@@ -25,11 +25,11 @@
 </p>
 
 <p align="center">
-  <img src="docs/brand/softstop-cover.svg" alt="SoftStop — shared permit before pressure" width="100%" />
+  <img src="docs/brand/softstop-cover.png" alt="SoftStop — shared permit before pressure" width="100%" />
 </p>
 
 <p align="center">
-  <img src="docs/brand/softstop-before-after.svg" alt="Without SoftStop pressure stacks; with SoftStop only allowed escalations pass" width="100%" />
+  <img src="docs/brand/softstop-before-after.png" alt="Without SoftStop pressure stacks; with SoftStop only allowed escalations pass" width="100%" />
 </p>
 
 Scroll the full story (email, SMS, push, in-app stacking → SoftStop on): **[Live demo](https://governer.vercel.app)**
