@@ -52,7 +52,7 @@ Lifecycle email, pricing SMS, checkout modal, and a support agent can all hit th
 
 ### Example story (live demo)
 
-The [live demo](https://softstop.vercel.app) is a **marketing-chaos example**: scroll ~44 days of email / SMS / push / in-app stacking on one person, then toggle SoftStop on. Same SoftStop contract applies to product UI and agents — the demo just makes the failure mode obvious.
+The [live demo](https://softstop.vercel.app) is a **marketing-chaos example**: scroll ~7 days of email / SMS / push / in-app stacking on one person, then toggle SoftStop on. Same SoftStop contract applies to product UI and agents — the demo just makes the failure mode obvious.
 
 ## Get started
 

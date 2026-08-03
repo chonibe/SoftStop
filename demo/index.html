@@ -358,6 +358,7 @@
             line-height: 1.65;
             color: #c9c9d1;
             overflow-x: auto;
+            white-space: pre;
         }
         .install-block .install-meta {
             display: flex;
@@ -368,6 +369,141 @@
             border-bottom: 1px solid var(--border);
             background: rgba(247,245,240,0.02);
         }
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--muted);
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            transition: color 0.15s, border-color 0.15s, background 0.15s;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            color: var(--paper);
+            border-color: rgba(232,163,23,0.4);
+            background: rgba(232,163,23,0.06);
+        }
+        .copy-btn.copied {
+            color: var(--ink);
+            background: var(--amber);
+            border-color: var(--amber);
+        }
+        .snippet-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+        .snippet-tab {
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 7px 12px;
+            border-radius: 7px;
+            border: 1px solid transparent;
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s, background 0.15s;
+        }
+        .snippet-tab:hover { color: var(--paper); background: rgba(247,245,240,0.04); }
+        .snippet-tab.active {
+            color: var(--amber);
+            border-color: rgba(232,163,23,0.4);
+            background: rgba(232,163,23,0.08);
+        }
+        .snippet-panel { display: none; }
+        .snippet-panel.active { display: block; }
+
+        .flow-rail {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+        @media (max-width: 767px) {
+            .flow-rail { grid-template-columns: 1fr 1fr; }
+        }
+        .flow-step {
+            position: relative;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 16px 14px;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        .flow-step.is-visible { opacity: 1; transform: none; }
+        .flow-step .flow-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            color: var(--amber);
+            margin-bottom: 8px;
+        }
+        .flow-step .flow-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        .flow-outcome {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .outcome-chip {
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+        .outcome-chip.landed {
+            border-color: rgba(248,81,73,0.35);
+            background: rgba(248,81,73,0.06);
+        }
+        .outcome-chip.blocked {
+            border-color: rgba(232,163,23,0.4);
+            background: rgba(232,163,23,0.07);
+            border-style: dashed;
+        }
+        .action-tile {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 18px 16px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .action-tile:hover {
+            border-color: rgba(232,163,23,0.45);
+            transform: translateY(-2px);
+        }
+        .benefit-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+        @media (max-width: 767px) {
+            .benefit-row { grid-template-columns: 1fr; }
+        }
+        .benefit-card {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px 18px;
+        }
+        .oss-cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
         .section-kicker {
             font-size: 11px;
@@ -376,6 +512,9 @@
             color: var(--amber);
             font-weight: 600;
             font-family: 'IBM Plex Mono', monospace;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .flow-step { animation: none !important; opacity: 1 !important; transform: none !important; }
         }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -398,8 +537,9 @@
             </a>
             <nav class="hidden sm:flex items-center gap-5 text-[13px] text-slate-500 ml-2">
                 <a href="#quickstart" class="hover:text-paper transition-colors">Get started</a>
-                <a href="#docs" class="hover:text-paper transition-colors">Docs</a>
+                <a href="#how" class="hover:text-paper transition-colors">How it works</a>
                 <a href="#demo" class="hover:text-paper transition-colors">Demo</a>
+                <a href="#why" class="hover:text-paper transition-colors">Why SoftStop</a>
             </nav>
             <div class="flex-1"></div>
             <a href="https://github.com/chonibe/SoftStop" class="inline-flex items-center gap-2 text-[13px] font-medium text-slate-400 hover:text-paper transition-colors">
@@ -428,7 +568,7 @@
             <div class="p-4 border-b border-white/[0.06]">
                 <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-1">Date</div>
                 <div id="currentDate" class="text-lg font-semibold font-mono tracking-tight">Dec 6, 2025</div>
-                <div id="dayCount" class="text-xs text-slate-500 mt-0.5">Day 1 of 44</div>
+                <div id="dayCount" class="text-xs text-slate-500 mt-0.5">Day 1 of 7</div>
             </div>
             <div class="p-4 border-b border-white/[0.06]">
                 <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-[0.14em] mb-3">Temperament</div>
@@ -532,49 +672,177 @@
         <!-- Quickstart -->
         <section id="quickstart" class="border-b border-white/[0.06]">
             <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
-                <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
                     <div>
                         <p class="section-kicker mb-3">Quick start</p>
-                        <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight">Run it in under five minutes</h2>
+                        <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight">Copy, paste, run</h2>
+                        <p class="text-slate-400 mt-2 max-w-xl text-sm md:text-base">Self-host in under five minutes. SoftStop decides whether systems may raise pressure — not what they say.</p>
                     </div>
-                    <a href="https://github.com/chonibe/SoftStop#get-started" class="text-sm text-slate-500 hover:text-stop-amber transition-colors font-mono">Full README →</a>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="https://github.com/chonibe/SoftStop" class="hero-cta-secondary inline-flex items-center gap-2 py-2 px-3.5 text-xs">GitHub</a>
+                        <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="hero-cta-ghost inline-flex items-center py-2 px-3 text-xs">Docs →</a>
+                    </div>
                 </div>
-                <div class="grid lg:grid-cols-2 gap-4 md:gap-5">
+
+                <div class="snippet-tabs" role="tablist" aria-label="Quick start snippets">
+                    <button type="button" class="snippet-tab active" data-snippet-tab="install" role="tab" aria-selected="true">Install</button>
+                    <button type="button" class="snippet-tab" data-snippet-tab="verify" role="tab" aria-selected="false">Verify</button>
+                    <button type="button" class="snippet-tab" data-snippet-tab="check" role="tab" aria-selected="false">check</button>
+                    <button type="button" class="snippet-tab" data-snippet-tab="sdk" role="tab" aria-selected="false">SDK</button>
+                </div>
+
+                <div class="snippet-panel active" data-snippet-panel="install">
                     <div class="install-block">
                         <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">Self-host</span>
-                            <button type="button" data-copy="#installCmd" class="text-[11px] font-semibold text-slate-400 hover:text-paper px-2 py-1 rounded border border-transparent hover:border-white/10">Copy</button>
+                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">Terminal · self-host</span>
+                            <button type="button" data-copy="#installCmd" class="copy-btn">Copy</button>
                         </div>
-                        <pre id="installCmd">pnpm install
-pnpm dev
-pnpm softstop verify</pre>
+                        <pre id="installCmd">git clone https://github.com/chonibe/SoftStop.git
+cd SoftStop
+pnpm install
+pnpm dev</pre>
                     </div>
+                </div>
+                <div class="snippet-panel" data-snippet-panel="verify">
                     <div class="install-block">
                         <div class="install-meta">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">check before escalate</span>
-                            <button type="button" data-copy="#checkCmd" class="text-[11px] font-semibold text-slate-400 hover:text-paper px-2 py-1 rounded border border-transparent hover:border-white/10">Copy</button>
+                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">Smoke test · orphanRate must stay low</span>
+                            <button type="button" data-copy="#verifyCmd" class="copy-btn">Copy</button>
+                        </div>
+                        <pre id="verifyCmd">pnpm softstop verify
+
+# or
+curl -X POST http://localhost:3000/v1/verify
+curl http://localhost:3000/v1/health</pre>
+                    </div>
+                </div>
+                <div class="snippet-panel" data-snippet-panel="check">
+                    <div class="install-block">
+                        <div class="install-meta">
+                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">POST /v1/check · before escalate</span>
+                            <button type="button" data-copy="#checkCmd" class="copy-btn">Copy</button>
                         </div>
                         <pre id="checkCmd">curl -X POST http://localhost:3000/v1/check \
   -H 'content-type: application/json' \
   -d '{"userId":"user_123","actionType":"urgency","surface":"email"}'</pre>
                     </div>
                 </div>
+                <div class="snippet-panel" data-snippet-panel="sdk">
+                    <div class="install-block">
+                        <div class="install-meta">
+                            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-500">check → allow/block → record</span>
+                            <button type="button" data-copy="#sdkCmd" class="copy-btn">Copy</button>
+                        </div>
+                        <pre id="sdkCmd">const base = process.env.SOFTSTOP_API_URL || "http://localhost:3000";
+const check = await fetch(`${base}/v1/check`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    userId: "user_123",
+    actionType: "urgency", // urgency | discount | interruption | reminder
+    surface: "email"
+  })
+}).then((r) => r.json());
+
+if (!check.allowed) {
+  await fetch(`${base}/v1/record`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      decisionId: check.decisionId,
+      userId: "user_123",
+      actionType: "urgency",
+      outcome: "blocked",
+      blockReason: check.reason
+    })
+  });
+  return; // do not escalate
+}
+
+// escalate, then record outcome: "executed"</pre>
+                    </div>
+                </div>
+
                 <p class="mt-5 text-sm text-slate-500 max-w-2xl">
-                    SoftStop does not send email or write copy. Your systems still decide <em class="text-slate-400 not-italic">what</em> to say — SoftStop decides whether they’re allowed to push.
+                    Hosted APIs use <span class="code-chip">/api</span> instead of <span class="code-chip">/v1</span>.
                     Docker: <span class="code-chip">docker compose up --build</span>
                 </p>
             </div>
         </section>
 
-        <!-- Contract / docs anchors -->
-        <section id="docs" class="border-b border-white/[0.06] bg-white/[0.015]">
+        <!-- How it works -->
+        <section id="how" class="border-b border-white/[0.06] bg-white/[0.015]">
             <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
-                <p class="section-kicker mb-3">Contract</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">Authorize only</h2>
+                <p class="section-kicker mb-3">How it works</p>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">Escalate → check → allow or block → record</h2>
                 <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">
-                    Ask SoftStop before raising pressure. Get allow or block. Record the outcome. Same gate for marketing, product UI, and agents.
+                    SoftStop is an authorize-only permit. Same gate for marketing, product UI, and agents.
                 </p>
-                <div class="grid md:grid-cols-2 gap-6 md:gap-10 mb-12">
+
+                <div class="flow-rail" id="flowRail">
+                    <div class="flow-step" data-flow-step>
+                        <div class="flow-num">01</div>
+                        <div class="flow-title">Escalate?</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Your system wants to raise pressure — email, SMS, modal, agent nudge.</p>
+                    </div>
+                    <div class="flow-step" data-flow-step>
+                        <div class="flow-num">02</div>
+                        <div class="flow-title">check()</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Ask SoftStop with <span class="code-chip">userId</span>, <span class="code-chip">actionType</span>, <span class="code-chip">surface</span>.</p>
+                    </div>
+                    <div class="flow-step" data-flow-step>
+                        <div class="flow-num">03</div>
+                        <div class="flow-title">Permit</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Allow or block from cooldowns, caps, and stacking rules — not from copy AI.</p>
+                    </div>
+                    <div class="flow-step" data-flow-step>
+                        <div class="flow-num">04</div>
+                        <div class="flow-title">record()</div>
+                        <p class="text-sm text-slate-500 leading-relaxed">Always record — including when blocked — so health and orphan rate stay honest.</p>
+                    </div>
+                </div>
+
+                <div class="flow-outcome">
+                    <div class="outcome-chip landed">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-accent-red/20 text-accent-red px-2 py-0.5 rounded">LANDED</span>
+                            <span class="text-[11px] font-mono text-slate-500">OFF or allowed</span>
+                        </div>
+                        <p class="text-sm text-slate-400">Touch hits the user. Pressure rises. SoftStop OFF lands everything.</p>
+                    </div>
+                    <div class="outcome-chip blocked">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-stop-amber/20 text-stop-amber px-2 py-0.5 rounded">BLOCKED</span>
+                            <span class="text-[11px] font-mono text-slate-500">ON + over limit</span>
+                        </div>
+                        <p class="text-sm text-slate-400">Touch does not fire. Rule shown. Still <span class="code-chip">record</span> with outcome blocked.</p>
+                    </div>
+                </div>
+
+                <div class="mt-14">
+                    <p class="section-kicker mb-3">Action types</p>
+                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-6">Four ways pressure shows up</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="actionTiles">
+                        <div class="action-tile">
+                            <div class="font-mono text-stop-amber text-sm mb-2">urgency</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">Time pressure — “ends tonight”, countdown push.</p>
+                        </div>
+                        <div class="action-tile">
+                            <div class="font-mono text-stop-amber text-sm mb-2">discount</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">Price / promo — coupon SMS, offer email.</p>
+                        </div>
+                        <div class="action-tile">
+                            <div class="font-mono text-stop-amber text-sm mb-2">interruption</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">Modal / popup — checkout upsell, forced attention.</p>
+                        </div>
+                        <div class="action-tile">
+                            <div class="font-mono text-stop-amber text-sm mb-2">reminder</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">Soft nudge — badge, agent follow-up.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 grid md:grid-cols-2 gap-6 md:gap-10">
                     <div>
                         <h3 class="text-sm font-semibold text-paper mb-3">SoftStop does</h3>
                         <ul class="space-y-2 text-sm text-slate-400">
@@ -592,25 +860,8 @@ pnpm softstop verify</pre>
                         </ul>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="border border-white/10 rounded-lg p-4 bg-surface/60">
-                        <div class="font-mono text-stop-amber text-sm mb-1">urgency</div>
-                        <div class="text-xs text-slate-500">Time pressure</div>
-                    </div>
-                    <div class="border border-white/10 rounded-lg p-4 bg-surface/60">
-                        <div class="font-mono text-stop-amber text-sm mb-1">discount</div>
-                        <div class="text-xs text-slate-500">Price / promo</div>
-                    </div>
-                    <div class="border border-white/10 rounded-lg p-4 bg-surface/60">
-                        <div class="font-mono text-stop-amber text-sm mb-1">interruption</div>
-                        <div class="text-xs text-slate-500">Modal / popup</div>
-                    </div>
-                    <div class="border border-white/10 rounded-lg p-4 bg-surface/60">
-                        <div class="font-mono text-stop-amber text-sm mb-1">reminder</div>
-                        <div class="text-xs text-slate-500">Soft nudge</div>
-                    </div>
-                </div>
-                <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+
+                <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm" id="docs">
                     <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="text-slate-400 hover:text-stop-amber transition-colors">Docs</a>
                     <a href="https://github.com/chonibe/SoftStop/blob/main/docs/BEFORE_AFTER.md" class="text-slate-400 hover:text-stop-amber transition-colors">Before / after</a>
                     <a href="https://github.com/chonibe/SoftStop/blob/main/docs/GOVERNOR_INTEGRATION_WORKFLOW.md" class="text-slate-400 hover:text-stop-amber transition-colors">Integration</a>
@@ -623,9 +874,9 @@ pnpm softstop verify</pre>
         <section id="demo" class="scroll-mt-14">
             <div class="max-w-6xl mx-auto px-4 md:px-6 pt-14 md:pt-16 pb-6">
                 <p class="section-kicker mb-3">Live example</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">44 days of stacked escalations</h2>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">7 days of stacked escalations</h2>
                 <p class="text-slate-400 max-w-2xl leading-relaxed mb-2">
-                    Marketing-chaos story: email, SMS, push, and in-app stacking on one person.
+                    Marketing-chaos story in a short scroll: email, SMS, push, and in-app stacking on one person.
                     SoftStop isn’t the messenger — it’s the permit under all of them.
                 </p>
                 <p class="text-sm text-slate-500 mb-6">
@@ -687,7 +938,7 @@ pnpm softstop verify</pre>
                 <div id="timelineEntries"></div>
             </div>
 
-            <section id="endSection" class="min-h-[70vh] flex items-center justify-center border-t border-white/[0.06] opacity-0 transition-opacity duration-1000 py-16">
+            <section id="endSection" class="min-h-[48vh] flex items-center justify-center border-t border-white/[0.06] opacity-0 transition-opacity duration-1000 py-14">
                 <div class="text-center px-6 max-w-3xl">
                     <div id="endIcon" class="text-4xl mb-5">😵</div>
                     <h2 id="endTitle" class="font-display text-3xl md:text-4xl font-semibold tracking-tight mb-3">Death by a Thousand Touches</h2>
@@ -739,6 +990,40 @@ pnpm softstop verify</pre>
             </section>
         </section>
 
+        <!-- Why SoftStop / OSS -->
+        <section id="why" class="border-t border-white/[0.06]">
+            <div class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-16">
+                <p class="section-kicker mb-3">Open source</p>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">Why SoftStop</h2>
+                <p class="text-slate-400 max-w-2xl leading-relaxed mb-8">
+                    One shared permit before any system raises pressure — so marketing, product, and agents stop stacking on the same user.
+                </p>
+                <div class="benefit-row">
+                    <div class="benefit-card">
+                        <h3 class="font-display font-semibold text-paper mb-2">Authorize only</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Doesn’t send mail or write copy. Your stack still owns the message — SoftStop owns the permit.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <h3 class="font-display font-semibold text-paper mb-2">Cross-system caps</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Cooldowns and channel limits apply across email, SMS, push, UI, and agents — not siloed per tool.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <h3 class="font-display font-semibold text-paper mb-2">Honest adoption</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed"><span class="code-chip">verify</span> + <span class="code-chip">health</span> catch orphans. Partial wiring isn’t false confidence.</p>
+                    </div>
+                </div>
+                <div class="oss-cta-row">
+                    <a href="https://github.com/chonibe/SoftStop" class="hero-cta-primary inline-flex items-center gap-2 py-3 px-5 text-sm">
+                        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                        Star on GitHub
+                    </a>
+                    <a href="#quickstart" class="hero-cta-secondary inline-flex items-center py-3 px-5 text-sm">Install SoftStop</a>
+                    <a href="https://github.com/chonibe/SoftStop/blob/main/docs/README.md" class="hero-cta-ghost inline-flex items-center py-3 px-4 text-sm">Read the docs</a>
+                    <a href="https://github.com/chonibe/SoftStop/tree/main/examples" class="hero-cta-ghost inline-flex items-center py-3 px-4 text-sm">Examples</a>
+                </div>
+            </div>
+        </section>
+
         <footer class="border-t border-white/[0.06]">
             <div class="max-w-6xl mx-auto px-4 md:px-6 py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-slate-500">
                 <div class="flex items-center gap-2.5">
@@ -749,7 +1034,7 @@ pnpm softstop verify</pre>
                 </div>
                 <div class="flex flex-wrap gap-x-5 gap-y-2">
                     <a href="https://github.com/chonibe/SoftStop" class="hover:text-paper transition-colors">GitHub</a>
-                    <a href="#docs" class="hover:text-paper transition-colors">Docs</a>
+                    <a href="#how" class="hover:text-paper transition-colors">How it works</a>
                     <a href="#quickstart" class="hover:text-paper transition-colors">Get started</a>
                     <a href="#demo" class="hover:text-paper transition-colors">Demo</a>
                 </div>
@@ -770,183 +1055,58 @@ pnpm softstop verify</pre>
     // Multi-channel pressure data with user actions and platform responses
     // Shows the feedback loop: User action → Platform response → More pressure
     
-    // CHONI's Journey - High engagement casino user who gets overwhelmed and churns
+    // CHONI's Journey — 7 days of stacked pressure (short demo)
     const choniEvents = [
-        // Day 1 - Dec 6: Signup
+        // Day 1 — signup
         { date: '2025-12-06', channel: 'user', subject: 'You signed up for CrownCoins Casino', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins Casino! 🥳', type: 'onboarding', pressure: 5, trigger: 'signup' },
         { date: '2025-12-06', channel: 'push', subject: 'Your account is ready! Claim your bonus', type: 'promo', pressure: 8 },
-        
-        // Day 2 - Dec 7: User opened email but didn't click
+
+        // Day 2 — opened, no click → multi-channel follow-up
         { date: '2025-12-07', channel: 'user', subject: 'You opened the welcome email (no click)', type: 'action', pressure: -2, isUser: true },
         { date: '2025-12-07', channel: 'email', subject: 'Gift For You Choni 🎁', type: 'promo', pressure: 8, trigger: 'opened_no_click' },
         { date: '2025-12-07', channel: 'sms', subject: '🎰 Your FREE coins are waiting! Tap to claim', type: 'promo', pressure: 10, trigger: 'opened_no_click' },
-        
-        // Day 3 - Dec 8: User visited site but left
+
+        // Day 3 — browse abandon stack
         { date: '2025-12-08', channel: 'user', subject: 'You visited the site for 30 seconds', type: 'action', pressure: -3, isUser: true },
         { date: '2025-12-08', channel: 'email', subject: 'Turn Your Unused Coins to Big Wins! 🚀', type: 'urgency', pressure: 12, trigger: 'browse_abandon' },
         { date: '2025-12-08', channel: 'popup', subject: '🔥 Limited Time: 200% Bonus Active NOW', type: 'urgency', pressure: 15, trigger: 'browse_abandon' },
         { date: '2025-12-08', channel: 'ad', subject: '[Facebook] "Choni, your coins are waiting!" 🎰', type: 'retarget', pressure: 8, trigger: 'browse_abandon' },
-        
-        // Day 4 - Dec 9
-        { date: '2025-12-09', channel: 'email', subject: "Want Free SC? Here's How! 💸", type: 'promo', pressure: 8 },
-        { date: '2025-12-09', channel: 'badge', subject: 'NEW: 3 unclaimed bonuses waiting', type: 'fomo', pressure: 6 },
-        
-        // Day 5 - Dec 10: User clicked on email
-        { date: '2025-12-10', channel: 'user', subject: 'You clicked the "$10M Jackpot" email', type: 'action', pressure: -5, isUser: true },
-        { date: '2025-12-10', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-10', channel: 'email', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
-        { date: '2025-12-10', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14, trigger: 'email_click' },
-        { date: '2025-12-10', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16, trigger: 'email_click' },
-        
-        // Day 6 - Dec 11: User didn't claim gift
-        { date: '2025-12-11', channel: 'user', subject: 'You ignored 3 emails', type: 'action', pressure: 0, isUser: true },
-        { date: '2025-12-11', channel: 'email', subject: '12 Days, 12 SC Gifts: Claim Yours Now! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-11', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12, trigger: 'inactivity' },
-        
-        // Day 8 - Dec 13: User viewed pricing
-        { date: '2025-12-13', channel: 'user', subject: 'You viewed the coin purchase page', type: 'action', pressure: -3, isUser: true },
-        { date: '2025-12-13', channel: 'email', subject: 'One More FREE SC Gift Just for You! 🎁🎄', type: 'promo', pressure: 10 },
-        { date: '2025-12-13', channel: 'email', subject: 'Whoa, Choni! Did You See THIS?! 😱', type: 'urgency', pressure: 15, trigger: 'viewed_pricing' },
-        { date: '2025-12-13', channel: 'popup', subject: 'FLASH SALE: 300% bonus for next 30 minutes!', type: 'urgency', pressure: 18, trigger: 'viewed_pricing' },
-        { date: '2025-12-13', channel: 'ad', subject: '[Instagram] "300% BONUS - Today Only!" 🔥', type: 'retarget', pressure: 10, trigger: 'viewed_pricing' },
-        { date: '2025-12-13', channel: 'ad', subject: '[YouTube Pre-roll] "CrownCoins: Win Big Today"', type: 'retarget', pressure: 8, trigger: 'viewed_pricing' },
-        
-        // Day 9 - Dec 14: User closed popup without action
-        { date: '2025-12-14', channel: 'user', subject: 'You closed the popup (no purchase)', type: 'action', pressure: 0, isUser: true },
-        { date: '2025-12-14', channel: 'email', subject: "Don't Miss Your Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'popup_dismiss' },
-        { date: '2025-12-14', channel: 'push', subject: 'Your gift expires in 3 hours!', type: 'urgency', pressure: 12, trigger: 'popup_dismiss' },
-        
-        // Day 10 - Dec 15
-        { date: '2025-12-15', channel: 'email', subject: 'Choni, New Holiday Gift Unlocked! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-15', channel: 'badge', subject: 'VIP status unlocked - claim rewards', type: 'fomo', pressure: 8 },
-        
-        // Day 11 - Dec 16: Heavy day - user is getting overwhelmed
-        { date: '2025-12-16', channel: 'user', subject: 'You marked 2 emails as spam', type: 'action', pressure: -10, isUser: true },
-        { date: '2025-12-16', channel: 'email', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
-        { date: '2025-12-16', channel: 'email', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
-        { date: '2025-12-16', channel: 'email', subject: "Didn't You Forget Something, Choni? 😮", type: 'urgency', pressure: 12 },
-        { date: '2025-12-16', channel: 'sms', subject: '🚨 3 EMAILS WAITING - open now!', type: 'meta', pressure: 10, trigger: 'low_engagement' },
-        { date: '2025-12-16', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6, trigger: 'low_engagement' },
-        { date: '2025-12-16', channel: 'popup', subject: '47 players viewing this jackpot RIGHT NOW', type: 'fomo', pressure: 14 },
-        
-        // Day 12 - Dec 17
-        { date: '2025-12-17', channel: 'email', subject: 'Surprise, Choni! Mystery Deal Inside 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-17', channel: 'chat', subject: 'Quick question - did you see the mystery deal?', type: 'sales', pressure: 10 },
-        
-        // Day 13 - Dec 18: User played a game
-        { date: '2025-12-18', channel: 'user', subject: 'You played slots for 10 minutes', type: 'action', pressure: -8, isUser: true },
-        { date: '2025-12-18', channel: 'email', subject: 'Tonight: $10,000,000 Top Prize! 🤯', type: 'urgency', pressure: 18, trigger: 'game_played' },
-        { date: '2025-12-18', channel: 'email', subject: 'A New Day, a New SC Gift! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-18', channel: 'push', subject: 'JACKPOT ALERT: Drawing starts in 1 hour', type: 'urgency', pressure: 14, trigger: 'game_played' },
-        { date: '2025-12-18', channel: 'sms', subject: '🎰 $10M drawing TONIGHT. Are you in?', type: 'urgency', pressure: 14, trigger: 'game_played' },
-        
-        // Day 14 - Dec 19
-        { date: '2025-12-19', channel: 'email', subject: 'Exclusive FREE Gift Inside - Holiday Fun! 🎁🎅', type: 'promo', pressure: 10 },
-        
-        // Day 15 - Dec 20: User unsubscribed from SMS
-        { date: '2025-12-20', channel: 'user', subject: 'You unsubscribed from SMS', type: 'action', pressure: -15, isUser: true },
-        { date: '2025-12-20', channel: 'email', subject: 'Your Shot at $10M Continues, Choni! 😱', type: 'urgency', pressure: 16 },
-        { date: '2025-12-20', channel: 'email', subject: "Don't Miss Today's Gift, Choni! 🎁", type: 'urgency', pressure: 14, trigger: 'sms_unsub' },
-        { date: '2025-12-20', channel: 'popup', subject: 'WEEKEND SPECIAL: Triple your deposit!', type: 'promo', pressure: 12, trigger: 'sms_unsub' },
-        { date: '2025-12-20', channel: 'push', subject: 'We noticed you unsubscribed - here\'s 50 free coins', type: 'winback', pressure: 10, trigger: 'sms_unsub' },
-        { date: '2025-12-20', channel: 'ad', subject: '[Instagram Story] "Miss us? Here\'s 100 FREE coins" 🎁', type: 'retarget', pressure: 12, trigger: 'sms_unsub' },
-        { date: '2025-12-20', channel: 'social', subject: '[Instagram DM] "Hey! We have a special offer for you..."', type: 'outreach', pressure: 14, trigger: 'sms_unsub' },
-        
-        // Day 16 - Dec 21
-        { date: '2025-12-21', channel: 'email', subject: 'Unwrap Your Exclusive FREE Gift! 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-21', channel: 'badge', subject: 'WEEKEND DEAL expires in 12h', type: 'urgency', pressure: 10 },
-        
-        // Day 17 - Dec 22
-        { date: '2025-12-22', channel: 'email', subject: 'Another Gift Just for You, Choni! 🎁', type: 'promo', pressure: 8 },
-        { date: '2025-12-22', channel: 'chat', subject: 'Happy holidays! Any questions about our promos?', type: 'sales', pressure: 8 },
-        
-        // Day 18 - Dec 23: User added coins to cart but didn't buy
-        { date: '2025-12-23', channel: 'user', subject: 'You added coins to cart (abandoned)', type: 'action', pressure: -5, isUser: true },
-        { date: '2025-12-23', channel: 'email', subject: "Don't Miss Your Last SC Gift! 🎁", type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'email', subject: 'Claim Your FREE Bingo Card! 🎁🎟️', type: 'promo', pressure: 10 },
-        { date: '2025-12-23', channel: 'push', subject: 'Your cart is waiting! Complete purchase for bonus', type: 'urgency', pressure: 16, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'ad', subject: '[Facebook] "Choni, you left coins in your cart!" 🛒', type: 'retarget', pressure: 12, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'ad', subject: '[TikTok] "Complete your purchase - 20% OFF!" 💰', type: 'retarget', pressure: 10, trigger: 'cart_abandon' },
-        { date: '2025-12-23', channel: 'ad', subject: '[Google Display] "Your CrownCoins cart expires soon"', type: 'retarget', pressure: 8, trigger: 'cart_abandon' },
-        
-        // Day 19 - Dec 24
-        { date: '2025-12-24', channel: 'email', subject: 'Scratch to Reveal Your Holiday Surprise! ✨', type: 'game', pressure: 8 },
-        { date: '2025-12-24', channel: 'push', subject: 'Christmas Eve surprise waiting for you!', type: 'promo', pressure: 8 },
-        
-        // Day 20 - Dec 25
-        { date: '2025-12-25', channel: 'email', subject: 'FREE 40K CC + 2 SC for Christmas! 🎁🎄', type: 'promo', pressure: 12 },
-        
-        // Day 21 - Dec 26
-        { date: '2025-12-26', channel: 'email', subject: 'Your FREE Coins Await, Choni! 🎁❄️', type: 'promo', pressure: 10 },
-        { date: '2025-12-26', channel: 'email', subject: 'Claim Your Free Social Welcome Bonus 🎁', type: 'promo', pressure: 10 },
-        { date: '2025-12-26', channel: 'popup', subject: 'POST-CHRISTMAS SALE: 400% bonus today only!', type: 'urgency', pressure: 16 },
-        
-        // Day 23 - Dec 28
-        { date: '2025-12-28', channel: 'email', subject: 'Exclusive FREE Gift for Christmas Weekend! 🎁🎅', type: 'promo', pressure: 10 },
-        
-        // Day 24 - Dec 29
-        { date: '2025-12-29', channel: 'email', subject: '40K CC + 2 SC FREE Gift and 2,000 SC Raffle!? 🎁🤯', type: 'promo', pressure: 12 },
-        { date: '2025-12-29', channel: 'badge', subject: 'RAFFLE ENTRY: 2 hours remaining', type: 'urgency', pressure: 10 },
-        
-        // Day 26 - Dec 31
-        { date: '2025-12-31', channel: 'user', subject: 'You logged in to check balance', type: 'action', pressure: -5, isUser: true },
-        { date: '2025-12-31', channel: 'email', subject: 'FREE Spins Deal to Kick Off 2026! 🎉', type: 'promo', pressure: 10, trigger: 'login' },
-        { date: '2025-12-31', channel: 'email', subject: 'Claim Your FREE Gift & Pop into 2026! 🎁🎈', type: 'promo', pressure: 10 },
-        { date: '2025-12-31', channel: 'push', subject: 'Ring in 2026 with FREE SPINS!', type: 'promo', pressure: 10 },
-        { date: '2025-12-31', channel: 'popup', subject: 'NEW YEAR COUNTDOWN: Claim before midnight!', type: 'urgency', pressure: 14, trigger: 'login' },
-        
-        // Day 27 - Jan 1
-        { date: '2026-01-01', channel: 'email', subject: 'Gift Inside - Your 2025 Recap Awaits! 🎁', type: 'feature', pressure: 6 },
-        { date: '2026-01-01', channel: 'push', subject: 'Happy 2026! See your year in review', type: 'feature', pressure: 5 },
-        
-        // Day 30 - Jan 4
-        { date: '2026-01-04', channel: 'email', subject: '48 Hours Only: 26 FREE Spins for 2026! 🎁🎆', type: 'urgency', pressure: 16 },
-        { date: '2026-01-04', channel: 'email', subject: 'Ready to TRIPLE the Fun, Choni? 🎉', type: 'promo', pressure: 12 },
-        
-        // Day 33 - Jan 7
-        { date: '2026-01-07', channel: 'email', subject: "Don't Miss Your Exclusive Choice! 🤩", type: 'urgency', pressure: 14 },
-        { date: '2026-01-07', channel: 'chat', subject: 'Hey! Did you make your choice yet?', type: 'sales', pressure: 10 },
-        
-        // Day 37 - Jan 11
-        { date: '2026-01-11', channel: 'user', subject: 'You haven\'t logged in for 10 days', type: 'action', pressure: 0, isUser: true },
-        { date: '2026-01-11', channel: 'email', subject: 'Your Triple Boost Is Waiting! ⏳', type: 'urgency', pressure: 16, trigger: 'inactivity' },
-        { date: '2026-01-11', channel: 'email', subject: 'Exclusive Mystery Gift - 48 Hours Only! 🎁', type: 'urgency', pressure: 16, trigger: 'inactivity' },
-        { date: '2026-01-11', channel: 'push', subject: 'TRIPLE BOOST expiring in 24h!', type: 'urgency', pressure: 12, trigger: 'inactivity' },
-        { date: '2026-01-11', channel: 'popup', subject: 'MYSTERY DEAL: Scratch to reveal!', type: 'promo', pressure: 10 },
-        { date: '2026-01-11', channel: 'ad', subject: '[Facebook] "We miss you, Choni! Come back for 500 FREE coins" 😢', type: 'retarget', pressure: 12, trigger: 'inactivity' },
-        { date: '2026-01-11', channel: 'ad', subject: '[Google Search] "CrownCoins - Your account has rewards waiting"', type: 'retarget', pressure: 8, trigger: 'inactivity' },
-        { date: '2026-01-11', channel: 'social', subject: '[Facebook Messenger] "Choni! You have unclaimed rewards 🎁"', type: 'outreach', pressure: 14, trigger: 'inactivity' },
-        
-        // Day 38 - Jan 12
-        { date: '2026-01-12', channel: 'email', subject: 'Free Gift. Unlimited Prize Pool. All Yours. 🎁🤯', type: 'urgency', pressure: 14 },
-        
-        // Day 39 - Jan 13
-        { date: '2026-01-13', channel: 'email', subject: 'Exclusive FREE Bingo Card! 🎁', type: 'promo', pressure: 10 },
-        { date: '2026-01-13', channel: 'badge', subject: 'BINGO: 1 free card unclaimed', type: 'fomo', pressure: 6 },
-        
-        // Day 40 - Jan 14
-        { date: '2026-01-14', channel: 'email', subject: "Joker's Deal: Pick Your Chaos! 🃏", type: 'game', pressure: 8 },
-        { date: '2026-01-14', channel: 'email', subject: 'Gift Inside - Big News, Choni! 🎁🎙', type: 'promo', pressure: 10 },
-        { date: '2026-01-14', channel: 'push', subject: 'NEW GAME: Joker\'s Deal is live!', type: 'feature', pressure: 8 },
-        
-        // Day 41 - Jan 15
-        { date: '2026-01-15', channel: 'email', subject: 'Claim Your Gift - CrownCoins Week Is HERE! 🎁🥳', type: 'promo', pressure: 12 },
-        
-        // Day 44 - Jan 18
-        { date: '2026-01-18', channel: 'user', subject: 'You opened the app today', type: 'action', pressure: -3, isUser: true },
-        { date: '2026-01-18', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'email', subject: 'Your Free Spins Are Here - 48 Hours Only! 🎁', type: 'urgency', pressure: 16 },
-        { date: '2026-01-18', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
-        { date: '2026-01-18', channel: 'ad', subject: '[Every website you visit] "CrownCoins: 200% Bonus Ends Tonight!"', type: 'retarget', pressure: 14, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'ad', subject: '[YouTube] "Don\'t let your free spins expire!"', type: 'retarget', pressure: 10, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'ad', subject: '[Spotify] Audio ad between songs 🔊', type: 'retarget', pressure: 12, trigger: 'app_open' },
-        { date: '2026-01-18', channel: 'social', subject: '[WhatsApp] "Hey it\'s CrownCoins support, quick question..."', type: 'outreach', pressure: 16, trigger: 'app_open' },
+
+        // Day 4 — engagement signal → urgency blast
+        { date: '2025-12-09', channel: 'user', subject: 'You clicked the "$10M Jackpot" email', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-09', channel: 'email', subject: 'First Prize: $10 Million. Secure Your Spot! 🤯', type: 'urgency', pressure: 18 },
+        { date: '2025-12-09', channel: 'push', subject: '$10M JACKPOT - Drawing in 2 hours!', type: 'urgency', pressure: 14, trigger: 'email_click' },
+        { date: '2025-12-09', channel: 'sms', subject: '⏰ LAST CHANCE: $10M draw closes soon', type: 'urgency', pressure: 16, trigger: 'email_click' },
+        { date: '2025-12-09', channel: 'chat', subject: 'Hey! I noticed you haven\'t claimed today\'s gift...', type: 'sales', pressure: 12, trigger: 'inactivity' },
+
+        // Day 5 — spam reaction → more pressure
+        { date: '2025-12-10', channel: 'user', subject: 'You marked 2 emails as spam', type: 'action', pressure: -10, isUser: true },
+        { date: '2025-12-10', channel: 'email', subject: '$10,000,000 Is on the Line. Are You In? 🤑', type: 'urgency', pressure: 18 },
+        { date: '2025-12-10', channel: 'email', subject: "Free SC, Don't Miss It Choni! 🎁", type: 'urgency', pressure: 14 },
+        { date: '2025-12-10', channel: 'push', subject: 'You have unread messages', type: 'meta', pressure: 6, trigger: 'low_engagement' },
+        { date: '2025-12-10', channel: 'popup', subject: '47 players viewing this jackpot RIGHT NOW', type: 'fomo', pressure: 14 },
+        { date: '2025-12-10', channel: 'ad', subject: '[Instagram] "Come back — VIP rewards waiting"', type: 'retarget', pressure: 10, trigger: 'low_engagement' },
+
+        // Day 6 — cart abandon mega-stack
+        { date: '2025-12-11', channel: 'user', subject: 'You added coins to cart (abandoned)', type: 'action', pressure: -5, isUser: true },
+        { date: '2025-12-11', channel: 'email', subject: 'Last Chance, Choni! ⏳', type: 'urgency', pressure: 18, trigger: 'cart_abandon' },
+        { date: '2025-12-11', channel: 'push', subject: 'Your cart is waiting! Complete purchase for bonus', type: 'urgency', pressure: 16, trigger: 'cart_abandon' },
+        { date: '2025-12-11', channel: 'popup', subject: 'COUNTDOWN: 05:59:32 until offer expires', type: 'urgency', pressure: 14, trigger: 'cart_abandon' },
+        { date: '2025-12-11', channel: 'ad', subject: '[Facebook] "Choni, you left coins in your cart!" 🛒', type: 'retarget', pressure: 12, trigger: 'cart_abandon' },
+        { date: '2025-12-11', channel: 'ad', subject: '[TikTok] "Complete your purchase - 20% OFF!" 💰', type: 'retarget', pressure: 10, trigger: 'cart_abandon' },
+        { date: '2025-12-11', channel: 'social', subject: '[Instagram DM] "Hey! Special offer just for you..."', type: 'outreach', pressure: 14, trigger: 'cart_abandon' },
+
+        // Day 7 — final overload
+        { date: '2025-12-12', channel: 'user', subject: 'You opened the app today', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Last Chance for 200% More Coins! 😧', type: 'urgency', pressure: 18, trigger: 'app_open' },
+        { date: '2025-12-12', channel: 'push', subject: 'LAST CHANCE: Free spins expire at midnight', type: 'urgency', pressure: 14, trigger: 'app_open' },
+        { date: '2025-12-12', channel: 'popup', subject: 'FINAL HOURS: 02:34:17 remaining', type: 'urgency', pressure: 16, trigger: 'app_open' },
+        { date: '2025-12-12', channel: 'chat', subject: 'Hi! Just wanted to make sure you saw the 200% offer...', type: 'sales', pressure: 10 },
+        { date: '2025-12-12', channel: 'ad', subject: '[Every website you visit] "200% Bonus Ends Tonight!"', type: 'retarget', pressure: 14, trigger: 'app_open' },
+        { date: '2025-12-12', channel: 'social', subject: '[WhatsApp] "Hey it\'s CrownCoins support, quick question..."', type: 'outreach', pressure: 16, trigger: 'app_open' },
     ];
+
     
     // SARAH's Journey - VIP user with low tolerance
     // Events have 'requiresSoftStopOff' or 'requiresSoftStopOn' flags for conditional display
@@ -991,56 +1151,42 @@ pnpm softstop verify</pre>
         { date: '2025-12-15', channel: 'user', subject: 'Sarah upgraded to VIP Plus tier', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
     ];
     
-    // MIKE's Journey - New user, light engagement
+    // MIKE's Journey — short light-engagement story
     const mikeEvents = [
         { date: '2025-12-06', channel: 'user', subject: 'Mike signed up to try the platform', type: 'action', pressure: 0, isUser: true },
         { date: '2025-12-06', channel: 'email', subject: 'Welcome to CrownCoins! Start with 100 free coins', type: 'onboarding', pressure: 5 },
-        
-        { date: '2025-12-08', channel: 'user', subject: 'Mike played for 5 minutes', type: 'action', pressure: -3, isUser: true },
-        { date: '2025-12-08', channel: 'email', subject: 'You left some coins on the table, Mike!', type: 'reminder', pressure: 8 },
-        
-        { date: '2025-12-10', channel: 'email', subject: 'Weekend bonus: 50 free spins!', type: 'promo', pressure: 6 },
-        { date: '2025-12-10', channel: 'push', subject: 'Free spins waiting for you!', type: 'promo', pressure: 6 },
-        
-        // WITHOUT GOVERNOR: Mike gets overwhelmed with follow-ups
-        { date: '2025-12-12', channel: 'user', subject: 'Mike opened the app but didn\'t play', type: 'action', pressure: -2, isUser: true },
-        { date: '2025-12-12', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresSoftStopOff: true },
-        { date: '2025-12-12', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
-        { date: '2025-12-12', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresSoftStopOff: true },
-        
-        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresSoftStopOff: true },
-        { date: '2025-12-15', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresSoftStopOff: true },
-        { date: '2025-12-15', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
-        { date: '2025-12-15', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresSoftStopOff: true },
-        
-        { date: '2025-12-18', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresSoftStopOff: true },
-        { date: '2025-12-20', channel: 'email', subject: 'Last chance for holiday bonus!', type: 'urgency', pressure: 12, requiresSoftStopOff: true },
-        { date: '2025-12-20', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresSoftStopOff: true },
-        
-        { date: '2025-12-25', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
-        { date: '2025-12-28', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresSoftStopOff: true },
-        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year! We miss you...', type: 'winback', pressure: 6, requiresSoftStopOff: true },
-        { date: '2026-01-05', channel: 'user', subject: 'Mike hasn\'t logged in for 2 weeks', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
-        
-        // WITH GOVERNOR: Mike has a good steady experience
-        { date: '2025-12-12', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresSoftStopOn: true },
-        
-        { date: '2025-12-15', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresSoftStopOn: true },
-        
-        { date: '2025-12-18', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
-        { date: '2025-12-18', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresSoftStopOn: true },
-        
-        { date: '2025-12-23', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresSoftStopOn: true },
-        { date: '2025-12-23', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresSoftStopOn: true },
-        
-        { date: '2025-12-25', channel: 'email', subject: 'Merry Christmas! Your gift is inside', type: 'promo', pressure: 4, requiresSoftStopOn: true },
-        
-        { date: '2026-01-01', channel: 'email', subject: 'Happy New Year from CrownCoins!', type: 'promo', pressure: 3, requiresSoftStopOn: true },
-        { date: '2026-01-01', channel: 'user', subject: 'Mike shared the app with a friend', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
-        
-        { date: '2026-01-05', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
-        { date: '2026-01-05', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresSoftStopOn: true },
+
+        { date: '2025-12-07', channel: 'user', subject: 'Mike played for 5 minutes', type: 'action', pressure: -3, isUser: true },
+        { date: '2025-12-07', channel: 'email', subject: 'You left some coins on the table, Mike!', type: 'reminder', pressure: 8 },
+        { date: '2025-12-07', channel: 'push', subject: 'Free spins waiting for you!', type: 'promo', pressure: 6 },
+
+        { date: '2025-12-08', channel: 'user', subject: 'Mike opened the app but didn\'t play', type: 'action', pressure: -2, isUser: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Miss us, Mike? Here\'s a little something', type: 'winback', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-08', channel: 'push', subject: 'Your coins are expiring!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-08', channel: 'sms', subject: '⏰ Mike, don\'t lose your coins!', type: 'urgency', pressure: 12, requiresSoftStopOff: true },
+        { date: '2025-12-08', channel: 'email', subject: 'Your weekly coins summary', type: 'digest', pressure: 3, requiresSoftStopOn: true },
+
+        { date: '2025-12-09', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-09', channel: 'sms', subject: '🎄 Holiday bonus ready, Mike!', type: 'promo', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-09', channel: 'push', subject: 'HOLIDAY SALE NOW!', type: 'urgency', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-09', channel: 'ad', subject: '[Facebook] "Mike, 200% bonus waiting!"', type: 'retarget', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-09', channel: 'email', subject: 'Holiday special: 200% bonus!', type: 'promo', pressure: 6, requiresSoftStopOn: true },
+
+        { date: '2025-12-10', channel: 'user', subject: 'Mike turned off push notifications', type: 'action', pressure: -10, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-10', channel: 'email', subject: 'We noticed you turned off notifications...', type: 'winback', pressure: 10, requiresSoftStopOff: true },
+        { date: '2025-12-10', channel: 'user', subject: 'Mike clicked on email', type: 'action', pressure: -5, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-10', channel: 'email', subject: 'Thanks for checking in! Bonus extended 24h', type: 'promo', pressure: 4, trigger: 'email_click', requiresSoftStopOn: true },
+
+        { date: '2025-12-11', channel: 'user', subject: 'Mike stopped opening emails', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-11', channel: 'email', subject: 'Where did you go, Mike?', type: 'winback', pressure: 8, requiresSoftStopOff: true },
+        { date: '2025-12-11', channel: 'user', subject: 'Mike made a small purchase', type: 'action', pressure: -15, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-11', channel: 'email', subject: 'Thanks Mike! Here\'s a thank you gift 🎁', type: 'transactional', pressure: 2, trigger: 'purchase', requiresSoftStopOn: true },
+
+        { date: '2025-12-12', channel: 'user', subject: 'Mike hasn\'t logged in for a week', type: 'action', pressure: 0, isUser: true, requiresSoftStopOff: true },
+        { date: '2025-12-12', channel: 'user', subject: 'Mike plays weekly now', type: 'action', pressure: -10, isUser: true, requiresSoftStopOn: true },
+        { date: '2025-12-12', channel: 'email', subject: 'Weekly update: Your stats', type: 'feature', pressure: 2, trigger: 'engagement', requiresSoftStopOn: true },
     ];
+
     
     // All user journeys
     const userJourneys = {
@@ -1055,7 +1201,7 @@ pnpm softstop verify</pre>
             without: {
                 icon: '💀',
                 title: 'Choni Churned',
-                subtitle: 'Overwhelmed after 44 days of pressure',
+                subtitle: 'Overwhelmed after 7 days of pressure',
                 items: [
                     '💀 Unsubscribed from all channels',
                     '📧 Marked 5 emails as spam',
@@ -1237,6 +1383,10 @@ pnpm softstop verify</pre>
     
     function getUniqueDates() {
         return [...new Set(getFilteredEvents().map(e => e.date))].sort();
+    }
+
+    function getTotalDays() {
+        return Math.max(1, getUniqueDates().length);
     }
 
     // Mood configurations
@@ -1751,7 +1901,7 @@ pnpm softstop verify</pre>
                     const day = parseInt(entry.target.dataset.day);
                     
                     if (els.currentDate) els.currentDate.textContent = formatDate(date);
-                    if (els.dayCount) els.dayCount.textContent = `Day ${day} of 44`;
+                    if (els.dayCount) els.dayCount.textContent = `Day ${day} of ${getTotalDays()}`;
                     state.currentDay = day;
                     const headerDay = document.getElementById('headerDayLabel');
                     if (headerDay) headerDay.textContent = `Day ${day}`;
@@ -1760,7 +1910,7 @@ pnpm softstop verify</pre>
                         dot.classList.toggle('active', parseInt(dot.dataset.day) === day);
                     });
                     
-                    if (day >= 10 && !state.softstopEnabled) {
+                    if (day >= 3 && !state.softstopEnabled) {
                         if (els.softstopHint) els.softstopHint.classList.remove('hidden');
                     }
                 }
@@ -1925,7 +2075,21 @@ pnpm softstop verify</pre>
         if (e.key === 'Escape') closeDrawer();
     });
 
-    // Copy install snippet
+    // Snippet tabs
+    document.querySelectorAll('[data-snippet-tab]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const id = tab.getAttribute('data-snippet-tab');
+            document.querySelectorAll('[data-snippet-tab]').forEach((t) => {
+                t.classList.toggle('active', t === tab);
+                t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+            });
+            document.querySelectorAll('[data-snippet-panel]').forEach((panel) => {
+                panel.classList.toggle('active', panel.getAttribute('data-snippet-panel') === id);
+            });
+        });
+    });
+
+    // Copy install / SDK snippets
     document.querySelectorAll('[data-copy]').forEach((btn) => {
         btn.addEventListener('click', async () => {
             const target = document.querySelector(btn.getAttribute('data-copy'));
@@ -1934,9 +2098,16 @@ pnpm softstop verify</pre>
             try {
                 await navigator.clipboard.writeText(text);
                 const prev = btn.textContent;
+                btn.classList.add('copied');
                 btn.textContent = 'Copied';
-                setTimeout(() => { btn.textContent = prev; }, 1200);
-            } catch (_) {}
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.textContent = prev;
+                }, 1400);
+            } catch (_) {
+                btn.textContent = 'Failed';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 1400);
+            }
         });
     });
 
@@ -1946,7 +2117,61 @@ pnpm softstop verify</pre>
     updateStats();
     updateTemperament();
     updateModeChrome();
+    if (els.dayCount) els.dayCount.textContent = `Day 1 of ${getTotalDays()}`;
     
+    </script>
+    <script type="module">
+    import { animate, createTimeline, stagger } from 'https://esm.sh/animejs@4.0.2';
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function revealFlow() {
+        const steps = document.querySelectorAll('[data-flow-step]');
+        if (!steps.length) return;
+        if (reduce) {
+            steps.forEach((el) => el.classList.add('is-visible'));
+            return;
+        }
+        const tl = createTimeline({ defaults: { ease: 'out(3)', duration: 520 } });
+        tl.add(steps, {
+            opacity: [0, 1],
+            y: [18, 0],
+            delay: stagger(90),
+        });
+        steps.forEach((el) => el.classList.add('is-visible'));
+    }
+
+    const flowRail = document.getElementById('flowRail');
+    if (flowRail) {
+        const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                io.unobserve(entry.target);
+                revealFlow();
+            }
+        }, { threshold: 0.25 });
+        io.observe(flowRail);
+    }
+
+    const actionTiles = document.getElementById('actionTiles');
+    if (actionTiles && !reduce) {
+        const tiles = actionTiles.querySelectorAll('.action-tile');
+        tiles.forEach((t) => { t.style.opacity = '0'; });
+        const io2 = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                io2.unobserve(entry.target);
+                animate(tiles, {
+                    opacity: [0, 1],
+                    y: [14, 0],
+                    delay: stagger(70),
+                    ease: 'out(3)',
+                    duration: 480,
+                });
+            }
+        }, { threshold: 0.2 });
+        io2.observe(actionTiles);
+    }
     </script>
 </body>
 </html>
