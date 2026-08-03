@@ -9,36 +9,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
+                        sans: ['IBM Plex Sans', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace']
                     },
                     colors: {
-                        deep: '#08080c',
-                        surface: '#111118',
-                        'surface-2': '#1a1a24',
-                        'surface-3': '#252532',
-                        accent: '#3b82f6',
+                        deep: '#0B0B0F',
+                        ink: '#0B0B0F',
+                        paper: '#F7F5F0',
+                        surface: '#121218',
+                        'surface-2': '#1a1a22',
+                        'surface-3': '#25252e',
+                        accent: '#E8A317',
+                        'stop-amber': '#E8A317',
                         'accent-green': '#10b981',
                         'accent-red': '#ef4444',
                         'accent-orange': '#f97316',
-                        'accent-purple': '#8b5cf6',
-                        'accent-yellow': '#eab308',
-                        'accent-pink': '#ec4899',
-                        'accent-cyan': '#06b6d4',
+                        'accent-purple': '#E8A317',
+                        'accent-yellow': '#E8A317',
+                        'accent-pink': '#f43f5e',
+                        'accent-cyan': '#22d3ee',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        body { font-family: 'IBM Plex Sans', sans-serif; background: #0B0B0F; color: #F7F5F0; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
         
         @keyframes slide-in { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slide-down { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -56,7 +61,7 @@
         }
         .interactive-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 20px 40px rgba(232, 163, 23, 0.12);
         }
         
         .code-typing {
@@ -241,7 +246,7 @@
         <div class="bg-surface-2/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div id="mobileUserAvatar" class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">🎰</div>
+                    <div id="mobileUserAvatar" class="w-10 h-10 bg-stop-amber/15 rounded-full flex items-center justify-center text-lg">👤</div>
                     <div>
                         <div id="mobileUserName" class="font-bold text-sm">Choni</div>
                         <div class="text-xs text-slate-500">Day <span id="mobileDayCount">1</span> of 44</div>
@@ -286,7 +291,7 @@
         <!-- Logo -->
         <div class="p-6 border-b border-white/5">
             <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-accent to-accent-purple rounded-xl flex items-center justify-center font-black">G</div>
+                <img src="assets/softstop-mark.png" width="40" height="40" alt="" class="rounded-xl" />
                 <div>
                     <div class="font-bold text-lg">SoftStop</div>
                     <div class="text-xs text-slate-500">Multi-Channel Demo</div>
@@ -300,7 +305,7 @@
             <div class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Viewing User</div>
             <div class="grid grid-cols-1 gap-2">
                 <button onclick="switchUser('choni')" id="user-choni" class="user-btn active-user flex items-center gap-3 bg-surface-2 hover:bg-surface-3 border border-white/10 rounded-lg p-3 transition-all text-left">
-                    <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg">🎰</div>
+                    <div class="w-10 h-10 bg-stop-amber/15 rounded-full flex items-center justify-center text-lg">👤</div>
                     <div class="flex-1">
                         <div class="font-bold text-sm">Choni</div>
                         <div class="text-[10px] text-slate-500">High engagement, then churn</div>
@@ -458,808 +463,99 @@
     <!-- Main Content - Scrollable Timeline -->
     <main class="lg:ml-80 min-h-screen">
         
-        <!-- Landing Page -->
-        
-        <!-- Hero Section (Landing) -->
-        <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-deep via-surface to-deep pt-20 lg:pt-0 relative overflow-hidden">
-            <!-- Background gradient effects -->
-            <div class="absolute inset-0 opacity-30">
-                <div class="absolute top-0 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-purple/20 rounded-full blur-3xl"></div>
+        <!-- Landing: short path into the scroll demo -->
+        <section class="relative min-h-[88vh] flex items-center justify-center overflow-hidden pt-24 lg:pt-16 pb-16">
+            <div class="pointer-events-none absolute inset-0">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(232,163,23,0.08),_transparent_55%)]"></div>
+                <div class="absolute inset-0 opacity-[0.35]" style="background-image:linear-gradient(#1A1A22 1px, transparent 1px),linear-gradient(90deg, #1A1A22 1px, transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at center, black 20%, transparent 75%);"></div>
             </div>
-            
-            <div class="relative text-center px-6 md:px-12 max-w-4xl">
-                <div class="inline-block mb-6 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full text-accent text-sm font-bold">
-                    The missing pressure regulator for multi-agent platforms
-                </div>
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    SoftStop Is a Pressure Regulator
-                </h1>
-                <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-3xl mx-auto">
-                    SoftStop doesn't decide what to show next.<br class="hidden md:block"/>
-                    <span class="text-white font-bold">It decides when escalation should stop.</span>
+
+            <div class="relative text-center px-6 md:px-12 max-w-3xl">
+                <img src="assets/softstop-mark.png" width="72" height="72" alt="SoftStop" class="mx-auto mb-8 rounded-2xl shadow-[0_0_0_1px_rgba(247,245,240,0.08)]" />
+                <p class="text-[11px] md:text-xs tracking-[0.22em] uppercase text-stop-amber font-semibold mb-5">Authorize-only pressure permit</p>
+                <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-paper mb-5">SoftStop</h1>
+                <p class="text-lg md:text-xl text-paper/90 font-medium mb-3 max-w-2xl mx-auto leading-snug">
+                    The shared permit before any system raises pressure on a user.
                 </p>
-                
-                <!-- Stats -->
-                <div class="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-12">
-                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
-                        <div class="text-3xl md:text-4xl font-black text-accent-green">&lt;10ms</div>
-                        <div class="text-xs md:text-sm text-slate-500">Permission check</div>
-                    </div>
-                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
-                        <div class="text-3xl md:text-4xl font-black text-accent-purple">1 line</div>
-                        <div class="text-xs md:text-sm text-slate-500">To integrate</div>
-                    </div>
-                    <div class="interactive-card bg-surface-2/50 rounded-xl p-4 border border-white/5">
-                        <div class="text-3xl md:text-4xl font-black text-accent-cyan">100%</div>
-                        <div class="text-xs md:text-sm text-slate-500">Tracked</div>
-                    </div>
-                </div>
-                
-                <!-- CTA -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#demo" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                        See Live Demo
-                    </a>
-                    <a href="game/" class="inline-block bg-accent-purple hover:opacity-90 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                        Play Slot Demo
-                    </a>
-                    <a href="#how-it-works" class="inline-block bg-surface-2 hover:bg-surface-3 border border-white/10 text-white font-bold py-4 px-8 rounded-xl transition-all">
-                        How It Works
-                    </a>
-                </div>
-                
-                <!-- Social Proof Notifications -->
-                <div class="mt-16 flex flex-col gap-3 max-w-md mx-auto">
-                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 0.5s; animation-fill-mode: forwards;">
-                        <div class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
-                        <span class="text-sm text-slate-300">Startup from Berlin signed up</span>
-                        <span class="text-xs text-slate-500 ml-auto">just now</span>
-                    </div>
-                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 1s; animation-fill-mode: forwards;">
-                        <div class="w-2 h-2 bg-accent-purple rounded-full animate-pulse"></div>
-                        <span class="text-sm text-slate-300">Someone from California just upgraded</span>
-                        <span class="text-xs text-slate-500 ml-auto">just now</span>
-                    </div>
-                    <div class="bg-surface-2 border border-white/10 rounded-lg p-3 flex items-center gap-3 animate-slide-down opacity-0" style="animation-delay: 1.5s; animation-fill-mode: forwards;">
-                        <div class="w-2 h-2 bg-accent-cyan rounded-full animate-pulse"></div>
-                        <span class="text-sm text-slate-300">Enterprise deal closed</span>
-                        <span class="text-xs text-slate-500 ml-auto">just now</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Testimonial -->
-        <section class="py-24 bg-surface relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
-                    <div class="absolute top-0 left-0 text-9xl text-accent">"</div>
-                    <div class="absolute bottom-0 right-0 text-9xl text-accent">"</div>
-                </div>
-            </div>
-            <div class="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
-                <p class="text-2xl md:text-3xl text-white font-medium mb-8 leading-relaxed">
-                    SoftStop reduced our user complaints by 73%. Our AI agents now feel <span class="text-accent-green">helpful, not pushy</span>.
+                <p class="text-base md:text-lg text-slate-400 mb-10 max-w-xl mx-auto leading-relaxed">
+                    Doesn't make software smarter. Makes it stop when it should.
                 </p>
-                <div class="flex items-center justify-center gap-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-accent to-accent-purple rounded-full flex items-center justify-center text-white font-bold text-xl">
-                        SC
-                    </div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">Sarah Chen</div>
-                        <div class="text-sm text-slate-400">VP Engineering, Acme</div>
-                    </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center mb-14">
+                    <a href="#demo" class="inline-flex items-center justify-center gap-2 bg-stop-amber text-ink font-bold py-3.5 px-7 rounded-xl transition hover:brightness-110">
+                        Scroll the story
+                        <span aria-hidden="true">↓</span>
+                    </a>
+                    <a href="https://github.com/chonibe/SoftStop" class="inline-flex items-center justify-center bg-transparent border border-white/15 text-paper font-semibold py-3.5 px-7 rounded-xl hover:border-stop-amber/50 hover:text-stop-amber transition">
+                        GitHub
+                    </a>
                 </div>
-            </div>
-        </section>
-        
-        <!-- Per-User Intelligence -->
-        <section class="py-24 bg-gradient-to-b from-deep to-surface">
-            <div class="max-w-6xl mx-auto px-6 md:px-12">
-                <div class="text-center mb-16">
-                    <div class="inline-block mb-4 px-4 py-2 bg-accent-purple/10 border border-accent-purple/30 rounded-full text-accent-purple text-sm font-bold">
-                        Per-User Intelligence
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-left">
+                    <div class="rounded-xl border border-white/10 bg-surface/80 px-4 py-3">
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">1 · Check</div>
+                        <div class="text-sm text-paper">Is this escalation allowed right now?</div>
                     </div>
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">Each User Has Their Own Pressure State</h2>
-                    <p class="text-xl text-slate-400 max-w-3xl mx-auto">
-                        SoftStop tracks <span class="text-white font-bold">pressure per user</span>. Different users can be in different states at the same moment, so the same escalation can be allowed for one and blocked for another.
-                    </p>
-                    <div class="text-sm text-slate-500 mt-3">
-                        By regulating pressure, users move at their own pace — indirectly, not by design.
+                    <div class="rounded-xl border border-stop-amber/30 bg-stop-amber/5 px-4 py-3">
+                        <div class="text-[10px] uppercase tracking-wider text-stop-amber mb-1">2 · Decide</div>
+                        <div class="text-sm text-paper">Allow or block — no ML, no copy</div>
                     </div>
-                </div>
-                
-                <!-- Example: Same Campaign, Different Decisions -->
-                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden mb-12">
-                    <div class="bg-surface-2 px-6 py-4 border-b border-white/10">
-                        <h3 class="font-bold text-lg">Same Escalation → Different Pressure → Different Decision</h3>
-                        <p class="text-sm text-slate-400 mt-1">Marketing wants to send a "Flash Sale" popup to all users. SoftStop checks pressure for each user individually.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
-                        <!-- User 1: Sarah -->
-                        <div class="p-6 interactive-card gradient-border">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">💎</div>
-                                <div>
-                                    <div class="font-bold">Sarah</div>
-                                    <div class="text-xs text-slate-500">VIP User</div>
-                                </div>
-                            </div>
-                            <div class="space-y-2 text-sm mb-4">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Pressure:</span>
-                                    <span class="text-accent-green font-mono">12%</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Last popup:</span>
-                                    <span class="text-slate-300">3 days ago</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Recent response:</span>
-                                    <span class="text-slate-300">Positive</span>
-                                </div>
-                            </div>
-                            <div class="bg-accent-green/10 border border-accent-green/30 rounded-lg p-3 transition-all hover:bg-accent-green/20">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-accent-green font-bold text-sm">✓ ALLOWED</span>
-                                </div>
-                                <div class="text-xs text-slate-400">Low pressure, safe to escalate</div>
-                            </div>
-                        </div>
-                        
-                        <!-- User 2: Mike -->
-                        <div class="p-6 interactive-card gradient-border">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-orange/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">🆕</div>
-                                <div>
-                                    <div class="font-bold">Mike</div>
-                                    <div class="text-xs text-slate-500">New User</div>
-                                </div>
-                            </div>
-                            <div class="space-y-2 text-sm mb-4">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Pressure:</span>
-                                    <span class="text-accent-orange font-mono">58%</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Last popup:</span>
-                                    <span class="text-slate-300">2 hours ago</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Recent response:</span>
-                                    <span class="text-slate-300">Ignored</span>
-                                </div>
-                            </div>
-                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
-                                </div>
-                                <div class="text-xs text-slate-400">Pressure too high, cooldown active</div>
-                            </div>
-                        </div>
-                        
-                        <!-- User 3: Emma -->
-                        <div class="p-6 interactive-card gradient-border">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-accent-red/20 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110">😤</div>
-                                <div>
-                                    <div class="font-bold">Emma</div>
-                                    <div class="text-xs text-slate-500">At Risk</div>
-                                </div>
-                            </div>
-                            <div class="space-y-2 text-sm mb-4">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Pressure:</span>
-                                    <span class="text-accent-red font-mono">87%</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Last popup:</span>
-                                    <span class="text-slate-300">5 mins ago</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400">Recent response:</span>
-                                    <span class="text-slate-300">Unsubscribed SMS</span>
-                                </div>
-                            </div>
-                            <div class="bg-accent-red/10 border border-accent-red/30 rounded-lg p-3 transition-all hover:bg-accent-red/20">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-accent-red font-bold text-sm">✗ BLOCKED</span>
-                                </div>
-                                <div class="text-xs text-slate-400">Critical pressure, protect the user</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Clean Distinction -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                    <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-red">❌ What SoftStop is NOT</h3>
-                        <ul class="space-y-2 text-sm text-slate-400">
-                            <li>• Decide when to upsell</li>
-                            <li>• Decide which funnel stage a user is in</li>
-                            <li>• Advance users down the funnel</li>
-                            <li>• Personalize journeys</li>
-                            <li>• Optimize timing for conversion</li>
-                        </ul>
-                        <div class="text-xs text-slate-500 mt-3">Those are optimization systems.</div>
-                    </div>
-                    <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ What SoftStop DOES</h3>
-                        <div class="text-sm text-slate-400 mb-4">SoftStop answers only this:</div>
-                        <div class="bg-deep border border-white/10 rounded-lg p-4 font-mono text-sm">
-                            <span class="text-white">Is it appropriate to increase pressure on this user right now?</span>
-                        </div>
-                        <div class="text-xs text-slate-500 mt-3">Negative authority. No intent, no optimization.</div>
-                    </div>
-                </div>
-                
-                <!-- What SoftStop Tracks -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-surface border border-white/10 rounded-xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <span class="text-2xl">📊</span>
-                            Per-User State
-                        </h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="flex items-start gap-3">
-                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
-                                <div>
-                                    <div class="font-medium text-white">Pressure Level</div>
-                                    <div class="text-slate-400">Cumulative stress from all channels</div>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
-                                <div>
-                                    <div class="font-medium text-white">Recent History</div>
-                                    <div class="text-slate-400">What they've received in last 24h/7d/30d</div>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
-                                <div>
-                                    <div class="font-medium text-white">Channel Limits</div>
-                                    <div class="text-slate-400">How many emails, SMSs, popups sent</div>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-1.5 h-1.5 bg-accent rounded-full mt-2"></div>
-                                <div>
-                                    <div class="font-medium text-white">Active Cooldowns</div>
-                                    <div class="text-slate-400">Which escalation types are on cooldown</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-surface border border-white/10 rounded-xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <span class="text-2xl">🧠</span>
-                            Why This Still Affects the Funnel
-                        </h3>
-                        <div class="text-sm text-slate-400 mb-4">
-                            Most funnels break not because users move too slowly, but because systems push too fast.
-                        </div>
-                        <div class="grid grid-cols-1 gap-3 text-xs text-slate-400 mb-4">
-                            <div class="bg-surface-2 rounded-lg p-3">
-                                <div class="font-bold text-accent-red mb-1">Without SoftStop</div>
-                                User hesitates → system escalates → user resists → trust drops → funnel breaks
-                            </div>
-                            <div class="bg-surface-2 rounded-lg p-3">
-                                <div class="font-bold text-accent-green mb-1">With SoftStop</div>
-                                User hesitates → system pauses → user continues at own pace → trust remains
-                            </div>
-                        </div>
-                        <div class="text-xs text-slate-500">
-                            Funnels = engines • UX = steering • SoftStop = brake + traction control
-                        </div>
-                        <div class="text-xs text-slate-500 mt-2">
-                            Example: No urgency modal, no discount email, no repeated reminders — user can still convert without being chased.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- How It Works -->
-        <section id="how-it-works" class="py-24 bg-surface">
-            <div class="max-w-6xl mx-auto px-6 md:px-12">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">How SoftStop Works</h2>
-                    <p class="text-xl text-slate-400">A single permission check between intent and action.</p>
-                </div>
-                
-                <div class="relative">
-                    <!-- Flow arrows -->
-                    <div class="hidden md:flex absolute top-1/3 left-0 right-0 items-center justify-center gap-4 pointer-events-none">
-                        <div class="flex-1"></div>
-                        <div class="text-4xl text-accent animate-pulse">→</div>
-                        <div class="flex-1"></div>
-                        <div class="text-4xl text-accent animate-pulse" style="animation-delay: 0.3s;">→</div>
-                        <div class="flex-1"></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Step 1 -->
-                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
-                            <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent mb-4 transition-all hover:scale-110">1</div>
-                            <h3 class="text-2xl font-bold mb-3">Agent Proposes</h3>
-                            <p class="text-slate-400 mb-6">Any agent can request an escalation at any time. Sales wants a popup. Marketing wants a notification.</p>
-                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                                <div class="text-slate-500">// Agent request</div>
-                                <div class="text-accent-green">escalate</div><span class="text-white">(userId, </span><span class="text-accent-yellow">"popup"</span><span class="text-white">)</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 2 -->
-                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
-                            <div class="w-12 h-12 bg-accent-purple/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-purple mb-4 transition-all hover:scale-110">2</div>
-                            <h3 class="text-2xl font-bold mb-3">SoftStop Checks</h3>
-                            <p class="text-slate-400 mb-6">One question: "Is escalation allowed for this user right now?" No reasoning. No planning. Just enforcement.</p>
-                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                                <div class="text-slate-500">// SoftStop response</div>
-                                <div class="text-accent-red">BLOCKED</div>
-                                <div class="text-slate-500 text-xs mt-1">reason: "Pressure limit"</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 3 -->
-                        <div class="bg-surface border border-white/10 rounded-2xl p-8 interactive-card gradient-border">
-                            <div class="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center text-2xl font-black text-accent-green mb-4 transition-all hover:scale-110">3</div>
-                            <h3 class="text-2xl font-bold mb-3">Execute or Block</h3>
-                            <p class="text-slate-400 mb-6">Allowed actions execute. Blocked actions wait or downgrade. The user is protected.</p>
-                            <div class="bg-deep rounded-lg p-4 font-mono text-sm">
-                                <div class="text-accent-green">✓ ALLOWED</div>
-                                <div class="text-slate-500 text-xs mt-1">or</div>
-                                <div class="text-accent-red">✗ BLOCKED</div>
-                            </div>
-                        </div>
+                    <div class="rounded-xl border border-white/10 bg-surface/80 px-4 py-3">
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">3 · Record</div>
+                        <div class="text-sm text-paper">Outcome updates the shared ledger</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SoftStop in the Flow -->
-        <section class="py-24 bg-gradient-to-b from-surface to-deep">
-            <div class="max-w-6xl mx-auto px-6 md:px-12">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">SoftStop Lives in the Flow</h2>
-                    <p class="text-xl text-slate-400 max-w-3xl mx-auto">
-                        SoftStop doesn't replace your optimization systems. It sits <span class="text-white font-bold">between decision and execution</span> as a safety layer.
-                    </p>
-                </div>
-                
-                <!-- Without SoftStop -->
-                <div class="mb-12">
-                    <div class="text-center mb-6">
-                        <div class="inline-block px-4 py-2 bg-accent-red/10 border border-accent-red/30 rounded-full text-accent-red text-sm font-bold">
-                            ❌ Without SoftStop: Each agent fires independently — no coordination
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                        <!-- Multiple Agents (uncoordinated) -->
-                        <div class="flex flex-wrap justify-center gap-3">
-                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">🤖</div>
-                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
-                            </div>
-                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">📧</div>
-                                <div class="text-[10px] font-bold mt-1">Marketing</div>
-                            </div>
-                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">💬</div>
-                                <div class="text-[10px] font-bold mt-1">Support</div>
-                            </div>
-                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">🎯</div>
-                                <div class="text-[10px] font-bold mt-1">Retention</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Direct execution arrows -->
-                        <div class="hidden lg:flex items-center justify-center">
-                            <div class="text-center">
-                                <div class="text-4xl text-accent-red mb-2">⚠️</div>
-                                <div class="text-sm font-bold text-accent-red mb-1">Direct Access</div>
-                                <div class="text-xs text-slate-500">No gate, no limits</div>
-                            </div>
-                        </div>
-                        
-                        <!-- All channels firing -->
-                        <div class="flex flex-wrap justify-center gap-3">
-                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse">
-                                <div class="text-2xl">📧</div>
-                                <div class="text-[9px] font-bold mt-1">Gmail</div>
-                            </div>
-                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.1s;">
-                                <div class="text-2xl">💬</div>
-                                <div class="text-[9px] font-bold mt-1">Twilio</div>
-                            </div>
-                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.2s;">
-                                <div class="text-2xl">🔔</div>
-                                <div class="text-[9px] font-bold mt-1">FCM</div>
-                            </div>
-                            <div class="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex flex-col items-center justify-center animate-pulse" style="animation-delay: 0.3s;">
-                                <div class="text-2xl">🖥️</div>
-                                <div class="text-[9px] font-bold mt-1">Modal</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrow to User -->
-                        <div class="hidden lg:flex items-center justify-center">
-                            <div class="text-4xl text-accent-red">→</div>
-                        </div>
-                        
-                        <!-- Overwhelmed User -->
-                        <div class="flex items-center justify-center">
-                            <div class="bg-accent-red/10 border-2 border-accent-red/50 rounded-2xl p-6 text-center shake">
-                                <div class="text-5xl mb-3">😡</div>
-                                <div class="font-black text-lg text-accent-red mb-1">User</div>
-                                <div class="text-xs text-slate-400">Overwhelmed</div>
-                                <div class="mt-3 text-xs text-left space-y-1">
-                                    <div class="text-slate-400">• 11 messages today</div>
-                                    <div class="text-slate-400">• Pressure: 95%</div>
-                                    <div class="text-slate-400">• About to churn</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- With SoftStop -->
-                <div>
-                    <div class="text-center mb-6">
-                        <div class="inline-block px-4 py-2 bg-accent-green/10 border border-accent-green/30 rounded-full text-accent-green text-sm font-bold">
-                            ✅ With SoftStop: All agents ask permission — coordinated execution
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
-                        <!-- Multiple Agents/Systems -->
-                        <div class="flex flex-wrap justify-center gap-3">
-                            <div class="w-20 h-20 bg-purple-500/10 border border-purple-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">🤖</div>
-                                <div class="text-[10px] font-bold mt-1">Sales AI</div>
-                            </div>
-                            <div class="w-20 h-20 bg-pink-500/10 border border-pink-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">📧</div>
-                                <div class="text-[10px] font-bold mt-1">Marketing</div>
-                            </div>
-                            <div class="w-20 h-20 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">💬</div>
-                                <div class="text-[10px] font-bold mt-1">Support</div>
-                            </div>
-                            <div class="w-20 h-20 bg-orange-500/10 border border-orange-500/30 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                <div class="text-2xl">🎯</div>
-                                <div class="text-[10px] font-bold mt-1">Retention</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrows pointing to SoftStop -->
-                        <div class="hidden lg:flex flex-col items-center justify-center">
-                            <div class="text-3xl text-accent">→</div>
-                            <div class="text-3xl text-accent">→</div>
-                            <div class="text-3xl text-accent">→</div>
-                            <div class="text-3xl text-accent">→</div>
-                        </div>
-                        
-                        <!-- SoftStop (Central Gate) -->
-                        <div class="bg-accent/10 border-2 border-accent rounded-2xl p-6 relative">
-                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-                                PERMISSION GATE
-                            </div>
-                            <div class="text-center mt-2">
-                                <div class="text-5xl mb-3">🛡️</div>
-                                <div class="font-black text-xl mb-2">SoftStop</div>
-                                <div class="text-xs text-slate-400 mb-3">Checks per-user state</div>
-                                <div class="space-y-1 text-xs text-left">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 bg-accent-green rounded-full"></div>
-                                        <span class="text-slate-400">Pressure: 35%</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 bg-accent-orange rounded-full"></div>
-                                        <span class="text-slate-400">Cooldowns active</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 bg-accent-purple rounded-full"></div>
-                                        <span class="text-slate-400">Limits enforced</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrow to Execution -->
-                        <div class="hidden lg:flex items-center justify-center">
-                            <div class="text-4xl text-accent-green">→</div>
-                        </div>
-                        
-                        <!-- Execution Channels -->
-                        <div class="flex flex-wrap justify-center gap-3">
-                            <div class="relative">
-                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                    <div class="text-2xl">📧</div>
-                                    <div class="text-[10px] font-bold mt-1">Gmail</div>
-                                </div>
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
-                            </div>
-                            <div class="relative">
-                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
-                                    <div class="text-2xl">💬</div>
-                                    <div class="text-[10px] font-bold mt-1">Twilio</div>
-                                </div>
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
-                            </div>
-                            <div class="relative">
-                                <div class="w-20 h-20 bg-green-500/10 border-2 border-green-500/50 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-transform">
-                                    <div class="text-2xl">🔔</div>
-                                    <div class="text-[10px] font-bold mt-1">FCM</div>
-                                </div>
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-green rounded-full flex items-center justify-center text-[10px]">✓</div>
-                            </div>
-                            <div class="relative">
-                                <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/50 rounded-full flex flex-col items-center justify-center opacity-50">
-                                    <div class="text-2xl">🖥️</div>
-                                    <div class="text-[10px] font-bold mt-1">Modal</div>
-                                </div>
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent-red rounded-full flex items-center justify-center text-[10px]">✗</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrow to User -->
-                        <div class="hidden lg:flex items-center justify-center">
-                            <div class="text-4xl text-accent-green">→</div>
-                        </div>
-                        
-                        <!-- Protected User -->
-                        <div class="flex items-center justify-center">
-                            <div class="bg-accent-green/10 border-2 border-accent-green/50 rounded-2xl p-6 text-center">
-                                <div class="text-5xl mb-3">😊</div>
-                                <div class="font-black text-lg text-accent-green mb-1">User</div>
-                                <div class="text-xs text-slate-400">Protected</div>
-                                <div class="mt-3 text-xs text-left space-y-1">
-                                    <div class="text-slate-400">• 2 messages today</div>
-                                    <div class="text-slate-400">• Pressure: 35%</div>
-                                    <div class="text-slate-400">• Trust intact</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Key Insight -->
-                <div class="mt-12 max-w-4xl mx-auto">
-                    <div class="bg-surface-2 border border-white/10 rounded-2xl p-8">
-                        <div class="text-center mb-6">
-                            <div class="text-2xl font-black mb-2">SoftStop is NOT a replacement</div>
-                            <p class="text-slate-400">It's a layer that works with your existing systems</p>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-surface rounded-xl p-6">
-                                <div class="font-bold text-accent mb-3">Your Optimization Systems</div>
-                                <ul class="space-y-2 text-sm text-slate-400">
-                                    <li>• Decide which users to target</li>
-                                    <li>• Choose what message to show</li>
-                                    <li>• Optimize timing for conversion</li>
-                                    <li>• Personalize content</li>
-                                </ul>
-                                <div class="text-xs text-accent-green mt-3 font-bold">✓ Still does all of this</div>
-                            </div>
-                            <div class="bg-surface rounded-xl p-6">
-                                <div class="font-bold text-accent-green mb-3">SoftStop Adds</div>
-                                <ul class="space-y-2 text-sm text-slate-400">
-                                    <li>• Cross-agent coordination</li>
-                                    <li>• Per-user pressure limits</li>
-                                    <li>• Cooldown enforcement</li>
-                                    <li>• Execution gate</li>
-                                </ul>
-                                <div class="text-xs text-accent-purple mt-3 font-bold">+ New safety layer</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- How SoftStop Decides "Appropriate" -->
-        <section class="py-24 bg-deep">
-            <div class="max-w-5xl mx-auto px-6 md:px-12">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">How SoftStop Decides "Appropriate"</h2>
-                    <p class="text-xl text-slate-400">
-                        SoftStop doesn't "know" in a human sense. It enforces explicit, observable rules — no ML, no intent inference.
-                    </p>
-                    <div class="mt-6 max-w-3xl mx-auto bg-surface-2 border border-accent/20 rounded-xl p-4">
-                        <div class="text-sm text-white font-bold mb-2">The ONLY question SoftStop asks:</div>
-                        <div class="text-lg text-accent">"Has this user already received enough pressure of this type within the defined limits?"</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div class="bg-surface border border-accent-green/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-green">✅ Allowed Signals</h3>
-                        <p class="text-xs text-slate-400 mb-4">Explicit, observable, binary facts.</p>
-                        <ul class="space-y-3 text-sm text-slate-400">
-                            <li><span class="text-white font-medium">Pressure events</span> — urgency shown, discount applied, modal displayed</li>
-                            <li><span class="text-white font-medium">User resistance</span> — dismissed popup, ignored CTA, unsubscribed</li>
-                            <li><span class="text-white font-medium">Time</span> — last escalation, cooldown expiry, session window</li>
-                            <li><span class="text-white font-medium">Surface metadata</span> — checkout page, email channel, pricing view</li>
-                            <li><span class="text-white font-medium">Hard policy</span> — max 1 discount/30d, caps per session</li>
-                        </ul>
-                    </div>
-                    <div class="bg-surface border border-accent-red/20 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 text-accent-red">🚫 Banned Signals</h3>
-                        <p class="text-xs text-slate-400 mb-4">These turn SoftStop into an optimizer.</p>
-                        <ul class="space-y-3 text-sm text-slate-400">
-                            <li><span class="text-white font-medium">Funnel stage</span> — awareness, consideration, conversion labels</li>
-                            <li><span class="text-white font-medium">Intent scores</span> — high intent, conversion likelihood, propensity</li>
-                            <li><span class="text-white font-medium">Personalization</span> — personas, demographics, cohort, LTV</li>
-                            <li><span class="text-white font-medium">AI reasoning</span> — confidence scores, agent justifications</li>
-                            <li><span class="text-white font-medium">Business goals</span> — revenue targets, conversion KPIs</li>
-                        </ul>
-                        <div class="text-xs text-slate-500 mt-3">If interpretation is required, it's banned.</div>
-                    </div>
-                </div>
-
-                <div class="bg-surface-2 border border-white/10 rounded-2xl p-6 mb-10">
-                    <h3 class="font-bold text-lg mb-3">Decision Logic (Deterministic)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-400">
-                        <div class="bg-deep rounded-lg p-4 font-mono">
-                            <div>1. Identify escalation type</div>
-                            <div>2. Fetch user pressure state</div>
-                            <div>3. Apply rules in order:</div>
-                            <div class="pl-4">a. Hard block?</div>
-                            <div class="pl-4">b. Cooldown active?</div>
-                            <div class="pl-4">c. Cap exceeded?</div>
-                            <div>4. Return ALLOWED / BLOCKED + reason</div>
-                        </div>
-                        <div class="bg-deep rounded-lg p-4 font-mono">
-                            <div>// Example result</div>
-                            <div class="text-accent-red">allowed: false</div>
-                            <div>reason: "urgency_cap_reached"</div>
-                            <div>retry_after: "7d"</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-3 text-accent-red">❌ What SoftStop Does NOT Do</h3>
-                        <div class="bg-deep rounded-lg p-4 text-sm text-slate-400 italic">
-                            "User is highly engaged, so a discount would help them convert."
-                        </div>
-                        <div class="text-xs text-slate-500 mt-2">This is optimization logic. Not SoftStop's job.</div>
-                    </div>
-                    <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-3 text-accent-green">✅ What SoftStop DOES Do</h3>
-                        <div class="bg-deep rounded-lg p-4 text-sm text-white">
-                            "A discount was already shown 3 days ago. Policy allows max 1 per 14 days. Block."
-                        </div>
-                        <div class="text-xs text-slate-500 mt-2">Pure enforcement. No interpretation.</div>
-                    </div>
-                </div>
-
-                <div class="bg-surface border border-white/10 rounded-2xl p-6">
-                    <div class="text-sm text-slate-400 mb-3">
-                        <span class="text-white font-bold">Signal boundary litmus test:</span>
-                    </div>
-                    <div class="text-base text-white mb-2">"Would two engineers always interpret this signal the same way?"</div>
-                    <div class="flex gap-8 text-sm">
-                        <div><span class="text-accent-green font-bold">Yes</span> → Allowed</div>
-                        <div><span class="text-accent-red font-bold">No</span> → Banned</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Features -->
-        <section class="py-24 bg-surface">
-            <div class="max-w-6xl mx-auto px-6 md:px-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
-                        <div class="w-16 h-16 bg-accent-red/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-red/30 hover:scale-110">📊</div>
-                        <h3 class="text-xl font-bold mb-3">Pressure Limits</h3>
-                        <p class="text-slate-400">Per-user pressure cannot exceed threshold. Agents must wait.</p>
-                    </div>
-                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
-                        <div class="w-16 h-16 bg-accent-orange/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-orange/30 hover:scale-110">⏱️</div>
-                        <h3 class="text-xl font-bold mb-3">Cooldown Periods</h3>
-                        <p class="text-slate-400">Same escalation type has minimum interval. No rapid fire.</p>
-                    </div>
-                    <div class="text-center interactive-card bg-surface-2 border border-white/10 rounded-2xl p-8">
-                        <div class="w-16 h-16 bg-accent-purple/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 transition-all hover:bg-accent-purple/30 hover:scale-110">🔒</div>
-                        <h3 class="text-xl font-bold mb-3">Mutual Exclusion</h3>
-                        <p class="text-slate-400">Only one popup at a time. Only one banner at a time. Coordinated.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- API Section -->
-        <section class="py-24 bg-deep">
-            <div class="max-w-5xl mx-auto px-6 md:px-12">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">One API. Total Control.</h2>
-                    <p class="text-xl text-slate-400">SoftStop integrates in minutes. Every agent asks permission. Every escalation is tracked.</p>
-                </div>
-                
-                <div class="bg-surface border border-white/10 rounded-2xl overflow-hidden">
-                    <!-- Tabs -->
-                    <div class="flex border-b border-white/10">
-                        <button class="px-6 py-3 text-sm font-bold text-accent border-b-2 border-accent">Permission Check</button>
-                        <button class="px-6 py-3 text-sm font-bold text-slate-500 hover:text-white transition-colors">Configuration</button>
-                        <button class="px-6 py-3 text-sm font-bold text-slate-500 hover:text-white transition-colors">Events</button>
-                    </div>
-                    
-                    <!-- Code -->
-                    <div class="p-6 md:p-8 font-mono text-sm overflow-x-auto">
-<pre class="text-slate-300"><span class="text-slate-500">// Before any escalation</span>
-<span class="text-purple-400">const</span> decision = <span class="text-purple-400">await</span> softstop.<span class="text-blue-400">check</span>({
-  <span class="text-cyan-400">userId</span>: <span class="text-green-400">"user_123"</span>,
-  <span class="text-cyan-400">agentId</span>: <span class="text-green-400">"sales-agent"</span>,
-  <span class="text-cyan-400">escalationType</span>: <span class="text-green-400">"popup"</span>,
-  <span class="text-cyan-400">pressure</span>: <span class="text-orange-400">25</span>
-});
-
-<span class="text-purple-400">if</span> (decision.<span class="text-cyan-400">allowed</span>) {
-  <span class="text-blue-400">showPopup</span>(user);
-} <span class="text-purple-400">else</span> {
-  <span class="text-slate-500">// Agent must wait or downgrade</span>
-  console.<span class="text-blue-400">log</span>(decision.<span class="text-cyan-400">reason</span>);
-  <span class="text-slate-500">// "Cooldown active for popup"</span>
-  <span class="text-slate-500">// "Would exceed pressure limit"</span>
-}</pre>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- CTA to Demo -->
-        <section class="py-24 bg-surface text-center">
+        <section class="py-16 md:py-20 border-y border-white/5 bg-surface/40">
             <div class="max-w-4xl mx-auto px-6 md:px-12">
-                <h2 class="text-4xl md:text-5xl font-black mb-6">See It In Action</h2>
-                <p class="text-xl text-slate-400 mb-12">
-                    Scroll through 44 days of real user pressure. Watch different outcomes with SoftStop ON vs OFF.
+                <h2 class="font-display text-2xl md:text-3xl font-semibold text-paper text-center mb-3">Feel 44 days of pressure</h2>
+                <p class="text-center text-slate-400 mb-10 max-w-2xl mx-auto">
+                    Email, SMS, push, and in-app stack on the same person. Toggle SoftStop on — only allowed escalations pass.
                 </p>
-                <a href="#demo" class="inline-block bg-accent hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl text-lg">
-                    Launch Interactive Demo →
-                </a>
-                <a href="game/" class="inline-block bg-accent-purple hover:opacity-90 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl text-lg ml-4">
-                    Play Slot Demo →
-                </a>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                    <div>
+                        <div class="text-stop-amber font-semibold mb-1">Multi-channel</div>
+                        <p class="text-slate-400">Lifecycle, pricing, UI, and agents hit the same user without shared state.</p>
+                    </div>
+                    <div>
+                        <div class="text-stop-amber font-semibold mb-1">Toggle SoftStop</div>
+                        <p class="text-slate-400">Scroll with SoftStop off, then on. Watch pressure and blocks diverge.</p>
+                    </div>
+                    <div>
+                        <div class="text-stop-amber font-semibold mb-1">Authorize only</div>
+                        <p class="text-slate-400">Not Braze. Not an MCP firewall. Just check / record before pressure rises.</p>
+                    </div>
+                </div>
+                <div class="mt-10 text-center">
+                    <a href="#demo" class="text-stop-amber font-semibold hover:underline underline-offset-4">Start the timeline →</a>
+                </div>
             </div>
         </section>
-        
+
         <!-- Demo Section Marker -->
         <div id="demo" class="h-1"></div>
         
-        <!-- Original Hero Section (Demo Start) -->
-        <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-surface to-deep pt-20 lg:pt-0">
+        <!-- Demo intro -->
+        <section class="min-h-[70vh] flex items-center justify-center pt-16 lg:pt-8 pb-12">
             <div class="text-center px-6 md:px-12 max-w-2xl">
-                <div class="flex justify-center gap-2 md:gap-3 text-3xl md:text-4xl mb-6">
-                    <span>📧</span><span>💬</span><span>🔔</span><span>🖥️</span><span>💭</span>
-                </div>
-                <h1 class="text-3xl md:text-4xl lg:text-5xl font-black mb-4">Multi-Channel Pressure</h1>
-                <p class="text-lg md:text-xl text-slate-400 mb-4">
-                    Platforms don't just send emails. They hit you from <strong class="text-white">every direction</strong>:
+                <p class="text-[11px] tracking-[0.2em] uppercase text-stop-amber font-semibold mb-4">Interactive timeline</p>
+                <h1 class="font-display text-3xl md:text-5xl font-semibold tracking-tight mb-4">Multi-channel pressure</h1>
+                <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                    Scroll 44 days of email, SMS, push, and in-app. Toggle SoftStop at the top anytime.
                 </p>
-                <div class="flex flex-wrap justify-center gap-2 mb-8 text-sm">
-                    <span class="bg-accent-red/20 text-accent-red px-3 py-1 rounded-full">Email</span>
-                    <span class="bg-accent-purple/20 text-accent-purple px-3 py-1 rounded-full">SMS</span>
-                    <span class="bg-accent-orange/20 text-accent-orange px-3 py-1 rounded-full">Push Notifications</span>
-                    <span class="bg-accent-pink/20 text-accent-pink px-3 py-1 rounded-full">In-App Popups</span>
-                    <span class="bg-accent-yellow/20 text-accent-yellow px-3 py-1 rounded-full">Badges</span>
-                    <span class="bg-accent-cyan/20 text-accent-cyan px-3 py-1 rounded-full">Chat</span>
+                <div class="flex flex-wrap justify-center gap-2 mb-10 text-xs md:text-sm">
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Email</span>
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">SMS</span>
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Push</span>
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">In-app</span>
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Ads</span>
+                    <span class="border border-white/15 text-slate-300 px-3 py-1 rounded-full">Chat</span>
                 </div>
-                <p class="text-slate-500 mb-8">Scroll to experience 44 days of real cross-channel pressure.</p>
-                <div class="flex items-center justify-center gap-2 text-slate-500">
+                <div class="flex items-center justify-center gap-2 text-slate-500 text-sm">
                     <span class="animate-bounce">↓</span>
-                    <span class="text-sm">Start scrolling</span>
-                    <span class="animate-bounce">↓</span>
+                    <span>Scroll to begin</span>
                 </div>
             </div>
         </section>
@@ -2364,7 +1660,7 @@
         
         if (mobileUserAvatar && mobileUserName) {
             if (userId === 'choni') {
-                mobileUserAvatar.innerHTML = '🎰';
+                mobileUserAvatar.innerHTML = '👤';
                 mobileUserAvatar.className = 'w-10 h-10 bg-accent-purple/20 rounded-full flex items-center justify-center text-lg';
                 mobileUserName.textContent = 'Choni';
             } else if (userId === 'sarah') {
