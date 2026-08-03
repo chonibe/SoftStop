@@ -10,12 +10,14 @@
 - Adoption contract (`verify`, `health`)
 - Node / Python / browser examples + agent-touchpoint
 
-## v0.1.x (active)
+## v0.1.x (active / shipping)
 
-- **JSON policy packs + presets** (`policies/default|strict|lenient.json`)
+- JSON policy packs + presets (`policies/default|strict|lenient.json`)
 - `SOFTSTOP_POLICY` / `SOFTSTOP_POLICY_FILE` env loading
 - CLI `policy show` / `policy validate`
 - SoftStop-branded before/after demo at `/demo`
+- **Sample shop** (`examples/sample-shop`) + [BEFORE_AFTER.md](BEFORE_AFTER.md)
+- Tightened “add SoftStop” checklist (workflow + Cursor rule) with orphanRate gate
 
 ## Explicitly not v0.1
 

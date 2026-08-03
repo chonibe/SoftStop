@@ -4,6 +4,7 @@ Complete integration examples for SoftStop in different languages and environmen
 
 ## Quick Links
 
+- [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health` (start here)
 - [Node.js](nodejs/) — server-side integration
 - [Python](python/) — Python application integration
 - [Browser](browser/) — client-side JavaScript integration

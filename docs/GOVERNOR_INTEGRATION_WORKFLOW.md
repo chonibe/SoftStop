@@ -1,19 +1,34 @@
 # SoftStop Integration Workflow
 
-When the user says **"add SoftStop"**, **"add Governor"**, **"integrate SoftStop"**, or **"add SoftStop to this project"**, follow this workflow.
+When the user says **"add SoftStop"**, **"add Governor"**, **"integrate SoftStop"**, or **"add SoftStop to this project"**, follow this workflow **in order**. Do not skip verify.
 
-Product name: **SoftStop**. API paths remain `/check` and `/record` (`/v1` local, `/api` hosted).
+Product: **SoftStop** — shared permit before raising pressure on a user.  
+API: `POST …/check`, `POST …/record` (`/v1` on localhost, `/api` on hosted).
+
+## Checklist (agent must complete)
+
+- [ ] SoftStop reachable (`pnpm dev` or `SOFTSTOP_API_URL`)
+- [ ] Touchpoints searched and listed
+- [ ] Every touchpoint: `check` → act or soft-stop → `record`
+- [ ] Blocked paths call `record` with `outcome: "blocked"` + `blockReason`
+- [ ] `actionType` mapped correctly (not everything as `reminder`)
+- [ ] `POST …/verify` passes
+- [ ] `GET …/health` orphanRate &lt; 0.05 (or explain remaining orphans)
 
 ## 1. Identify Project Type
 
-- **Node.js / TypeScript / JavaScript backend** → Use `examples/nodejs/` (client class)
-- **Python** → Use `examples/python/governor_client.py`
-- **Browser / React / SPA / in-app** → Use `examples/browser/governor.js`
-- **Agent that escalates a user** → Use `examples/agent-touchpoint/`
+| Stack | Copy from |
+|-------|-----------|
+| Node / TS backend | `examples/nodejs/` or `examples/sample-shop/` |
+| Python | `examples/python/governor_client.py` |
+| Browser / SPA | `examples/browser/governor.js` |
+| Agent that escalates a **user** | `examples/agent-touchpoint/` |
+
+Reference write-up: [BEFORE_AFTER.md](BEFORE_AFTER.md).
 
 ## 2. Find Escalation Touchpoints
 
-Search the codebase for patterns that represent user pressure:
+Search the codebase:
 
 | Search for | Likely touchpoint | actionType |
 |------------|-------------------|------------|
@@ -24,15 +39,15 @@ Search the codebase for patterns that represent user pressure:
 | `createCampaign`, `sendCampaign`, `triggerDrip` | Marketing automation | urgency or discount |
 | `fetch.*marketing`, `POST.*notify`, `axios.*email` | API calls | varies |
 
+List every hit before editing. Partial wiring = false confidence.
+
 ## 3. Integration Pattern (Every Touchpoint)
 
-For **each** escalation, wrap with:
+1. **Check before** — `check(userId, actionType, surface)`  
+2. **Record after** — `record(...)` with `executed` / `blocked` / `downgraded`  
+3. **When blocked** — still `record` with `blockReason` from check  
 
-1. **Check before** – Call `check(userId, actionType, surface)` before executing
-2. **Record after** – Call `record(decisionId, userId, actionType, outcome)` after (or when blocked)
-3. **When blocked** – Pass `blockReason` from check for accurate audit reports
-
-**Policy:** SoftStop uses the default pack unless the server was started with `SOFTSTOP_POLICY` / `SOFTSTOP_POLICY_FILE` (presets in `policies/*.json`). Integrators usually do not change policy per touchpoint — they pick the right `actionType`. See [default-policy-pack.md](default-policy-pack.md).
+**Policy:** Do not invent per-touchpoint rules. Server uses `policies/*.json` via `SOFTSTOP_POLICY` or `SOFTSTOP_POLICY_FILE`. Integrators only choose `actionType`. See [default-policy-pack.md](default-policy-pack.md).
 
 ## 4. actionType Mapping
 
@@ -45,7 +60,7 @@ For **each** escalation, wrap with:
 
 ## 5. Surface
 
-Where it appears: `email` | `sms` | `push` | `in-app`
+`email` | `sms` | `push` | `in-app`
 
 ## 6. Code Pattern (Node/JS)
 
@@ -76,7 +91,7 @@ async function withSoftStop(userId, actionType, surface, fn) {
         blockReason: decision.reason
       })
     });
-    return null;
+    return null; // soft stop
   }
 
   const result = await fn();
@@ -94,26 +109,29 @@ async function withSoftStop(userId, actionType, surface, fn) {
 }
 ```
 
-Or inline per touchpoint – see `examples/README.md`.
+Runnable demo of stacking: `examples/sample-shop` (`node index.js --mode=compare`).
 
-## 7. Client References
+## 7. After Integration (required)
 
-- Node: `examples/nodejs/index.js`
-- Python: `examples/python/governor_client.py`
-- Browser: `examples/browser/governor.js`
-- Agent touchpoint: `examples/agent-touchpoint/`
-- API: `governor/README.md`
+```bash
+# 1. Env
+# SOFTSTOP_API_URL=http://localhost:3000
 
-## 8. After Integration
+# 2. Verify API + storage
+curl -X POST http://localhost:3000/v1/verify
 
-1. Add `SOFTSTOP_API_URL` or `GOVERNOR_API_URL` to `.env` (default local: `http://localhost:3000`)
-2. Run verification: `curl -X POST $GOVERNOR_API_URL/v1/verify` (use `/api/verify` on hosted)
-3. Check health: `curl "$GOVERNOR_API_URL/v1/health"`
+# 3. Health — watch orphanRate
+curl -s 'http://localhost:3000/v1/health?periodHours=24'
+```
+
+Or: `pnpm governor verify` and `pnpm governor health`.
 
 Prefer self-host. Optional hosted demo: https://softstop.vercel.app
 
 ## Critical Rules
 
-- **Every check must get a record** – including when blocked
-- **Use stable userId** – same identifier across check and record
-- **Pass blockReason when blocked** – for accurate reports
+- **Every check must get a record** — including when blocked  
+- **Stable userId** across check and record  
+- **Pass blockReason when blocked**  
+- **Never label everything `reminder`** to dodge caps  
+- **If orphanRate is high**, find missing `record` calls before claiming SoftStop is live  

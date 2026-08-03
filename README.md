@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/brand/softstop-mark.png" width="72" height="72" alt="SoftStop mark" />
+  <img src="docs/brand/softstop-icon.png" width="96" height="96" alt="SoftStop" />
 </p>
 
 <h1 align="center">SoftStop</h1>
@@ -132,9 +132,11 @@ Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
 
 ## Examples
 
+- [**Sample shop**](examples/sample-shop) — chaos vs SoftStop + orphan-rate health (`node index.js --mode=compare`)
 - [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human
 - [Scroll demo](https://softstop.vercel.app) — marketing-chaos example story
+- [Before / after write-up](docs/BEFORE_AFTER.md)
 
 ## Docs
 
