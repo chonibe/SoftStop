@@ -1,25 +1,32 @@
 # SoftStop docs
 
-**SoftStop** — the shared permit before any system raises pressure on a user.
+**Public docs:** [https://softstop-docs.vercel.app](https://softstop-docs.vercel.app) — VitePress site in [`apps/docs`](../apps/docs).
 
-## Start here
+```bash
+pnpm docs:dev      # local preview
+pnpm docs:build    # build + smoke
+```
 
-1. [Concept](CONCEPT.md) — what SoftStop is
-2. [Self-host](SELF_HOST.md) — local + Docker
-3. [Adoption contract](ADOPTION_CONTRACT.md) — verify / health (don't ship false confidence)
-4. [Before / after](BEFORE_AFTER.md) — chaos vs SoftStop + orphan rate
-5. [Default policy pack](default-policy-pack.md) — urgency / discount / interruption / reminder
-6. [Integration workflow](GOVERNOR_INTEGRATION_WORKFLOW.md) — find touchpoints, wire check/record
-7. [API reference](../governor/README.md) — HTTP surface
-8. [Examples](../examples/README.md) — including [sample-shop](../examples/sample-shop)
+This folder keeps source material, brand assets, and internal notes. Prefer the public site for onboarding.
+
+## Source material (repo)
+
+1. [Concept](CONCEPT.md)
+2. [Self-host](SELF_HOST.md)
+3. [Adoption contract](ADOPTION_CONTRACT.md)
+4. [Before / after](BEFORE_AFTER.md)
+5. [Default policy pack](default-policy-pack.md)
+6. [Integration workflow](GOVERNOR_INTEGRATION_WORKFLOW.md)
+7. [API reference](../governor/README.md)
+8. [Examples](../examples/README.md)
 
 ## Experience the story
 
-[Live scroll demo](https://softstop.vercel.app) — **example use case**: marketing chaos (email / SMS / push / in-app stacking), then SoftStop on. SoftStop itself is the authorize-only permit; the demo makes the failure mode obvious. Source: [`demo/index.html`](../demo/index.html).
+[Live scroll demo](https://softstop.vercel.app) — marketing-chaos example with SoftStop on/off. Source: [`demo/index.html`](../demo/index.html).
 
 ## Brand
 
-[Brand assets](brand/README.md) — mark, cover, before/after use-case diagram, where-it-fits strip.
+[Brand assets](brand/README.md)
 
 ## Also
 
@@ -27,6 +34,6 @@
 - [Roadmap](ROADMAP.md)
 - [Architecture](architecture.md)
 - [Security](../SECURITY.md)
-- [Press kit](press/SOFTSTOP_PRESS_RELEASE.md) (for press, not product onboarding)
+- [Press kit](press/SOFTSTOP_PRESS_RELEASE.md)
 
-Internal / historical notes live under [archive-internal](archive-internal/).
+Internal / historical notes: [archive-internal](archive-internal/).

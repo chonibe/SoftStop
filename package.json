@@ -17,7 +17,11 @@
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
     "governor": "node scripts/governor-cli.js",
-    "softstop": "node scripts/governor-cli.js"
+    "softstop": "node scripts/governor-cli.js",
+    "docs:dev": "pnpm --filter @softstop/docs dev",
+    "docs:build": "pnpm --filter @softstop/docs build",
+    "docs:preview": "pnpm --filter @softstop/docs preview",
+    "docs:smoke": "pnpm --filter @softstop/docs smoke"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

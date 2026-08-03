@@ -9,7 +9,7 @@
 <p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
 <p align="center">
-  <a href="docs/README.md">Docs</a> ·
+  <a href="https://softstop-docs.vercel.app">Docs</a> ·
   <a href="#get-started">Quickstart</a> ·
   <a href="https://softstop.vercel.app">Live demo</a> ·
   <a href="governor/README.md">API</a> ·
