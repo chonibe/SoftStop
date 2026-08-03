@@ -255,15 +255,24 @@
             font-size: 0.72rem;
             font-weight: 600;
         }
+        .hero-rotator {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0 0;
+            min-height: 11.5rem;
+        }
         .title {
             font-family: var(--oc-font-display);
             letter-spacing: -0.03em;
             color: var(--oc-text-primary);
-            margin: 20px auto 22px;
-            font-size: clamp(2.4rem, 5.6vw, 3.8rem);
+            margin: 0 auto 22px;
+            font-size: clamp(2.2rem, 5.2vw, 3.6rem);
             font-weight: 600;
             line-height: 1.08;
-            max-width: 16ch;
+            max-width: 20ch;
+            will-change: opacity, transform;
         }
         .title em {
             font-family: var(--oc-font-serif);
@@ -278,6 +287,11 @@
             margin: 0 auto;
             font-size: 1rem;
             line-height: 1.8;
+            will-change: opacity, transform;
+        }
+        @media (max-width: 720px) {
+            .hero-rotator { min-height: 13.5rem; }
+            .title { max-width: 14ch; }
         }
         .hero-actions {
             display: flex;
@@ -1578,11 +1592,13 @@
             <div class="hero-content">
                 <img class="hero-mark" src="assets/softstop-mark-dark.png" width="72" height="72" alt="" />
                 <p class="hero-eyebrow">Open source · Shared pressure journal</p>
-                <h1 class="title">One journal.<br /><em>Every</em> system asks it.</h1>
-                <p class="description">
-                    Email, SMS, push, popups, ads, and agents all <code>check</code> the same SoftStop permit —
-                    and <code>record</code> into one per-customer journal, so no system is blind to what another already did.
-                </p>
+                <div class="hero-rotator" aria-live="polite">
+                    <h1 class="title" id="heroTitle">One journal.<br /><em>Every</em> system asks it.</h1>
+                    <p class="description" id="heroDescription">
+                        Email, SMS, push, popups, ads, and agents all <code>check</code> the same SoftStop permit —
+                        and <code>record</code> into one per-customer journal, so no system is blind to what another already did.
+                    </p>
+                </div>
                 <div class="hero-actions">
                     <a href="#quickstart" class="hero-cta oc-action oc-action-primary">Get started</a>
                     <a href="#demo" class="hero-cta hero-cta-ghost oc-action oc-action-ghost">Try the live demo</a>
@@ -3118,7 +3134,109 @@ if (!d.allowed) {
         io2.observe(actionTiles);
     }
 
-    // Subtle hero entrance
+    const heroPairs = [
+        {
+            title: 'One journal.<br /><em>Every</em> system asks it.',
+            description:
+                'Email, SMS, push, popups, ads, and agents all <code>check</code> the same SoftStop permit — and <code>record</code> into one per-customer journal, so no system is blind to what another already did.',
+        },
+        {
+            title: 'Doesn\'t make software smarter.<br />Makes it <em>stop</em> when it should.',
+            description:
+                'Authorize-only pressure permit. One <code>check</code> before urgency, discount, interruption, or reminder — then <code>record</code>.',
+        },
+        {
+            title: 'Makes software <em>stop</em> when it should.',
+            description:
+                'The shared permit before any system raises pressure on a user.<br />One <code>check</code> before urgency, discount, interruption, or reminder — then <code>record</code>.',
+        },
+        {
+            title: 'One shared permit.<br /><em>Every</em> channel asks first.',
+            description:
+                'SoftStop authorizes pressure across email, SMS, push, popups, and agents — so marketing, product, and bots stop stacking on the same user.',
+        },
+    ];
+
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDescription = document.getElementById('heroDescription');
+    const heroRotator = document.querySelector('.hero-rotator');
+    let heroIndex = 0;
+    let heroTimer = null;
+    let heroBusy = false;
+    const HERO_HOLD_MS = 5200;
+
+    function applyHeroPair(index) {
+        const pair = heroPairs[index];
+        if (!pair || !heroTitle || !heroDescription) return;
+        heroTitle.innerHTML = pair.title;
+        heroDescription.innerHTML = pair.description;
+    }
+
+    function sizeHeroRotator() {
+        if (!heroRotator || !heroTitle || !heroDescription) return;
+        const tHTML = heroTitle.innerHTML;
+        const dHTML = heroDescription.innerHTML;
+        let maxH = 0;
+        heroPairs.forEach((pair) => {
+            heroTitle.innerHTML = pair.title;
+            heroDescription.innerHTML = pair.description;
+            maxH = Math.max(maxH, heroRotator.offsetHeight);
+        });
+        heroTitle.innerHTML = tHTML;
+        heroDescription.innerHTML = dHTML;
+        if (maxH > 0) heroRotator.style.minHeight = `${maxH}px`;
+    }
+
+    function advanceHero() {
+        if (!heroTitle || !heroDescription || heroBusy) return;
+        const next = (heroIndex + 1) % heroPairs.length;
+        heroBusy = true;
+
+        if (reduce) {
+            animate([heroTitle, heroDescription], {
+                opacity: [1, 0],
+                duration: 280,
+                ease: 'inOut(2)',
+                onComplete: () => {
+                    heroIndex = next;
+                    applyHeroPair(heroIndex);
+                    animate([heroTitle, heroDescription], {
+                        opacity: [0, 1],
+                        duration: 320,
+                        ease: 'inOut(2)',
+                        onComplete: () => { heroBusy = false; },
+                    });
+                },
+            });
+            return;
+        }
+
+        createTimeline({ defaults: { ease: 'inOut(2)' } })
+            .add([heroTitle, heroDescription], {
+                opacity: [1, 0],
+                y: [0, -10],
+                duration: 380,
+                onComplete: () => {
+                    heroIndex = next;
+                    applyHeroPair(heroIndex);
+                },
+            })
+            .add([heroTitle, heroDescription], {
+                opacity: [0, 1],
+                y: [12, 0],
+                duration: 480,
+            })
+            .then(() => { heroBusy = false; });
+    }
+
+    function startHeroRotation() {
+        if (!heroTitle || heroPairs.length < 2) return;
+        sizeHeroRotator();
+        if (heroTimer) clearInterval(heroTimer);
+        heroTimer = setInterval(advanceHero, HERO_HOLD_MS);
+    }
+
+    // Subtle hero entrance, then rotate copy
     if (!reduce) {
         const heroBits = document.querySelectorAll('.hero-mark, .hero-eyebrow, .title, .hero .description, .hero-actions');
         heroBits.forEach((el) => { el.style.opacity = '0'; });
@@ -3127,8 +3245,15 @@ if (!d.allowed) {
             .add('.hero-eyebrow', { opacity: [0, 1], y: [10, 0] }, '-=420')
             .add('.title', { opacity: [0, 1], y: [22, 0] }, '-=400')
             .add('.hero .description', { opacity: [0, 1], y: [14, 0] }, '-=380')
-            .add('.hero-actions', { opacity: [0, 1], y: [10, 0] }, '-=320');
+            .add('.hero-actions', { opacity: [0, 1], y: [10, 0] }, '-=320')
+            .then(() => startHeroRotation());
+    } else {
+        startHeroRotation();
     }
+
+    window.addEventListener('resize', () => {
+        sizeHeroRotator();
+    }, { passive: true });
     </script>
 </body>
 </html>
