@@ -70,3 +70,21 @@ cd packages/sdk-js && npm pack --dry-run
 ```
 
 Self-host the SoftStop API with `pnpm dev` in the [SoftStop repo](https://github.com/chonibe/SoftStop). Hosted demo: `https://softstop.vercel.app` (paths use `/api` instead of `/v1`).
+
+## Agent adapters
+
+```js
+// Inline gate
+await ss.beforeContact(
+  { userId, actionType: 'urgency', surface: 'email', actor: 'sales-agent' },
+  () => sendEmail()
+)
+
+// Wrap any user-facing tool (OpenAI / LangChain / plain)
+import { wrapUserFacingTool } from 'softstop'
+const sendFollowUp = wrapUserFacingTool(
+  ss,
+  { userId: (args) => args.userId, actionType: 'urgency', surface: 'email', actor: 'agent' },
+  async (args) => { /* send */ }
+)
+```

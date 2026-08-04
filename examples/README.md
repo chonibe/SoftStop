@@ -5,11 +5,12 @@ Complete integration examples for SoftStop in different languages and environmen
 ## Quick Links
 
 - [**Agent + email collision**](agent-email-collision/) — golden path with pressure readout (start here)
+- [**Agent tool wrapper**](agent-tool-wrapper/) — `wrapUserFacingTool` for OpenAI/LangChain-style tools
 - [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health`
 - [Node.js](nodejs/) — server-side integration
 - [Python](python/) — Python application integration
 - [Browser](browser/) — client-side JavaScript integration
-- [Agent touchpoint](agent-touchpoint/) — agent calls SoftStop before escalating a user
+- [Agent touchpoint](agent-touchpoint/) — `beforeContact` before escalating a user
 
 **Local first:** set `SOFTSTOP_API_URL` or `GOVERNOR_API_URL` to `http://localhost:3000` after `pnpm dev` from the repo root. Hosted demo `https://softstop.vercel.app` is optional.
 

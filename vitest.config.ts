@@ -5,7 +5,8 @@ export default defineConfig({
   test: {
     include: [
       "governor/tests/**/*.test.ts",
-      "packages/core/src/pressure/**/*.test.ts"
+      "packages/core/src/pressure/**/*.test.ts",
+      "packages/sdk-js/src/**/*.test.ts"
     ],
     globals: true,
   },

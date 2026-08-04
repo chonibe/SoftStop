@@ -141,6 +141,7 @@ Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
 ## Examples
 
 - [**Agent + email collision**](examples/agent-email-collision) — sales agent email then marketing SMS; print pressure
+- [**Agent tool wrapper**](examples/agent-tool-wrapper) — `wrapUserFacingTool` for agent tools
 - [**Sample shop**](examples/sample-shop) — chaos vs SoftStop + orphan-rate health (`node index.js --mode=compare`)
 - [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human

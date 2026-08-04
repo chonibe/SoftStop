@@ -1,62 +1,31 @@
-export type ActionType = "urgency" | "discount" | "interruption" | "reminder";
-export type Surface = "email" | "sms" | "push" | "in-app";
-export type Outcome = "executed" | "blocked" | "downgraded";
+export type {
+  ActionType,
+  Surface,
+  Outcome,
+  SoftStopOptions,
+  CheckRequest,
+  CheckResponse,
+  PressureResponse,
+  RecordRequest,
+  SoftStopClient
+} from "./types";
 
-export interface SoftStopOptions {
-  /** SoftStop API base URL (alias of `baseUrl`). */
-  url?: string;
-  /** SoftStop API base URL. Default: http://localhost:3000 */
-  baseUrl?: string;
-  apiKey?: string;
-  /** Override path prefix (`/v1` local, `/api` hosted). */
-  prefix?: "/v1" | "/api";
-}
+import type {
+  SoftStopOptions,
+  CheckRequest,
+  CheckResponse,
+  PressureResponse,
+  RecordRequest
+} from "./types";
 
 /** @deprecated Prefer SoftStopOptions */
 export type GovernorClientOptions = SoftStopOptions;
 
-export interface CheckRequest {
-  userId: string;
-  actionType: ActionType;
-  surface?: Surface;
-  context?: Record<string, unknown>;
-}
-
-export interface CheckResponse {
-  allowed: boolean;
-  reason: string;
-  decisionId?: string;
-  cooldownUntil?: string;
-  suggestedActionType?: ActionType;
-  explanation?: string;
-  pressure?: number;
-  cost?: number;
-  threshold?: number;
-  projectedPressure?: number;
-}
-
-export interface PressureResponse {
-  userId: string;
-  pressure: number;
-  threshold: number;
-  decayPerHour: number;
-  updatedAt: string | null;
-  costs: Record<ActionType, number>;
-}
-
-export interface RecordRequest {
-  decisionId?: string;
-  userId: string;
-  actionType: ActionType;
-  outcome: Outcome;
-  blockReason?: string;
-  signals?: {
-    dismissed?: boolean;
-    ignored?: boolean;
-    hesitated?: boolean;
-  };
-  context?: Record<string, unknown>;
-}
+import {
+  beforeContact,
+  type BeforeContactRequest,
+  type BeforeContactResult
+} from "./agent";
 
 function defaultPrefix(baseUrl: string): "/v1" | "/api" {
   try {
@@ -74,7 +43,7 @@ function defaultPrefix(baseUrl: string): "/v1" | "/api" {
  * import { SoftStop } from 'softstop'
  * const ss = new SoftStop({ url: 'http://localhost:3000' })
  * const decision = await ss.check({ userId: 'u1', actionType: 'urgency' })
- * await ss.record({ … })
+ * await ss.beforeContact({ userId, actionType, actor: 'sales-agent' }, sendEmail)
  * ```
  */
 export class SoftStop {
@@ -162,7 +131,28 @@ export class SoftStop {
     }
     return response.json() as Promise<Record<string, unknown>>;
   }
+
+  /**
+   * Gate a user-facing escalation (agents, automations).
+   * check → run → record executed, or record blocked and skip.
+   */
+  async beforeContact<T>(
+    request: BeforeContactRequest,
+    run: () => Promise<T> | T
+  ): Promise<BeforeContactResult<T>> {
+    return beforeContact(this, request, run);
+  }
 }
+
+export {
+  beforeContact,
+  wrapUserFacingTool,
+  type BeforeContactRequest,
+  type BeforeContactResult,
+  type BeforeContactAllowed,
+  type BeforeContactBlocked,
+  type UserFacingToolConfig
+} from "./agent";
 
 /** @deprecated Use SoftStop */
 export class GovernorClient extends SoftStop {}
