@@ -14,3 +14,5 @@ apps/docs/.vitepress/dist/
 **/.DS_Store
 demo/slot-machine-temp/
 .github/workflows/
+*.tgz
+!demo/softstop.tgz

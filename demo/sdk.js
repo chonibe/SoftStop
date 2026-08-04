@@ -1,3 +1,64 @@
+// src/agent.ts
+async function beforeContact(client, request, run) {
+  const { actor, context, ...checkFields } = request;
+  const decision = await client.check({
+    ...checkFields,
+    context: {
+      ...context ?? {},
+      ...actor ? { actor } : {}
+    }
+  });
+  if (!decision.allowed) {
+    await client.record({
+      decisionId: decision.decisionId,
+      userId: request.userId,
+      actionType: request.actionType,
+      outcome: "blocked",
+      blockReason: decision.reason,
+      context: actor ? { actor } : void 0
+    });
+    return {
+      allowed: false,
+      decision,
+      suggestedActionType: decision.suggestedActionType
+    };
+  }
+  const result = await run();
+  await client.record({
+    decisionId: decision.decisionId,
+    userId: request.userId,
+    actionType: request.actionType,
+    outcome: "executed",
+    context: actor ? { actor } : void 0
+  });
+  return { allowed: true, result, decision };
+}
+function wrapUserFacingTool(client, config, handler) {
+  return async (args) => {
+    const userId = typeof config.userId === "function" ? config.userId(args) : config.userId;
+    const gated = await beforeContact(
+      client,
+      {
+        userId,
+        actionType: config.actionType,
+        surface: config.surface,
+        actor: config.actor,
+        context: { toolArgs: args }
+      },
+      () => handler(args)
+    );
+    if (!gated.allowed) {
+      return {
+        ok: false,
+        reason: gated.decision.reason,
+        decision: gated.decision,
+        suggestedActionType: gated.suggestedActionType
+      };
+    }
+    return { ok: true, result: gated.result, decision: gated.decision };
+  };
+}
+
 // src/index.ts
 function defaultPrefix(baseUrl) {
   try {
@@ -42,6 +103,22 @@ var SoftStop = class {
     }
     return response.json();
   }
+  async getPressure(userId, tenantId) {
+    const qs = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+    const response = await fetch(
+      `${this.baseUrl}${this.prefix}/users/${encodeURIComponent(userId)}/pressure${qs}`,
+      {
+        method: "GET",
+        headers: this.headers()
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `SoftStop getPressure failed: ${response.status} ${response.statusText}`
+      );
+    }
+    return response.json();
+  }
   async verify() {
     const response = await fetch(`${this.baseUrl}${this.prefix}/verify`, {
       method: "POST",
@@ -63,6 +140,13 @@ var SoftStop = class {
     }
     return response.json();
   }
+  /**
+   * Gate a user-facing escalation (agents, automations).
+   * check → run → record executed, or record blocked and skip.
+   */
+  async beforeContact(request, run) {
+    return beforeContact(this, request, run);
+  }
 };
 var GovernorClient = class extends SoftStop {
 };
@@ -83,5 +167,7 @@ export {
   GovernorClient,
   SoftStop,
   authorize,
-  index_default as default
+  beforeContact,
+  index_default as default,
+  wrapUserFacingTool
 };
