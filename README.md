@@ -66,7 +66,6 @@ Golden path (agent + email collision): [examples/agent-email-collision](examples
 
 ```bash
 npm i softstop
-# until published: npm i https://softstop.vercel.app/softstop.tgz
 ```
 
 ```js
@@ -95,7 +94,7 @@ const status = await ss.getPressure('user_123')
 // { pressure, threshold, decayPerHour, costs, updatedAt }
 ```
 
-Install via tarball or `github:chonibe/SoftStop#path:packages/sdk-js` until the public npm release. Browser CDN: `https://softstop.vercel.app/sdk.js`.
+Alternates: `github:chonibe/SoftStop#path:packages/sdk-js` or `https://softstop.vercel.app/softstop.tgz`. Browser CDN: `https://softstop.vercel.app/sdk.js`.
 
 ### Self-host the API
 

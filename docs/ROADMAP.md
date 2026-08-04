@@ -20,7 +20,7 @@
 
 ## v0.2.x (active / shipping)
 
-- Publish `softstop` to the public npm registry (package + dry-run ready)
+- Publish `softstop` to the public npm registry (**done** — `softstop@0.2.1`)
 - Thin agent adapters: `beforeContact` + `wrapUserFacingTool` (shipped in 0.2.1)
 
 ## Explicitly not v0.1 / v0.2
