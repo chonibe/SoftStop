@@ -13,7 +13,8 @@ import {
   handleReport,
   handleAuditReport,
   handleDecisionLog,
-  handleInsights
+  handleInsights,
+  handleGetPressure
 } from "./handlers";
 
 export interface CreateAppOptions {
@@ -50,6 +51,17 @@ const mountRoutes = (
   app.post(`${prefix}/verify`, async (req, res) => {
     const tenantId = await resolveTenantId(storage, req, "body");
     const result = await handleVerify(storage, tenantId, rulesConfig);
+    return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/users/:userId/pressure`, async (req, res) => {
+    const tenantId = await resolveTenantId(storage, req, "query");
+    const result = await handleGetPressure(
+      storage,
+      String(req.params.userId ?? ""),
+      tenantId,
+      rulesConfig
+    );
     return res.status(result.status).json(result.body);
   });
 

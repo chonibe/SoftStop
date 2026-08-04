@@ -13,5 +13,13 @@
   },
   "globalCap": 2,
   "windowHours": 24,
-  "stackingWindowMinutes": 30
+  "stackingWindowMinutes": 30,
+  "threshold": 60,
+  "decayPerHour": 4,
+  "costs": {
+    "urgency": 40,
+    "discount": 30,
+    "interruption": 25,
+    "reminder": 15
+  }
 }

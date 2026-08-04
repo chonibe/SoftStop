@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { formatExplanation } from "./clarity";
 import { checkSchema, recordSchema } from "./schemas";
 import { Storage } from "./storage/storage";
-import { applyOutcome, emptyState, evaluateCheck } from "./rules/engine";
+import { applyOutcome, decayedPressure, emptyState, evaluateCheck } from "./rules/engine";
 import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import { OutcomeType } from "./types";
 
@@ -152,7 +152,11 @@ export const handleCheck = async (
     reason: decision.reason,
     decisionId,
     cooldownUntil: decision.cooldownUntil,
-    suggestedActionType: decision.suggestedActionType
+    suggestedActionType: decision.suggestedActionType,
+    pressure: decision.pressure,
+    cost: decision.cost,
+    threshold: decision.threshold,
+    projectedPressure: decision.projectedPressure
   };
   if (!decision.allowed) {
     body.explanation = formatExplanation(decision.reason, {
@@ -161,6 +165,32 @@ export const handleCheck = async (
     });
   }
   return { status: 200, body };
+};
+
+export const handleGetPressure = async (
+  storage: Storage,
+  userId: string,
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  if (!userId?.trim()) {
+    return { status: 400, body: { error: "userId required" } };
+  }
+  const tid = tenantId ?? DEFAULT_TENANT;
+  const now = new Date();
+  const state = (await storage.getUserState(userId.trim(), tid)) ?? emptyState();
+  const pressure = decayedPressure(state, now, rulesConfig.decayPerHour);
+  return {
+    status: 200,
+    body: {
+      userId: userId.trim(),
+      pressure,
+      threshold: rulesConfig.threshold,
+      decayPerHour: rulesConfig.decayPerHour,
+      updatedAt: state.pressureUpdatedAt ?? null,
+      costs: rulesConfig.costs
+    }
+  };
 };
 
 export const handleRecord = async (

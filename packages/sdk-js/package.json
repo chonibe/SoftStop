@@ -1,7 +1,7 @@
 {
   "name": "softstop",
-  "version": "0.1.0",
-  "description": "SoftStop JS/TS client — check before pressure, record after.",
+  "version": "0.2.0",
+  "description": "SoftStop JS/TS client — check before interrupting a human; track user pressure.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

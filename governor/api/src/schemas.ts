@@ -12,7 +12,13 @@ export const checkSchema = z.object({
 });
 
 const blockReasonSchema = z
-  .enum(["cooldown_active", "type_cap_reached", "global_cap_reached", "recent_escalation"])
+  .enum([
+    "cooldown_active",
+    "type_cap_reached",
+    "global_cap_reached",
+    "recent_escalation",
+    "pressure_exceeded"
+  ])
   .optional();
 
 export const recordSchema = z.object({

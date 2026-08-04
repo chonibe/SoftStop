@@ -4,7 +4,8 @@ Complete integration examples for SoftStop in different languages and environmen
 
 ## Quick Links
 
-- [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health` (start here)
+- [**Agent + email collision**](agent-email-collision/) — golden path with pressure readout (start here)
+- [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health`
 - [Node.js](nodejs/) — server-side integration
 - [Python](python/) — Python application integration
 - [Browser](browser/) — client-side JavaScript integration

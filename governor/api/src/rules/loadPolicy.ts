@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import {
+  defaultPressureCosts,
   defaultRulesConfig,
   GovernorRulesConfig
 } from "./config";
@@ -55,12 +56,41 @@ export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
     throw new Error("Policy.stackingWindowMinutes must be a non-negative number");
   }
 
+  const threshold =
+    obj.threshold === undefined
+      ? defaultRulesConfig.threshold
+      : obj.threshold;
+  if (!isPositiveNumber(threshold) || threshold <= 0) {
+    throw new Error("Policy.threshold must be a positive number");
+  }
+
+  const decayPerHour =
+    obj.decayPerHour === undefined
+      ? defaultRulesConfig.decayPerHour
+      : obj.decayPerHour;
+  if (!isPositiveNumber(decayPerHour)) {
+    throw new Error("Policy.decayPerHour must be a non-negative number");
+  }
+
+  let costs: Record<ActionType, number> = { ...defaultPressureCosts };
+  if (obj.costs !== undefined) {
+    if (!isActionRecord(obj.costs)) {
+      throw new Error(
+        `Policy.costs must map ${ACTION_TYPES.join(", ")} to non-negative numbers`
+      );
+    }
+    costs = { ...obj.costs };
+  }
+
   return {
     cooldownHours: { ...obj.cooldownHours },
     typeCap: { ...obj.typeCap },
     globalCap: obj.globalCap,
     windowHours: obj.windowHours,
-    stackingWindowMinutes: obj.stackingWindowMinutes
+    stackingWindowMinutes: obj.stackingWindowMinutes,
+    threshold,
+    decayPerHour,
+    costs
   };
 };
 
@@ -130,7 +160,12 @@ export const loadPolicy = (options: LoadPolicyOptions = {}): LoadedPolicy => {
   }
 
   return {
-    config: { ...defaultRulesConfig, cooldownHours: { ...defaultRulesConfig.cooldownHours }, typeCap: { ...defaultRulesConfig.typeCap } },
+    config: {
+      ...defaultRulesConfig,
+      cooldownHours: { ...defaultRulesConfig.cooldownHours },
+      typeCap: { ...defaultRulesConfig.typeCap },
+      costs: { ...defaultRulesConfig.costs }
+    },
     source: "builtin:defaultRulesConfig"
   };
 };

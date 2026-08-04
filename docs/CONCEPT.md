@@ -1,7 +1,9 @@
 # SoftStop Concept (Developer-Friendly)
 
 ## Overview
-SoftStop is a tiny control layer that answers a single question before any system escalates pressure on a user: **is escalation allowed right now?** It stores a small per-user state (what pressure was applied, how often, and how recently) and applies deterministic rules (no ML).
+SoftStop is a tiny control layer that answers a single question before any system escalates pressure on a user: **is escalation allowed right now?** It stores a small per-user state (pressure score, what was applied, how often, how recently) and applies deterministic rules (no ML).
+
+SoftStop does not rate-limit humans. It rate-limits agents and other systems that want to reach them.
 
 ## API contract (v1)
 **POST `/v1/check` (local) / `/api/check` (hosted)**  
@@ -11,7 +13,7 @@ Request:
 ```
 Response:
 ```
-{ "allowed": false, "reason": "cooldown_active", "decisionId": "..." }
+{ "allowed": false, "reason": "pressure_exceeded", "pressure": 80, "cost": 40, "threshold": 100, "projectedPressure": 120, "decisionId": "..." }
 ```
 
 **POST `/v1/record` (local) / `/api/record` (hosted)**  
@@ -24,11 +26,15 @@ Response:
 { "ok": true }
 ```
 
+**GET `/v1/users/:userId/pressure`**  
+Returns decayed pressure, threshold, decay rate, and server-owned costs.
+
 ## Storage model
 - `governor_events`: append-only event log (check, executed, blocked, downgraded).
-- `governor_user_state`: compact JSON with cooldowns, counts, and recency data.
+- `governor_user_state`: compact JSON with pressure, cooldowns, counts, and recency data.
 
 ## Rules (example)
+- User pressure: costs + decay + threshold (primary gate)
 - Per-type cooldown after hesitation
 - Per-type frequency caps in a rolling window
 - Global cap across all escalation types
@@ -38,13 +44,4 @@ Response:
 Any escalation engine calls `check` before acting. If denied, it skips or downgrades. After an action resolves, it calls `record` with outcome and signals (dismissed, ignored, hesitated).
 
 ## Demo behavior
-The demo shows the "before" scenario (no gate) vs "after" (SoftStop gate), using upgrade prompts, reminders, and urgency messages for a single user.
-
-## References
-- Implementation: [governor/api/src/server.ts](../governor/api/src/server.ts)
-- Tests: [governor/tests/rules.test.ts](../governor/tests/rules.test.ts)
-- Adoption: [ADOPTION_CONTRACT.md](ADOPTION_CONTRACT.md)
-- Press: [press/SOFTSTOP_PRESS_RELEASE.md](press/SOFTSTOP_PRESS_RELEASE.md)
-
-## Version
-1.0.0 — SoftStop product naming; API paths unchanged.
+See [examples/agent-email-collision](../examples/agent-email-collision) and the live scroll demo.

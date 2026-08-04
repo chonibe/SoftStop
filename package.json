@@ -1,8 +1,8 @@
 {
   "name": "softstop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "SoftStop — shared permit before any system raises pressure on a user (authorize-only check/record).",
+  "description": "SoftStop — every AI agent should ask permission before interrupting a human. Shared user pressure across agents and systems.",
   "packageManager": "pnpm@8.15.4",
   "workspaces": [
     "packages/*"

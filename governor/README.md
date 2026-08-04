@@ -1,8 +1,6 @@
 # SoftStop (API + rules engine)
 
-**SoftStop** is the product: a shared permit before any system raises pressure on a user. This directory is the working HTTP API and deterministic rules engine.
-
-Before any escalation (urgent email, discount offer, popup, etc.), ask SoftStop: **"Is this allowed right now?"** It checks per-user pressure history, enforces cooldowns, and blocks excessive escalations — no ML.
+SoftStop is a tiny control layer that answers a single question before any system escalates pressure on a user: **is escalation allowed right now?** It stores a small per-user state (pressure score, cooldowns, caps) and applies deterministic rules (no ML). SoftStop rate-limits actors that contact humans — not the humans themselves.
 
 For the public launch surface (local quickstart, Docker, adoption contract), see the [root README](../README.md).
 

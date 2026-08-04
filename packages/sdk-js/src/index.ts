@@ -28,6 +28,20 @@ export interface CheckResponse {
   decisionId?: string;
   cooldownUntil?: string;
   suggestedActionType?: ActionType;
+  explanation?: string;
+  pressure?: number;
+  cost?: number;
+  threshold?: number;
+  projectedPressure?: number;
+}
+
+export interface PressureResponse {
+  userId: string;
+  pressure: number;
+  threshold: number;
+  decayPerHour: number;
+  updatedAt: string | null;
+  costs: Record<ActionType, number>;
 }
 
 export interface RecordRequest {
@@ -104,6 +118,26 @@ export class SoftStop {
       throw new Error(`SoftStop record failed: ${response.status} ${response.statusText}`);
     }
     return response.json() as Promise<{ ok?: boolean }>;
+  }
+
+  async getPressure(
+    userId: string,
+    tenantId?: string
+  ): Promise<PressureResponse> {
+    const qs = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+    const response = await fetch(
+      `${this.baseUrl}${this.prefix}/users/${encodeURIComponent(userId)}/pressure${qs}`,
+      {
+        method: "GET",
+        headers: this.headers()
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `SoftStop getPressure failed: ${response.status} ${response.statusText}`
+      );
+    }
+    return response.json() as Promise<PressureResponse>;
   }
 
   async verify(): Promise<{ ok?: boolean; message?: string }> {

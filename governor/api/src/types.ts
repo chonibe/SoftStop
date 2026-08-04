@@ -18,7 +18,8 @@ export type DecisionReason =
   | "cooldown_active"
   | "type_cap_reached"
   | "global_cap_reached"
-  | "recent_escalation";
+  | "recent_escalation"
+  | "pressure_exceeded";
 
 export type OutcomeType = "executed" | "blocked" | "downgraded";
 
@@ -43,6 +44,10 @@ export interface GovernorUserState {
       count: number;
     }
   >;
+  /** Accumulated contact pressure (server-owned). Defaults to 0 when missing. */
+  pressure?: number;
+  /** ISO timestamp when pressure was last updated (for decay). */
+  pressureUpdatedAt?: string | null;
 }
 
 export interface GovernorDecision {
@@ -50,4 +55,12 @@ export interface GovernorDecision {
   reason: DecisionReason;
   cooldownUntil?: string;
   suggestedActionType?: ActionType;
+  /** Decayed pressure at evaluation time */
+  pressure?: number;
+  /** Server-owned cost for this actionType */
+  cost?: number;
+  /** Policy threshold */
+  threshold?: number;
+  /** pressure + cost if this action were allowed */
+  projectedPressure?: number;
 }

@@ -4,6 +4,7 @@
 
 | `reason` | Meaning |
 |---|---|
+| `pressure_exceeded` | `pressure + cost` would exceed the policy threshold |
 | `cooldown_active` | This action type is still in cooldown for the user |
 | `type_cap_reached` | Per-type cap hit in the rolling window |
 | `global_cap_reached` | Global cap across all types hit |

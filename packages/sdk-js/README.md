@@ -1,19 +1,18 @@
 # softstop
 
-Tiny JS/TS client for [SoftStop](https://softstop.vercel.app) — the authorize-only permit before any system raises pressure on a user.
+Tiny JS/TS client for [SoftStop](https://softstop.vercel.app) — every AI agent should ask permission before interrupting a human.
 
 ## Install
 
-Not on the public npm registry yet. Install from GitHub (works today):
+```bash
+npm i softstop
+```
+
+Until the package is on the public registry, use:
 
 ```bash
 npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
-```
-
-Or from a path checkout of this repo:
-
-```bash
-npm i ./packages/sdk-js
+# or: npm i https://softstop.vercel.app/softstop.tgz
 ```
 
 Browser (no install):
@@ -37,6 +36,8 @@ const decision = await ss.check({
   surface: 'email'
 })
 
+console.log(decision.pressure, decision.cost, decision.projectedPressure, decision.threshold)
+
 if (!decision.allowed) {
   await ss.record({
     decisionId: decision.decisionId,
@@ -55,6 +56,17 @@ await ss.record({
   actionType: 'urgency',
   outcome: 'executed'
 })
+
+const status = await ss.getPressure('user_123')
+// { pressure, threshold, decayPerHour, costs, updatedAt }
+```
+
+### Publish prep (maintainers)
+
+```bash
+pnpm --filter softstop build
+cd packages/sdk-js && npm pack --dry-run
+# npm publish --access public   # requires npm token
 ```
 
 Self-host the SoftStop API with `pnpm dev` in the [SoftStop repo](https://github.com/chonibe/SoftStop). Hosted demo: `https://softstop.vercel.app` (paths use `/api` instead of `/v1`).

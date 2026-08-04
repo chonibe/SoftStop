@@ -2,46 +2,67 @@
 
 **FOR IMMEDIATE RELEASE**
 
-**SoftStop Open Sources the Control Layer That Makes Software Stop When It Should**
+**SoftStop Open Sources the Gate AI Agents Must Pass Before Interrupting a Human**
 
-*A shared permit any automation calls before raising urgency, discounts, interruptions, or reminders on a user.*
+*A shared contact budget for agents, automations, and messaging systems. Rate-limits software that reaches people, not the people themselves.*
 
-**[City, Date]** — Today, SoftStop is open-sourcing **SoftStop**, a tiny authorize-only control layer that stops automated systems from over-pushing people.
+**[City, Date]** — SoftStop today open-sourced SoftStop, a tiny authorize-only control layer every AI agent and customer-facing system can call before emailing, texting, notifying, or otherwise interrupting a user.
 
-Modern products don’t fail because one message is too aggressive. They fail because many systems each push “a little,” with no shared view of how much pressure a user has already taken. Lifecycle email, upgrade modals, promo engines, and AI agents all act alone. Users feel harassed. Trust erodes. Discounts get burned. Churn shows up late.
+Companies are shipping support bots, sales agents, marketing journeys, billing alerts, and product copilots at the same time. Each system optimizes alone. None of them share a stop signal. The result is familiar: duplicate follow-ups, conflicting offers, burned domains, and customers who feel hunted by software that never gets tired.
 
-SoftStop fills that gap. Before any system raises pressure, it asks one question:
+SoftStop does not rate-limit humans. It rate-limits the actors that want to reach them.
 
-**Is escalation allowed for this user right now?**
+Before an agent or automation contacts someone, it asks SoftStop one question:
 
-Via two calls:
+**Is this person allowed to take another contact right now?**
 
-- **check** — permit or block the escalation
-- **record** — log what happened (executed, blocked, or downgraded)
+Two calls:
 
-SoftStop does not write copy, pick offers, or optimize conversion. It only gates escalation — across surfaces — with deterministic rules: cooldowns, per-type caps, global caps, and stack protection. No machine learning.
+- **check** — allow or block the contact
+- **record** — log whether it executed, blocked, or downgraded
 
-“Software knows how to push. It doesn’t know when to stop,” said the SoftStop maintainers. “A frequency cap inside one marketing tool can’t see your pricing rules, your in-app modal, or your merchant’s AI agent. SoftStop is the shared permit those systems call before they escalate the same human.”
+```ts
+const decision = await softstop.check({
+  userId: customer.id,
+  actionType: "urgency",
+  surface: "email"
+})
+
+if (!decision.allowed) return
+```
+
+Every contact adds **user pressure** (server-owned costs). SoftStop decays that score over time and blocks the next hit when pressure plus cost would exceed your threshold.
+
+SoftStop does not write copy, pick offers, fix deliverability, or replace human approval for dangerous tools. It only answers whether another interruption is allowed, using deterministic rules: pressure threshold and decay, plus cooldowns, per-type caps, global caps, and stack protection. No machine learning.
+
+“Every AI agent should ask permission before interrupting a human,” said the SoftStop maintainers. “A frequency cap inside one ESP cannot see your support bot, your checkout modal, or your sales agent. SoftStop is the shared gate those systems call before they spend the same person’s attention.”
 
 **Why this matters now**
 
-Companies already govern spam, abuse, payments, and rate limits. Escalation itself is still ungoverned — especially as platforms let many agents act on one end user. When merchant automations and platform automations collide, the brand owns the blame.
+Industry teams are already living the failure mode. Autonomous outreach burns sender reputation. Buyers recognize AI spray. Agent retries send the same email twice. Marketing, support, and AI collide on one customer record. Tools exist for spam filters, human-in-the-loop approvals, and idempotent sends. What has been missing is a shared, per-person budget for contact pressure across every actor that can reach that person.
 
 **What’s in the open-source release**
 
-- Deterministic pressure engine for urgency, discount, interruption, and reminder
-- HTTP `check` / `record` API with self-hostable storage
-- Integration verification and health metrics so teams know the gate is actually adopted — not silently bypassed
-- Drop-in examples for Node.js, Python, and browser surfaces
-- Interactive scroll demo: feel multi-channel pressure, then SoftStop on
+- Numeric user pressure with threshold, decay, and server-owned costs
+- Deterministic rules for urgency, discount, interruption, and reminder
+- HTTP `check` / `record` / `GET .../users/:id/pressure` API with self-hostable storage
+- Integration verification and health metrics so teams know the gate is actually adopted, not silently bypassed
+- Examples for Node.js, Python, browser, agent touchpoints, and agent–email collision
+- Interactive demo: multi-channel chaos, then SoftStop on
 
-SoftStop is MIT-licensed. It sits under existing tools — email, SMS, in-app UI, agent workflows — without replacing them.
+SoftStop is MIT-licensed. It sits under email, SMS, in-app UI, CRM automations, and agent workflows without replacing them.
 
 **Availability**
 
-SoftStop is available now at **https://github.com/chonibe/SoftStop**.  
-Live demo: **https://softstop.vercel.app**. Self-host locally or with Docker.
+GitHub: **https://github.com/chonibe/SoftStop**  
+Live demo: **https://softstop.vercel.app**  
+Self-host locally or with Docker.
 
-**Boilerplate one-liner**
+**Boilerplate**
 
-> SoftStop — the shared permit before any system raises pressure on a user.
+> SoftStop — every AI agent should ask permission before interrupting a human. Shared contact pressure across agents and every other system that can reach the same person.
+
+**Media contact**  
+[Name]  
+[email]  
+[URL]

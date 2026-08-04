@@ -29,17 +29,39 @@ Request permission before raising pressure on a user.
 | `tenantId` | no | Multi-tenant isolation (default `default`) |
 | `context` | no | Opaque metadata for your audit logs |
 
+Callers do **not** send a pressure cost. SoftStop applies server-owned costs from policy.
+
 ## Response — allowed
 
 ```json
 {
   "allowed": true,
   "reason": "allowed",
-  "decisionId": "550e8400-e29b-41d4-a716-446655440000"
+  "decisionId": "550e8400-e29b-41d4-a716-446655440000",
+  "pressure": 0,
+  "cost": 40,
+  "threshold": 100,
+  "projectedPressure": 40
 }
 ```
 
-## Response — blocked
+## Response — blocked (pressure)
+
+```json
+{
+  "allowed": false,
+  "reason": "pressure_exceeded",
+  "explanation": "User pressure would exceed the configured threshold for another contact.",
+  "decisionId": "550e8400-e29b-41d4-a716-446655440000",
+  "pressure": 80,
+  "cost": 40,
+  "threshold": 100,
+  "projectedPressure": 120,
+  "suggestedActionType": "reminder"
+}
+```
+
+## Response — blocked (legacy rule)
 
 ```json
 {
@@ -48,11 +70,17 @@ Request permission before raising pressure on a user.
   "explanation": "User recently dismissed or ignored this type. Cooldown expires at …",
   "cooldownUntil": "2026-01-20T10:30:00Z",
   "suggestedActionType": "reminder",
-  "decisionId": "550e8400-e29b-41d4-a716-446655440000"
+  "decisionId": "550e8400-e29b-41d4-a716-446655440000",
+  "pressure": 40,
+  "cost": 40,
+  "threshold": 100,
+  "projectedPressure": 80
 }
 ```
 
 Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason`.
+
+Read live pressure anytime: `GET /v1/users/:userId/pressure`.
 
 ## curl
 

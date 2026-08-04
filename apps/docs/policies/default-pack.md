@@ -18,9 +18,32 @@
   },
   "globalCap": 4,
   "windowHours": 24,
-  "stackingWindowMinutes": 10
+  "stackingWindowMinutes": 10,
+  "threshold": 100,
+  "decayPerHour": 8,
+  "costs": {
+    "urgency": 40,
+    "discount": 30,
+    "interruption": 25,
+    "reminder": 15
+  }
 }
 ```
+
+## User pressure
+
+| Field | Default | Effect |
+|---|---|---|
+| `threshold` | 100 | Block when `pressure + cost > threshold` |
+| `decayPerHour` | 8 | Linear decay toward 0 |
+| `costs.*` | see table | Added on `record` `executed` / `downgraded` |
+
+| Type | Default cost |
+|---|---|
+| `urgency` | 40 |
+| `discount` | 30 |
+| `interruption` | 25 |
+| `reminder` | 15 |
 
 ## Default type limits
 
@@ -39,13 +62,15 @@
 | Global cap | 4 | Max escalations of any type in the window |
 | Stacking window | 10 min | Blocks back-to-back hard pressure |
 
+Pressure is evaluated **before** cooldowns / caps / stacking.
+
 ## Presets
 
-| Preset | Global cap | Notes |
-|---|---|---|
-| `default` | 4 | Production starter |
-| `strict` | 2 | Longer cooldowns, lower caps |
-| `lenient` | 10 | Demos / staging |
+| Preset | Threshold | Global cap | Notes |
+|---|---|---|---|
+| `default` | 100 | 4 | Production starter |
+| `strict` | 60 | 2 | Longer cooldowns, lower caps |
+| `lenient` | 150 | 10 | Demos / staging |
 
 ## What this pack is not
 

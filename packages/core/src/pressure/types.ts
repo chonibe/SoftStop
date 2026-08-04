@@ -12,7 +12,8 @@ export type DecisionReason =
   | "cooldown_active"
   | "type_cap_reached"
   | "global_cap_reached"
-  | "recent_escalation";
+  | "recent_escalation"
+  | "pressure_exceeded";
 
 export interface GovernorUserState {
   cooldowns: Record<string, string | null>;
@@ -25,6 +26,8 @@ export interface GovernorUserState {
       count: number;
     }
   >;
+  pressure?: number;
+  pressureUpdatedAt?: string | null;
 }
 
 export interface PressureDecision {
@@ -32,6 +35,10 @@ export interface PressureDecision {
   reason: DecisionReason;
   cooldownUntil?: string;
   suggestedActionType?: ActionType;
+  pressure?: number;
+  cost?: number;
+  threshold?: number;
+  projectedPressure?: number;
 }
 
 export interface GovernorRulesConfig {
@@ -40,7 +47,17 @@ export interface GovernorRulesConfig {
   globalCap: number;
   windowHours: number;
   stackingWindowMinutes: number;
+  threshold: number;
+  decayPerHour: number;
+  costs: Record<ActionType, number>;
 }
+
+export const defaultPressureCosts: Record<ActionType, number> = {
+  urgency: 40,
+  discount: 30,
+  interruption: 25,
+  reminder: 15
+};
 
 export const defaultRulesConfig: GovernorRulesConfig = {
   cooldownHours: {
@@ -57,5 +74,8 @@ export const defaultRulesConfig: GovernorRulesConfig = {
   },
   globalCap: 4,
   windowHours: 24,
-  stackingWindowMinutes: 10
+  stackingWindowMinutes: 10,
+  threshold: 100,
+  decayPerHour: 8,
+  costs: { ...defaultPressureCosts }
 };

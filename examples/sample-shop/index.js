@@ -86,6 +86,7 @@ async function withSoftStop(actionType, surface, fn) {
     });
     console.log(
       `  ✗ BLOCKED ${actionType} (${check.reason})` +
+        ` [pressure=${check.pressure} +${check.cost} → ${check.projectedPressure}/${check.threshold}]` +
         (check.suggestedActionType
           ? ` — try ${check.suggestedActionType}`
           : "")
@@ -100,6 +101,9 @@ async function withSoftStop(actionType, surface, fn) {
     actionType,
     outcome: "executed"
   });
+  console.log(
+    `  ✓ ALLOWED ${actionType} [pressure=${check.pressure} +${check.cost} → ${check.projectedPressure}/${check.threshold}]`
+  );
   return { fired: true };
 }
 
@@ -123,6 +127,10 @@ async function runSoftStop() {
 
   console.log(
     `Result: ${fired} fired, ${blocked} soft-stopped. Pressure capped by policy.\n`
+  );
+  const pressure = await get(`/users/${encodeURIComponent(userId)}/pressure`);
+  console.log(
+    `User pressure: ${pressure.pressure} / ${pressure.threshold} (decay ${pressure.decayPerHour}/h)\n`
   );
   return { fired, blocked };
 }
