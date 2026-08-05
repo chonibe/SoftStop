@@ -14,7 +14,7 @@ See `.env.example` in the repo. SoftStop names first; Governor aliases remain su
 
 | Variable | Purpose |
 |---|---|
-| `SOFTSTOP_POLICY` / `GOVERNOR_POLICY` | Preset: `default` \| `strict` \| `lenient` |
+| `SOFTSTOP_POLICY` / `GOVERNOR_POLICY` | Preset: `default` \| `strict` \| `lenient` \| `anon-aggressive` |
 | `SOFTSTOP_POLICY_FILE` / `GOVERNOR_POLICY_FILE` | Path to custom JSON (wins over preset) |
 
 ```bash

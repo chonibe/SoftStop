@@ -8,13 +8,6 @@ Tiny JS/TS client for [SoftStop](https://softstop.vercel.app) — every AI agent
 npm i softstop
 ```
 
-Until the package is on the public registry, use:
-
-```bash
-npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
-# or: npm i https://softstop.vercel.app/softstop.tgz
-```
-
 Browser (no install):
 
 ```html
@@ -22,6 +15,8 @@ Browser (no install):
   import { SoftStop } from 'https://softstop.vercel.app/sdk.js'
 </script>
 ```
+
+Alternates: `github:chonibe/SoftStop#path:packages/sdk-js` or `https://softstop.vercel.app/softstop.tgz`.
 
 ## Usage
 
@@ -60,6 +55,45 @@ await ss.record({
 const status = await ss.getPressure('user_123')
 // { pressure, threshold, decayPerHour, costs, updatedAt }
 ```
+
+### Identity helpers (PostHog)
+
+```js
+import {
+  SoftStop,
+  toSoftStopUserId,
+  emitSoftStopDecisionToPostHog,
+  emitSoftStopMergedToPostHog,
+  emitSoftStopUnavailableToPostHog
+} from 'softstop'
+
+const anonId = toSoftStopUserId(posthog) // ph:<distinct_id>
+const knownId = toSoftStopUserId(posthog, { kind: 'sc', id: user.id })
+
+await ss.merge({ fromUserId: anonId, toUserId: knownId })
+emitSoftStopMergedToPostHog(posthog.capture.bind(posthog), {
+  fromUserId: anonId,
+  toUserId: knownId,
+  pressureAfter: 40
+})
+
+emitSoftStopDecisionToPostHog(posthog.capture.bind(posthog), {
+  softstopUserId: knownId,
+  actionType: 'interruption',
+  surface: 'in-app',
+  actor: 'posthog-survey',
+  decision
+})
+
+// Fail-open: SoftStop down — never invent decisionId; skip record()
+emitSoftStopUnavailableToPostHog(posthog.capture.bind(posthog), {
+  actor: 'sc-promo-modal',
+  actionType: 'interruption',
+  softstopUserId: anonId
+})
+```
+
+See [PostHog × SoftStop](../../docs/integrations/POSTHOG_SOFTSTOP.md).
 
 ### Publish prep (maintainers)
 

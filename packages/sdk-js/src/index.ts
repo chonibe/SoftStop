@@ -7,7 +7,9 @@ export type {
   CheckResponse,
   PressureResponse,
   RecordRequest,
-  SoftStopClient
+  SoftStopClient,
+  MergeRequest,
+  MergeResponse
 } from "./types";
 
 import type {
@@ -15,7 +17,9 @@ import type {
   CheckRequest,
   CheckResponse,
   PressureResponse,
-  RecordRequest
+  RecordRequest,
+  MergeRequest,
+  MergeResponse
 } from "./types";
 
 /** @deprecated Prefer SoftStopOptions */
@@ -89,6 +93,18 @@ export class SoftStop {
     return response.json() as Promise<{ ok?: boolean }>;
   }
 
+  async merge(payload: MergeRequest): Promise<MergeResponse> {
+    const response = await fetch(`${this.baseUrl}${this.prefix}/users/merge`, {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`SoftStop merge failed: ${response.status} ${response.statusText}`);
+    }
+    return response.json() as Promise<MergeResponse>;
+  }
+
   async getPressure(
     userId: string,
     tenantId?: string
@@ -153,6 +169,18 @@ export {
   type BeforeContactBlocked,
   type UserFacingToolConfig
 } from "./agent";
+
+export {
+  toSoftStopUserId,
+  emitSoftStopDecisionToPostHog,
+  emitSoftStopMergedToPostHog,
+  emitSoftStopUnavailableToPostHog,
+  type SoftStopKnownIdentity,
+  type PostHogDistinctSource,
+  type SoftStopObservePayload,
+  type SoftStopMergeObservePayload,
+  type SoftStopUnavailableObservePayload
+} from "./identity";
 
 /** @deprecated Use SoftStop */
 export class GovernorClient extends SoftStop {}

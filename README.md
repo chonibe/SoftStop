@@ -21,6 +21,7 @@
   <a href="https://softstop-docs.vercel.app">Docs</a> ·
   <a href="#get-started">Quickstart</a> ·
   <a href="https://softstop.vercel.app">Live demo</a> ·
+  <a href="https://softstop.vercel.app/console.html">See pressure live</a> ·
   <a href="governor/README.md">API</a> ·
   <a href="examples/README.md">Examples</a> ·
   <a href="SECURITY.md">Security</a>
@@ -145,6 +146,7 @@ Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
 - [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human
 - [Scroll demo](https://softstop.vercel.app) — marketing-chaos example story
+- [Pressure Console](https://softstop.vercel.app/console.html) — look up a user, watch the meter, simulate contacts
 - [Before / after write-up](docs/BEFORE_AFTER.md)
 
 ## Docs

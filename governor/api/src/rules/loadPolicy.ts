@@ -7,7 +7,7 @@ import {
 } from "./config";
 import { ACTION_TYPES, ActionType } from "../types";
 
-export const POLICY_PRESETS = ["default", "strict", "lenient"] as const;
+export const POLICY_PRESETS = ["default", "strict", "lenient", "anon-aggressive"] as const;
 export type PolicyPreset = (typeof POLICY_PRESETS)[number];
 
 export interface LoadedPolicy {

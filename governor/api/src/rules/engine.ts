@@ -205,3 +205,74 @@ export const applyOutcome = (
 
   return next;
 };
+
+const maxIso = (a: string | null | undefined, b: string | null | undefined): string | null => {
+  if (!a) return b ?? null;
+  if (!b) return a;
+  return new Date(a) >= new Date(b) ? a : b;
+};
+
+/**
+ * Merge identity journals: sum decayed pressure (capped), max cooldowns,
+ * sum window counts (capped per type / global). Caller tombstones `from`.
+ */
+export const mergeUserStates = (
+  from: GovernorUserState,
+  to: GovernorUserState,
+  now: Date,
+  config: GovernorRulesConfig = defaultRulesConfig
+): GovernorUserState => {
+  const fromPressure = decayedPressure(from, now, config.decayPerHour);
+  const toPressure = decayedPressure(to, now, config.decayPerHour);
+  const pressure = Math.min(config.threshold, fromPressure + toPressure);
+
+  const cooldowns: Record<string, string | null> = { ...to.cooldowns };
+  for (const [key, value] of Object.entries(from.cooldowns ?? {})) {
+    cooldowns[key] = maxIso(cooldowns[key], value);
+  }
+
+  const lastActionAt: Record<string, string | null> = { ...to.lastActionAt };
+  for (const [key, value] of Object.entries(from.lastActionAt ?? {})) {
+    lastActionAt[key] = maxIso(lastActionAt[key], value);
+  }
+
+  const windows: GovernorUserState["windows"] = {};
+  const keys = new Set([
+    ...Object.keys(from.windows ?? {}),
+    ...Object.keys(to.windows ?? {}),
+    GLOBAL_KEY,
+    ...Object.keys(config.typeCap)
+  ]);
+  for (const key of keys) {
+    const fromWin = from.windows?.[key];
+    const toWin = to.windows?.[key];
+    if (!fromWin && !toWin) continue;
+    const windowStart =
+      maxIso(fromWin?.windowStart, toWin?.windowStart) ?? now.toISOString();
+    const rawCount = (fromWin?.count ?? 0) + (toWin?.count ?? 0);
+    const cap =
+      key === GLOBAL_KEY
+        ? config.globalCap
+        : (config.typeCap[key as ActionType] ?? rawCount);
+    windows[key] = {
+      windowStart,
+      count: Math.min(cap, rawCount)
+    };
+  }
+
+  return {
+    cooldowns,
+    lastActionAt,
+    lastAnyEscalationAt: maxIso(from.lastAnyEscalationAt, to.lastAnyEscalationAt),
+    windows,
+    pressure,
+    pressureUpdatedAt: now.toISOString(),
+    mergedInto: null
+  };
+};
+
+/** Empty journal pointing at the surviving identity after merge. */
+export const tombstoneState = (mergedInto: string): GovernorUserState => ({
+  ...emptyState(),
+  mergedInto
+});

@@ -20,9 +20,11 @@ describe("loadPolicy", () => {
     expect(loaded.source).toMatch(/default\.json$/);
   });
 
-  it("loads strict and lenient presets", () => {
+  it("loads strict, lenient, and anon-aggressive presets", () => {
     expect(loadPolicyPreset("strict").config.globalCap).toBe(2);
     expect(loadPolicyPreset("lenient").config.globalCap).toBe(10);
+    expect(loadPolicyPreset("anon-aggressive").config.decayPerHour).toBe(16);
+    expect(loadPolicyPreset("anon-aggressive").config.threshold).toBe(100);
   });
 
   it("rejects invalid JSON shape", () => {

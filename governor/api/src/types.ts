@@ -11,7 +11,8 @@ export type GovernorEventType =
   | "check"
   | "executed"
   | "blocked"
-  | "downgraded";
+  | "downgraded"
+  | "merged";
 
 export type DecisionReason =
   | "allowed"
@@ -48,6 +49,8 @@ export interface GovernorUserState {
   pressure?: number;
   /** ISO timestamp when pressure was last updated (for decay). */
   pressureUpdatedAt?: string | null;
+  /** Set when this journal was merged into another userId (tombstone). */
+  mergedInto?: string | null;
 }
 
 export interface GovernorDecision {

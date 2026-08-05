@@ -8,13 +8,15 @@ import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import {
   handleCheck,
   handleRecord,
+  handleMerge,
   handleHealth,
   handleVerify,
   handleReport,
   handleAuditReport,
   handleDecisionLog,
   handleInsights,
-  handleGetPressure
+  handleGetPressure,
+  handleGetActivity
 } from "./handlers";
 
 export interface CreateAppOptions {
@@ -39,6 +41,11 @@ const mountRoutes = (
     return res.status(result.status).json(result.body);
   });
 
+  app.post(`${prefix}/users/merge`, async (req, res) => {
+    const result = await handleMerge(storage, req.body, rulesConfig);
+    return res.status(result.status).json(result.body);
+  });
+
   app.get(`${prefix}/health`, async (req, res) => {
     const periodHours = req.query.periodHours
       ? parseInt(String(req.query.periodHours), 10)
@@ -59,6 +66,19 @@ const mountRoutes = (
     const result = await handleGetPressure(
       storage,
       String(req.params.userId ?? ""),
+      tenantId,
+      rulesConfig
+    );
+    return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/users/:userId/activity`, async (req, res) => {
+    const tenantId = await resolveTenantId(storage, req, "query");
+    const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+    const result = await handleGetActivity(
+      storage,
+      String(req.params.userId ?? ""),
+      limit,
       tenantId,
       rulesConfig
     );
@@ -112,8 +132,9 @@ export const createApp = (storage: Storage, options: CreateAppOptions = {}) => {
     const from = req.query.from ? String(req.query.from) : undefined;
     const to = req.query.to ? String(req.query.to) : undefined;
     const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+    const userId = req.query.userId ? String(req.query.userId) : undefined;
     const tenantId = await resolveTenantId(storage, req, "query");
-    const result = await handleDecisionLog(storage, from, to, limit, tenantId);
+    const result = await handleDecisionLog(storage, from, to, limit, tenantId, userId);
     return res.status(result.status).json(result.body);
   });
 

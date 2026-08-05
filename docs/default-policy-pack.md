@@ -7,17 +7,25 @@ SoftStop ships a deterministic **pressure** policy pack (no ML). Tune it via JSO
 Precedence:
 
 1. `SOFTSTOP_POLICY_FILE` or `GOVERNOR_POLICY_FILE` — path to any JSON file  
-2. `SOFTSTOP_POLICY` or `GOVERNOR_POLICY` — preset name (`default` | `strict` | `lenient`)  
+2. `SOFTSTOP_POLICY` or `GOVERNOR_POLICY` — preset name (`default` | `strict` | `lenient` | `anon-aggressive`)  
 3. Built-in defaults (same as `policies/default.json`)
 
 ```bash
 SOFTSTOP_POLICY=strict pnpm dev
+SOFTSTOP_POLICY=anon-aggressive pnpm dev
 SOFTSTOP_POLICY_FILE=./policies/lenient.json pnpm dev
 pnpm governor policy validate --file policies/strict.json
 curl -s http://localhost:3000/v1/policy
 ```
 
 Preset files live in [`policies/`](../policies/).
+
+| Preset | Notes |
+|--------|--------|
+| `default` | Production-ish baseline (`decayPerHour: 8`) |
+| `strict` | Tighter caps |
+| `lenient` | Looser caps |
+| `anon-aggressive` | Same caps as default, `decayPerHour: 16` — good for PostHog anon trial tenants |
 
 ## JSON shape
 

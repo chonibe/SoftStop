@@ -6,7 +6,8 @@ function stateKey(userId: string, tenantId = "default"): string {
 }
 
 export class MemoryStorage implements Storage {
-  private events: GovernorEvent[] = [];
+  /** Exposed for tests; production callers should use Storage methods. */
+  events: GovernorEvent[] = [];
   private states = new Map<string, GovernorUserState>();
 
   async getUserState(userId: string, tenantId = "default"): Promise<GovernorUserState | null> {
@@ -165,7 +166,8 @@ export class MemoryStorage implements Storage {
     from: string,
     to: string,
     limit = 200,
-    tenantId = "default"
+    tenantId = "default",
+    userId?: string
   ): Promise<DecisionLogEntry[]> {
     const fromTime = new Date(from).getTime();
     const toTime = new Date(to).getTime();
@@ -174,6 +176,7 @@ export class MemoryStorage implements Storage {
       .filter((e) =>
         ["executed", "blocked", "downgraded"].includes(e.eventType)
       )
+      .filter((e) => (userId ? e.userId === userId : true))
       .filter((e) => {
         const t = e.createdAt ? new Date(e.createdAt).getTime() : 0;
         return t >= fromTime && t <= toTime;

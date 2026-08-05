@@ -15,6 +15,7 @@ const required = [
   'integrate/examples.html',
   'api/check.html',
   'api/record.html',
+  'api/pressure.html',
   'api/verify.html',
   'api/health.html',
   'api/errors.html',

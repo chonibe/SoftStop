@@ -16,6 +16,9 @@ hero:
     - theme: alt
       text: Live demo
       link: https://softstop.vercel.app
+    - theme: alt
+      text: See pressure live
+      link: https://softstop.vercel.app/console.html
 ---
 
 <p class="ss-kicker">Browse docs</p>
@@ -88,6 +91,12 @@ When blocked, still call `record` with `outcome: "blocked"`. Skipping record cre
     <a href="https://softstop.vercel.app">
       Live demo
       <span>Marketing-chaos story with SoftStop on/off.</span>
+    </a>
+  </li>
+  <li>
+    <a href="https://softstop.vercel.app/console.html">
+      Pressure Console
+      <span>See pressure live — meter, activity, simulate.</span>
     </a>
   </li>
 </ul>

@@ -52,6 +52,22 @@ export interface RecordRequest {
   context?: Record<string, unknown>;
 }
 
+export interface MergeRequest {
+  fromUserId: string;
+  toUserId: string;
+  tenantId?: string;
+}
+
+export interface MergeResponse {
+  ok?: boolean;
+  alreadyMerged?: boolean;
+  fromUserId?: string;
+  toUserId?: string;
+  pressure?: number;
+  threshold?: number;
+  error?: unknown;
+}
+
 /** Minimal client surface used by agent helpers (avoids circular imports). */
 export interface SoftStopClient {
   check(payload: CheckRequest): Promise<CheckResponse>;

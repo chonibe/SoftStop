@@ -9,10 +9,13 @@ pnpm dev
 
 API: `http://localhost:3000` (in-memory storage by default).
 
+**See pressure live:** open [http://localhost:3000/demo/console.html](http://localhost:3000/demo/console.html) (local uses `/v1`; hosted demo uses `/api`). Load a `userId`, then simulate urgency / discount / interruption and watch the meter.
+
+Hosted: [https://softstop.vercel.app/console.html](https://softstop.vercel.app/console.html).
+
 ```bash
 curl -X POST http://localhost:3000/v1/verify
 ```
-
 ## 2. Install the JS client
 
 ```bash

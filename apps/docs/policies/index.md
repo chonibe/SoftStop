@@ -5,7 +5,7 @@ SoftStop enforces a deterministic **pressure** policy pack (no ML). Your app cho
 ## Load order
 
 1. `SOFTSTOP_POLICY_FILE` / `GOVERNOR_POLICY_FILE` — path to any JSON file  
-2. `SOFTSTOP_POLICY` / `GOVERNOR_POLICY` — preset: `default` | `strict` | `lenient`  
+2. `SOFTSTOP_POLICY` / `GOVERNOR_POLICY` — preset: `default` | `strict` | `lenient` | `anon-aggressive`  
 3. Built-in defaults (same as `policies/default.json`)
 
 ```bash

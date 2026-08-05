@@ -1,8 +1,15 @@
 import { randomUUID } from "crypto";
 import { formatExplanation } from "./clarity";
-import { checkSchema, recordSchema } from "./schemas";
+import { checkSchema, recordSchema, mergeSchema } from "./schemas";
 import { Storage } from "./storage/storage";
-import { applyOutcome, decayedPressure, emptyState, evaluateCheck } from "./rules/engine";
+import {
+  applyOutcome,
+  decayedPressure,
+  emptyState,
+  evaluateCheck,
+  mergeUserStates,
+  tombstoneState
+} from "./rules/engine";
 import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import { OutcomeType } from "./types";
 
@@ -138,12 +145,22 @@ export const handleCheck = async (
   const decision = evaluateCheck(state, actionType, now, rulesConfig);
   const decisionId = randomUUID();
 
+  const pressureContext = {
+    pressure: decision.pressure,
+    cost: decision.cost,
+    threshold: decision.threshold,
+    projectedPressure: decision.projectedPressure,
+    reason: decision.reason
+  };
+
   await storage.insertEvent({
     userId,
     actionType,
     eventType: "check",
     decisionId,
-    context: context ? { surface, ...context } : { surface },
+    context: context
+      ? { surface, ...context, ...pressureContext }
+      : { surface, ...pressureContext },
     tenantId: tid
   });
 
@@ -208,6 +225,8 @@ export const handleRecord = async (
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
+  const pressureBefore = decayedPressure(state, now, rulesConfig.decayPerHour);
+  const cost = rulesConfig.costs[actionType];
   const nextState = applyOutcome(
     state,
     actionType,
@@ -221,6 +240,17 @@ export const handleRecord = async (
   if (outcome === "blocked" && blockReason) {
     eventContext.blockReason = blockReason;
   }
+  eventContext.pressure = pressureBefore;
+  eventContext.cost = cost;
+  eventContext.threshold = rulesConfig.threshold;
+  eventContext.projectedPressure = pressureBefore + cost;
+  if (outcome === "executed" || outcome === "downgraded") {
+    eventContext.pressureAfter =
+      typeof nextState.pressure === "number" ? nextState.pressure : pressureBefore + cost;
+  }
+  if (blockReason) {
+    eventContext.reason = blockReason;
+  }
 
   await storage.insertEvent({
     userId,
@@ -233,7 +263,96 @@ export const handleRecord = async (
 
   await storage.upsertUserState(userId, nextState, tid);
 
-  return { status: 200, body: { ok: true } };
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      pressure:
+        typeof nextState.pressure === "number"
+          ? decayedPressure(nextState, now, rulesConfig.decayPerHour)
+          : pressureBefore,
+      threshold: rulesConfig.threshold
+    }
+  };
+};
+
+export const handleMerge = async (
+  storage: Storage,
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  const parsed = mergeSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { status: 400, body: { error: parsed.error.flatten() } };
+  }
+
+  const fromUserId = parsed.data.fromUserId.trim();
+  const toUserId = parsed.data.toUserId.trim();
+  const tid = parsed.data.tenantId ?? DEFAULT_TENANT;
+
+  if (fromUserId === toUserId) {
+    return { status: 400, body: { error: "fromUserId and toUserId must differ" } };
+  }
+
+  const now = new Date();
+  const fromState = (await storage.getUserState(fromUserId, tid)) ?? emptyState();
+  const toState = (await storage.getUserState(toUserId, tid)) ?? emptyState();
+
+  if (fromState.mergedInto === toUserId) {
+    const pressure = decayedPressure(toState, now, rulesConfig.decayPerHour);
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        alreadyMerged: true,
+        fromUserId,
+        toUserId,
+        pressure,
+        threshold: rulesConfig.threshold
+      }
+    };
+  }
+
+  if (fromState.mergedInto && fromState.mergedInto !== toUserId) {
+    return {
+      status: 409,
+      body: {
+        error: "fromUserId already merged into a different user",
+        mergedInto: fromState.mergedInto
+      }
+    };
+  }
+
+  const merged = mergeUserStates(fromState, toState, now, rulesConfig);
+
+  await storage.upsertUserState(toUserId, merged, tid);
+  await storage.upsertUserState(fromUserId, tombstoneState(toUserId), tid);
+
+  await storage.insertEvent({
+    userId: toUserId,
+    actionType: "reminder",
+    eventType: "merged",
+    context: {
+      fromUserId,
+      toUserId,
+      pressure: merged.pressure ?? 0,
+      pressureAfter: merged.pressure ?? 0,
+      threshold: rulesConfig.threshold
+    },
+    tenantId: tid
+  });
+
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      alreadyMerged: false,
+      fromUserId,
+      toUserId,
+      pressure: merged.pressure ?? 0,
+      threshold: rulesConfig.threshold
+    }
+  };
 };
 
 export const handleReport = async (
@@ -332,7 +451,8 @@ export const handleDecisionLog = async (
   from?: string,
   to?: string,
   limit?: number,
-  tenantId?: string
+  tenantId?: string,
+  userId?: string
 ): Promise<{ status: number; body: unknown }> => {
   if (!storage.getDecisionLog) {
     return {
@@ -342,7 +462,13 @@ export const handleDecisionLog = async (
   }
   const { from: fromStr, to: toStr } = parseReportPeriod(from, to);
   const tid = tenantId ?? DEFAULT_TENANT;
-  const entries = await storage.getDecisionLog(fromStr, toStr, limit ?? 200, tid);
+  const entries = await storage.getDecisionLog(
+    fromStr,
+    toStr,
+    limit ?? 200,
+    tid,
+    userId
+  );
   const decisions = entries.map((e) => ({
     ...e,
     explanationPlain:
@@ -351,6 +477,78 @@ export const handleDecisionLog = async (
         : undefined
   }));
   return { status: 200, body: { ok: true, period: { from: fromStr, to: toStr }, decisions } };
+};
+
+export const handleGetActivity = async (
+  storage: Storage,
+  userId: string,
+  limit?: number,
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  if (!userId?.trim()) {
+    return { status: 400, body: { error: "userId required" } };
+  }
+  const trimmed = userId.trim();
+  const pressureResult = await handleGetPressure(storage, trimmed, tenantId, rulesConfig);
+  if (pressureResult.status !== 200) {
+    return pressureResult;
+  }
+  const pressureBody = pressureResult.body as {
+    userId: string;
+    pressure: number;
+    threshold: number;
+    decayPerHour: number;
+    updatedAt: string | null;
+    costs: Record<string, number>;
+  };
+
+  const tid = tenantId ?? DEFAULT_TENANT;
+  const { from: fromStr, to: toStr } = parseReportPeriod(
+    new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    new Date().toISOString()
+  );
+
+  let events: Array<Record<string, unknown>> = [];
+  if (storage.getDecisionLog) {
+    const entries = await storage.getDecisionLog(
+      fromStr,
+      toStr,
+      limit ?? 50,
+      tid,
+      trimmed
+    );
+    events = entries.map((e) => {
+      const ctx = (e.context ?? {}) as Record<string, unknown>;
+      return {
+        createdAt: e.createdAt,
+        actionType: e.actionType,
+        eventType: e.eventType,
+        actor: typeof ctx.actor === "string" ? ctx.actor : null,
+        pressure: typeof ctx.pressure === "number" ? ctx.pressure : null,
+        cost: typeof ctx.cost === "number" ? ctx.cost : null,
+        projectedPressure:
+          typeof ctx.projectedPressure === "number" ? ctx.projectedPressure : null,
+        pressureAfter:
+          typeof ctx.pressureAfter === "number" ? ctx.pressureAfter : null,
+        blockReason: e.blockReason ?? null,
+        decisionId: e.decisionId ?? null
+      };
+    });
+  }
+
+  return {
+    status: 200,
+    body: {
+      userId: pressureBody.userId,
+      pressure: pressureBody.pressure,
+      threshold: pressureBody.threshold,
+      decayPerHour: pressureBody.decayPerHour,
+      costs: pressureBody.costs,
+      updatedAt: pressureBody.updatedAt,
+      events
+    }
+  };
 };
 
 interface InsightItem {

@@ -37,3 +37,9 @@ export const recordSchema = z.object({
     .optional(),
   context: z.record(z.unknown()).optional()
 });
+
+export const mergeSchema = z.object({
+  fromUserId: z.string().min(1),
+  toUserId: z.string().min(1),
+  tenantId: z.string().min(1).optional()
+});
