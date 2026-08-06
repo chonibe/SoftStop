@@ -80,6 +80,8 @@ export default defineConfig({
   lang: 'en-US',
   cleanUrls: true,
   appearance: 'dark',
+  // Local self-host console URLs are intentional; not part of the docs site.
+  ignoreDeadLinks: [/^https?:\/\/localhost/],
   head: [
     ['link', { rel: 'icon', href: '/softstop-icon.png', type: 'image/png' }],
     ['meta', { property: 'og:type', content: 'website' }],
