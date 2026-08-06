@@ -24,7 +24,7 @@ Request permission before raising pressure on a user.
 | Field | Required | Notes |
 |---|---|---|
 | `userId` | yes | Stable per-user id |
-| `actionType` | yes | `urgency` \| `discount` \| `interruption` \| `reminder` |
+| `actionType` | yes | Built-ins: `urgency` \| `discount` \| `interruption` \| `reminder`. Custom slugs allowed if defined in the loaded policy — see [action types](/policies/action-types) |
 | `surface` | no | `email` \| `sms` \| `push` \| `in-app` |
 | `tenantId` | no | Multi-tenant isolation (default `default`) |
 | `context` | no | Opaque metadata for your audit logs |
@@ -78,7 +78,9 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
 }
 ```
 
-Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason`.
+Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason` from `reason` (use `explanation` / optional `suggestedActionType` in your own UX — do not skip `record`).
+
+`check` is **read-only for pressure**: it evaluates current state and logs a check event; pressure, caps, and cooldowns advance on [`record`](/api/record) (`executed` / `downgraded`). Two concurrent allows can both pass before either records — SoftStop does not lock across callers. See [Errors](/api/errors#concurrent-allows-race).
 
 Read live pressure anytime: `GET /v1/users/:userId/pressure`.
 

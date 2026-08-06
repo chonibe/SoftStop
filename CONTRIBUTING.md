@@ -25,7 +25,9 @@ pnpm softstop verify
 - **Storage behind interfaces.** Keep HTTP and Supabase adapters at the edges.
 - **Pressure is the product.** MCP / tool-call adapters under `archive/mcp-gateway/` are experimental.
 
-Note: the HTTP engine lives under `governor/` for historical reasons; the product name is SoftStop.
+Note: the HTTP engine lives under `governor/` for historical reasons; the product name is SoftStop. Prefer SoftStop env names; `GOVERNOR_*` aliases remain for compatibility.
+
+**Repo lint (not SoftStop policy):** root [`tenet-policy.json`](tenet-policy.json) configures Core/ecosystem boundary checks via `scripts/tenet-check.js`. Adopters should ignore it — runtime pressure packs live under [`policies/`](policies/).
 
 ## Pull requests
 

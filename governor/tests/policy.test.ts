@@ -92,4 +92,41 @@ describe("rules engine with custom config", () => {
     );
     expect(decision.allowed).toBe(true);
   });
+
+  it("loads a policy with a custom action type in all three maps", () => {
+    const withCustom = {
+      ...defaultRulesConfig,
+      cooldownHours: { ...defaultRulesConfig.cooldownHours, legal_notice: 48 },
+      typeCap: { ...defaultRulesConfig.typeCap, legal_notice: 1 },
+      costs: { ...defaultRulesConfig.costs, legal_notice: 20 }
+    };
+    const config = validateRulesConfig(withCustom);
+    expect(config.costs.legal_notice).toBe(20);
+    expect(config.typeCap.legal_notice).toBe(1);
+
+    const decision = evaluateCheck(emptyState(), "legal_notice", new Date(), config);
+    expect(decision.allowed).toBe(true);
+    expect(decision.cost).toBe(20);
+  });
+
+  it("rejects custom action type missing from costs", () => {
+    expect(() =>
+      validateRulesConfig({
+        ...defaultRulesConfig,
+        cooldownHours: { ...defaultRulesConfig.cooldownHours, legal_notice: 48 },
+        typeCap: { ...defaultRulesConfig.typeCap, legal_notice: 1 }
+      })
+    ).toThrow(/same keys|legal_notice|costs/);
+  });
+
+  it("rejects invalid action type slug in policy", () => {
+    expect(() =>
+      validateRulesConfig({
+        ...defaultRulesConfig,
+        cooldownHours: { ...defaultRulesConfig.cooldownHours, "Legal-Notice": 1 },
+        typeCap: { ...defaultRulesConfig.typeCap, "Legal-Notice": 1 },
+        costs: { ...defaultRulesConfig.costs, "Legal-Notice": 1 }
+      })
+    ).toThrow(/slug|invalid/i);
+  });
 });

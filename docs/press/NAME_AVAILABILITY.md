@@ -8,7 +8,7 @@ Checked during SoftStop OSS launch prep (Aug 2026). Re-verify before publishing 
 | Nearby names | `hardstop` (npm AI shell guard), `stoppable` (HTTP server) — different products |
 | Avoid | StackGuard, Agent Governor (Credo), Overpush, BudgetGuard / SpendGuard |
 | GitHub | Repo may remain `governor` historically; product brand SoftStop. Confirm `softstop` org/repo if renaming remote |
-| npm | Root package is private `softstop` in package.json; public `@softstop/*` not published yet |
+| npm | Public client package **`softstop@0.2.1`** is on the npm registry (`npm i softstop`). Root monorepo `package.json` remains **private**; publishable artifact is `packages/sdk-js`. Scoped `@softstop/*` packages are not a required install path. |
 | Domain | Check softstop.dev / softstop.io before announcing |
 
 This file is a checklist aid, not a trademark opinion.

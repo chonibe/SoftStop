@@ -10,8 +10,15 @@ import {
   mergeUserStates,
   tombstoneState
 } from "./rules/engine";
-import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
+import { defaultRulesConfig, GovernorRulesConfig, isPolicyActionType } from "./rules/config";
 import { OutcomeType } from "./types";
+
+const unknownActionTypeError = (actionType: string) => ({
+  status: 400 as const,
+  body: {
+    error: `actionType "${actionType}" is not defined in the loaded policy. Add it to costs, cooldownHours, and typeCap (same keys), or use a built-in type.`
+  }
+});
 
 function parseReportPeriod(from?: string, to?: string): { from: string; to: string } {
   const now = new Date();
@@ -139,6 +146,9 @@ export const handleCheck = async (
   }
 
   const { userId, actionType, surface, context, tenantId } = parsed.data;
+  if (!isPolicyActionType(rulesConfig, actionType)) {
+    return unknownActionTypeError(actionType);
+  }
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
@@ -222,6 +232,9 @@ export const handleRecord = async (
 
   const { decisionId, userId, tenantId, actionType, outcome, blockReason, signals, context } =
     parsed.data;
+  if (!isPolicyActionType(rulesConfig, actionType)) {
+    return unknownActionTypeError(actionType);
+  }
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();

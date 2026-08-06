@@ -122,17 +122,19 @@ describe("SoftStop.merge", () => {
   });
 
   it("POSTs /users/merge and returns body", async () => {
+    const body = {
+      ok: true,
+      alreadyMerged: false,
+      fromUserId: "ph:a",
+      toUserId: "sc:b",
+      pressure: 40
+    };
     const fetchMock = vi.fn(async () => ({
       ok: true,
       status: 200,
       statusText: "OK",
-      json: async () => ({
-        ok: true,
-        alreadyMerged: false,
-        fromUserId: "ph:a",
-        toUserId: "sc:b",
-        pressure: 40
-      })
+      text: async () => JSON.stringify(body),
+      json: async () => body
     }));
     vi.stubGlobal("fetch", fetchMock);
 

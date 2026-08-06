@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import request from "supertest";
 import { createApp } from "../api/src/app";
 import { MemoryStorage } from "../api/src/storage/memoryStorage";
+import { defaultRulesConfig } from "../api/src/rules/config";
 
 describe("Governor API", () => {
   it("returns allow/deny decision with pressure fields", async () => {
@@ -295,5 +296,49 @@ describe("Governor API", () => {
       toUserId: "sc:same"
     });
     expect(response.status).toBe(400);
+  });
+
+  it("rejects actionType not in the loaded policy", async () => {
+    const app = createApp(new MemoryStorage());
+    const response = await request(app).post("/v1/check").send({
+      userId: "user_custom",
+      actionType: "legal_notice"
+    });
+    expect(response.status).toBe(400);
+    expect(JSON.stringify(response.body)).toMatch(/legal_notice|actionType|policy/i);
+  });
+
+  it("allows a policy-defined custom actionType", async () => {
+    const rulesConfig = {
+      ...defaultRulesConfig,
+      cooldownHours: {
+        ...defaultRulesConfig.cooldownHours,
+        legal_notice: 48
+      },
+      typeCap: {
+        ...defaultRulesConfig.typeCap,
+        legal_notice: 1
+      },
+      costs: {
+        ...defaultRulesConfig.costs,
+        legal_notice: 20
+      }
+    };
+    const app = createApp(new MemoryStorage(), { rulesConfig });
+    const check = await request(app).post("/v1/check").send({
+      userId: "user_legal",
+      actionType: "legal_notice"
+    });
+    expect(check.status).toBe(200);
+    expect(check.body.allowed).toBe(true);
+    expect(check.body.cost).toBe(20);
+
+    const record = await request(app).post("/v1/record").send({
+      userId: "user_legal",
+      actionType: "legal_notice",
+      outcome: "executed",
+      decisionId: check.body.decisionId
+    });
+    expect(record.status).toBe(200);
   });
 });

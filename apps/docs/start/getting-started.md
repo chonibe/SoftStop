@@ -19,10 +19,12 @@ curl -X POST http://localhost:3000/v1/verify
 ## 2. Install the JS client
 
 ```bash
-npm i https://softstop.vercel.app/softstop.tgz
-# or: npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
+npm i softstop
 ```
 
+Alternates: `npm i https://softstop.vercel.app/softstop.tgz` or `npm i 'github:chonibe/SoftStop#path:packages/sdk-js'`.
+
+Self-host the SoftStop API for production (`pnpm dev` / Docker). The hosted site is demo + CDN, not a production SoftStop host.
 ## 3. Check, then record
 
 ```js
@@ -34,7 +36,7 @@ const ss = new SoftStop({
 
 const decision = await ss.check({
   userId: 'user_123',
-  actionType: 'urgency', // urgency | discount | interruption | reminder
+  actionType: 'urgency', // built-ins or policy-defined custom slugs
   surface: 'email'       // email | sms | push | in-app
 })
 

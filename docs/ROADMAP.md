@@ -33,3 +33,8 @@
 
 - Commercial control plane (SSO, SIEM, distributed caps, policy UI) — pull-triggered; see [commercial-strategy.md](commercial-strategy.md)
 - Experimental MCP extraction remains under [archive/mcp-gateway](../archive/mcp-gateway)
+- **Concurrent-allows hardening** — today `check` is read-only for pressure; state advances on `record`, so two simultaneous allows can both pass. Possible later: reserve-on-check or optimistic concurrency (design-partner demand only). Documented limitation: [apps/docs/api/errors.md](../apps/docs/api/errors.md)
+
+## Shipped after feedback (2026-08)
+
+- **Policy-defined custom action types** — built-ins required; extras via matching keys in `costs` / `cooldownHours` / `typeCap`. See [apps/docs/policies/action-types.md](../apps/docs/policies/action-types.md) and [design spec](superpowers/specs/2026-08-06-extensible-action-types-design.md).

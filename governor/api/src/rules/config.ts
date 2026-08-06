@@ -1,4 +1,4 @@
-import { ActionType } from "../types";
+import { ActionType, BuiltinActionType } from "../types";
 
 export interface GovernorRulesConfig {
   cooldownHours: Record<ActionType, number>;
@@ -14,7 +14,7 @@ export interface GovernorRulesConfig {
   costs: Record<ActionType, number>;
 }
 
-export const defaultPressureCosts: Record<ActionType, number> = {
+export const defaultPressureCosts: Record<BuiltinActionType, number> = {
   urgency: 40,
   discount: 30,
   interruption: 25,
@@ -41,3 +41,11 @@ export const defaultRulesConfig: GovernorRulesConfig = {
   decayPerHour: 8,
   costs: { ...defaultPressureCosts }
 };
+
+export const policyActionTypes = (config: GovernorRulesConfig): ActionType[] =>
+  Object.keys(config.costs);
+
+export const isPolicyActionType = (
+  config: GovernorRulesConfig,
+  actionType: string
+): boolean => Object.prototype.hasOwnProperty.call(config.costs, actionType);

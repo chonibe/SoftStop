@@ -49,6 +49,7 @@ Record the outcome of a `check` — including when the escalation never ran.
 
 ```js
 if (!decision.allowed) {
+  // decision.reason, decision.explanation — optional decision.suggestedActionType
   await ss.record({
     decisionId: decision.decisionId,
     userId,
@@ -62,8 +63,13 @@ if (!decision.allowed) {
 
 Skipping `record` after `check` creates **orphans**. See [orphan rate](/ops/orphan-rate).
 
+Use the exact `decisionId` from the preceding `check`. The server does not reject unknown ids — a mismatch still writes an outcome but breaks orphan pairing. See [Errors](/api/errors).
+
+Pressure and caps update here on `executed` / `downgraded` (not on `check`). Concurrent allows that both recorded `executed` can both land — see [check](/api/check) and [Errors](/api/errors#concurrent-allows-race).
+
 ## Next
 
 - [check](/api/check)
+- [Errors](/api/errors)
 - [verify](/api/verify)
 - [Adoption contract](/start/adoption-contract)

@@ -18,7 +18,7 @@ Preset files live in the repo under [`policies/`](https://github.com/chonibe/Sof
 
 ## Do not invent per-touchpoint rules
 
-Integrators map content → `actionType`. Tuning belongs in the policy JSON, not scattered if-statements in email/SMS/UI code.
+Integrators map content → `actionType` (built-ins or [policy-defined custom types](/policies/action-types)). Tuning belongs in the policy JSON, not scattered if-statements in email/SMS/UI code.
 
 ## Pages
 

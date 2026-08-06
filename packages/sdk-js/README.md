@@ -27,7 +27,7 @@ const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost
 
 const decision = await ss.check({
   userId: 'user_123',
-  actionType: 'urgency', // urgency | discount | interruption | reminder
+  actionType: 'urgency', // builtins + policy-defined custom slugs
   surface: 'email'
 })
 

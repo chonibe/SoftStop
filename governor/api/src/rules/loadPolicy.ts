@@ -5,7 +5,12 @@ import {
   defaultRulesConfig,
   GovernorRulesConfig
 } from "./config";
-import { ACTION_TYPES, ActionType } from "../types";
+import {
+  ACTION_TYPES,
+  ActionType,
+  BUILTIN_ACTION_TYPES,
+  isValidActionTypeSlug
+} from "../types";
 
 export const POLICY_PRESETS = ["default", "strict", "lenient", "anon-aggressive"] as const;
 export type PolicyPreset = (typeof POLICY_PRESETS)[number];
@@ -18,17 +23,65 @@ export interface LoadedPolicy {
 const isPositiveNumber = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= 0;
 
-const isActionRecord = (v: unknown): v is Record<ActionType, number> => {
-  if (!v || typeof v !== "object") return false;
-  const obj = v as Record<string, unknown>;
-  for (const key of ACTION_TYPES) {
-    if (!isPositiveNumber(obj[key])) return false;
+const sortedKeys = (obj: Record<string, unknown>): string[] =>
+  Object.keys(obj).sort();
+
+const parseActionNumberMap = (
+  field: string,
+  v: unknown
+): Record<ActionType, number> => {
+  if (!v || typeof v !== "object" || Array.isArray(v)) {
+    throw new Error(
+      `Policy.${field} must map action types to non-negative numbers`
+    );
   }
-  return true;
+  const obj = v as Record<string, unknown>;
+  const out: Record<ActionType, number> = {};
+
+  for (const key of Object.keys(obj)) {
+    if (!isValidActionTypeSlug(key)) {
+      throw new Error(
+        `Policy.${field} has invalid action type slug "${key}" (use lowercase letters, digits, underscores; e.g. legal_notice)`
+      );
+    }
+    if (!isPositiveNumber(obj[key])) {
+      throw new Error(
+        `Policy.${field}.${key} must be a non-negative number`
+      );
+    }
+    out[key] = obj[key];
+  }
+
+  for (const key of BUILTIN_ACTION_TYPES) {
+    if (!isPositiveNumber(out[key])) {
+      throw new Error(
+        `Policy.${field} must include built-in types ${ACTION_TYPES.join(", ")}`
+      );
+    }
+  }
+
+  return out;
+};
+
+const assertSameActionKeys = (
+  a: Record<ActionType, number>,
+  b: Record<ActionType, number>,
+  aName: string,
+  bName: string
+) => {
+  const ka = sortedKeys(a);
+  const kb = sortedKeys(b);
+  if (ka.length !== kb.length || ka.some((k, i) => k !== kb[i])) {
+    throw new Error(
+      `Policy.${aName} and Policy.${bName} must have the same keys (got ${aName}=[${ka.join(", ")}] vs ${bName}=[${kb.join(", ")}])`
+    );
+  }
 };
 
 /**
  * Validate a policy pack object. Throws with a clear message on failure.
+ * Built-in action types are required; additional types may be added if present
+ * in cooldownHours, typeCap, and costs with identical key sets.
  */
 export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
   if (!raw || typeof raw !== "object") {
@@ -36,16 +89,10 @@ export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
   }
   const obj = raw as Record<string, unknown>;
 
-  if (!isActionRecord(obj.cooldownHours)) {
-    throw new Error(
-      `Policy.cooldownHours must map ${ACTION_TYPES.join(", ")} to non-negative numbers`
-    );
-  }
-  if (!isActionRecord(obj.typeCap)) {
-    throw new Error(
-      `Policy.typeCap must map ${ACTION_TYPES.join(", ")} to non-negative numbers`
-    );
-  }
+  const cooldownHours = parseActionNumberMap("cooldownHours", obj.cooldownHours);
+  const typeCap = parseActionNumberMap("typeCap", obj.typeCap);
+  assertSameActionKeys(cooldownHours, typeCap, "cooldownHours", "typeCap");
+
   if (!isPositiveNumber(obj.globalCap)) {
     throw new Error("Policy.globalCap must be a non-negative number");
   }
@@ -72,19 +119,25 @@ export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
     throw new Error("Policy.decayPerHour must be a non-negative number");
   }
 
-  let costs: Record<ActionType, number> = { ...defaultPressureCosts };
-  if (obj.costs !== undefined) {
-    if (!isActionRecord(obj.costs)) {
+  let costs: Record<ActionType, number>;
+  if (obj.costs === undefined) {
+    const extra = Object.keys(cooldownHours).filter(
+      (k) => !(BUILTIN_ACTION_TYPES as readonly string[]).includes(k)
+    );
+    if (extra.length > 0) {
       throw new Error(
-        `Policy.costs must map ${ACTION_TYPES.join(", ")} to non-negative numbers`
+        `Policy.costs must define the same keys as cooldownHours/typeCap (missing costs for: ${extra.join(", ")})`
       );
     }
-    costs = { ...obj.costs };
+    costs = { ...defaultPressureCosts };
+  } else {
+    costs = parseActionNumberMap("costs", obj.costs);
+    assertSameActionKeys(cooldownHours, costs, "cooldownHours", "costs");
   }
 
   return {
-    cooldownHours: { ...obj.cooldownHours },
-    typeCap: { ...obj.typeCap },
+    cooldownHours: { ...cooldownHours },
+    typeCap: { ...typeCap },
     globalCap: obj.globalCap,
     windowHours: obj.windowHours,
     stackingWindowMinutes: obj.stackingWindowMinutes,

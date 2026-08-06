@@ -5,10 +5,12 @@ function mockFetchSequence(responses: unknown[]) {
   let i = 0;
   return vi.fn(async () => {
     const body = responses[i++] ?? { ok: true };
+    const text = JSON.stringify(body);
     return {
       ok: true,
       status: 200,
       statusText: "OK",
+      text: async () => text,
       json: async () => body
     };
   });

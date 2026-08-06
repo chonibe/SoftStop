@@ -1,7 +1,13 @@
 import { z } from "zod";
-import { ACTION_TYPES } from "./types";
+import { ACTION_TYPE_SLUG_RE } from "./types";
 
-export const actionTypeSchema = z.enum(ACTION_TYPES);
+export const actionTypeSchema = z
+  .string()
+  .min(1)
+  .regex(ACTION_TYPE_SLUG_RE, {
+    message:
+      "actionType must be a lowercase slug (e.g. urgency, legal_notice)"
+  });
 
 export const checkSchema = z.object({
   userId: z.string().min(1),

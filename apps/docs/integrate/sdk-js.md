@@ -5,6 +5,12 @@ Tiny JS/TS client for SoftStop.
 ## Install
 
 ```bash
+npm i softstop
+```
+
+Alternates:
+
+```bash
 npm i https://softstop.vercel.app/softstop.tgz
 # or from GitHub:
 npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
@@ -55,6 +61,8 @@ await ss.record({
 ```
 
 The client picks `/v1` on localhost and `/api` on hosted hosts.
+
+Non-2xx responses throw `SoftStopHttpError` (`status`, `body`, message includes API `error` text) — e.g. unknown `actionType` is a clear 400, not a soft block.
 
 ## Env
 

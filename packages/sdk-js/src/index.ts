@@ -1,5 +1,6 @@
 export type {
   ActionType,
+  BuiltinActionType,
   Surface,
   Outcome,
   SoftStopOptions,
@@ -21,6 +22,9 @@ import type {
   MergeRequest,
   MergeResponse
 } from "./types";
+
+import { readJsonOrThrow, SoftStopHttpError } from "./httpError";
+export { SoftStopHttpError } from "./httpError";
 
 /** @deprecated Prefer SoftStopOptions */
 export type GovernorClientOptions = SoftStopOptions;
@@ -75,10 +79,7 @@ export class SoftStop {
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error(`SoftStop check failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json() as Promise<CheckResponse>;
+    return readJsonOrThrow<CheckResponse>("check", response);
   }
 
   async record(payload: RecordRequest): Promise<{ ok?: boolean }> {
@@ -87,10 +88,7 @@ export class SoftStop {
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error(`SoftStop record failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json() as Promise<{ ok?: boolean }>;
+    return readJsonOrThrow<{ ok?: boolean }>("record", response);
   }
 
   async merge(payload: MergeRequest): Promise<MergeResponse> {
@@ -99,10 +97,7 @@ export class SoftStop {
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error(`SoftStop merge failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json() as Promise<MergeResponse>;
+    return readJsonOrThrow<MergeResponse>("merge", response);
   }
 
   async getPressure(
@@ -117,12 +112,7 @@ export class SoftStop {
         headers: this.headers()
       }
     );
-    if (!response.ok) {
-      throw new Error(
-        `SoftStop getPressure failed: ${response.status} ${response.statusText}`
-      );
-    }
-    return response.json() as Promise<PressureResponse>;
+    return readJsonOrThrow<PressureResponse>("getPressure", response);
   }
 
   async verify(): Promise<{ ok?: boolean; message?: string }> {
@@ -131,10 +121,7 @@ export class SoftStop {
       headers: this.headers(),
       body: JSON.stringify({})
     });
-    if (!response.ok) {
-      throw new Error(`SoftStop verify failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json() as Promise<{ ok?: boolean; message?: string }>;
+    return readJsonOrThrow<{ ok?: boolean; message?: string }>("verify", response);
   }
 
   async health(): Promise<Record<string, unknown>> {
@@ -142,10 +129,7 @@ export class SoftStop {
       method: "GET",
       headers: this.headers()
     });
-    if (!response.ok) {
-      throw new Error(`SoftStop health failed: ${response.status} ${response.statusText}`);
-    }
-    return response.json() as Promise<Record<string, unknown>>;
+    return readJsonOrThrow<Record<string, unknown>>("health", response);
   }
 
   /**

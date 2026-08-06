@@ -1,4 +1,21 @@
-export type ActionType = "urgency" | "discount" | "interruption" | "reminder";
+/**
+ * Built-in SoftStop action types (always present in every policy).
+ * Prefer these for autocomplete; custom policy slugs are also valid ActionTypes.
+ */
+export type BuiltinActionType =
+  | "urgency"
+  | "discount"
+  | "interruption"
+  | "reminder";
+
+/**
+ * Built-ins plus policy-defined custom slugs.
+ * `(string & {})` keeps autocomplete for builtins while allowing customs.
+ * Typos like `"urgnecy"` still type-check — the API rejects unknown types with HTTP 400
+ * (see SoftStopHttpError). Prefer BuiltinActionType literals in app code when possible.
+ */
+export type ActionType = BuiltinActionType | (string & {});
+
 export type Surface = "email" | "sms" | "push" | "in-app";
 export type Outcome = "executed" | "blocked" | "downgraded";
 
@@ -35,7 +52,7 @@ export interface PressureResponse {
   threshold: number;
   decayPerHour: number;
   updatedAt: string | null;
-  costs: Record<ActionType, number>;
+  costs: Record<string, number>;
 }
 
 export interface RecordRequest {

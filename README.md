@@ -31,8 +31,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0B0B0F?style=flat-square" alt="MIT" /></a>
   <a href="package.json"><img src="https://img.shields.io/badge/node-%3E%3D18-E8A317?style=flat-square" alt="Node 18+" /></a>
   <a href="docker-compose.yml"><img src="https://img.shields.io/badge/docker-compose-0B0B0F?style=flat-square" alt="Docker" /></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-0.2.0-E8A317?style=flat-square" alt="0.2.0" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-0.2.1-E8A317?style=flat-square" alt="0.2.1" /></a>
 </p>
+
+<p align="center"><em>Early open source — looking for design partners. Not a claim of wide production adoption.</em></p>
 
 ## What SoftStop is
 
@@ -69,6 +71,8 @@ Golden path (agent + email collision): [examples/agent-email-collision](examples
 npm i softstop
 ```
 
+Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
+
 ```js
 import { SoftStop } from 'softstop'
 
@@ -78,6 +82,7 @@ const decision = await ss.check({ userId: 'user_123', actionType: 'urgency', sur
 console.log(decision.pressure, decision.cost, decision.projectedPressure, decision.threshold)
 
 if (!decision.allowed) {
+  // decision.reason, decision.explanation — optional decision.suggestedActionType
   await ss.record({
     decisionId: decision.decisionId,
     userId: 'user_123',
@@ -120,6 +125,8 @@ Authorize only — SoftStop does not send email, pick offers, or write copy. Pre
 | `interruption` | Modal / popup | 25 | Checkout upsell, in-app dialog |
 | `reminder` | Soft nudge | 15 | Agent follow-up, badge |
 
+Custom types: add the same key to `costs`, `cooldownHours`, and `typeCap` in a policy file — see [action types](apps/docs/policies/action-types.md).
+
 Default threshold: **100**. Default decay: **8** points/hour.
 
 ## When to use
@@ -127,7 +134,7 @@ Default threshold: **100**. Default decay: **8** points/hour.
 - **Agents** — support/sales agents escalate humans without seeing other pressure
 - **Marketing + CRM** — lifecycle, promo, and win-back tools don’t share caps
 - **Product UI** — modals/banners fire while email/SMS are also pushing
-- **Not SoftStop** — you need a messaging platform, CDP, or MCP tool firewall
+- **Not SoftStop** — you need a messaging platform, CDP (identity/journey store), or MCP tool firewall. SoftStop only gates pressure; it does not replace a CDP.
 
 ## Adoption
 
@@ -136,7 +143,13 @@ SoftStop only protects users when every escalation touchpoint calls `check` and 
 - `POST /v1/verify` — integration smoke test
 - `GET /v1/health` — orphan rate, block rate, health score
 
-Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
+`orphanRate` measures `check`/`record` pairing on **observed** SoftStop traffic. Systems that never call SoftStop never appear in health — low orphan rate is not proof that every actor in the company is wired. Details: [Adoption contract](docs/ADOPTION_CONTRACT.md)
+
+## Legacy names
+
+Prefer SoftStop names (`SOFTSTOP_API_URL`, `SOFTSTOP_POLICY`, product docs under SoftStop). The HTTP engine still lives under `governor/`; `GOVERNOR_API_URL`, `GOVERNOR_POLICY`, and related aliases remain for backward compatibility. Do not remove them yet.
+
+Repo note: root [`tenet-policy.json`](tenet-policy.json) configures **contributor** boundary lint (`scripts/tenet-check.js`). It is **not** a SoftStop pressure policy — runtime packs live in [`policies/`](policies/).
 
 ## Examples
 
@@ -155,4 +168,6 @@ Start at the [docs hub](docs/README.md): concept, self-host, policy pack, integr
 
 ---
 
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Adopters](ADOPTERS.md) · [Press](docs/press/SOFTSTOP_PRESS_RELEASE.md) · [License](LICENSE)
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Adopters (invite)](ADOPTERS.md) · [License](LICENSE)
+
+Press drafts (not customer proof): [Press](docs/press/SOFTSTOP_PRESS_RELEASE.md)
