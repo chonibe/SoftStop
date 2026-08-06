@@ -1,15 +1,27 @@
-# Governor
+# SoftStop (API + rules engine)
 
-Governor is a control layer that prevents automated systems from over-pushing users. Before any escalation (urgent email, discount offer, popup, etc.), you ask Governor: **"Is this allowed right now?"**
+SoftStop is a tiny control layer that answers a single question before any system escalates pressure on a user: **is escalation allowed right now?** It stores a small per-user state (pressure score, cooldowns, caps) and applies deterministic rules (no ML). SoftStop rate-limits actors that contact humans — not the humans themselves.
 
-Governor checks per-user pressure history, enforces cooldowns, and blocks excessive escalations—no ML, just deterministic rules.
+For the public launch surface (local quickstart, Docker, adoption contract), see the [root README](../README.md).
+
+API paths stay `/v1/*` (local) and `/api/*` (hosted) for compatibility. Env: `SOFTSTOP_API_URL` or `GOVERNOR_API_URL`.
 
 ## Quick Start (5 Minutes)
+
+### 0. Run the API locally
+
+```bash
+pnpm install
+pnpm dev   # http://localhost:3000, in-memory storage
+```
 
 ### 1. Check Before Acting
 
 ```javascript
-const decision = await fetch('https://governer.vercel.app/api/check', {
+const base = process.env.GOVERNOR_API_URL || 'http://localhost:3000';
+const prefix = /localhost|127\.0\.0\.1/.test(new URL(base).hostname) ? '/v1' : '/api';
+
+const decision = await fetch(`${base}${prefix}/check`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -30,7 +42,7 @@ if (result.allowed) {
 ### 2. Record the Outcome
 
 ```javascript
-await fetch('https://governer.vercel.app/api/record', {
+await fetch(`${base}${prefix}/record`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -46,6 +58,17 @@ await fetch('https://governer.vercel.app/api/record', {
 ```
 
 **That's it.** Governor now tracks this user's pressure and will block future escalations if limits are exceeded.
+
+### Pilot CLI (from repo root)
+
+```bash
+npm run governor -- verify                    # Verify integration
+npm run governor -- health                    # Health metrics
+npm run governor -- check --userId u123       # Test check
+npm run governor -- test --userId u123        # Full check + record flow
+```
+
+Set `GOVERNOR_API_URL=http://localhost:3000` for local. Use `--tenantId` or `--apiKey` for multi-tenant.
 
 ## Integration Examples
 

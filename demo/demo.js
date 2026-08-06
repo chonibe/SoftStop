@@ -2,7 +2,7 @@
 const introModal = document.getElementById("introModal");
 const startExperience = document.getElementById("startExperience");
 const experienceConsole = document.getElementById("experienceConsole");
-const governorToggle = document.getElementById("governorToggle");
+const softstopToggle = document.getElementById("softstopToggle");
 const modeStatus = document.getElementById("modeStatus");
 const pressureFill = document.getElementById("pressureFill");
 const pressureValue = document.getElementById("pressureValue");
@@ -11,6 +11,12 @@ const totalBlockedEl = document.getElementById("totalBlocked");
 const notificationStack = document.getElementById("notificationStack");
 const acmeDashboard = document.getElementById("acmeDashboard");
 const shieldEffect = document.getElementById("shieldEffect");
+
+// Optional console demo (legacy). Main product story is demo/index.html (self-contained).
+if (!softstopToggle) {
+  // eslint-disable-next-line no-console
+  console.info("SoftStop: demo.js console widgets not on this page; use demo/index.html scroll story.");
+}
 
 // Session State
 let sessionAttempts = 0;
@@ -115,12 +121,12 @@ const attemptEscalation = async (nudgeType, actionType, source) => {
     if (!isExperienceActive) return;
     
     sessionAttempts++;
-    const isGovernorOn = governorToggle.checked;
+    const isSoftStopOn = softstopToggle.checked;
     
     let allowed = true;
-    let reason = "governor_disabled";
+    let reason = "softstop_disabled";
 
-    if (isGovernorOn) {
+    if (isSoftStopOn) {
         const decision = await callApi("/check", { userId, actionType });
         allowed = decision.allowed;
         reason = decision.reason;
@@ -185,18 +191,21 @@ window.addEventListener('scroll', () => {
         }
     });
 
-    // Auto-enable Governor at 80% scroll if it's off
-    if (scrollPercent > 0.8 && !governorToggle.checked) {
-        governorToggle.checked = true;
-        governorToggle.dispatchEvent(new Event('change'));
+    // Auto-enable SoftStop at 80% scroll if it's off
+    if (softstopToggle && scrollPercent > 0.8 && !softstopToggle.checked) {
+        softstopToggle.checked = true;
+        softstopToggle.dispatchEvent(new Event('change'));
         
         // Show shield wave
-        shieldEffect.classList.add('opacity-100');
-        setTimeout(() => shieldEffect.classList.remove('opacity-100'), 2000);
+        if (shieldEffect) {
+          shieldEffect.classList.add('opacity-100');
+          setTimeout(() => shieldEffect.classList.remove('opacity-100'), 2000);
+        }
     }
 });
 
 // Event Listeners
+if (startExperience && introModal && experienceConsole) {
 startExperience.addEventListener("click", () => {
     introModal.classList.add('opacity-0');
     setTimeout(() => {
@@ -205,19 +214,24 @@ startExperience.addEventListener("click", () => {
         isExperienceActive = true;
     }, 700);
 });
+}
 
-governorToggle.addEventListener("change", () => {
-    const isOn = governorToggle.checked;
-    modeStatus.textContent = isOn ? "Governor ENABLED" : "Governor OFF";
-    modeStatus.className = `text-xs font-black uppercase tracking-widest ${isOn ? 'text-accent-green' : 'text-accent-red'}`;
+if (softstopToggle) {
+softstopToggle.addEventListener("change", () => {
+    const isOn = softstopToggle.checked;
+    if (modeStatus) {
+      modeStatus.textContent = isOn ? "SoftStop ENABLED" : "SoftStop OFF";
+      modeStatus.className = `text-xs font-black uppercase tracking-widest ${isOn ? 'text-accent-green' : 'text-accent-red'}`;
+    }
     
     if (isOn) {
         // Clear chaos immediately
         updatePressure(-30);
-        document.getElementById('fakeViewers').classList.remove('opacity-100');
+        document.getElementById('fakeViewers')?.classList.remove('opacity-100');
         document.querySelectorAll('.active-nudge').forEach(el => el.classList.remove('active-nudge'));
     }
 });
+}
 
 // Initial Setup
-updatePressure(0);
+if (pressureFill) updatePressure(0);

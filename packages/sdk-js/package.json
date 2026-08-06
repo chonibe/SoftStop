@@ -1,0 +1,50 @@
+{
+  "name": "softstop",
+  "version": "0.2.1",
+  "description": "SoftStop JS/TS client — check before interrupting a human; beforeContact + wrapUserFacingTool for agents.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "prepack": "pnpm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chonibe/SoftStop.git",
+    "directory": "packages/sdk-js"
+  },
+  "homepage": "https://softstop.vercel.app",
+  "bugs": {
+    "url": "https://github.com/chonibe/SoftStop/issues"
+  },
+  "keywords": [
+    "softstop",
+    "governor",
+    "escalation",
+    "pressure",
+    "frequency-cap",
+    "cooldown",
+    "check-record",
+    "authorization"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

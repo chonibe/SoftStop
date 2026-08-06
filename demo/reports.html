@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governor | Reports</title>
+    <title>SoftStop | Reports</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,15 +48,19 @@
 <body class="bg-deep text-white min-h-screen">
     <div class="max-w-5xl mx-auto px-6 py-10">
         <header class="mb-10">
-            <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-accent transition-colors text-sm mb-4">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                Back to Demo
-            </a>
-            <div class="flex items-baseline gap-3">
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Governor Reports</h1>
-                <span class="text-xs text-slate-500 font-mono px-2 py-0.5 rounded bg-surface-2">Pilot dashboard</span>
+            <div class="flex flex-wrap items-center gap-3 text-sm mb-4">
+                <a href="index.html" class="inline-flex items-center gap-2 text-slate-400 hover:text-[#E8A317] transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Demo
+                </a>
+                <span class="text-slate-700">·</span>
+                <a href="console.html" class="text-[#E8A317] hover:text-[#c98a0f] transition-colors font-medium">Pressure Console</a>
             </div>
-            <p class="text-slate-500 mt-2">View integration health, metrics, and compliance reports</p>
+            <div class="flex items-baseline gap-3">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">SoftStop Reports</h1>
+                <span class="text-xs text-slate-500 font-mono px-2 py-0.5 rounded bg-surface-2">Audit / CSV</span>
+            </div>
+            <p class="text-slate-500 mt-2">Advanced health, decision log, and compliance exports. For live per-user pressure, use the <a href="console.html" class="text-[#E8A317] hover:underline">Pressure Console</a>.</p>
         </header>
 
         <section class="mb-8">

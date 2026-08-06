@@ -261,9 +261,10 @@ export class SupabaseStorage implements Storage {
     from: string,
     to: string,
     limit = 200,
-    tenantId = "default"
+    tenantId = "default",
+    userId?: string
   ): Promise<DecisionLogEntry[]> {
-    const { data, error } = await this.client
+    let query = this.client
       .from("governor_events")
       .select("id, created_at, user_id, action_type, event_type, decision_id, context")
       .eq("tenant_id", tenantId)
@@ -272,6 +273,12 @@ export class SupabaseStorage implements Storage {
       .lte("created_at", to)
       .order("created_at", { ascending: false })
       .limit(limit);
+
+    if (userId) {
+      query = query.eq("user_id", userId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(`Failed to fetch decision log: ${error.message}`);

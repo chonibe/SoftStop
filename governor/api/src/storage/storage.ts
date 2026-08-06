@@ -40,7 +40,13 @@ export interface Storage {
   getHealthMetrics?(periodHours?: number, tenantId?: string): Promise<HealthMetrics>;
   getOrphanedDecisionIds?(periodHours?: number, limit?: number, tenantId?: string): Promise<string[]>;
   getReportMetrics?(from: string, to: string, tenantId?: string): Promise<ReportMetrics>;
-  getDecisionLog?(from: string, to: string, limit?: number, tenantId?: string): Promise<DecisionLogEntry[]>;
+  getDecisionLog?(
+    from: string,
+    to: string,
+    limit?: number,
+    tenantId?: string,
+    userId?: string
+  ): Promise<DecisionLogEntry[]>;
   getTenantByApiKey?(key: string): Promise<string | null>;
   createApiKey?(tenantId: string, name?: string): Promise<{ key: string }>;
 }

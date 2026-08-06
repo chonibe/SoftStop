@@ -1,37 +1,33 @@
 {
-  "name": "governor-monorepo",
-  "version": "1.0.0",
+  "name": "softstop",
+  "version": "0.2.1",
   "private": true,
-  "description": "Governor - Central permission gate for escalation control",
+  "description": "SoftStop — every AI agent should ask permission before interrupting a human. Shared user pressure across agents and systems.",
   "packageManager": "pnpm@8.15.4",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "tsx governor/api/src/server.ts",
-    "build": "tsc",
+    "dev": "GOVERNOR_STORAGE=memory tsx governor/api/src/server.ts",
+    "start": "tsx governor/api/src/server.ts",
+    "build": "turbo build",
     "test": "vitest run",
+    "test:governor": "vitest run --config vitest.config.ts",
     "typecheck": "tsc --noEmit",
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
-    "dev:api": "turbo dev --filter=@governor/api",
-    "dev:demo": "turbo dev --filter=@governor/demo",
-    "build:packages": "turbo build --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
-    "test:packages": "turbo test --filter=@governor/core --filter=@governor/sdk --filter=@governor/api",
-    "deploy:staging": "turbo deploy --filter=@governor/api -- --env staging",
-    "deploy:production": "turbo deploy --filter=@governor/api -- --env production",
-    "db:migrate": "node scripts/run-migration.js",
-    "check:boundaries": "node scripts/check-boundaries.js",
-    "check:tenets": "node scripts/tenet-check.js --all",
-    "check:all": "npm run check:boundaries && npm run check:tenets",
-    "tenet-check": "node scripts/tenet-check.js --all",
-    "legacy:dev": "tsx governor/api/src/server.ts",
-    "legacy:test": "vitest run",
-    "build:game": "cd demo/slot-machine-temp && npm install && npm run build"
+    "governor": "node scripts/governor-cli.js",
+    "softstop": "node scripts/governor-cli.js",
+    "docs:dev": "pnpm --filter @softstop/docs dev",
+    "docs:build": "pnpm --filter @softstop/docs build",
+    "docs:preview": "pnpm --filter @softstop/docs preview",
+    "docs:smoke": "pnpm --filter @softstop/docs smoke"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "pg": "^8.18.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -52,14 +48,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/governor.git"
+    "url": "https://github.com/chonibe/SoftStop.git"
   },
   "keywords": [
+    "softstop",
     "governor",
-    "permission",
     "escalation",
-    "rate-limiting",
-    "cloudflare-workers"
+    "pressure",
+    "frequency-cap",
+    "cooldown",
+    "check-record",
+    "authorization",
+    "user-pressure"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "bin": {
+    "governor": "./scripts/governor-cli.js",
+    "softstop": "./scripts/governor-cli.js"
+  }
 }

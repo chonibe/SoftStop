@@ -1,0 +1,12 @@
+services:
+  softstop:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      GOVERNOR_STORAGE: memory
+      # SOFTSTOP_POLICY: strict
+    # Optional persistence:
+    # SUPABASE_URL: ${SUPABASE_URL}
+    # SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}

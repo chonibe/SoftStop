@@ -7,8 +7,26 @@ export const emptyState = (): GovernorUserState => ({
   cooldowns: {},
   lastActionAt: {},
   lastAnyEscalationAt: null,
-  windows: {}
+  windows: {},
+  pressure: 0,
+  pressureUpdatedAt: null
 });
+
+/** Apply linear decay from pressureUpdatedAt to now; floor at 0. */
+export const decayedPressure = (
+  state: GovernorUserState,
+  now: Date,
+  decayPerHour: number
+): number => {
+  const raw = typeof state.pressure === "number" ? state.pressure : 0;
+  if (raw <= 0) return 0;
+  if (!state.pressureUpdatedAt || decayPerHour <= 0) return raw;
+  const updatedAt = new Date(state.pressureUpdatedAt);
+  if (Number.isNaN(updatedAt.getTime())) return raw;
+  const hours = Math.max(0, (now.getTime() - updatedAt.getTime()) / 36e5);
+  const next = Math.max(0, raw - hours * decayPerHour);
+  return Math.round(next * 100) / 100;
+};
 
 const ensureWindow = (
   state: GovernorUserState,
@@ -54,15 +72,45 @@ const getWindowCount = (
   return state.windows[key].count;
 };
 
+const withPressureFields = (
+  decision: GovernorDecision,
+  pressure: number,
+  cost: number,
+  threshold: number
+): GovernorDecision => ({
+  ...decision,
+  pressure,
+  cost,
+  threshold,
+  projectedPressure: pressure + cost
+});
+
 export const evaluateCheck = (
   state: GovernorUserState,
   actionType: ActionType,
   now: Date,
   config: GovernorRulesConfig = defaultRulesConfig
 ): GovernorDecision => {
+  const pressure = decayedPressure(state, now, config.decayPerHour);
+  const cost = config.costs[actionType];
+  const threshold = config.threshold;
+  const attach = (d: GovernorDecision) =>
+    withPressureFields(d, pressure, cost, threshold);
+
+  if (pressure + cost > threshold) {
+    return attach({
+      allowed: false,
+      reason: "pressure_exceeded",
+      suggestedActionType:
+        actionType === "urgency" || actionType === "interruption"
+          ? "reminder"
+          : undefined
+    });
+  }
+
   const cooldownUntil = state.cooldowns[actionType];
   if (cooldownUntil && new Date(cooldownUntil) > now) {
-    return {
+    return attach({
       allowed: false,
       reason: "cooldown_active",
       cooldownUntil,
@@ -70,7 +118,7 @@ export const evaluateCheck = (
         actionType === "urgency" || actionType === "interruption"
           ? "reminder"
           : undefined
-    };
+    });
   }
 
   const typeCount = getWindowCount(
@@ -80,14 +128,14 @@ export const evaluateCheck = (
     now
   );
   if (typeCount >= config.typeCap[actionType]) {
-    return {
+    return attach({
       allowed: false,
       reason: "type_cap_reached",
       suggestedActionType:
         actionType === "urgency" || actionType === "interruption"
           ? "reminder"
           : undefined
-    };
+    });
   }
 
   const globalCount = getWindowCount(
@@ -97,10 +145,10 @@ export const evaluateCheck = (
     now
   );
   if (globalCount >= config.globalCap) {
-    return {
+    return attach({
       allowed: false,
       reason: "global_cap_reached"
-    };
+    });
   }
 
   if (state.lastAnyEscalationAt) {
@@ -110,15 +158,15 @@ export const evaluateCheck = (
       diffMinutes < config.stackingWindowMinutes &&
       (actionType === "urgency" || actionType === "interruption")
     ) {
-      return {
+      return attach({
         allowed: false,
         reason: "recent_escalation",
         suggestedActionType: "reminder"
-      };
+      });
     }
   }
 
-  return { allowed: true, reason: "allowed" };
+  return attach({ allowed: true, reason: "allowed" });
 };
 
 export const applyOutcome = (
@@ -145,6 +193,10 @@ export const applyOutcome = (
   }
 
   if (outcome === "executed" || outcome === "downgraded") {
+    const pressure = decayedPressure(state, now, config.decayPerHour);
+    const cost = config.costs[actionType];
+    next.pressure = pressure + cost;
+    next.pressureUpdatedAt = now.toISOString();
     next.lastAnyEscalationAt = now.toISOString();
     next.lastActionAt[actionType] = now.toISOString();
     incrementWindow(next, actionType, config.windowHours, now);
@@ -153,3 +205,74 @@ export const applyOutcome = (
 
   return next;
 };
+
+const maxIso = (a: string | null | undefined, b: string | null | undefined): string | null => {
+  if (!a) return b ?? null;
+  if (!b) return a;
+  return new Date(a) >= new Date(b) ? a : b;
+};
+
+/**
+ * Merge identity journals: sum decayed pressure (capped), max cooldowns,
+ * sum window counts (capped per type / global). Caller tombstones `from`.
+ */
+export const mergeUserStates = (
+  from: GovernorUserState,
+  to: GovernorUserState,
+  now: Date,
+  config: GovernorRulesConfig = defaultRulesConfig
+): GovernorUserState => {
+  const fromPressure = decayedPressure(from, now, config.decayPerHour);
+  const toPressure = decayedPressure(to, now, config.decayPerHour);
+  const pressure = Math.min(config.threshold, fromPressure + toPressure);
+
+  const cooldowns: Record<string, string | null> = { ...to.cooldowns };
+  for (const [key, value] of Object.entries(from.cooldowns ?? {})) {
+    cooldowns[key] = maxIso(cooldowns[key], value);
+  }
+
+  const lastActionAt: Record<string, string | null> = { ...to.lastActionAt };
+  for (const [key, value] of Object.entries(from.lastActionAt ?? {})) {
+    lastActionAt[key] = maxIso(lastActionAt[key], value);
+  }
+
+  const windows: GovernorUserState["windows"] = {};
+  const keys = new Set([
+    ...Object.keys(from.windows ?? {}),
+    ...Object.keys(to.windows ?? {}),
+    GLOBAL_KEY,
+    ...Object.keys(config.typeCap)
+  ]);
+  for (const key of keys) {
+    const fromWin = from.windows?.[key];
+    const toWin = to.windows?.[key];
+    if (!fromWin && !toWin) continue;
+    const windowStart =
+      maxIso(fromWin?.windowStart, toWin?.windowStart) ?? now.toISOString();
+    const rawCount = (fromWin?.count ?? 0) + (toWin?.count ?? 0);
+    const cap =
+      key === GLOBAL_KEY
+        ? config.globalCap
+        : (config.typeCap[key as ActionType] ?? rawCount);
+    windows[key] = {
+      windowStart,
+      count: Math.min(cap, rawCount)
+    };
+  }
+
+  return {
+    cooldowns,
+    lastActionAt,
+    lastAnyEscalationAt: maxIso(from.lastAnyEscalationAt, to.lastAnyEscalationAt),
+    windows,
+    pressure,
+    pressureUpdatedAt: now.toISOString(),
+    mergedInto: null
+  };
+};
+
+/** Empty journal pointing at the surviving identity after merge. */
+export const tombstoneState = (mergedInto: string): GovernorUserState => ({
+  ...emptyState(),
+  mergedInto
+});

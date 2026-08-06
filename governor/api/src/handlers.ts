@@ -1,9 +1,24 @@
 import { randomUUID } from "crypto";
 import { formatExplanation } from "./clarity";
-import { checkSchema, recordSchema } from "./schemas";
+import { checkSchema, recordSchema, mergeSchema } from "./schemas";
 import { Storage } from "./storage/storage";
-import { applyOutcome, emptyState, evaluateCheck } from "./rules/engine";
+import {
+  applyOutcome,
+  decayedPressure,
+  emptyState,
+  evaluateCheck,
+  mergeUserStates,
+  tombstoneState
+} from "./rules/engine";
+import { defaultRulesConfig, GovernorRulesConfig, isPolicyActionType } from "./rules/config";
 import { OutcomeType } from "./types";
+
+const unknownActionTypeError = (actionType: string) => ({
+  status: 400 as const,
+  body: {
+    error: `actionType "${actionType}" is not defined in the loaded policy. Add it to costs, cooldownHours, and typeCap (same keys), or use a built-in type.`
+  }
+});
 
 function parseReportPeriod(from?: string, to?: string): { from: string; to: string } {
   const now = new Date();
@@ -45,7 +60,8 @@ export const handleHealth = async (
 
 export const handleVerify = async (
   storage: Storage,
-  tenantId?: string
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ): Promise<{ status: number; body: unknown }> => {
   const tid = tenantId ?? DEFAULT_TENANT;
   const testUserId = `_gov_verify_${Date.now()}`;
@@ -53,7 +69,7 @@ export const handleVerify = async (
   const now = new Date();
 
   const state = (await storage.getUserState(testUserId, tid)) ?? emptyState();
-  const decision = evaluateCheck(state, "reminder", now);
+  const decision = evaluateCheck(state, "reminder", now, rulesConfig);
 
   if (!decision.allowed) {
     return {
@@ -80,7 +96,8 @@ export const handleVerify = async (
     "reminder",
     "executed",
     {},
-    now
+    now,
+    rulesConfig
   );
 
   await storage.insertEvent({
@@ -120,7 +137,8 @@ export const handleVerify = async (
 
 export const handleCheck = async (
   storage: Storage,
-  payload: unknown
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ) => {
   const parsed = checkSchema.safeParse(payload);
   if (!parsed.success) {
@@ -128,18 +146,31 @@ export const handleCheck = async (
   }
 
   const { userId, actionType, surface, context, tenantId } = parsed.data;
+  if (!isPolicyActionType(rulesConfig, actionType)) {
+    return unknownActionTypeError(actionType);
+  }
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
-  const decision = evaluateCheck(state, actionType, now);
+  const decision = evaluateCheck(state, actionType, now, rulesConfig);
   const decisionId = randomUUID();
+
+  const pressureContext = {
+    pressure: decision.pressure,
+    cost: decision.cost,
+    threshold: decision.threshold,
+    projectedPressure: decision.projectedPressure,
+    reason: decision.reason
+  };
 
   await storage.insertEvent({
     userId,
     actionType,
     eventType: "check",
     decisionId,
-    context: context ? { surface, ...context } : { surface },
+    context: context
+      ? { surface, ...context, ...pressureContext }
+      : { surface, ...pressureContext },
     tenantId: tid
   });
 
@@ -148,7 +179,11 @@ export const handleCheck = async (
     reason: decision.reason,
     decisionId,
     cooldownUntil: decision.cooldownUntil,
-    suggestedActionType: decision.suggestedActionType
+    suggestedActionType: decision.suggestedActionType,
+    pressure: decision.pressure,
+    cost: decision.cost,
+    threshold: decision.threshold,
+    projectedPressure: decision.projectedPressure
   };
   if (!decision.allowed) {
     body.explanation = formatExplanation(decision.reason, {
@@ -159,9 +194,36 @@ export const handleCheck = async (
   return { status: 200, body };
 };
 
+export const handleGetPressure = async (
+  storage: Storage,
+  userId: string,
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  if (!userId?.trim()) {
+    return { status: 400, body: { error: "userId required" } };
+  }
+  const tid = tenantId ?? DEFAULT_TENANT;
+  const now = new Date();
+  const state = (await storage.getUserState(userId.trim(), tid)) ?? emptyState();
+  const pressure = decayedPressure(state, now, rulesConfig.decayPerHour);
+  return {
+    status: 200,
+    body: {
+      userId: userId.trim(),
+      pressure,
+      threshold: rulesConfig.threshold,
+      decayPerHour: rulesConfig.decayPerHour,
+      updatedAt: state.pressureUpdatedAt ?? null,
+      costs: rulesConfig.costs
+    }
+  };
+};
+
 export const handleRecord = async (
   storage: Storage,
-  payload: unknown
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ) => {
   const parsed = recordSchema.safeParse(payload);
   if (!parsed.success) {
@@ -170,20 +232,37 @@ export const handleRecord = async (
 
   const { decisionId, userId, tenantId, actionType, outcome, blockReason, signals, context } =
     parsed.data;
+  if (!isPolicyActionType(rulesConfig, actionType)) {
+    return unknownActionTypeError(actionType);
+  }
   const tid = tenantId ?? DEFAULT_TENANT;
   const now = new Date();
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
+  const pressureBefore = decayedPressure(state, now, rulesConfig.decayPerHour);
+  const cost = rulesConfig.costs[actionType];
   const nextState = applyOutcome(
     state,
     actionType,
     outcome as OutcomeType,
     signals,
-    now
+    now,
+    rulesConfig
   );
 
   const eventContext: Record<string, unknown> = context ? { ...context, signals } : { signals };
   if (outcome === "blocked" && blockReason) {
     eventContext.blockReason = blockReason;
+  }
+  eventContext.pressure = pressureBefore;
+  eventContext.cost = cost;
+  eventContext.threshold = rulesConfig.threshold;
+  eventContext.projectedPressure = pressureBefore + cost;
+  if (outcome === "executed" || outcome === "downgraded") {
+    eventContext.pressureAfter =
+      typeof nextState.pressure === "number" ? nextState.pressure : pressureBefore + cost;
+  }
+  if (blockReason) {
+    eventContext.reason = blockReason;
   }
 
   await storage.insertEvent({
@@ -197,7 +276,96 @@ export const handleRecord = async (
 
   await storage.upsertUserState(userId, nextState, tid);
 
-  return { status: 200, body: { ok: true } };
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      pressure:
+        typeof nextState.pressure === "number"
+          ? decayedPressure(nextState, now, rulesConfig.decayPerHour)
+          : pressureBefore,
+      threshold: rulesConfig.threshold
+    }
+  };
+};
+
+export const handleMerge = async (
+  storage: Storage,
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  const parsed = mergeSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { status: 400, body: { error: parsed.error.flatten() } };
+  }
+
+  const fromUserId = parsed.data.fromUserId.trim();
+  const toUserId = parsed.data.toUserId.trim();
+  const tid = parsed.data.tenantId ?? DEFAULT_TENANT;
+
+  if (fromUserId === toUserId) {
+    return { status: 400, body: { error: "fromUserId and toUserId must differ" } };
+  }
+
+  const now = new Date();
+  const fromState = (await storage.getUserState(fromUserId, tid)) ?? emptyState();
+  const toState = (await storage.getUserState(toUserId, tid)) ?? emptyState();
+
+  if (fromState.mergedInto === toUserId) {
+    const pressure = decayedPressure(toState, now, rulesConfig.decayPerHour);
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        alreadyMerged: true,
+        fromUserId,
+        toUserId,
+        pressure,
+        threshold: rulesConfig.threshold
+      }
+    };
+  }
+
+  if (fromState.mergedInto && fromState.mergedInto !== toUserId) {
+    return {
+      status: 409,
+      body: {
+        error: "fromUserId already merged into a different user",
+        mergedInto: fromState.mergedInto
+      }
+    };
+  }
+
+  const merged = mergeUserStates(fromState, toState, now, rulesConfig);
+
+  await storage.upsertUserState(toUserId, merged, tid);
+  await storage.upsertUserState(fromUserId, tombstoneState(toUserId), tid);
+
+  await storage.insertEvent({
+    userId: toUserId,
+    actionType: "reminder",
+    eventType: "merged",
+    context: {
+      fromUserId,
+      toUserId,
+      pressure: merged.pressure ?? 0,
+      pressureAfter: merged.pressure ?? 0,
+      threshold: rulesConfig.threshold
+    },
+    tenantId: tid
+  });
+
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      alreadyMerged: false,
+      fromUserId,
+      toUserId,
+      pressure: merged.pressure ?? 0,
+      threshold: rulesConfig.threshold
+    }
+  };
 };
 
 export const handleReport = async (
@@ -296,7 +464,8 @@ export const handleDecisionLog = async (
   from?: string,
   to?: string,
   limit?: number,
-  tenantId?: string
+  tenantId?: string,
+  userId?: string
 ): Promise<{ status: number; body: unknown }> => {
   if (!storage.getDecisionLog) {
     return {
@@ -306,7 +475,13 @@ export const handleDecisionLog = async (
   }
   const { from: fromStr, to: toStr } = parseReportPeriod(from, to);
   const tid = tenantId ?? DEFAULT_TENANT;
-  const entries = await storage.getDecisionLog(fromStr, toStr, limit ?? 200, tid);
+  const entries = await storage.getDecisionLog(
+    fromStr,
+    toStr,
+    limit ?? 200,
+    tid,
+    userId
+  );
   const decisions = entries.map((e) => ({
     ...e,
     explanationPlain:
@@ -315,6 +490,78 @@ export const handleDecisionLog = async (
         : undefined
   }));
   return { status: 200, body: { ok: true, period: { from: fromStr, to: toStr }, decisions } };
+};
+
+export const handleGetActivity = async (
+  storage: Storage,
+  userId: string,
+  limit?: number,
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+): Promise<{ status: number; body: unknown }> => {
+  if (!userId?.trim()) {
+    return { status: 400, body: { error: "userId required" } };
+  }
+  const trimmed = userId.trim();
+  const pressureResult = await handleGetPressure(storage, trimmed, tenantId, rulesConfig);
+  if (pressureResult.status !== 200) {
+    return pressureResult;
+  }
+  const pressureBody = pressureResult.body as {
+    userId: string;
+    pressure: number;
+    threshold: number;
+    decayPerHour: number;
+    updatedAt: string | null;
+    costs: Record<string, number>;
+  };
+
+  const tid = tenantId ?? DEFAULT_TENANT;
+  const { from: fromStr, to: toStr } = parseReportPeriod(
+    new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    new Date().toISOString()
+  );
+
+  let events: Array<Record<string, unknown>> = [];
+  if (storage.getDecisionLog) {
+    const entries = await storage.getDecisionLog(
+      fromStr,
+      toStr,
+      limit ?? 50,
+      tid,
+      trimmed
+    );
+    events = entries.map((e) => {
+      const ctx = (e.context ?? {}) as Record<string, unknown>;
+      return {
+        createdAt: e.createdAt,
+        actionType: e.actionType,
+        eventType: e.eventType,
+        actor: typeof ctx.actor === "string" ? ctx.actor : null,
+        pressure: typeof ctx.pressure === "number" ? ctx.pressure : null,
+        cost: typeof ctx.cost === "number" ? ctx.cost : null,
+        projectedPressure:
+          typeof ctx.projectedPressure === "number" ? ctx.projectedPressure : null,
+        pressureAfter:
+          typeof ctx.pressureAfter === "number" ? ctx.pressureAfter : null,
+        blockReason: e.blockReason ?? null,
+        decisionId: e.decisionId ?? null
+      };
+    });
+  }
+
+  return {
+    status: 200,
+    body: {
+      userId: pressureBody.userId,
+      pressure: pressureBody.pressure,
+      threshold: pressureBody.threshold,
+      decayPerHour: pressureBody.decayPerHour,
+      costs: pressureBody.costs,
+      updatedAt: pressureBody.updatedAt,
+      events
+    }
+  };
 };
 
 interface InsightItem {

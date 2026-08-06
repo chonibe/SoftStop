@@ -1,5 +1,12 @@
 # Commit Log (Main)
 
+## Entry: Pilot CLI
+- [x] Added [scripts/governor-cli.js](../../../scripts/governor-cli.js): verify, health, check, record, test
+- [x] npm script `governor`: `npm run governor -- verify|health|check|record|test`
+- [x] Options: --userId, --actionType, --tenantId, --apiKey, --hours
+- [x] Env: GOVERNOR_API_URL (default https://governer.vercel.app)
+- [x] Docs: README.md, governor/README.md
+
 ## Entry: Reports "just open the page" UX
 - [x] Reports page: API key stored in localStorage on load from URL (?key= or #key=) or after successful report [demo/reports.html](../../../demo/reports.html)
 - [x] Auto-restore key from localStorage so pilots bookmark and open without re-pasting

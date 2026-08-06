@@ -1,0 +1,30 @@
+---
+description: When user says "add SoftStop" or "add Governor" - integrate SoftStop into escalation touchpoints
+alwaysApply: true
+---
+
+# SoftStop Integration
+
+When the user asks to **"add SoftStop"**, **"add Governor"**, **"integrate SoftStop"**, or **"add SoftStop to this project"**:
+
+Follow this checklist in order. Do not skip verify/health.
+
+## Checklist
+
+1. **Read** [docs/GOVERNOR_INTEGRATION_WORKFLOW.md](../../docs/GOVERNOR_INTEGRATION_WORKFLOW.md) and [docs/BEFORE_AFTER.md](../../docs/BEFORE_AFTER.md)
+2. **Confirm SoftStop is reachable** — prefer local `pnpm dev` (`http://localhost:3000`). Env: `SOFTSTOP_API_URL` or `GOVERNOR_API_URL`
+3. **Search** for escalation touchpoints: `sendEmail`, `sendSMS`, `showModal`, `popup`, `toast`, `resend`, `twilio`, `mailgun`, `push.send`, `createCampaign`
+4. **For each touchpoint** — `check()` before, `record()` after. Copy pattern from:
+   - Node: `examples/nodejs/` or `examples/sample-shop/`
+   - Python: `examples/python/`
+   - Browser: `examples/browser/`
+   - Agent escalating a human: `examples/agent-touchpoint/`
+5. **Map actionType**: `urgency` | `discount` | `interruption` | `reminder`
+6. **When blocked** — `record` with `outcome: "blocked"` and `blockReason` from check (never skip record)
+7. **Policy** — do not invent per-touchpoint rules. Server uses `policies/*.json` (`SOFTSTOP_POLICY=default|strict|lenient` or `SOFTSTOP_POLICY_FILE`)
+8. **Verify** — `POST .../verify` then `GET .../health`; **orphanRate must stay low** (&lt; 0.05). If only some paths are wired, say so — false confidence is worse than no SoftStop
+9. **Reference demo** — point humans at `examples/sample-shop` (`node index.js --mode=compare`) or `/demo`
+
+Product: **SoftStop** — shared permit before raising pressure on a user.
+
+API: `POST /check`, `POST /record` (local `/v1/...`, hosted `/api/...`). Hosted demo: https://softstop.vercel.app — prefer self-host for production.

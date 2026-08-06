@@ -1,0 +1,16 @@
+{
+  "name": "@governor/cli",
+  "version": "0.0.0",
+  "description": "CLI for Governor policy gateway workflows.",
+  "type": "module",
+  "bin": {
+    "governor": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@governor/storage",
+  "version": "0.0.0",
+  "description": "Storage interfaces and adapters for Governor.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@governor/core": "workspace:*",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}

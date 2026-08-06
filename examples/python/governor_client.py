@@ -20,10 +20,12 @@ class GovernorClient:
         Args:
             api_url: Governor API URL (defaults to env var or production URL)
         """
-        self.api_url = api_url or os.getenv(
+        self.api_url = (api_url or os.getenv(
             'GOVERNOR_API_URL',
-            'https://governer.vercel.app'
-        )
+            'http://localhost:3000'
+        )).rstrip('/')
+        host = self.api_url.split('://', 1)[-1].split('/', 1)[0]
+        self.prefix = '/v1' if host.startswith('localhost') or host.startswith('127.0.0.1') else '/api'
     
     def check(
         self,
@@ -65,7 +67,7 @@ class GovernorClient:
             payload['context'] = context
             
         response = requests.post(
-            f'{self.api_url}/api/check',
+            f'{self.api_url}{self.prefix}/check',
             json=payload,
             headers={'Content-Type': 'application/json'}
         )
@@ -120,7 +122,7 @@ class GovernorClient:
             payload['context'] = context
             
         response = requests.post(
-            f'{self.api_url}/api/record',
+            f'{self.api_url}{self.prefix}/record',
             json=payload,
             headers={'Content-Type': 'application/json'}
         )

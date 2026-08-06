@@ -10,7 +10,7 @@
 
 const https = require('https');
 
-const VERCEL_URL = 'https://governer.vercel.app';
+const VERCEL_URL = 'https://softstop.vercel.app';
 const REQUIRED_ENV_VARS = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
 
 console.log('🔍 Verifying Governor setup...\n');

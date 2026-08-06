@@ -1,19 +1,19 @@
 {
-  "name": "governor-nodejs-example",
+  "name": "softstop-nodejs-example",
   "version": "1.0.0",
-  "description": "Governor Node.js integration example",
+  "description": "SoftStop Node.js integration example",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "node index.js"
   },
   "dependencies": {
-    "node-fetch": "^2.7.0"
+    "softstop": "file:../../packages/sdk-js"
   },
   "keywords": [
-    "governor",
+    "softstop",
     "escalation",
     "pressure",
-    "rate-limiting"
+    "check-record"
   ]
 }

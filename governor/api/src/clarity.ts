@@ -9,7 +9,9 @@ export const REASON_PLAIN_LANGUAGE: Record<DecisionReason, string> = {
   global_cap_reached:
     "Maximum total escalations (4) in the last 24 hours.",
   recent_escalation:
-    "Another escalation occurred in the last 10 minutes; avoid stacking."
+    "Another escalation occurred in the last 10 minutes; avoid stacking.",
+  pressure_exceeded:
+    "User pressure would exceed the configured threshold for another contact."
 };
 
 export function formatExplanation(

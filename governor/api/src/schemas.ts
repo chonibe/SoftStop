@@ -1,7 +1,13 @@
 import { z } from "zod";
-import { ACTION_TYPES } from "./types";
+import { ACTION_TYPE_SLUG_RE } from "./types";
 
-export const actionTypeSchema = z.enum(ACTION_TYPES);
+export const actionTypeSchema = z
+  .string()
+  .min(1)
+  .regex(ACTION_TYPE_SLUG_RE, {
+    message:
+      "actionType must be a lowercase slug (e.g. urgency, legal_notice)"
+  });
 
 export const checkSchema = z.object({
   userId: z.string().min(1),
@@ -12,7 +18,13 @@ export const checkSchema = z.object({
 });
 
 const blockReasonSchema = z
-  .enum(["cooldown_active", "type_cap_reached", "global_cap_reached", "recent_escalation"])
+  .enum([
+    "cooldown_active",
+    "type_cap_reached",
+    "global_cap_reached",
+    "recent_escalation",
+    "pressure_exceeded"
+  ])
   .optional();
 
 export const recordSchema = z.object({
@@ -30,4 +42,10 @@ export const recordSchema = z.object({
     })
     .optional(),
   context: z.record(z.unknown()).optional()
+});
+
+export const mergeSchema = z.object({
+  fromUserId: z.string().min(1),
+  toUserId: z.string().min(1),
+  tenantId: z.string().min(1).optional()
 });

@@ -18,10 +18,16 @@
 class GovernorClient {
   /**
    * Initialize Governor client
-   * @param {string} apiUrl - Governor API URL (defaults to production)
+   * @param {string} apiUrl - Governor API URL (defaults to local self-host)
    */
-  constructor(apiUrl = 'https://governer.vercel.app') {
-    this.apiUrl = apiUrl;
+  constructor(apiUrl = (typeof window !== 'undefined' && window.GOVERNOR_API_URL) || 'http://localhost:3000') {
+    this.apiUrl = String(apiUrl).replace(/\/$/, '');
+    try {
+      const host = new URL(this.apiUrl).hostname;
+      this.prefix = /localhost|127\.0\.0\.1/.test(host) ? '/v1' : '/api';
+    } catch {
+      this.prefix = '/v1';
+    }
   }
 
   /**
@@ -48,7 +54,7 @@ class GovernorClient {
    */
   async check({ userId, actionType, surface, context = {} }) {
     try {
-      const response = await fetch(`${this.apiUrl}/api/check`, {
+      const response = await fetch(`${this.apiUrl}${this.prefix}/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,7 +112,7 @@ class GovernorClient {
     }
 
     try {
-      const response = await fetch(`${this.apiUrl}/api/record`, {
+      const response = await fetch(`${this.apiUrl}${this.prefix}/record`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -371,3 +377,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { GovernorClient };
 }
+
+
+// SoftStop SDK alias — prefer examples/browser/softstop.js or https://softstop.vercel.app/sdk.js
+var SoftStop = GovernorClient;
+if (typeof window !== "undefined") window.SoftStop = SoftStop;

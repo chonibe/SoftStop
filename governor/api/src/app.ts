@@ -4,33 +4,49 @@ import { createClient } from "@supabase/supabase-js";
 import { Storage } from "./storage/storage";
 import { env } from "./env";
 import { resolveTenantId } from "./keys";
+import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import {
   handleCheck,
   handleRecord,
+  handleMerge,
   handleHealth,
   handleVerify,
   handleReport,
   handleAuditReport,
   handleDecisionLog,
-  handleInsights
+  handleInsights,
+  handleGetPressure,
+  handleGetActivity
 } from "./handlers";
 
-export const createApp = (storage: Storage) => {
-  const app = express();
-  app.use(cors());
-  app.use(express.json());
+export interface CreateAppOptions {
+  rulesConfig?: GovernorRulesConfig;
+  policySource?: string;
+}
 
-  app.post("/v1/check", async (req, res) => {
-    const result = await handleCheck(storage, req.body);
+const mountRoutes = (
+  app: express.Express,
+  storage: Storage,
+  prefix: "/v1" | "/api",
+  rulesConfig: GovernorRulesConfig,
+  policySource: string
+) => {
+  app.post(`${prefix}/check`, async (req, res) => {
+    const result = await handleCheck(storage, req.body, rulesConfig);
     return res.status(result.status).json(result.body);
   });
 
-  app.post("/v1/record", async (req, res) => {
-    const result = await handleRecord(storage, req.body);
+  app.post(`${prefix}/record`, async (req, res) => {
+    const result = await handleRecord(storage, req.body, rulesConfig);
     return res.status(result.status).json(result.body);
   });
 
-  app.get("/v1/health", async (req, res) => {
+  app.post(`${prefix}/users/merge`, async (req, res) => {
+    const result = await handleMerge(storage, req.body, rulesConfig);
+    return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/health`, async (req, res) => {
     const periodHours = req.query.periodHours
       ? parseInt(String(req.query.periodHours), 10)
       : undefined;
@@ -39,11 +55,55 @@ export const createApp = (storage: Storage) => {
     return res.status(result.status).json(result.body);
   });
 
-  app.post("/v1/verify", async (req, res) => {
+  app.post(`${prefix}/verify`, async (req, res) => {
     const tenantId = await resolveTenantId(storage, req, "body");
-    const result = await handleVerify(storage, tenantId);
+    const result = await handleVerify(storage, tenantId, rulesConfig);
     return res.status(result.status).json(result.body);
   });
+
+  app.get(`${prefix}/users/:userId/pressure`, async (req, res) => {
+    const tenantId = await resolveTenantId(storage, req, "query");
+    const result = await handleGetPressure(
+      storage,
+      String(req.params.userId ?? ""),
+      tenantId,
+      rulesConfig
+    );
+    return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/users/:userId/activity`, async (req, res) => {
+    const tenantId = await resolveTenantId(storage, req, "query");
+    const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+    const result = await handleGetActivity(
+      storage,
+      String(req.params.userId ?? ""),
+      limit,
+      tenantId,
+      rulesConfig
+    );
+    return res.status(result.status).json(result.body);
+  });
+
+  app.get(`${prefix}/policy`, (_req, res) => {
+    return res.status(200).json({
+      ok: true,
+      source: policySource,
+      policy: rulesConfig
+    });
+  });
+};
+
+export const createApp = (storage: Storage, options: CreateAppOptions = {}) => {
+  const rulesConfig = options.rulesConfig ?? defaultRulesConfig;
+  const policySource = options.policySource ?? "builtin:defaultRulesConfig";
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+
+  // Local and self-host use /v1; hosted demo and some examples use /api.
+  mountRoutes(app, storage, "/v1", rulesConfig, policySource);
+  mountRoutes(app, storage, "/api", rulesConfig, policySource);
 
   app.get("/v1/report", async (req, res) => {
     const from = req.query.from ? String(req.query.from) : undefined;
@@ -72,8 +132,9 @@ export const createApp = (storage: Storage) => {
     const from = req.query.from ? String(req.query.from) : undefined;
     const to = req.query.to ? String(req.query.to) : undefined;
     const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+    const userId = req.query.userId ? String(req.query.userId) : undefined;
     const tenantId = await resolveTenantId(storage, req, "query");
-    const result = await handleDecisionLog(storage, from, to, limit, tenantId);
+    const result = await handleDecisionLog(storage, from, to, limit, tenantId, userId);
     return res.status(result.status).json(result.body);
   });
 
