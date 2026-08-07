@@ -509,28 +509,41 @@ describe.skipIf(!pgEnabled)("Postgres RPC contention", () => {
     ).toBe("reserved");
   });
 
-  it("first-row race: parallel reserves with no prior user row → exactly one winner", async () => {
-    const uid = "pg_first_row";
+  it("empty-row concurrency: 32 parallel check_and_reserve with no governor_user_state row → exactly one winner", async () => {
+    // Unlike the versioned contention test above, do NOT re-insert state —
+    // advisory lock must serialize first-row INSERT under a true empty start.
+    const uid = "pg_empty_row";
+    const cost = 40;
+    const threshold = 100;
     psql(
       `DELETE FROM softstop_decisions WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)};
        DELETE FROM governor_events WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)};
        DELETE FROM governor_user_state WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)};`
     );
+    const rowCountBefore = Number(
+      psql(
+        `SELECT count(*) FROM governor_user_state
+         WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)}`
+      )
+    );
+    expect(rowCountBefore).toBe(0);
 
-    const n = 24;
+    const n = 32;
     const expiresAt = new Date(Date.now() + 60_000).toISOString();
     const sqls = Array.from({ length: n }, () => {
       const decisionId = randomUUID();
       const nextState = {
         ...emptyState(),
-        reserves: [{ decisionId, actionType: "urgency", cost: 40, expiresAt }],
+        pressure: 0,
+        pressureUpdatedAt: new Date().toISOString(),
+        reserves: [{ decisionId, actionType: "urgency", cost, expiresAt }],
         stateVersion: 1
       };
       return `SELECT softstop_check_and_reserve(
         ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
         'urgency', 0,
         ${sqlLit(JSON.stringify(nextState))}::jsonb, '{}'::jsonb,
-        ${sqlLit(expiresAt)}::timestamptz, 40
+        ${sqlLit(expiresAt)}::timestamptz, ${cost}
       )::text;`;
     });
 
@@ -558,17 +571,35 @@ describe.skipIf(!pgEnabled)("Postgres RPC contention", () => {
           })
       )
     );
-    const oks = results
-      .map((r) => JSON.parse(r) as { ok: boolean })
-      .filter((p) => p.ok);
+
+    const parsed = results.map((r) => JSON.parse(r) as { ok: boolean; error?: string });
+    const oks = parsed.filter((p) => p.ok);
+    const conflicts = parsed.filter((p) => !p.ok && p.error === "conflict");
     expect(oks.length).toBe(1);
-    const reserved = Number(
+    expect(conflicts.length).toBe(n - 1);
+
+    const stateRaw = psql(
+      `SELECT state::text FROM governor_user_state
+       WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)}`
+    );
+    const state = JSON.parse(stateRaw) as {
+      stateVersion: number;
+      reserves?: { cost: number }[];
+      pressure?: number;
+    };
+    expect(state.stateVersion).toBe(1);
+    expect(state.reserves?.length).toBe(1);
+    expect((state.pressure ?? 0) + (state.reserves?.[0]?.cost ?? 0)).toBeLessThanOrEqual(
+      threshold
+    );
+
+    const decisionCount = Number(
       psql(
         `SELECT count(*) FROM softstop_decisions
          WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)} AND status='reserved'`
       )
     );
-    expect(reserved).toBe(1);
+    expect(decisionCount).toBe(1);
   });
 });
 
