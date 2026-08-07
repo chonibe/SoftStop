@@ -43,5 +43,7 @@ Returns decayed pressure, threshold, decay rate, and server-owned costs.
 ## Integration pattern
 Any escalation engine calls `check` before acting. If denied, it skips or downgrades. After an action resolves, it calls `record` with outcome and signals (dismissed, ignored, hesitated).
 
+For the enterprise adoption narrative (multi-system diagram, identity, scoped keys, staged rollout), see the docs page [How a company uses SoftStop](../apps/docs/start/how-a-company-uses-softstop.md).
+
 ## Demo behavior
 See [examples/agent-email-collision](../examples/agent-email-collision) and the live scroll demo.

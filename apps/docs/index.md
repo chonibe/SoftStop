@@ -70,6 +70,12 @@ When blocked, still call `record` with `outcome: "blocked"`. Skipping record cre
 
 <ul class="ss-start-list">
   <li>
+    <a href="/start/how-a-company-uses-softstop">
+      How a company uses SoftStop
+      <span>Shared permit across CRM, marketing, product, and agents.</span>
+    </a>
+  </li>
+  <li>
     <a href="/start/getting-started">
       Getting started
       <span>Install, first check/record, verify.</span>

@@ -11,6 +11,7 @@ const sidebar = [
     collapsed: false,
     items: [
       { text: 'Concept', link: '/start/concept' },
+      { text: 'How a company uses SoftStop', link: '/start/how-a-company-uses-softstop' },
       { text: 'Governing AI agents', link: '/start/governing-ai-agents' },
       { text: 'Getting started', link: '/start/getting-started' },
       { text: 'Adoption contract', link: '/start/adoption-contract' }

@@ -45,7 +45,7 @@
 - **Multi-agent collision prevention** — shared per-user permit across Onboarding / Sales / Support (and email / SMS / UI) on separate runtimes.
 - **Graceful fallbacks** — when blocked, `suggestedActionType` steers the next move (e.g. interruption → reminder) instead of crash or retry loops.
 
-Authorize only — SoftStop is not a CDP, not a messenger, not tool IAM. See [Governing AI Agents](apps/docs/start/governing-ai-agents.md).
+Authorize only — SoftStop is not a CDP, not a messenger, not tool IAM. See [Governing AI Agents](apps/docs/start/governing-ai-agents.md) and [How a company uses SoftStop](apps/docs/start/how-a-company-uses-softstop.md).
 
 ## What SoftStop is
 

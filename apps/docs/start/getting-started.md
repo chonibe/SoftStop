@@ -87,6 +87,7 @@ Env: prefer `SOFTSTOP_API_URL`; `GOVERNOR_API_URL` still works.
 
 ## Next
 
+- [How a company uses SoftStop](/start/how-a-company-uses-softstop)
 - [Integration workflow](/integrate/workflow)
 - [Self-host](/self-host/)
 - [API — check](/api/check)

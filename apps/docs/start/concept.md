@@ -42,6 +42,7 @@ Local paths use `/v1/*`. Hosted demo paths use `/api/*`. Prefer self-host for pr
 
 ## Next
 
+- [How a company uses SoftStop](/start/how-a-company-uses-softstop)
 - [Governing AI agents](/start/governing-ai-agents)
 - [Getting started](/start/getting-started)
 - [Adoption contract](/start/adoption-contract)

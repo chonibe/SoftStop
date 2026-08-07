@@ -41,6 +41,7 @@ If only some paths are wired, say so — false confidence is worse than no SoftS
 
 ## Next
 
+- [How a company uses SoftStop](/start/how-a-company-uses-softstop)
 - [Orphan rate](/ops/orphan-rate)
 - [Integration workflow](/integrate/workflow)
 - [health API](/api/health)
