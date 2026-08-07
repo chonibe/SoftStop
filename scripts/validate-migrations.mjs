@@ -18,7 +18,8 @@ const required = [
   "003_tenants.sql",
   "004_api_keys.sql",
   "005_decision_lifecycle_and_scopes.sql",
-  "006_advisory_lock_release_and_decision_binding.sql"
+  "006_advisory_lock_release_and_decision_binding.sql",
+  "007_unknown_decision_and_release.sql"
 ];
 
 if (!fs.existsSync(migrationsDir)) {
@@ -64,6 +65,18 @@ for (const file of files.sort()) {
   }
   if (file.startsWith("006") && !sql.includes("decision_mismatch")) {
     console.error("006 must reject decision_mismatch");
+    process.exit(1);
+  }
+  if (file.startsWith("007") && !sql.includes("unknown_decision")) {
+    console.error("007 must reject unknown_decision");
+    process.exit(1);
+  }
+  if (file.startsWith("007") && !sql.includes("softstop_release_decision")) {
+    console.error("007 must define softstop_release_decision");
+    process.exit(1);
+  }
+  if (file.startsWith("007") && !sql.includes("softstop_ping")) {
+    console.error("007 must define softstop_ping");
     process.exit(1);
   }
   console.log("ok", file, `(${sql.length} bytes)`);

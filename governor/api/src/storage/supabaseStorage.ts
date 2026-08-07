@@ -263,7 +263,7 @@ export class SupabaseStorage implements Storage {
   > {
     const periodStart = new Date(Date.now() - periodHours * 60 * 60 * 1000).toISOString();
 
-    const { data: checks } = await this.client
+    const checksRes = await this.client
       .from("governor_events")
       .select("decision_id, user_id, action_type, created_at")
       .eq("tenant_id", tenantId)
@@ -272,15 +272,23 @@ export class SupabaseStorage implements Storage {
       .gte("created_at", periodStart)
       .limit(limit * 2);
 
-    const { data: outcomes } = await this.client
+    if (checksRes.error) {
+      throw new Error(`Orphan checks query failed: ${checksRes.error.message}`);
+    }
+
+    const outcomesRes = await this.client
       .from("governor_events")
       .select("decision_id")
       .eq("tenant_id", tenantId)
       .in("event_type", ["executed", "blocked", "downgraded", "released"])
       .gte("created_at", periodStart);
 
+    if (outcomesRes.error) {
+      throw new Error(`Orphan outcomes query failed: ${outcomesRes.error.message}`);
+    }
+
     const outcomeIds = new Set(
-      (outcomes ?? []).map((o: { decision_id: string }) => o.decision_id)
+      (outcomesRes.data ?? []).map((o: { decision_id: string }) => o.decision_id)
     );
 
     const orphaned: {
@@ -289,7 +297,7 @@ export class SupabaseStorage implements Storage {
       actionType: string;
       createdAt: string;
     }[] = [];
-    for (const c of checks ?? []) {
+    for (const c of checksRes.data ?? []) {
       const row = c as {
         decision_id: string;
         user_id: string;
@@ -353,6 +361,13 @@ export class SupabaseStorage implements Storage {
         .lte("created_at", to),
       this.getOrphanedDecisionIdsInRange(from, to, 5000, tenantId)
     ]);
+
+    if (checksRes.error) {
+      throw new Error(`Report checks query failed: ${checksRes.error.message}`);
+    }
+    if (outcomesRes.error) {
+      throw new Error(`Report outcomes query failed: ${outcomesRes.error.message}`);
+    }
 
     const totalChecks = (checksRes as { count?: number }).count ?? 0;
     const outcomes = (outcomesRes as { data?: { event_type: string; action_type: string; context?: { blockReason?: string } }[] }).data ?? [];
@@ -445,7 +460,7 @@ export class SupabaseStorage implements Storage {
     limit: number,
     tenantId = "default"
   ): Promise<string[]> {
-    const { data: checks } = await this.client
+    const checksRes = await this.client
       .from("governor_events")
       .select("decision_id")
       .eq("tenant_id", tenantId)
@@ -455,7 +470,11 @@ export class SupabaseStorage implements Storage {
       .lte("created_at", to)
       .limit(limit * 2);
 
-    const { data: outcomes } = await this.client
+    if (checksRes.error) {
+      throw new Error(`Orphan range checks query failed: ${checksRes.error.message}`);
+    }
+
+    const outcomesRes = await this.client
       .from("governor_events")
       .select("decision_id")
       .eq("tenant_id", tenantId)
@@ -463,11 +482,15 @@ export class SupabaseStorage implements Storage {
       .gte("created_at", from)
       .lte("created_at", to);
 
+    if (outcomesRes.error) {
+      throw new Error(`Orphan range outcomes query failed: ${outcomesRes.error.message}`);
+    }
+
     const checkIds = new Set(
-      (checks ?? []).map((c: { decision_id: string }) => c.decision_id).filter(Boolean)
+      (checksRes.data ?? []).map((c: { decision_id: string }) => c.decision_id).filter(Boolean)
     );
     const outcomeIds = new Set(
-      (outcomes ?? []).map((o: { decision_id: string }) => o.decision_id)
+      (outcomesRes.data ?? []).map((o: { decision_id: string }) => o.decision_id)
     );
 
     const orphaned: string[] = [];
@@ -578,6 +601,13 @@ export class SupabaseStorage implements Storage {
   async recordDecisionAtomic(
     input: import("./storage").AtomicRecordInput
   ): Promise<import("./storage").AtomicResult> {
+    const allowUnknown =
+      input.allowUnknown === true ||
+      ["1", "true", "yes", "on"].includes(
+        String(process.env.SOFTSTOP_UNSAFE_ALLOW_UNKNOWN_DECISION ?? "")
+          .trim()
+          .toLowerCase()
+      );
     const { data, error } = await this.client.rpc("softstop_record_decision", {
       p_tenant_id: input.tenantId,
       p_user_id: input.userId,
@@ -586,7 +616,8 @@ export class SupabaseStorage implements Storage {
       p_outcome: input.outcome,
       p_expected_version: input.expectedVersion,
       p_next_state: input.nextState,
-      p_event_context: input.eventContext
+      p_event_context: input.eventContext,
+      p_allow_unknown: allowUnknown
     });
     if (error) {
       throw new Error(`record_decision RPC failed: ${error.message}`);
@@ -609,6 +640,109 @@ export class SupabaseStorage implements Storage {
       idempotent: row.idempotent,
       status: row.status
     };
+  }
+
+  async releaseDecisionAtomic(
+    input: import("./storage").AtomicReleaseInput
+  ): Promise<import("./storage").AtomicResult> {
+    const { data, error } = await this.client.rpc("softstop_release_decision", {
+      p_tenant_id: input.tenantId,
+      p_user_id: input.userId,
+      p_decision_id: input.decisionId,
+      p_expected_version: input.expectedVersion,
+      p_next_state: input.nextState,
+      p_event_context: input.eventContext
+    });
+    if (error) {
+      throw new Error(`release_decision RPC failed: ${error.message}`);
+    }
+    const row = data as {
+      ok?: boolean;
+      error?: string;
+      status?: string;
+      idempotent?: boolean;
+    };
+    if (!row?.ok) {
+      return {
+        ok: false,
+        error: row?.error ?? "conflict",
+        status: row?.status
+      };
+    }
+    return {
+      ok: true,
+      idempotent: row.idempotent,
+      status: row.status
+    };
+  }
+
+  async getDecision(
+    decisionId: string
+  ): Promise<import("./storage").DecisionRecord | null> {
+    const { data, error } = await this.client
+      .from("softstop_decisions")
+      .select("decision_id, tenant_id, user_id, action_type, status, cost, reserve_expires_at")
+      .eq("decision_id", decisionId)
+      .maybeSingle();
+    if (error) {
+      throw new Error(`Failed to read decision: ${error.message}`);
+    }
+    if (!data) return null;
+    return {
+      decisionId: data.decision_id as string,
+      tenantId: data.tenant_id as string,
+      userId: data.user_id as string,
+      actionType: data.action_type as string,
+      status: data.status as import("./storage").DecisionStatus,
+      cost: typeof data.cost === "number" ? data.cost : undefined,
+      reserveExpiresAt: data.reserve_expires_at
+        ? String(data.reserve_expires_at)
+        : undefined
+    };
+  }
+
+  async openDecision(input: {
+    tenantId: string;
+    userId: string;
+    decisionId: string;
+    actionType: string;
+    cost?: number;
+    reserveExpiresAt?: string | null;
+  }): Promise<void> {
+    const { error } = await this.client.from("softstop_decisions").upsert(
+      {
+        decision_id: input.decisionId,
+        tenant_id: input.tenantId,
+        user_id: input.userId,
+        action_type: input.actionType,
+        status: "reserved",
+        cost: input.cost ?? null,
+        reserve_expires_at: input.reserveExpiresAt ?? null
+      },
+      { onConflict: "decision_id", ignoreDuplicates: true }
+    );
+    if (error) {
+      throw new Error(`Failed to open decision: ${error.message}`);
+    }
+  }
+
+  async ping(): Promise<void> {
+    const { data, error } = await this.client.rpc("softstop_ping");
+    if (error) {
+      // Fallback: cheap table probe if softstop_ping not yet migrated.
+      const probe = await this.client
+        .from("governor_user_state")
+        .select("tenant_id")
+        .limit(1);
+      if (probe.error) {
+        throw new Error(`Storage ping failed: ${error.message}`);
+      }
+      return;
+    }
+    const row = data as { ok?: boolean } | null;
+    if (row && row.ok === false) {
+      throw new Error("Storage ping returned not ok");
+    }
   }
 
   async mergeUsersAtomic(

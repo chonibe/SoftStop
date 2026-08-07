@@ -8,9 +8,11 @@ Canonical security guidance: [SECURITY.md](../SECURITY.md) and [ADOPTION_CONTRAC
 
 - Put SoftStop on the required path for every user-facing escalation.
 - Prefer self-host; treat hosted demo as evaluation-only.
-- Record decisions and outcomes (`check` + `record`).
+- Record decisions and outcomes (`check` + `record`). Never invent `decisionId`s on `/record` (rejected as `unknown_decision` unless explicitly unsafe).
 - Store minimal context (no raw message bodies or secrets).
 - Use tenant-scoped keys for hosted or shared deployments.
+- Keep browser CORS locked down (`SOFTSTOP_CORS_ORIGINS` unset by default); demos may set `*`.
+- Protect `/v1/policy` with `read:audit` — full policy is not a public surface.
 - Monitor orphan rate via `health` so partial adoption cannot create false confidence.
 
 ## Non-Goals

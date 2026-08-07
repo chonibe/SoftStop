@@ -53,6 +53,27 @@ export interface AtomicRecordInput {
   expectedVersion: number;
   nextState: GovernorUserState;
   eventContext: Record<string, unknown>;
+  /** Unsafe: allow inventing a terminal without a prior check row. */
+  allowUnknown?: boolean;
+}
+
+export interface AtomicReleaseInput {
+  tenantId: string;
+  userId: string;
+  decisionId: string;
+  expectedVersion: number;
+  nextState: GovernorUserState;
+  eventContext: Record<string, unknown>;
+}
+
+export interface DecisionRecord {
+  decisionId: string;
+  tenantId: string;
+  userId: string;
+  actionType: string;
+  status: DecisionStatus;
+  cost?: number;
+  reserveExpiresAt?: string;
 }
 
 export interface AtomicMergeInput {
@@ -161,7 +182,29 @@ export interface Storage {
   checkAndReserveAtomic?(input: AtomicReserveInput): Promise<AtomicResult>;
   /** Atomic terminal record (Wave 2). */
   recordDecisionAtomic?(input: AtomicRecordInput): Promise<AtomicResult>;
+  /**
+   * Atomic release — derives action_type from the decision journal.
+   * Prefer this over recordDecisionAtomic({ outcome: "released" }) so retries
+   * stay idempotent after the live reserve entry is gone.
+   */
+  releaseDecisionAtomic?(input: AtomicReleaseInput): Promise<AtomicResult>;
+  /** Look up a decision journal row (for release action_type / unknown checks). */
+  getDecision?(decisionId: string): Promise<DecisionRecord | null>;
+  /**
+   * Register a check decision in the journal (non-reserve / deny paths).
+   * Reserve atomic path already inserts the row.
+   */
+  openDecision?(input: {
+    tenantId: string;
+    userId: string;
+    decisionId: string;
+    actionType: string;
+    cost?: number;
+    reserveExpiresAt?: string | null;
+  }): Promise<void>;
   /** Atomic merge (Wave 2). */
   mergeUsersAtomic?(input: AtomicMergeInput): Promise<AtomicResult>;
+  /** Cheap storage readiness probe (SELECT 1 / softstop_ping). */
+  ping?(): Promise<void>;
   touchApiKey?(key: string): Promise<void>;
 }

@@ -332,6 +332,19 @@ export const handleCheck = async (
     });
   }
 
+  // Always journal the check decision so /record cannot invent UUIDs.
+  // Atomic reserve already inserted the row; openDecision is a no-op then.
+  if (storage.openDecision) {
+    await storage.openDecision({
+      tenantId: tid,
+      userId,
+      decisionId,
+      actionType,
+      cost: decision.cost ?? rulesConfig.costs[actionType],
+      reserveExpiresAt: reserveExpiresAt ?? null
+    });
+  }
+
   const body: Record<string, unknown> = {
     allowed: decision.allowed,
     reason: decision.reason,
@@ -486,6 +499,15 @@ export const handleRecord = async (
           }
         };
       }
+      if (atomic.error === "unknown_decision") {
+        return {
+          status: 404,
+          body: {
+            error: "unknown_decision",
+            message: "No prior check/decision for this decisionId"
+          }
+        };
+      }
       if (atomic.error !== "conflict") {
         return {
           status: 503,
@@ -619,7 +641,28 @@ export const handleRelease = async (
   const reserveEntry = (pruneExpiredReserves(state, now).reserves ?? []).find(
     (r) => r.decisionId === decisionId
   );
-  const actionType: ActionType = reserveEntry?.actionType ?? "reminder";
+
+  // Prefer journal action_type so retries stay idempotent after the live
+  // reserve entry is gone (never fall back to a wrong default type).
+  const journal =
+    storage.getDecision != null ? await storage.getDecision(decisionId) : null;
+  if (
+    storage.releaseDecisionAtomic == null &&
+    storage.recordDecisionAtomic != null &&
+    journal == null &&
+    reserveEntry == null
+  ) {
+    return {
+      status: 404,
+      body: {
+        error: "unknown_decision",
+        message: "No prior check/decision for this decisionId"
+      }
+    };
+  }
+  const actionType: ActionType = (journal?.actionType ??
+    reserveEntry?.actionType ??
+    "reminder") as ActionType;
 
   const cleared = clearReserveByDecisionId(state, decisionId, now);
   const version = typeof cleared.stateVersion === "number" ? cleared.stateVersion : 0;
@@ -637,24 +680,45 @@ export const handleRelease = async (
   };
 
   // Terminal lifecycle: reserved → released (atomic when available).
-  if (storage.recordDecisionAtomic) {
+  // Prefer releaseDecisionAtomic — it derives action_type from the journal.
+  if (storage.releaseDecisionAtomic || storage.recordDecisionAtomic) {
     let wrote = false;
+    let idempotent = false;
     let workingNext = nextState;
     let workingVersion = expectedVersion;
     for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
-      const atomic = await storage.recordDecisionAtomic({
-        tenantId: tid,
-        userId,
-        decisionId,
-        actionType,
-        outcome: "released",
-        expectedVersion: workingVersion,
-        nextState: workingNext,
-        eventContext
-      });
+      const atomic = storage.releaseDecisionAtomic
+        ? await storage.releaseDecisionAtomic({
+            tenantId: tid,
+            userId,
+            decisionId,
+            expectedVersion: workingVersion,
+            nextState: workingNext,
+            eventContext
+          })
+        : await storage.recordDecisionAtomic!({
+            tenantId: tid,
+            userId,
+            decisionId,
+            actionType,
+            outcome: "released",
+            expectedVersion: workingVersion,
+            nextState: workingNext,
+            eventContext
+          });
       if (atomic.ok) {
         wrote = true;
+        idempotent = Boolean(atomic.idempotent);
         break;
+      }
+      if (atomic.error === "unknown_decision") {
+        return {
+          status: 404,
+          body: {
+            error: "unknown_decision",
+            message: "No prior check/decision for this decisionId"
+          }
+        };
       }
       if (atomic.error === "already_terminal") {
         return {
@@ -671,8 +735,14 @@ export const handleRelease = async (
           status: 409,
           body: {
             error: "decision_mismatch",
-            message: "Decision does not belong to this tenant/user/actionType"
+            message: "Decision does not belong to this tenant/user"
           }
+        };
+      }
+      if (atomic.error !== "conflict") {
+        return {
+          status: 503,
+          body: { error: atomic.error, message: "release_decision failed" }
         };
       }
       const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
@@ -694,10 +764,12 @@ export const handleRelease = async (
         }
       };
     }
-    return {
-      status: 200,
-      body: { ok: true, released: had }
+    const body: Record<string, unknown> = {
+      ok: true,
+      released: idempotent ? false : had
     };
+    if (idempotent) body.idempotent = true;
+    return { status: 200, body };
   }
 
   await storage.insertEvent({
@@ -919,8 +991,19 @@ export const handleReport = async (
   }
   const { from: fromStr, to: toStr } = parseReportPeriod(from, to);
   const tid = tenantId ?? DEFAULT_TENANT;
-  const report = await storage.getReportMetrics(fromStr, toStr, tid);
-  return { status: 200, body: { ok: true, report } };
+  try {
+    const report = await storage.getReportMetrics(fromStr, toStr, tid);
+    return { status: 200, body: { ok: true, report } };
+  } catch (err) {
+    return {
+      status: 503,
+      body: {
+        ok: false,
+        error: "report_unavailable",
+        message: err instanceof Error ? err.message : "Report query failed"
+      }
+    };
+  }
 };
 
 export const handleAuditReport = async (
@@ -942,7 +1025,19 @@ export const handleAuditReport = async (
   }
   const { from: fromStr, to: toStr } = parseReportPeriod(from, to);
   const tid = tenantId ?? DEFAULT_TENANT;
-  const summary = await storage.getReportMetrics(fromStr, toStr, tid);
+  let summary;
+  try {
+    summary = await storage.getReportMetrics(fromStr, toStr, tid);
+  } catch (err) {
+    return {
+      status: 503,
+      body: {
+        ok: false,
+        error: "report_unavailable",
+        message: err instanceof Error ? err.message : "Audit report query failed"
+      }
+    };
+  }
   const audit = {
     generatedAt: new Date().toISOString(),
     period: { from: fromStr, to: toStr },

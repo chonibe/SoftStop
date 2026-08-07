@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { randomUUID } from "crypto";
 import request from "supertest";
 import { createApp } from "../api/src/app";
-import { handleRecord } from "../api/src/handlers";
+import { handleRecord, handleRelease } from "../api/src/handlers";
 import { MemoryStorage } from "../api/src/storage/memoryStorage";
 import { defaultRulesConfig, GovernorRulesConfig } from "../api/src/rules/config";
 import { emptyState } from "../api/src/rules/engine";
@@ -12,6 +13,78 @@ const withReserve = (ttlMs = 20_000): GovernorRulesConfig => ({
 });
 
 describe("decision lifecycle (Wave 2)", () => {
+  it("rejects record without a prior check/decision (unknown_decision)", async () => {
+    const storage = new MemoryStorage();
+    const decisionId = randomUUID();
+    const result = await handleRecord(
+      storage,
+      {
+        userId: "no_prior_check",
+        actionType: "urgency",
+        outcome: "executed",
+        decisionId
+      },
+      withReserve()
+    );
+    expect(result.status).toBe(404);
+    expect((result.body as { error?: string }).error).toBe("unknown_decision");
+    expect(storage.decisions.has(decisionId)).toBe(false);
+  });
+
+  it("allows unknown-decision record only when SoftStop unsafe legacy escape hatch is set", async () => {
+    const storage = new MemoryStorage({ allowUnknownDecision: true });
+    const decisionId = randomUUID();
+    const result = await handleRecord(
+      storage,
+      {
+        userId: "legacy_user",
+        actionType: "urgency",
+        outcome: "executed",
+        decisionId
+      },
+      withReserve()
+    );
+    expect(result.status).toBe(200);
+    expect(storage.decisions.get(decisionId)?.status).toBe("executed");
+  });
+
+  it("release is idempotent after reserve is cleared (no decision_mismatch)", async () => {
+    const storage = new MemoryStorage();
+    const config = withReserve();
+    const app = createApp(storage, { rulesConfig: config });
+
+    const check = await request(app).post("/v1/check").send({
+      userId: "release_idem",
+      actionType: "urgency"
+    });
+    expect(check.status).toBe(200);
+    expect(check.body.allowed).toBe(true);
+    const decisionId = check.body.decisionId as string;
+
+    const first = await handleRelease(
+      storage,
+      { decisionId, userId: "release_idem" },
+      config
+    );
+    expect(first.status).toBe(200);
+    expect(storage.decisions.get(decisionId)?.status).toBe("released");
+    expect((await storage.getUserState("release_idem"))?.reserves ?? []).toEqual([]);
+
+    const second = await handleRelease(
+      storage,
+      { decisionId, userId: "release_idem" },
+      config
+    );
+    expect(second.status).toBe(200);
+    expect((second.body as { idempotent?: boolean }).idempotent).toBe(true);
+    expect(storage.decisions.get(decisionId)?.status).toBe("released");
+    expect(
+      storage.events.filter(
+        (e) => e.decisionId === decisionId && e.eventType === "released"
+      ).length
+    ).toBe(1);
+  });
+
   it("records reserved → executed and is idempotent on duplicate terminal", async () => {
     const storage = new MemoryStorage();
     const app = createApp(storage, { rulesConfig: withReserve() });

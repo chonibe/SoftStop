@@ -33,6 +33,11 @@ export interface CreateAppOptions {
   authMode?: AuthMode;
   /** Fixed tenant when authMode is off. */
   fixedTenantId?: string;
+  /**
+   * CORS origins. `null` = no browser CORS (default).
+   * `["*"]` or `"*"` = reflect all (demo only). Explicit list otherwise.
+   */
+  corsOrigins?: string[] | null;
 }
 
 declare global {
@@ -164,7 +169,7 @@ const mountRoutes = (
     return res.status(result.status).json(result.body);
   });
 
-  app.get(`${prefix}/policy`, (_req, res) => {
+  app.get(`${prefix}/policy`, requireTenant("read:audit"), (_req, res) => {
     return res.status(200).json({
       ok: true,
       source: policySource,
@@ -179,8 +184,21 @@ export const createApp = (storage: Storage, options: CreateAppOptions = {}) => {
   const authMode = options.authMode ?? env.authMode ?? resolveAuthMode();
   const fixedTenantId =
     options.fixedTenantId ?? env.fixedTenantId ?? resolveFixedTenantId();
+  const corsOrigins =
+    options.corsOrigins !== undefined ? options.corsOrigins : env.corsOrigins;
   const app = express();
-  app.use(cors());
+  if (corsOrigins === null || corsOrigins === undefined) {
+    // No browser CORS by default — API clients (curl, SDKs) do not need it.
+  } else if (corsOrigins.length === 1 && corsOrigins[0] === "*") {
+    app.use(cors());
+  } else {
+    app.use(
+      cors({
+        origin: corsOrigins,
+        credentials: true
+      })
+    );
+  }
   app.use(express.json());
 
   const requireTenant = (
@@ -210,10 +228,13 @@ export const createApp = (storage: Storage, options: CreateAppOptions = {}) => {
     return res.status(200).json({ ok: true, status: "live" });
   });
 
-  /** Ready to serve — storage probe when available. */
+  /** Ready to serve — storage.ping() when available. */
   app.get("/readyz", async (_req, res) => {
     try {
-      if (storage.getHealthMetrics) {
+      if (storage.ping) {
+        await storage.ping();
+      } else if (storage.getHealthMetrics) {
+        // Legacy fallback for custom Storage without ping().
         await storage.getHealthMetrics(1, fixedTenantId, 0);
       }
       return res.status(200).json({ ok: true, status: "ready" });

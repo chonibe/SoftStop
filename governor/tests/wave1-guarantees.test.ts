@@ -36,6 +36,14 @@ describe("CAS no unconditional upsert", () => {
       ...emptyState(),
       stateVersion: 1
     });
+    const decisionId = "22222222-2222-4222-8222-222222222222";
+    await storage.openDecision!({
+      tenantId: "default",
+      userId: "cas_user",
+      decisionId,
+      actionType: "urgency",
+      cost: 40
+    });
 
     // Force perpetual conflict by advancing version on every tryUpsert peek.
     const originalTry = storage.tryUpsertUserState!.bind(storage);
@@ -58,7 +66,7 @@ describe("CAS no unconditional upsert", () => {
         userId: "cas_user",
         actionType: "urgency",
         outcome: "executed",
-        decisionId: "22222222-2222-4222-8222-222222222222"
+        decisionId
       },
       defaultRulesConfig
     );

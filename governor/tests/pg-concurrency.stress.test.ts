@@ -74,6 +74,8 @@ describe.skipIf(!pgEnabled)("Postgres RPC contention", () => {
     );
     expect(out).toContain("softstop_check_and_reserve");
     expect(out).toContain("softstop_record_decision");
+    expect(out).toContain("softstop_release_decision");
+    expect(out).toContain("softstop_ping");
     expect(out).toContain("softstop_merge_users");
   });
 
@@ -507,6 +509,115 @@ describe.skipIf(!pgEnabled)("Postgres RPC contention", () => {
     expect(
       psql(`SELECT status FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid`)
     ).toBe("reserved");
+  });
+
+  it("unknown_decision: record without prior check is rejected", () => {
+    const decisionId = randomUUID();
+    const uid = "pg_unknown";
+    psql(
+      `DELETE FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid;
+       DELETE FROM governor_events WHERE decision_id=${sqlLit(decisionId)}::uuid;
+       DELETE FROM governor_user_state WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)};`
+    );
+    const nextState = { ...emptyState(), pressure: 40, stateVersion: 1, reserves: [] };
+    const rejected = JSON.parse(
+      psql(
+        `SELECT softstop_record_decision(
+          ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
+          'urgency', 'executed', 0,
+          ${sqlLit(JSON.stringify(nextState))}::jsonb, '{}'::jsonb
+        )::text;`
+      )
+    ) as { ok: boolean; error?: string };
+    expect(rejected.ok).toBe(false);
+    expect(rejected.error).toBe("unknown_decision");
+    expect(
+      Number(
+        psql(
+          `SELECT count(*) FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid`
+        )
+      )
+    ).toBe(0);
+
+    const allowed = JSON.parse(
+      psql(
+        `SELECT softstop_record_decision(
+          ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
+          'urgency', 'executed', 0,
+          ${sqlLit(JSON.stringify(nextState))}::jsonb, '{}'::jsonb,
+          true
+        )::text;`
+      )
+    ) as { ok: boolean };
+    expect(allowed.ok).toBe(true);
+    expect(
+      psql(`SELECT status FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid`)
+    ).toBe("executed");
+  });
+
+  it("softstop_release_decision is idempotent (action_type from journal)", () => {
+    const decisionId = randomUUID();
+    const uid = "pg_release_idem";
+    psql(
+      `DELETE FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid;
+       DELETE FROM governor_events WHERE decision_id=${sqlLit(decisionId)}::uuid;
+       DELETE FROM governor_user_state WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)};`
+    );
+    const expiresAt = new Date(Date.now() + 60_000).toISOString();
+    const reserved = {
+      ...emptyState(),
+      stateVersion: 1,
+      reserves: [{ decisionId, actionType: "urgency", cost: 40, expiresAt }]
+    };
+    psql(
+      `SELECT softstop_check_and_reserve(
+        ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
+        'urgency', 0,
+        ${sqlLit(JSON.stringify(reserved))}::jsonb, '{}'::jsonb,
+        ${sqlLit(expiresAt)}::timestamptz, 40
+      );`
+    );
+    const cleared = { ...emptyState(), stateVersion: 2, reserves: [] };
+    const first = JSON.parse(
+      psql(
+        `SELECT softstop_release_decision(
+          ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
+          1,
+          ${sqlLit(JSON.stringify(cleared))}::jsonb, '{}'::jsonb
+        )::text;`
+      )
+    ) as { ok: boolean; idempotent?: boolean };
+    expect(first.ok).toBe(true);
+    expect(first.idempotent).toBeFalsy();
+    expect(
+      psql(`SELECT status FROM softstop_decisions WHERE decision_id=${sqlLit(decisionId)}::uuid`)
+    ).toBe("released");
+
+    // Second release with same expected version from cleared state — idempotent.
+    // State version may already be 2; pass matching version for conflict-free path.
+    const ver = Number(
+      psql(
+        `SELECT COALESCE((state->>'stateVersion')::int, 0) FROM governor_user_state
+         WHERE tenant_id=${sqlLit(tenantId)} AND user_id=${sqlLit(uid)}`
+      )
+    );
+    const again = {
+      ...emptyState(),
+      stateVersion: ver + 1,
+      reserves: []
+    };
+    const second = JSON.parse(
+      psql(
+        `SELECT softstop_release_decision(
+          ${sqlLit(tenantId)}, ${sqlLit(uid)}, ${sqlLit(decisionId)}::uuid,
+          ${ver},
+          ${sqlLit(JSON.stringify(again))}::jsonb, '{}'::jsonb
+        )::text;`
+      )
+    ) as { ok: boolean; idempotent?: boolean; error?: string };
+    expect(second.ok).toBe(true);
+    expect(second.idempotent).toBe(true);
+    expect(second.error).toBeUndefined();
   });
 
   it("empty-row concurrency: 32 parallel check_and_reserve with no governor_user_state row → exactly one winner", async () => {

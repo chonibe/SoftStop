@@ -43,7 +43,21 @@ const envSchema = z.object({
    */
   SOFTSTOP_UNSAFE_LEGACY_CHECK: z.preprocess(emptyToUndefined, z.string().optional()),
   SOFTSTOP_AUTH: z.preprocess(emptyToUndefined, z.string().optional()),
-  SOFTSTOP_TENANT_ID: z.preprocess(emptyToUndefined, z.string().optional())
+  SOFTSTOP_TENANT_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  /**
+   * Comma-separated browser origins allowed for CORS.
+   * Unset/empty = no browser CORS (non-browser clients unaffected).
+   * Use `*` only for local demos — never in production.
+   */
+  SOFTSTOP_CORS_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
+  /**
+   * Unsafe: allow /record to invent a terminal decision without a prior /check.
+   * Default off — record scope must not mint arbitrary UUIDs.
+   */
+  SOFTSTOP_UNSAFE_ALLOW_UNKNOWN_DECISION: z.preprocess(
+    emptyToUndefined,
+    z.string().optional()
+  )
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -185,5 +199,16 @@ export const env = {
   authMode,
   fixedTenantId: resolveFixedTenantId({
     SOFTSTOP_TENANT_ID: data.SOFTSTOP_TENANT_ID
-  })
+  }),
+  corsOrigins: parseCorsOrigins(data.SOFTSTOP_CORS_ORIGINS),
+  allowUnknownDecision: isTruthyFlag(data.SOFTSTOP_UNSAFE_ALLOW_UNKNOWN_DECISION)
 };
+
+function parseCorsOrigins(raw: string | undefined): string[] | null {
+  if (raw === undefined || raw.trim() === "") return null;
+  const parts = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : null;
+}

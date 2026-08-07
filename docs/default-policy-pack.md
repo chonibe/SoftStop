@@ -15,7 +15,8 @@ SOFTSTOP_POLICY=strict pnpm dev
 SOFTSTOP_POLICY=anon-aggressive pnpm dev
 SOFTSTOP_POLICY_FILE=./policies/lenient.json pnpm dev
 pnpm governor policy validate --file policies/strict.json
-curl -s http://localhost:3000/v1/policy
+# Full policy JSON requires read:audit (or auth=off for local single-tenant).
+curl -s -H "Authorization: Bearer $SOFTSTOP_API_KEY" http://localhost:3000/v1/policy
 ```
 
 Preset files live in [`policies/`](../policies/).

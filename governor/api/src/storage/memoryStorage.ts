@@ -6,9 +6,11 @@ import {
   ApiKeyScope,
   AtomicMergeInput,
   AtomicRecordInput,
+  AtomicReleaseInput,
   AtomicReserveInput,
   AtomicResult,
   DecisionLogEntry,
+  DecisionRecord,
   DecisionStatus,
   HealthMetrics,
   ReportMetrics,
@@ -19,12 +21,18 @@ function stateKey(userId: string, tenantId = "default"): string {
   return `${tenantId}:${userId}`;
 }
 
+export interface MemoryStorageOptions {
+  /** Unsafe: allow record without a prior check/decision row. */
+  allowUnknownDecision?: boolean;
+}
+
 export class MemoryStorage implements Storage {
   /** Exposed for tests; production callers should use Storage methods. */
   events: GovernorEvent[] = [];
   private states = new Map<string, GovernorUserState>();
   /** Raw key → ApiKeyInfo (test/dev only; production hashes keys in Supabase). */
   private apiKeys = new Map<string, ApiKeyInfo>();
+  private allowUnknownDecision: boolean;
   /** decisionId → lifecycle status */
   decisions = new Map<
     string,
@@ -37,6 +45,16 @@ export class MemoryStorage implements Storage {
       reserveExpiresAt?: string;
     }
   >();
+
+  constructor(options: MemoryStorageOptions = {}) {
+    this.allowUnknownDecision =
+      options.allowUnknownDecision === true ||
+      ["1", "true", "yes", "on"].includes(
+        String(process.env.SOFTSTOP_UNSAFE_ALLOW_UNKNOWN_DECISION ?? "")
+          .trim()
+          .toLowerCase()
+      );
+  }
 
   async getUserState(userId: string, tenantId = "default"): Promise<GovernorUserState | null> {
     return this.states.get(stateKey(userId, tenantId)) ?? null;
@@ -345,9 +363,45 @@ export class MemoryStorage implements Storage {
     return { ok: true, status: "reserved" };
   }
 
+  async getDecision(decisionId: string): Promise<DecisionRecord | null> {
+    const existing = this.decisions.get(decisionId);
+    if (!existing) return null;
+    return { decisionId, ...existing };
+  }
+
+  async openDecision(input: {
+    tenantId: string;
+    userId: string;
+    decisionId: string;
+    actionType: string;
+    cost?: number;
+    reserveExpiresAt?: string | null;
+  }): Promise<void> {
+    if (this.decisions.has(input.decisionId)) return;
+    this.decisions.set(input.decisionId, {
+      tenantId: input.tenantId,
+      userId: input.userId,
+      actionType: input.actionType,
+      status: "reserved",
+      cost: input.cost,
+      reserveExpiresAt: input.reserveExpiresAt ?? undefined
+    });
+  }
+
+  async ping(): Promise<void> {
+    // In-memory is always ready.
+  }
+
   async recordDecisionAtomic(input: AtomicRecordInput): Promise<AtomicResult> {
     const existing = this.decisions.get(input.decisionId);
-    if (existing) {
+    const allowUnknown =
+      input.allowUnknown === true || this.allowUnknownDecision;
+
+    if (!existing) {
+      if (!allowUnknown) {
+        return { ok: false, error: "unknown_decision" };
+      }
+    } else {
       if (
         existing.tenantId !== input.tenantId ||
         existing.userId !== input.userId ||
@@ -402,6 +456,25 @@ export class MemoryStorage implements Storage {
       });
     }
     return { ok: true, status: input.outcome };
+  }
+
+  async releaseDecisionAtomic(input: AtomicReleaseInput): Promise<AtomicResult> {
+    const existing = this.decisions.get(input.decisionId);
+    if (!existing) {
+      return { ok: false, error: "unknown_decision" };
+    }
+    if (
+      existing.tenantId !== input.tenantId ||
+      existing.userId !== input.userId
+    ) {
+      return { ok: false, error: "decision_mismatch", status: existing.status };
+    }
+    return this.recordDecisionAtomic({
+      ...input,
+      actionType: existing.actionType,
+      outcome: "released",
+      allowUnknown: false
+    });
   }
 
   async mergeUsersAtomic(input: AtomicMergeInput): Promise<AtomicResult> {
