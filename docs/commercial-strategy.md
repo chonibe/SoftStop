@@ -25,6 +25,18 @@ Nobody pays. Teams use OSS SoftStop, fork it, or rebuild a tiny internal permit.
 | Leave seams for Cloud later (tenant id, policy version, audit export hooks) | Bet the company on license fees for a simple gate |
 | Measure success as **integrations that stick** first; ARR second | Treat “easy to clone” as failure — it is the distribution tax |
 
+## Open core
+
+Open-source SoftStop is the **infrastructure primitive**: `check → act → record`, pressure, reservations, and policy evaluation. That path stays inspectable, self-hostable, and free of vendor lock — trust is the product.
+
+The company / SoftStop Cloud sits **above** that primitive: hosted infra, dashboard, policy management, analytics, audit, SSO/RBAC, integrations, identity resolution, alerts, enterprise support, compliance, and SLAs.
+
+Open source is a **distribution strategy** for a new infrastructure standard — permission before consuming human attention — not a hobby project instead of a company. Do not open-source the entire future SaaS surface; keep differentiation in fleet management, identity mapping, org policy, observability, integration coverage, and network effects.
+
+**Thesis:** SoftStop open source is how the standard gets adopted; SoftStop the company operates and governs it at organizational scale.
+
+Adoption narrative: [how a company uses SoftStop](../apps/docs/start/how-a-company-uses-softstop.md).
+
 ## Model
 
 Dual-layer open-core. Enforcement stays local; management is optional and paid.
