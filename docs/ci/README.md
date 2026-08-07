@@ -1,14 +1,15 @@
-# SoftStop CI (example)
+# CI
 
-GitHub OAuth apps without the `workflow` scope cannot push `.github/workflows/*.yml`.
+Canonical workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — runs `pnpm test:governor` on push/PR to `main`.
 
-To enable CI:
+Badge: `https://github.com/chonibe/SoftStop/actions/workflows/ci.yml/badge.svg`
 
-1. Copy this file to `.github/workflows/ci.yml`
-2. Push with a token that has the `workflow` scope, or add the file via the GitHub UI
+## Note on `workflow` OAuth scope
+
+GitHub OAuth apps without the `workflow` scope cannot push `.github/workflows/*.yml`. Prefer a PAT / SSH deploy key with workflow write, or create the file in the GitHub UI once and then update via an allowed credential.
+
+Historical copy path (if you still need it):
 
 ```bash
 cp docs/ci/governor-tests.yml.example .github/workflows/ci.yml
 ```
-
-Then rename the workflow `name:` to SoftStop Tests if desired.

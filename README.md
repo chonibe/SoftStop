@@ -28,6 +28,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/chonibe/SoftStop/actions/workflows/ci.yml"><img src="https://github.com/chonibe/SoftStop/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0B0B0F?style=flat-square" alt="MIT" /></a>
   <a href="package.json"><img src="https://img.shields.io/badge/node-%3E%3D18-E8A317?style=flat-square" alt="Node 18+" /></a>
   <a href="docker-compose.yml"><img src="https://img.shields.io/badge/docker-compose-0B0B0F?style=flat-square" alt="Docker" /></a>
@@ -159,13 +160,39 @@ Alternates: `github:chonibe/SoftStop#path:packages/sdk-js` or `https://softstop.
 
 ### Self-host the API
 
+One-liner (in-memory storage on port `3000`):
+
+```bash
+docker compose up --build
+```
+
+```bash
+curl -X POST http://localhost:3000/v1/verify
+```
+
+Without Docker:
+
 ```bash
 pnpm install
 pnpm dev
 pnpm softstop verify
 ```
 
-Docker: `docker compose up --build`
+Env: see [`.env.example`](.env.example) (`SOFTSTOP_*` / `GOVERNOR_*` aliases). Default image/compose uses `GOVERNOR_STORAGE=memory` — no database required. Add `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` for persistence ([self-host docs](apps/docs/self-host/)).
+
+<p>
+  <a href="https://railway.app/new/template?template=https://github.com/chonibe/SoftStop"><img src="https://railway.com/button.svg" alt="Deploy on Railway" height="32" /></a>
+  &nbsp;
+  <a href="https://fly.io/launch/github.com/chonibe/SoftStop"><img src="https://img.shields.io/badge/Deploy%20to-Fly.io-7B3FE4?style=for-the-badge&logo=fly.io&logoColor=white" alt="Deploy to Fly.io" height="32" /></a>
+</p>
+
+CLI alternatives: `fly launch --copy-config` (uses [`fly.toml`](fly.toml)) · Railway detects [`Dockerfile`](Dockerfile) / [`railway.toml`](railway.toml).
+
+**Latency (honest):** local memory `POST /v1/check` P95 ≈ **0.9 ms** on a 2026-08-07 loopback microbench (`pnpm bench:check`; n=500). Details: [docs/perf/PERFORMANCE.md](docs/perf/PERFORMANCE.md). No hosted/Supabase sub-10ms claim without data.
+
+## CI
+
+GitHub Actions runs `pnpm test:governor` on push/PR ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Badge above links to the latest run.
 
 ## The contract
 

@@ -9,6 +9,8 @@ pnpm install
 pnpm dev
 ```
 
+Or: `docker compose up --build` — see [Docker](/self-host/docker).
+
 Listens on `http://localhost:3000` with in-memory storage.
 
 ```bash

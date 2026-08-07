@@ -1,0 +1,25 @@
+# Keep the SoftStop API image lean (memory-mode self-host).
+.git
+.github
+.cursor
+.vscode
+node_modules
+**/node_modules
+dist
+**/dist
+.turbo
+**/.turbo
+coverage
+**/coverage
+*.log
+.env
+.env.*
+!.env.example
+apps/docs
+docs/archive-internal
+docs/superpowers
+archive
+demo/node_modules
+**/*.md
+!README.md
+.DS_Store

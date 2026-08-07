@@ -1,0 +1,15 @@
+# SoftStop on Railway — uses root Dockerfile (memory storage by default).
+# One-click: README “Deploy on Railway” button, or:
+#   railway up
+#
+# Set PORT via Railway (injected). Optional: SOFTSTOP_POLICY, Supabase secrets.
+# Memory mode is ephemeral across restarts — add Supabase for persistence.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/v1/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"

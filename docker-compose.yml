@@ -1,3 +1,10 @@
+# SoftStop API — local / self-host (memory storage by default).
+# One-liner from repo root:
+#   docker compose up --build
+# Then:
+#   curl -X POST http://localhost:3000/v1/verify
+#
+# Optional: copy .env.example → .env and uncomment Supabase / policy vars below.
 services:
   softstop:
     build: .
@@ -5,8 +12,26 @@ services:
       - "3000:3000"
     environment:
       PORT: "3000"
+      # Force memory even if a host .env has Supabase credentials.
       GOVERNOR_STORAGE: memory
+      # SoftStop policy presets (default | strict | lenient | anon-aggressive):
       # SOFTSTOP_POLICY: strict
-    # Optional persistence:
-    # SUPABASE_URL: ${SUPABASE_URL}
-    # SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Or a custom pack:
+      # SOFTSTOP_POLICY_FILE: /app/policies/lenient.json
+    # Persistence (comment out GOVERNOR_STORAGE above when enabling):
+    # env_file: .env
+    # environment:
+    #   SUPABASE_URL: ${SUPABASE_URL}
+    #   SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

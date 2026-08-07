@@ -7,6 +7,7 @@ SoftStop is an authorize-only control layer for escalation pressure. Contributio
 ```bash
 pnpm install
 pnpm test:governor
+pnpm bench:check   # optional: local memory check latency
 pnpm typecheck
 pnpm dev
 ```
