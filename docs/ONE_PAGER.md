@@ -6,6 +6,9 @@ Modern products have many systems pushing users: onboarding, marketing automatio
 ## Solution (WHAT)
 SoftStop is a small, central system that decides whether automated escalation is allowed. Before any system increases pressure, it asks SoftStop and gets a Yes/No. SoftStop does not design UX, generate copy, or optimize conversion. It only permits or blocks escalation.
 
+## Why this matters for agents (second layer)
+Your agents are individually smart. Collectively, they can still overwhelm a human — a sales follow-up, a support escalation, a retention discount, and a marketing urgency email each make sense alone; the user experiences all of them. SoftStop is the shared deterministic permit they consult before raising pressure. It doesn’t make AI smarter; it makes autonomous systems stop when they should. Not MCP permissions, guardrails, CRM, or an agent framework — a different layer.
+
 ## Escalation (very concrete)
 Escalation includes urgency messages, discounts, interruptions, repeated reminders after hesitation, or narrowing options with time pressure. It applies across UI, email, notifications, pricing, and AI-driven actions.
 

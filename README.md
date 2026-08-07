@@ -64,6 +64,14 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 | Track **user pressure** (cost + decay + threshold) | Optimize conversion |
 | Enforce cooldowns & caps across systems | MCP tool IAM / HITL approvals |
 
+## Why this matters for agents
+
+Each agent can be reasonable alone — a sales follow-up, a support escalation, a retention discount. Together they still overwhelm the same human, because none of them share a stop signal. SoftStop is the shared deterministic permit they all consult before raising pressure.
+
+SoftStop doesn't make AI smarter. It makes autonomous systems stop when they should. LLMs decide *what* to do; tools provide the capabilities; SoftStop governs whether pressure on the human may increase.
+
+It is not competing with MCP permissions, model guardrails, CRMs, or agent frameworks — those are different layers. SoftStop answers one cross-system question: is this action allowed on this person right now?
+
 ## Get started
 
 ### Install
