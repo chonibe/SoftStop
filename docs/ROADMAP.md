@@ -6,7 +6,7 @@
 
 - Numeric pressure engine (`threshold`, `decayPerHour`, `costs`) + `pressure_exceeded`
 - `GET /users/:userId/pressure`
-- AI-wedge positioning + agent–email collision golden path
+- AI-wedge positioning as first-class: circuit breaker for agents + outreach; channel collision remains in scope + agent–email collision golden path
 
 ## v0.1 (shipped)
 
@@ -22,6 +22,7 @@
 
 - Publish `softstop` to the public npm registry (**done** — `softstop@0.2.1`)
 - Thin agent adapters: `beforeContact` + `wrapUserFacingTool` (shipped in 0.2.1)
+- Docs: [Governing AI agents](../apps/docs/start/governing-ai-agents.md) — circuit breaker, deterministic state, `suggestedActionType`, multi-agent collision
 
 ## Explicitly not v0.1 / v0.2
 
@@ -33,7 +34,16 @@
 
 - Commercial control plane (SSO, SIEM, distributed caps, policy UI) — pull-triggered; see [commercial-strategy.md](commercial-strategy.md)
 - Experimental MCP extraction remains under [archive/mcp-gateway](../archive/mcp-gateway)
-- **Concurrent-allows hardening** — today `check` is read-only for pressure; state advances on `record`, so two simultaneous allows can both pass. Possible later: reserve-on-check or optimistic concurrency (design-partner demand only). Documented limitation: [apps/docs/api/errors.md](../apps/docs/api/errors.md)
+
+### AI agent control layer (prioritized Later)
+
+Design: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). Pressure decay + action costs **already ship**; do not re-list them here. SoftStop does **not** claim Redis locks or race-safety on plain `check` today.
+
+1. **P0 — Check-and-reserve / race prevention** — opt-in atomic reserve + TTL lease (10–30s), OCC on user state; compatible with existing `check` / `record`. Documented gap: [errors.md](../apps/docs/api/errors.md).
+2. **P1 — Richer blocked schema + LLM helpers** — additive `retryAfterMs` / `suggestedFallback`; SDK `formatBlockedForLlm` (keep `suggestedActionType`).
+3. **P2 — Latency / throughput** — instrument check P95; aspirational &lt;15–30ms local/memory; do not claim token-bucket until designed separately.
+4. **P3 — Framework middlewares** — first-party Vercel AI SDK / LangChain-style adapters beyond `beforeContact` / `wrapUserFacingTool`.
+5. **P4 — Hierarchical pressure scopes** — optional channel / org / thread budgets atop `tenantId` + `userId` + merge.
 
 ## Shipped after feedback (2026-08)
 

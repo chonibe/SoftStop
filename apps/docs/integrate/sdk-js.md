@@ -64,6 +64,39 @@ The client picks `/v1` on localhost and `/api` on hosted hosts.
 
 Non-2xx responses throw `SoftStopHttpError` (`status`, `body`, message includes API `error` text) — e.g. unknown `actionType` is a clear 400, not a soft block.
 
+## Agent adapters
+
+```js
+import { SoftStop, wrapUserFacingTool } from 'softstop'
+
+const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
+
+// Inline: check → act → record
+await ss.beforeContact(
+  { userId, actionType: 'urgency', surface: 'email', actor: 'sales-agent' },
+  () => sendEmail()
+)
+
+// Wrap a user-facing tool (OpenAI tools / LangChain / plain handlers)
+const sendFollowUp = wrapUserFacingTool(
+  ss,
+  {
+    userId: (args) => args.userId,
+    actionType: 'urgency',
+    surface: 'email',
+    actor: 'sales-agent'
+  },
+  async (args) => { /* send */ }
+)
+
+const result = await sendFollowUp({ userId, subject: '…' })
+if (!result.ok) {
+  // result.reason, result.suggestedActionType — do not crash/retry the same actionType
+}
+```
+
+Full patterns: [Governing AI agents](/start/governing-ai-agents).
+
 ## Env
 
 - Prefer `SOFTSTOP_API_URL`
@@ -71,6 +104,7 @@ Non-2xx responses throw `SoftStopHttpError` (`status`, `body`, message includes 
 
 ## Next
 
+- [Governing AI agents](/start/governing-ai-agents)
 - [Examples](/integrate/examples)
 - [API — check](/api/check)
 - [Getting started](/start/getting-started)

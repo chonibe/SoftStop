@@ -11,6 +11,7 @@ const sidebar = [
     collapsed: false,
     items: [
       { text: 'Concept', link: '/start/concept' },
+      { text: 'Governing AI agents', link: '/start/governing-ai-agents' },
       { text: 'Getting started', link: '/start/getting-started' },
       { text: 'Adoption contract', link: '/start/adoption-contract' }
     ]
@@ -76,7 +77,8 @@ const sidebar = [
 
 export default defineConfig({
   title: 'SoftStop',
-  description: 'The shared permit before any system raises pressure on a user.',
+  description:
+    'The Circuit Breaker for Autonomous Agents and Customer Outreach.',
   lang: 'en-US',
   cleanUrls: true,
   appearance: 'dark',
@@ -90,7 +92,8 @@ export default defineConfig({
       'meta',
       {
         property: 'og:description',
-        content: 'The shared permit before any system raises pressure on a user.'
+        content:
+          'The Circuit Breaker for Autonomous Agents and Customer Outreach.'
       }
     ],
     ['meta', { property: 'og:image', content: '/softstop-cover.png' }],

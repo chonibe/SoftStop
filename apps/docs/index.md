@@ -1,11 +1,11 @@
 ---
 layout: home
 title: SoftStop Docs
-description: The shared permit before any system raises pressure on a user.
+description: The Circuit Breaker for Autonomous Agents and Customer Outreach.
 hero:
   name: SoftStop
   text: Stop when it should
-  tagline: Shared permit before any system raises pressure on a user. Authorize only — your tools still send the message.
+  tagline: Circuit breaker for autonomous agents and customer outreach. Prevent rogue agents, growth loops, and background jobs from spamming users—across every surface. Authorize only.
   actions:
     - theme: brand
       text: Get started
@@ -73,6 +73,12 @@ When blocked, still call `record` with `outcome: "blocked"`. Skipping record cre
     <a href="/start/getting-started">
       Getting started
       <span>Install, first check/record, verify.</span>
+    </a>
+  </li>
+  <li>
+    <a href="/start/governing-ai-agents">
+      Governing AI agents
+      <span>Circuit breaker, deterministic state, suggestedActionType.</span>
     </a>
   </li>
   <li>

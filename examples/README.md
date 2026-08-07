@@ -5,7 +5,7 @@ Complete integration examples for SoftStop in different languages and environmen
 ## Quick Links
 
 - [**Agent + email collision**](agent-email-collision/) — golden path with pressure readout (start here)
-- [**Agent tool wrapper**](agent-tool-wrapper/) — `wrapUserFacingTool` for OpenAI/LangChain-style tools
+- [**Agent tool wrapper**](agent-tool-wrapper/) — `wrapUserFacingTool` in a tool / function-call loop ([docs](../apps/docs/start/governing-ai-agents.md))
 - [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health`
 - [Node.js](nodejs/) — server-side integration
 - [Python](python/) — Python application integration

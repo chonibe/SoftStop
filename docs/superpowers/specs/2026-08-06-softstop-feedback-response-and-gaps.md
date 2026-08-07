@@ -25,7 +25,7 @@ We agree the strongest surfaces are:
 
 Those stay. We are not redesigning them.
 
-**Authorize-only, not a CDP** is intentional scope. A CDP stores identity and journeys; SoftStop only gates whether an actor may raise pressure on a user right now. Messaging platforms and MCP tool firewalls remain out of scope — the README “does / does not” and “When to use / Not SoftStop” tables are the canonical positioning.
+**Authorize-only, not a CDP** is intentional scope. A CDP stores identity and journeys; SoftStop only gates whether an actor may raise pressure on a user right now. Messaging platforms and MCP tool firewalls remain out of scope — the README “does / does not” and “When to use / Not SoftStop” tables are the canonical positioning. **AI-agent wedge** (circuit breaker in tool loops, deterministic `check`, multi-agent collision, `suggestedActionType` downgrade) is first-class positioning; channels remain collision partners — see [Governing AI agents](../../../apps/docs/start/governing-ai-agents.md).
 
 **Usefulness ranking:** we agree load-bearing value is (1) policy engine, (2) `check`/`record`, (3) `verify`/`health` (orphan rate). Examples and self-host are adoption grease; the JS SDK is thin sugar over HTTP.
 
@@ -39,7 +39,7 @@ Those stay. We are not redesigning them.
 
 | Gap | Response |
 |---|---|
-| Soft tagline / OG | Lead with shared permit / one journal; “stop when it should” secondary |
+| Soft tagline / OG | Lead with circuit breaker for agents + outreach; shared permit supporting |
 | Buyer / who installs | Platform / lifecycle eng runs the API; Growth, CRM, product, agents call `check`/`record` at send time (marketing + README) |
 | Hosting signal | Self-host for production; `softstop.vercel.app` is demo + SDK CDN |
 | Blocked-path richness | Landing/README show `reason` / `explanation` / optional `suggestedActionType`, then still `record` blocked |

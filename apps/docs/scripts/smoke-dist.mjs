@@ -9,6 +9,7 @@ const required = [
   'index.html',
   'start/getting-started.html',
   'start/concept.html',
+  'start/governing-ai-agents.html',
   'start/adoption-contract.html',
   'integrate/workflow.html',
   'integrate/sdk-js.html',

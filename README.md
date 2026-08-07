@@ -4,9 +4,9 @@
 
 <h1 align="center">SoftStop</h1>
 
-<p align="center"><strong>Every AI agent should ask permission before interrupting a human.</strong></p>
+<p align="center"><strong>The Circuit Breaker for Autonomous Agents and Customer Outreach.</strong></p>
 
-<p align="center">SoftStop measures <em>user pressure</em> across agents and every other system that can reach the same person — then blocks the next hit when they’ve had enough.</p>
+<p align="center">Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface.</p>
 
 <p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
@@ -14,7 +14,7 @@
   <img src="docs/brand/softstop-scale-chaos.png" alt="Without SoftStop: messages land and pressure climbs Happy to Churned. With SoftStop: the same chaos hits a shared journal; sparse allows keep pressure capped." width="100%" />
 </p>
 
-<p align="center"><em>Growth, CRM, Support, Ads, Product, and Agents don’t share a stop signal — so a few customers accumulate pressure until they churn. SoftStop doesn’t quiet the attempt storm; it is the shared journal every system <code>check</code>s before anything lands.</em><br />
+<p align="center"><em>Growth, CRM, Support, Ads, Product, and Agents don’t share a stop signal — so a few customers accumulate pressure until they churn. SoftStop is the shared permit every system <code>check</code>s before anything lands.</em><br />
 <a href="https://softstop.vercel.app">See the interactive Why SoftStop canvases →</a></p>
 
 <p align="center">
@@ -36,6 +36,15 @@
 
 <p align="center"><em>Early open source — looking for design partners. Not a claim of wide production adoption.</em></p>
 
+## Why SoftStop?
+
+- **Agent circuit breaking** — a safety layer in tool-calling loops, not just frequency capping. `check()` before the side effect; `record()` after.
+- **Deterministic state for non-deterministic LLMs** — offload time/count cooldowns from the prompt. Policy and pressure live on the server.
+- **Multi-agent collision prevention** — shared per-user permit across Onboarding / Sales / Support (and email / SMS / UI) on separate runtimes.
+- **Graceful fallbacks** — when blocked, `suggestedActionType` steers the next move (e.g. interruption → reminder) instead of crash or retry loops.
+
+Authorize only — SoftStop is not a CDP, not a messenger, not tool IAM. See [Governing AI Agents](apps/docs/start/governing-ai-agents.md).
+
 ## What SoftStop is
 
 SoftStop answers one question before an escalation runs:
@@ -53,19 +62,9 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 | Track **user pressure** (cost + decay + threshold) | Optimize conversion |
 | Enforce cooldowns & caps across systems | MCP tool IAM / HITL approvals |
 
-## The use case
-
-Lifecycle email, pricing SMS, checkout modal, and a sales agent can all hit the **same person** with no shared stop signal. SoftStop sits in the middle as a tiny authorize-only gate — see the diagram above, or [scroll the live demo](https://softstop.vercel.app).
-
-### Example story (live demo)
-
-The [live demo](https://softstop.vercel.app) is a **marketing-chaos example**: scroll ~7 days of email / SMS / push / in-app stacking on one person, then toggle SoftStop on. Same SoftStop contract applies to product UI and agents — the demo just makes the failure mode obvious.
-
-Golden path (agent + email collision): [examples/agent-email-collision](examples/agent-email-collision).
-
 ## Get started
 
-### One-liner SDK
+### Install
 
 ```bash
 npm i softstop
@@ -73,16 +72,65 @@ npm i softstop
 
 Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
 
+### Quick start — AI tool call
+
+Prefer the shipped adapters (`beforeContact`, `wrapUserFacingTool`). Outcomes are **`executed` | `blocked`** (not “landed”).
+
 ```js
-import { SoftStop } from 'softstop'
+import { SoftStop, wrapUserFacingTool } from 'softstop'
 
 const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
-const decision = await ss.check({ userId: 'user_123', actionType: 'urgency', surface: 'email' })
 
-console.log(decision.pressure, decision.cost, decision.projectedPressure, decision.threshold)
+const sendFollowUp = wrapUserFacingTool(
+  ss,
+  {
+    userId: (args) => args.userId,
+    actionType: 'urgency',
+    surface: 'email',
+    actor: 'sales-agent'
+  },
+  async ({ userId, subject }) => {
+    // Resend / SMTP / …
+    return { messageId: 'msg_1', userId, subject }
+  }
+)
+
+const result = await sendFollowUp({ userId: 'user_123', subject: 'Quick follow-up' })
+
+if (!result.ok) {
+  // SoftStop already recorded outcome: 'blocked' (+ blockReason)
+  // Steer the model — do not crash or retry the same actionType
+  return {
+    blocked: true,
+    reason: result.reason,
+    suggestedActionType: result.suggestedActionType // e.g. 'reminder'
+  }
+}
+// SoftStop already recorded outcome: 'executed'
+```
+
+Inline without wrapping:
+
+```js
+const gated = await ss.beforeContact(
+  { userId: 'user_123', actionType: 'urgency', surface: 'email', actor: 'sales-agent' },
+  () => sendEmail(/* … */)
+)
+if (!gated.allowed) {
+  // gated.suggestedActionType — record already done with outcome: 'blocked'
+}
+```
+
+Raw `check` / `record` (same contract):
+
+```js
+const decision = await ss.check({
+  userId: 'user_123',
+  actionType: 'urgency',
+  surface: 'email'
+})
 
 if (!decision.allowed) {
-  // decision.reason, decision.explanation — optional decision.suggestedActionType
   await ss.record({
     decisionId: decision.decisionId,
     userId: 'user_123',
@@ -90,9 +138,16 @@ if (!decision.allowed) {
     outcome: 'blocked',
     blockReason: decision.reason
   })
-  return // do not escalate
+  return
 }
-// escalate, then record outcome: 'executed'
+
+// escalate, then:
+await ss.record({
+  decisionId: decision.decisionId,
+  userId: 'user_123',
+  actionType: 'urgency',
+  outcome: 'executed'
+})
 ```
 
 ```js
@@ -131,9 +186,9 @@ Default threshold: **100**. Default decay: **8** points/hour.
 
 ## When to use
 
-- **Agents** — support/sales agents escalate humans without seeing other pressure
-- **Marketing + CRM** — lifecycle, promo, and win-back tools don’t share caps
-- **Product UI** — modals/banners fire while email/SMS are also pushing
+- **Agents** — circuit breaker in tool loops; shared permit across Onboarding/Sales/Support ([Governing AI Agents](apps/docs/start/governing-ai-agents.md))
+- **Marketing + CRM** — lifecycle, promo, and win-back tools don’t share caps with agents
+- **Product UI** — modals/banners fire while email/SMS/agents are also pushing
 - **Not SoftStop** — you need a messaging platform, CDP (identity/journey store), or MCP tool firewall. SoftStop only gates pressure; it does not replace a CDP.
 
 ## Adoption
@@ -154,10 +209,11 @@ Repo note: root [`tenet-policy.json`](tenet-policy.json) configures **contributo
 ## Examples
 
 - [**Agent + email collision**](examples/agent-email-collision) — sales agent email then marketing SMS; print pressure
-- [**Agent tool wrapper**](examples/agent-tool-wrapper) — `wrapUserFacingTool` for agent tools
+- [**Agent tool wrapper**](examples/agent-tool-wrapper) — `wrapUserFacingTool` in a function-calling / tool loop
+- [**Governing AI agents**](apps/docs/start/governing-ai-agents.md) — circuit breaker, pillars, `suggestedActionType`
 - [**Sample shop**](examples/sample-shop) — chaos vs SoftStop + orphan-rate health (`node index.js --mode=compare`)
 - [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
-- [Agent touchpoint](examples/agent-touchpoint) — agent calls SoftStop before escalating a human
+- [Agent touchpoint](examples/agent-touchpoint) — `beforeContact` before escalating a human
 - [Scroll demo](https://softstop.vercel.app) — marketing-chaos example story
 - [Pressure Console](https://softstop.vercel.app/console.html) — look up a user, watch the meter, simulate contacts
 - [Before / after write-up](docs/BEFORE_AFTER.md)
