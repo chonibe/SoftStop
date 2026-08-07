@@ -1,10 +1,16 @@
 import path from "path";
 import express from "express";
 import { createApp } from "./app";
-import { env } from "./env";
+import { assertProductionReserveSafety, env } from "./env";
 import { loadPolicyFromEnv } from "./rules/loadPolicy";
 import { MemoryStorage } from "./storage/memoryStorage";
 import { SupabaseStorage } from "./storage/supabaseStorage";
+
+// Refuse silent legacy/non-atomic check on Supabase unless escape hatch is set.
+assertProductionReserveSafety(process.env, {
+  useSupabase: env.useSupabase,
+  reserveTtlMs: env.reserveTtlMs
+});
 
 const storage = env.useSupabase
   ? new SupabaseStorage(env.supabaseUrl, env.supabaseKey)
@@ -20,6 +26,10 @@ const loaded = loadPolicyFromEnv(process.env, process.cwd());
 console.log(`SoftStop policy: ${loaded.source}`);
 if ((loaded.config.reserveTtlMs ?? 0) > 0) {
   console.log(`SoftStop check-and-reserve TTL: ${loaded.config.reserveTtlMs}ms`);
+} else if (env.useSupabase) {
+  console.warn(
+    "SoftStop legacy check path active on Supabase (SOFTSTOP_UNSAFE_LEGACY_CHECK)."
+  );
 }
 
 const app = createApp(storage, {

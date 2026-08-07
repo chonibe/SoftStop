@@ -42,7 +42,9 @@ describe("check-and-reserve", () => {
   });
 
   it("production/supabase path enables reserve by default unless SOFTSTOP_RESERVE=off", async () => {
-    const { resolveReserveTtlMs } = await import("../api/src/env");
+    const { resolveReserveTtlMs, assertProductionReserveSafety } = await import(
+      "../api/src/env"
+    );
     expect(
       resolveReserveTtlMs(
         { GOVERNOR_STORAGE: "supabase" },
@@ -65,6 +67,39 @@ describe("check-and-reserve", () => {
       )
     ).toBe(0);
     expect(resolveReserveTtlMs({}, { useSupabase: false })).toBe(0);
+
+    // SOFTSTOP_RESERVE=off alone refuses Supabase startup
+    expect(() =>
+      assertProductionReserveSafety(
+        { GOVERNOR_STORAGE: "supabase", SOFTSTOP_RESERVE: "off" },
+        { useSupabase: true, reserveTtlMs: 0 }
+      )
+    ).toThrow(/REFUSING|UNSAFE_LEGACY_CHECK/);
+
+    // Escape hatch allows with warning
+    const warnings: string[] = [];
+    expect(() =>
+      assertProductionReserveSafety(
+        {
+          GOVERNOR_STORAGE: "supabase",
+          SOFTSTOP_UNSAFE_LEGACY_CHECK: "1"
+        },
+        {
+          useSupabase: true,
+          reserveTtlMs: 0,
+          warn: (m) => warnings.push(m)
+        }
+      )
+    ).not.toThrow();
+    expect(warnings.some((w) => /UNSAFE legacy/i.test(w))).toBe(true);
+
+    // Safe default (reserve on) is fine
+    expect(() =>
+      assertProductionReserveSafety(
+        { GOVERNOR_STORAGE: "supabase" },
+        { useSupabase: true, reserveTtlMs: 20_000 }
+      )
+    ).not.toThrow();
   });
 
   it("reserve on: allow returns reserveExpiresAt and holds cost in state", async () => {

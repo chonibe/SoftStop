@@ -20,15 +20,19 @@ See `.env.example` in the repo. SoftStop names first; Governor aliases remain su
 
 Invalid or missing keys return **401**. Body/query `tenantId` is never trusted.
 
+When Supabase credentials are present (`useSupabase`), auth defaults to **required** even if `GOVERNOR_STORAGE` is unset. Explicit `SOFTSTOP_AUTH=off` remains the private single-tenant escape hatch.
+
 ## Reserve (check-and-reserve)
 
 | Variable | Purpose |
 |---|---|
 | (default on Supabase) | `reserveTtlMs=20000` unless turned off |
-| `SOFTSTOP_RESERVE=off` | Legacy read-only check (unsafe under concurrency) |
+| `SOFTSTOP_RESERVE=off` | Requests legacy read-only check — **refused on Supabase** unless escape hatch below |
 | `SOFTSTOP_RESERVE=on` | Enable 20s reserve on memory/dev |
-| `SOFTSTOP_RESERVE_TTL_MS` | Explicit TTL (wins over flags) |
-| `SOFTSTOP_UNSAFE_LEGACY_CHECK=1` | Explicit unsafe legacy read-only mode |
+| `SOFTSTOP_RESERVE_TTL_MS` | Explicit TTL (wins over flags); `0` on Supabase also requires escape hatch |
+| `SOFTSTOP_UNSAFE_LEGACY_CHECK=1` | **Escape hatch:** allow unsafe legacy non-atomic check on Supabase (startup warning; not for production traffic) |
+
+On production-like storage (Supabase), SoftStop **refuses to start** with reserve disabled unless `SOFTSTOP_UNSAFE_LEGACY_CHECK=1` is set. `SOFTSTOP_RESERVE=off` alone is not enough.
 
 ## Policy
 

@@ -46,11 +46,14 @@ function extractApiKey(req: RequestLike): string | null {
 
 /**
  * Auth mode:
- * - Authenticated when GOVERNOR_STORAGE=supabase or SOFTSTOP_AUTH=required
- * - Private single-tenant when SOFTSTOP_AUTH=off (memory/dev default)
+ * - Authenticated when resolved Supabase storage is in use, GOVERNOR_STORAGE=supabase,
+ *   or SOFTSTOP_AUTH=required
+ * - Private single-tenant when SOFTSTOP_AUTH=off (explicit escape hatch even on Supabase)
+ * - Memory/dev default: off
  */
 export function resolveAuthMode(
-  envVars: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env
+  envVars: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env,
+  opts: { useSupabase?: boolean } = {}
 ): AuthMode {
   const flag = String(envVars.SOFTSTOP_AUTH ?? "")
     .trim()
@@ -59,7 +62,10 @@ export function resolveAuthMode(
   if (flag === "required" || flag === "1" || flag === "true" || flag === "on") {
     return "required";
   }
-  if (String(envVars.GOVERNOR_STORAGE ?? "").trim().toLowerCase() === "supabase") {
+  if (
+    opts.useSupabase === true ||
+    String(envVars.GOVERNOR_STORAGE ?? "").trim().toLowerCase() === "supabase"
+  ) {
     return "required";
   }
   return "off";

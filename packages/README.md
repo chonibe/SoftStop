@@ -18,6 +18,6 @@ Browser CDN: `https://softstop.vercel.app/sdk.js`
 
 ## Non-canonical / experimental (do not use for production SoftStop)
 
-`core`, `server`, `storage`, `gateway`, and `cli` are **not** the production safety boundary. See [NON_CANONICAL.md](./NON_CANONICAL.md). SoftStop does **not** ship as an MCP tool firewall — see [archive/mcp-gateway](../archive/mcp-gateway).
+`core`, `server`, `storage`, `gateway`, and `cli` are **not** the production safety boundary. See [NON_CANONICAL.md](./NON_CANONICAL.md). SoftStop does **not** ship as an MCP tool firewall — see [archive/mcp-gateway](../archive/mcp-gateway). Root CI intentionally does not run those packages; archive/removal is follow-up work.
 
 The public SoftStop product is the pressure permit in [`governor/`](../governor/). See [Root README](../README.md), [docs/ROADMAP.md](../docs/ROADMAP.md).

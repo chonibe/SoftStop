@@ -347,6 +347,15 @@ export class MemoryStorage implements Storage {
 
   async recordDecisionAtomic(input: AtomicRecordInput): Promise<AtomicResult> {
     const existing = this.decisions.get(input.decisionId);
+    if (existing) {
+      if (
+        existing.tenantId !== input.tenantId ||
+        existing.userId !== input.userId ||
+        existing.actionType !== input.actionType
+      ) {
+        return { ok: false, error: "decision_mismatch", status: existing.status };
+      }
+    }
     if (existing && existing.status === input.outcome) {
       return { ok: true, idempotent: true, status: existing.status };
     }

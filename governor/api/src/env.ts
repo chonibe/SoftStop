@@ -118,10 +118,62 @@ export function resolveReserveTtlMs(
   return 0;
 }
 
-const authMode: AuthMode = resolveAuthMode({
-  GOVERNOR_STORAGE: data.GOVERNOR_STORAGE,
-  SOFTSTOP_AUTH: data.SOFTSTOP_AUTH
-});
+/**
+ * Production/Supabase must not silently run the non-atomic legacy check path.
+ * Escape hatch: SOFTSTOP_UNSAFE_LEGACY_CHECK=1 (warns loudly, then allows).
+ * SOFTSTOP_RESERVE=off or SOFTSTOP_RESERVE_TTL_MS=0 alone is not enough.
+ */
+export function assertProductionReserveSafety(
+  envVars: {
+    SOFTSTOP_RESERVE_TTL_MS?: string;
+    SOFTSTOP_RESERVE?: string;
+    SOFTSTOP_UNSAFE_LEGACY_CHECK?: string;
+    GOVERNOR_STORAGE?: string;
+  } = data,
+  opts: {
+    useSupabase?: boolean;
+    reserveTtlMs?: number;
+    warn?: (msg: string) => void;
+  } = {}
+): void {
+  const production =
+    opts.useSupabase === true ||
+    useSupabase ||
+    String(envVars.GOVERNOR_STORAGE ?? "").trim().toLowerCase() === "supabase";
+  if (!production) return;
+
+  const ttl =
+    typeof opts.reserveTtlMs === "number"
+      ? opts.reserveTtlMs
+      : resolveReserveTtlMs(envVars, { useSupabase: true });
+  if (ttl > 0) return;
+
+  const warn = opts.warn ?? console.warn.bind(console);
+  const unsafe = isTruthyFlag(envVars.SOFTSTOP_UNSAFE_LEGACY_CHECK);
+  const msg =
+    "SoftStop REFUSING production/Supabase startup with legacy non-atomic check " +
+    "(reserve TTL is 0). Set check-and-reserve (default) or explicitly set " +
+    "SOFTSTOP_UNSAFE_LEGACY_CHECK=1 to acknowledge unsafe concurrency. " +
+    "SOFTSTOP_RESERVE=off alone is not an escape hatch.";
+
+  if (!unsafe) {
+    throw new Error(msg);
+  }
+
+  warn(
+    "WARNING: SoftStop running UNSAFE legacy read-only check on production/Supabase " +
+      "(SOFTSTOP_UNSAFE_LEGACY_CHECK=1). Concurrent allows can overshoot pressure. " +
+      "Not for production traffic."
+  );
+}
+
+const authMode: AuthMode = resolveAuthMode(
+  {
+    GOVERNOR_STORAGE: data.GOVERNOR_STORAGE,
+    SOFTSTOP_AUTH: data.SOFTSTOP_AUTH
+  },
+  { useSupabase }
+);
 
 export const env = {
   useSupabase,

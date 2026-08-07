@@ -38,9 +38,24 @@ See [.env.example](../.env.example) and [apps/docs/self-host/env.md](../apps/doc
 **Production defaults (when using Supabase):**
 
 - Auth required (`SOFTSTOP_AUTH=required` or storage=supabase) — tenant from API key only
-- Check-and-reserve on (`SOFTSTOP_RESERVE_TTL_MS` default 20000) unless `SOFTSTOP_RESERVE=off` / `SOFTSTOP_UNSAFE_LEGACY_CHECK=1`
+- Check-and-reserve on (`SOFTSTOP_RESERVE_TTL_MS` default 20000). Legacy/off mode on Supabase **refuses startup** unless `SOFTSTOP_UNSAFE_LEGACY_CHECK=1` (escape hatch; not for production traffic)
 
-**Canonical runtime:** [`governor/api`](../governor/api). Apply SQL migrations under `governor/api/db/migrations` (includes Wave 2 decision lifecycle RPCs).
+**Canonical runtime:** [`governor/api`](../governor/api). Apply SQL migrations under `governor/api/db/migrations` (includes Wave 2 decision lifecycle RPCs + advisory-lock hardening in `006_*.sql`).
+
+### Postgres acceptance (local)
+
+```bash
+createdb softstop_stress
+export DATABASE_URL=postgres:///softstop_stress
+for f in governor/api/db/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
+SOFTSTOP_PG_STRESS=1 pnpm test:pg-stress
+
+# Legacy-shaped rows then 001→006:
+DATABASE_URL=postgres:///softstop_legacy_mig pnpm test:pg-legacy
+
+# Docker API smoke (memory):
+pnpm docker:smoke
+```
 
 ## Optional hosted demo
 

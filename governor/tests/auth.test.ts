@@ -15,15 +15,31 @@ describe("resolveAuthMode", () => {
     expect(resolveAuthMode({ GOVERNOR_STORAGE: "supabase" })).toBe("required");
   });
 
+  it("requires auth when resolved storage is Supabase (creds present, GOVERNOR_STORAGE unset)", () => {
+    // Production bug: SUPABASE_URL+key imply useSupabase without GOVERNOR_STORAGE=supabase
+    expect(
+      resolveAuthMode(
+        {
+          SUPABASE_URL: "https://example.supabase.co",
+          SUPABASE_SERVICE_ROLE_KEY: "service-role-key"
+        },
+        { useSupabase: true }
+      )
+    ).toBe("required");
+  });
+
   it("SOFTSTOP_AUTH=required forces auth", () => {
     expect(
       resolveAuthMode({ GOVERNOR_STORAGE: "memory", SOFTSTOP_AUTH: "required" })
     ).toBe("required");
   });
 
-  it("SOFTSTOP_AUTH=off disables auth even for supabase", () => {
+  it("SOFTSTOP_AUTH=off disables auth even for supabase (explicit escape hatch)", () => {
     expect(
-      resolveAuthMode({ GOVERNOR_STORAGE: "supabase", SOFTSTOP_AUTH: "off" })
+      resolveAuthMode(
+        { GOVERNOR_STORAGE: "supabase", SOFTSTOP_AUTH: "off" },
+        { useSupabase: true }
+      )
     ).toBe("off");
   });
 });

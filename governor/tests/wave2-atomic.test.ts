@@ -78,6 +78,44 @@ describe("decision lifecycle (Wave 2)", () => {
     expect(result.status).toBe(409);
     expect((result.body as { error?: string }).error).toBe("already_terminal");
   });
+
+  it("reserved → released is terminal; later record(executed) fails", async () => {
+    const storage = new MemoryStorage();
+    const app = createApp(storage, { rulesConfig: withReserve() });
+
+    const check = await request(app).post("/v1/check").send({
+      userId: "release_life_user",
+      actionType: "urgency"
+    });
+    expect(check.status).toBe(200);
+    expect(check.body.allowed).toBe(true);
+    const decisionId = check.body.decisionId as string;
+    expect(storage.decisions.get(decisionId)?.status).toBe("reserved");
+
+    const release = await request(app).post("/v1/release").send({
+      userId: "release_life_user",
+      decisionId
+    });
+    expect(release.status).toBe(200);
+    expect(storage.decisions.get(decisionId)?.status).toBe("released");
+
+    const late = await request(app).post("/v1/record").send({
+      userId: "release_life_user",
+      actionType: "urgency",
+      outcome: "executed",
+      decisionId
+    });
+    expect(late.status).toBe(409);
+    expect(late.body.error).toBe("already_terminal");
+    expect(storage.decisions.get(decisionId)?.status).toBe("released");
+
+    const terminals = storage.events.filter(
+      (e) =>
+        e.decisionId === decisionId &&
+        ["executed", "blocked", "released", "downgraded"].includes(e.eventType)
+    );
+    expect(terminals.map((e) => e.eventType).sort()).toEqual(["released"]);
+  });
 });
 
 describe("API key scopes (Wave 2)", () => {

@@ -49,7 +49,7 @@ export interface AtomicRecordInput {
   userId: string;
   decisionId: string;
   actionType: string;
-  outcome: "executed" | "blocked" | "downgraded";
+  outcome: "executed" | "blocked" | "downgraded" | "released";
   expectedVersion: number;
   nextState: GovernorUserState;
   eventContext: Record<string, unknown>;

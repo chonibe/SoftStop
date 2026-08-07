@@ -477,6 +477,15 @@ export const handleRecord = async (
           }
         };
       }
+      if (atomic.error === "decision_mismatch") {
+        return {
+          status: 409,
+          body: {
+            error: "decision_mismatch",
+            message: "Decision does not belong to this tenant/user/actionType"
+          }
+        };
+      }
       if (atomic.error !== "conflict") {
         return {
           status: 503,
@@ -622,15 +631,81 @@ export const handleRelease = async (
   const expectedVersion =
     typeof state.stateVersion === "number" ? state.stateVersion : 0;
 
+  const eventContext: Record<string, unknown> = {
+    release: true,
+    pressure: decayedPressure(state, now, rulesConfig.decayPerHour)
+  };
+
+  // Terminal lifecycle: reserved → released (atomic when available).
+  if (storage.recordDecisionAtomic) {
+    let wrote = false;
+    let workingNext = nextState;
+    let workingVersion = expectedVersion;
+    for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
+      const atomic = await storage.recordDecisionAtomic({
+        tenantId: tid,
+        userId,
+        decisionId,
+        actionType,
+        outcome: "released",
+        expectedVersion: workingVersion,
+        nextState: workingNext,
+        eventContext
+      });
+      if (atomic.ok) {
+        wrote = true;
+        break;
+      }
+      if (atomic.error === "already_terminal") {
+        return {
+          status: 409,
+          body: {
+            error: "already_terminal",
+            status: atomic.status,
+            message: "Decision already has a different terminal outcome"
+          }
+        };
+      }
+      if (atomic.error === "decision_mismatch") {
+        return {
+          status: 409,
+          body: {
+            error: "decision_mismatch",
+            message: "Decision does not belong to this tenant/user/actionType"
+          }
+        };
+      }
+      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
+      const retryCleared = clearReserveByDecisionId(latest, decisionId, now);
+      workingVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      workingNext = {
+        ...retryCleared,
+        reserves: [...(retryCleared.reserves ?? [])],
+        stateVersion: workingVersion + 1
+      };
+    }
+    if (!wrote) {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "State changed concurrently; retry release"
+        }
+      };
+    }
+    return {
+      status: 200,
+      body: { ok: true, released: had }
+    };
+  }
+
   await storage.insertEvent({
     userId,
     actionType,
     eventType: "released",
     decisionId,
-    context: {
-      release: true,
-      pressure: decayedPressure(state, now, rulesConfig.decayPerHour)
-    },
+    context: eventContext,
     tenantId: tid
   });
 

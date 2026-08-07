@@ -62,21 +62,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t softstop:ci .
-      - name: Run health/livez
+      - name: Run health/livez/check/record
         run: |
-          docker run -d --name softstop-ci -p 3000:3000 -e GOVERNOR_STORAGE=memory softstop:ci
-          for i in $(seq 1 30); do
-            if curl -sf http://127.0.0.1:3000/livez >/dev/null; then
-              curl -sf http://127.0.0.1:3000/readyz
-              curl -sf http://127.0.0.1:3000/v1/health
-              exit 0
-            fi
-            sleep 1
-          done
-          docker logs softstop-ci
-          exit 1
-        env:
-          GOVERNOR_STORAGE: memory
+          chmod +x scripts/docker-smoke.sh
+          SOFTSTOP_DOCKER_IMAGE=softstop:ci SOFTSTOP_DOCKER_NAME=softstop-ci ./scripts/docker-smoke.sh
 
   postgres-concurrency:
     name: Postgres concurrency stress
@@ -119,3 +108,21 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/softstop
           SOFTSTOP_PG_STRESS: "1"
         run: pnpm exec vitest run --config vitest.config.ts governor/tests/pg-concurrency.stress.test.ts
+      - name: Legacy migration safety
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/softstop_legacy
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE softstop_legacy;" || true
+          node scripts/pg-legacy-migration-acceptance.mjs
+      - name: Docker smoke (check/record)
+        if: success() || failure()
+        run: |
+          # Prefer full smoke when docker available in this job; concurrency job may lack docker daemon.
+          if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+            chmod +x scripts/docker-smoke.sh
+            ./scripts/docker-smoke.sh
+          else
+            echo "Skipping docker smoke in postgres job (no daemon); covered by docker-smoke job + local script"
+          fi
