@@ -1,7 +1,7 @@
 # SoftStop → AI Agent Governor / Control Layer
 
 **Date:** 2026-08-07  
-**Status:** Design / gap analysis only (no product implementation in this change)  
+**Status:** High + Medium shipped (Waves 1–2): Python SDK, `withSoftStop` / deny helpers, fail-safe SDK, opt-in check-and-reserve. Later still open: HTTP middleware, OTEL, Helm, P4 hierarchy, Redis Phase C.  
 **Scope:** Evolve SoftStop from a shared human-pressure permit into a reliable **agent control layer** without abandoning authorize-only semantics.  
 **Grounding:** `governor/api` (handlers, engine, storage, schemas), `packages/sdk-js`, docs under `apps/docs` and `docs/ROADMAP.md`.
 
@@ -18,7 +18,7 @@ Today that spine is:
 3. `POST …/record` → advance state on `executed` / `downgraded`; audit on `blocked`
 4. `verify` / `health` (orphan rate) for adoption honesty
 
-Agent wedge (shipped positioning + thin SDK): `beforeContact`, `wrapUserFacingTool`, `suggestedActionType`, multi-actor collision via shared `userId` journal.
+Agent wedge (shipped): `beforeContact`, `wrapUserFacingTool`, `withSoftStop`, `formatBlockedForLlm`, `suggestedActionType` / `suggestedFallback` / `retryAfterMs`, Python SDK, fail-safe modes, opt-in check-and-reserve; multi-actor collision via shared `userId` journal.
 
 ---
 
@@ -26,10 +26,10 @@ Agent wedge (shipped positioning + thin SDK): `beforeContact`, `wrapUserFacingTo
 
 | # | Requirement | Status | Ships today | Partial | Missing |
 |---|-------------|--------|-------------|---------|---------|
-| 1 | **Atomic multi-agent state / race prevention** | **Missing** | Concurrent-allows documented as a known limitation (`apps/docs/api/errors.md`); check logs event; record advances pressure | — | Distributed locks; check-and-reserve / leasing (10–30s hold); expire reserve if no record; OCC / versioned state |
+| 1 | **Atomic multi-agent state / race prevention** | **Partial (shipped opt-in)** | Opt-in check-and-reserve: `reserves[]` + `stateVersion` OCC (memory/Supabase); `SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs` (default `0` = legacy read-only check); lazy expiry; docs in `errors.md` | Default-off legacy concurrent-allows still documented when reserve TTL is 0 | Redis / multi-region locks; `extend-reserve`; making reserve default-on |
 | 2 | **High-throughput token bucket & pressure decay** | **Partial** | Linear decay on read (`decayedPressure`); static per-type `costs`; threshold + caps + stacking window; perf baseline P95 &lt;50ms (`docs/perf/PERFORMANCE.md`) | Continuous-enough decay at evaluation time (not a background ticker) | Classic token-bucket refill; dynamic/runtime action weights; measured &lt;15–30ms P95; hot-path caching / sharded keys |
-| 3 | **Agent-friendly schema & fallback steering** | **Partial** | `allowed`, `reason`, `decisionId`, `cooldownUntil`, `suggestedActionType`, `pressure` / `cost` / `threshold` / `projectedPressure`, `explanation` on deny | Hardcoded urgency/interruption → `reminder` suggestions in `evaluateCheck` | Structured `retryAfterMs`, `suggestedFallback`; client helpers to format blocked payloads for LLM context |
-| 4 | **SDK wrappers / native tool middlewares** | **Partial** | `SoftStop#beforeContact`, `wrapUserFacingTool` (framework-agnostic); examples + governing-ai-agents docs | Hand-rolled `withSoftStop` patterns in workflow docs | First-party Vercel AI SDK / LangChain / etc. middlewares named `withSoftStop`; auto tool-result shaping for models |
+| 3 | **Agent-friendly schema & fallback steering** | **Shipped (compat)** | Deny fields include `retryAfterMs`, `suggestedFallback`, `suggestedActionType` (compat), plus pressure numerics / `explanation`; SDK `formatBlockedForLlm` (JS + Python) | Urgency/interruption → reminder suggestion heuristics in engine | Further LLM-native schemas beyond current helpers |
+| 4 | **SDK wrappers / native tool middlewares** | **Partial** | `beforeContact`, `wrapUserFacingTool`, first-party `withSoftStop` (Vercel AI `tool({ execute })` / LangChain JS shape), Python `before_contact` / `wrap_user_facing_tool`; fail-safe `onUnavailable` | Auto tool-result shaping via `formatBlockedForLlm` | Express/Fastify/Next **HTTP** webhook middleware; more framework packages |
 | 5 | **Multi-tenant identity & hierarchical scoping** | **Partial** | `tenantId` isolation on state/events; scoped API keys; `POST …/users/merge` + tombstones; PostHog helpers (`ph:` / `sc:` / `email:`); optional `surface` / `actor` in context | Identity merge across anonymous→known | Hierarchical pressure scopes (channel / org / thread); pressure aggregation across scope tree; scope keys in check/record schema |
 
 **Legend:** *Ships* = enforceable or callable in current API/SDK. *Partial* = related behavior exists but does not meet the stated requirement. *Missing* = not implemented; do not claim.
@@ -38,13 +38,13 @@ Agent wedge (shipped positioning + thin SDK): `beforeContact`, `wrapUserFacingTo
 
 ## Evidence map (current code)
 
-### Check is read-only for pressure
+### Check + optional reserve
 
-`handleCheck` loads state, calls `evaluateCheck`, inserts a `check` event, returns the decision. It does **not** call `applyOutcome` or `upsertUserState` (`governor/api/src/handlers.ts`).
+When `reserveTtlMs` / `SOFTSTOP_RESERVE_TTL_MS` is `0` (default), `handleCheck` remains read-only for pressure: evaluate, insert `check` event, return decision (legacy concurrent-allows risk remains documented).
 
-`handleRecord` applies outcome and upserts state. Pressure / windows / `lastAnyEscalationAt` advance only for `executed` | `downgraded` (`governor/api/src/rules/engine.ts` → `applyOutcome`).
+When reserve is enabled, allow path appends a short-lived `reserves[]` entry, upserts with `stateVersion` OCC, and returns `reserveExpiresAt`. `handleRecord` clears the matching reserve and applies outcome for `executed` | `downgraded`.
 
-**Race:** two agents can both receive `allowed: true` before either records. Storage upsert is last-write-wins (`SupabaseStorage.upsertUserState` / `MemoryStorage`) with **no** version, lease, or compare-and-set.
+**Race (reserve off):** two agents can both receive `allowed: true` before either records. **Race (reserve on):** effective pressure includes active reserves; OCC retries bound lost updates (not Redis multi-region locks).
 
 ### Decay and costs (not a token bucket)
 
@@ -66,7 +66,7 @@ On deny, check response may include:
 | `cooldownUntil` | ISO when cooldown is the reason |
 | `pressure`, `cost`, `threshold`, `projectedPressure` | Numeric context |
 
-No `retryAfterMs`, no structured `suggestedFallback`, no SDK `formatBlockedForLlm` (or similar).
+Shipped: `retryAfterMs`, structured `suggestedFallback`, SDK `formatBlockedForLlm` (keep `suggestedActionType` as compat).
 
 ### Agent SDK today
 
@@ -74,8 +74,11 @@ No `retryAfterMs`, no structured `suggestedFallback`, no SDK `formatBlockedForLl
 |--------|----------------|
 | `beforeContact` | check → run → record executed, or record blocked and skip |
 | `wrapUserFacingTool` | Same pattern around a tool handler; returns `{ ok, reason, suggestedActionType }` |
+| `withSoftStop` | Zero-boilerplate wrapper for Vercel AI `tool({ execute })` / LangChain JS-shaped execute |
+| `formatBlockedForLlm` | Stable string for tool/LLM deny context |
+| Fail-safe | `onUnavailable: 'fail_closed' \| 'fail_open'` + `timeoutMs` when SoftStop is unreachable |
 
-These are **agnostic wrappers**, not Vercel AI SDK / LangChain plugin packages. Callers still must surface block fields into the model message themselves.
+Agnostic helpers plus first-party `withSoftStop`; HTTP webhook middleware and more framework packages remain Later.
 
 ### Identity / tenancy today
 
@@ -93,7 +96,7 @@ There is **no** channel/thread/org hierarchical pressure key in `checkSchema` / 
 
 ## Prioritized technical roadmap
 
-### P0 — Check-and-reserve (atomic multi-agent permits) — **highest product gap**
+### P0 — Check-and-reserve (atomic multi-agent permits) — **shipped opt-in (Phases A/B)**
 
 **Why first:** Multi-agent collision is SoftStop’s primary agent story. Without reservation, two runtimes can both “pass” and both interrupt the same human. Docs already admit this; claiming “governor / control layer” without fixing it overpromises.
 
@@ -133,7 +136,7 @@ This avoids Redis for v1 while preventing lost updates between check and record.
 
 **Out of scope for P0:** rewriting the product as a distributed lock service; MCP gateway; changing authorize-only semantics.
 
-### P1 — Richer agent fallbacks + LLM formatting helpers
+### P1 — Richer agent fallbacks + LLM formatting helpers — **shipped**
 
 Build on existing fields; do not break current clients.
 
@@ -154,7 +157,7 @@ Keep `suggestedActionType` as a **compat alias** (map from `suggestedFallback.ac
 
 Dynamic action weights: policy-time costs already exist; “dynamic” (context-dependent cost) needs a design (context keys → cost multipliers) — later than reserve.
 
-### P3 — Framework-native middlewares
+### P3 — Framework-native middlewares — **partial** (`withSoftStop` shipped; HTTP middleware Later)
 
 - Keep `beforeContact` / `wrapUserFacingTool` as the core.
 - Add thin packages or export entrypoints: e.g. `withSoftStop` for Vercel AI `tool()` / LangChain tools that auto-inject LLM-friendly deny payloads (`formatBlockedForLlm`).
@@ -253,10 +256,9 @@ Dynamic action weights: policy-time costs already exist; “dynamic” (context-
 
 Do **not** claim in README, demo, or press until implemented and verified:
 
-- Production **race-safety**, **locking**, or **atomic multi-agent permits**
-- **Token-bucket** rate limiting or **&lt;15–30ms** hosted latency guarantees
-- Structured **`retryAfterMs` / `suggestedFallback`** or “LLM-native” deny payloads as shipped API
-- **Native** Vercel AI SDK / LangChain middlewares (beyond agnostic `beforeContact` / `wrapUserFacingTool`)
+- **Race-safety by default** when reserve TTL is off (legacy check); Redis / multi-region **locking**
+- **Token-bucket** rate limiting or **&lt;15–30ms** hosted latency guarantees without measured evidence
+- Express/Fastify/Next **HTTP webhook middleware**, OTEL/Datadog exporters, or Helm charts
 - **Hierarchical** channel/org/thread pressure (beyond `tenantId` + per-`userId` + merge)
 - SoftStop as MCP tool firewall, CDP, messaging platform, or HITL replacement
 - That `verify`/`health` prove every company system is wired (orphan rate is observed-traffic only)
@@ -265,8 +267,8 @@ Safe claims today:
 
 - Deterministic shared permit for human-facing escalations
 - Agents + channels can share one user journal
-- Thin agent helpers exist; callers still own framework integration and model prompting
-- Concurrent allows remain a documented limitation until reserve ships
+- `withSoftStop` / `formatBlockedForLlm` / Python SDK / fail-safe modes ship; callers still own model prompting
+- Opt-in check-and-reserve reduces concurrent double-allows when enabled; default remains legacy until TTL &gt; 0
 
 ---
 
@@ -282,4 +284,4 @@ Safe claims today:
 
 ## Suggested next step
 
-Invoke **writing-plans** for P0 only: check-and-reserve with in-state leases + optimistic version, opt-in policy flag, tests for dual concurrent allows → single effective spend, SDK/`beforeContact` unchanged behavior under flag-off, docs honesty updates when flag-on becomes default.
+High + Medium from this spec are **shipped** (see [docs/ROADMAP.md](../../ROADMAP.md)). Next product work is **Later** only: HTTP webhook middleware, OTEL/decision export, Helm, P4 hierarchical scopes, and reserve Phase C (Redis / extend-reserve) when design-partner demand appears. Optional: make reserve default-on after more production soak.

@@ -18,12 +18,25 @@
 - Adoption contract (`verify`, `health`)
 - Node / Python / browser examples + agent-touchpoint
 
-## v0.2.x (active / shipping)
+## High + Medium (shipped — Waves 1–2)
 
-- Publish `softstop` to the public npm registry (**done** — `softstop@0.2.1`)
+Production OSS priorities from the AI / agent control-layer plan:
+
+| Priority | Item | Status |
+|----------|------|--------|
+| High | JS `withSoftStop` + `formatBlockedForLlm` + deny fields (`retryAfterMs` / `suggestedFallback`) | **Shipped** (0.2.2) |
+| High | Python SDK (`pip install softstop`) + agent wrappers / examples | **Shipped** |
+| High | 1-click self-host polish (Docker / Fly / Railway), GH Actions + README badges, measured local latency note | **Shipped** |
+| Medium | SDK fail-safe (`onUnavailable` fail_closed / fail_open + `timeoutMs`) | **Shipped** |
+| Medium | Opt-in check-and-reserve + OCC (`SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs`; default `0` = legacy) | **Shipped** |
+
+Also in active 0.2.x:
+
+- Publish `softstop` to the public npm registry (**done** — `softstop@0.2.1`+)
 - Thin agent adapters: `beforeContact` + `wrapUserFacingTool` (shipped in 0.2.1)
-- Docs: [Governing AI agents](../apps/docs/start/governing-ai-agents.md) — circuit breaker, deterministic state, `suggestedActionType`, multi-agent collision
-- **0.2.2:** `suggestedFallback` / `retryAfterMs`, `formatBlockedForLlm`, `withSoftStop` (Vercel AI `tool({ execute })`)
+- Docs: [Governing AI agents](../apps/docs/start/governing-ai-agents.md)
+
+Design detail: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). SoftStop does **not** claim Redis locks or race-safety when reserve is off.
 
 ## Explicitly not v0.1 / v0.2
 
@@ -35,16 +48,14 @@
 
 - Commercial control plane (SSO, SIEM, distributed caps, policy UI) — pull-triggered; see [commercial-strategy.md](commercial-strategy.md)
 - Experimental MCP extraction remains under [archive/mcp-gateway](../archive/mcp-gateway)
-
-### AI agent control layer (prioritized Later)
-
-Design: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). Pressure decay + action costs **already ship**; do not re-list them here. SoftStop does **not** claim Redis locks or race-safety on plain `check` today.
-
-1. **P0 — Check-and-reserve / race prevention** — **shipped (opt-in):** `reserves[]` + `stateVersion` OCC on memory/Supabase; enable with `SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs` (default `0` = legacy). Docs: [errors.md](../apps/docs/api/errors.md#concurrent-allows-race).
-2. **P1 — Richer blocked schema + LLM helpers** — **shipped in 0.2.2** (`retryAfterMs` / `suggestedFallback` / `formatBlockedForLlm`; keep `suggestedActionType`).
-3. **P2 — Latency / throughput** — instrument check P95; aspirational &lt;15–30ms local/memory; do not claim token-bucket until designed separately.
-4. **P3 — Framework middlewares** — **partial in 0.2.2** (`withSoftStop` for Vercel AI `tool({ execute })` / LangChain JS shape); more adapters later.
-5. **P4 — Hierarchical pressure scopes** — optional channel / org / thread budgets atop `tenantId` + `userId` + merge.
+- **HTTP middleware** for webhooks / push triggers (Express / Fastify / Next) — beyond `withSoftStop` tool wrappers
+- **OTEL / Datadog / decision webhooks** for decision export
+- **Helm chart** for Kubernetes self-host
+- **P4 — Hierarchical pressure scopes** — optional channel / org / thread budgets atop `tenantId` + `userId` + merge
+- Redis multi-region locks / `extend-reserve` (reserve Phase C)
+- Hosted sub-10–20ms latency guarantees without measured evidence
+- P2 aspirational local/memory P95 &lt;15–30ms beyond current measured baseline; classic token-bucket if designed separately
+- Additional framework adapters beyond Vercel AI / LangChain JS `withSoftStop` shape
 
 ## Shipped after feedback (2026-08)
 
