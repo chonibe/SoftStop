@@ -20,6 +20,10 @@ describe("Governor Health API", () => {
     expect(typeof response.body.metrics.totalOutcomes).toBe("number");
     expect(typeof response.body.metrics.orphanCount).toBe("number");
     expect(typeof response.body.metrics.orphanRate).toBe("number");
+    expect(typeof response.body.metrics.expiredReserveCount).toBe("number");
+    expect(typeof response.body.metrics.expiredReserveRate).toBe("number");
+    expect(response.body.metrics.expiredReserveCount).toBe(0);
+    expect(response.body.metrics.expiredReserveRate).toBe(0);
     expect(typeof response.body.metrics.blockRate).toBe("number");
     expect(typeof response.body.metrics.healthScore).toBe("number");
     expect(response.body.metrics.actionTypeDistribution).toBeInstanceOf(Object);

@@ -1,7 +1,7 @@
 # SoftStop → AI Agent Governor / Control Layer
 
 **Date:** 2026-08-07  
-**Status:** High + Medium shipped (Waves 1–2): Python SDK, `withSoftStop` / deny helpers, fail-safe SDK, opt-in check-and-reserve. Later still open: HTTP middleware, OTEL, Helm, P4 hierarchy, Redis Phase C.  
+**Status:** High + Medium shipped (Waves 1–2), plus reserve Phase B honesty (`POST …/release`, strict late-record, `expiredReserveRate`). Later still open: HTTP middleware, OTEL, Helm, P4 hierarchy, Redis Phase C.  
 **Scope:** Evolve SoftStop from a shared human-pressure permit into a reliable **agent control layer** without abandoning authorize-only semantics.  
 **Grounding:** `governor/api` (handlers, engine, storage, schemas), `packages/sdk-js`, docs under `apps/docs` and `docs/ROADMAP.md`.
 
@@ -26,7 +26,7 @@ Agent wedge (shipped): `beforeContact`, `wrapUserFacingTool`, `withSoftStop`, `f
 
 | # | Requirement | Status | Ships today | Partial | Missing |
 |---|-------------|--------|-------------|---------|---------|
-| 1 | **Atomic multi-agent state / race prevention** | **Partial (shipped opt-in)** | Opt-in check-and-reserve: `reserves[]` + `stateVersion` OCC (memory/Supabase); `SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs` (default `0` = legacy read-only check); lazy expiry; docs in `errors.md` | Default-off legacy concurrent-allows still documented when reserve TTL is 0 | Redis / multi-region locks; `extend-reserve`; making reserve default-on |
+| 1 | **Atomic multi-agent state / race prevention** | **Partial (shipped opt-in)** | Opt-in check-and-reserve: `reserves[]` + `stateVersion` OCC; `POST …/release`; strict late-record (`applied` / `reserveExpired`); `expiredReserveRate` on health; `SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs` (default `0`); docs in `errors.md` / `release.md` | Default-off legacy concurrent-allows still documented when reserve TTL is 0 | Redis / multi-region locks; `extend-reserve`; making reserve default-on |
 | 2 | **High-throughput token bucket & pressure decay** | **Partial** | Linear decay on read (`decayedPressure`); static per-type `costs`; threshold + caps + stacking window; perf baseline P95 &lt;50ms (`docs/perf/PERFORMANCE.md`) | Continuous-enough decay at evaluation time (not a background ticker) | Classic token-bucket refill; dynamic/runtime action weights; measured &lt;15–30ms P95; hot-path caching / sharded keys |
 | 3 | **Agent-friendly schema & fallback steering** | **Shipped (compat)** | Deny fields include `retryAfterMs`, `suggestedFallback`, `suggestedActionType` (compat), plus pressure numerics / `explanation`; SDK `formatBlockedForLlm` (JS + Python) | Urgency/interruption → reminder suggestion heuristics in engine | Further LLM-native schemas beyond current helpers |
 | 4 | **SDK wrappers / native tool middlewares** | **Partial** | `beforeContact`, `wrapUserFacingTool`, first-party `withSoftStop` (Vercel AI `tool({ execute })` / LangChain JS shape), Python `before_contact` / `wrap_user_facing_tool`; fail-safe `onUnavailable` | Auto tool-result shaping via `formatBlockedForLlm` | Express/Fastify/Next **HTTP** webhook middleware; more framework packages |
@@ -122,11 +122,13 @@ There is **no** channel/thread/org hierarchical pressure key in `checkSchema` / 
 
 This avoids Redis for v1 while preventing lost updates between check and record.
 
-#### Phase B — Lease semantics + client contract
+#### Phase B — Lease semantics + client contract — **shipped**
 
-- Check response (allow): add optional `reserveExpiresAt` (ISO) and/or `reserveTtlMs`.
+- Check response (allow): optional `reserveExpiresAt` (ISO) and/or `reserveTtlMs`.
 - Clients must `record` before expiry; adapters (`beforeContact`) already record immediately after `run` — keep that path short.
-- Document: long-running side effects that exceed TTL must re-check or extend (extension is Phase C).
+- Document: long-running side effects that exceed TTL must re-check (strict late-record: `applied: false` / `reserveExpired: true`) or extend (extension is Phase C).
+- `POST …/release` frees an active lease without applying cost.
+- Health: `expiredReserveRate` / `expiredReserveCount` when reserve mode is on.
 
 #### Phase C — Distributed hardening (later; design-partner demand)
 

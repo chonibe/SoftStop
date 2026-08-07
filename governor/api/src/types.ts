@@ -27,7 +27,8 @@ export type GovernorEventType =
   | "executed"
   | "blocked"
   | "downgraded"
-  | "merged";
+  | "merged"
+  | "released";
 
 export type DecisionReason =
   | "allowed"

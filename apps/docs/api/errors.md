@@ -25,8 +25,8 @@ Verified against SoftStop API handlers (`governor/api`):
 
 | Status | When |
 |---|---|
-| `200` | Successful `check`, `record`, `health`, pressure read, etc. |
-| `400` | Invalid body / params (Zod flatten on `check`/`record`; bad `actionType` slug; `actionType` not in loaded policy; missing `userId` on pressure) |
+| `200` | Successful `check`, `record`, `release`, `health`, pressure read, etc. |
+| `400` | Invalid body / params (Zod flatten on `check`/`record`/`release`; bad `actionType` slug; `actionType` not in loaded policy; missing `userId` on pressure; `release` when reserve mode is off) |
 | `409` | Identity merge conflict (merge endpoint only) |
 | `500` | `verify` failed (check not allowed, or check/record link not persisted) |
 
@@ -83,10 +83,14 @@ Always pass the `decisionId` returned by `check` into the matching `record`. Hea
 
 **With check-and-reserve enabled** (`reserveTtlMs > 0` or `SOFTSTOP_RESERVE_TTL_MS`):
 
-- On allow, SoftStop holds the action cost in `reserves[]` until `record` or TTL expiry (default **20s** when enabled via `SOFTSTOP_RESERVE=1`).
+- On allow, SoftStop holds the action cost in `reserves[]` until `record`, [`release`](/api/release), or TTL expiry (default **20s** when enabled via `SOFTSTOP_RESERVE=1`).
 - Effective pressure = decayed ledger + active reserve costs; a concurrent check that would exceed the threshold is denied (`pressure_exceeded`).
 - Allow responses include `reserveExpiresAt` (and `reserveTtlMs`).
-- `record` clears the matching reserve by `decisionId`. Expired reserves are dropped lazily on the next check/record.
+- `record` clears the matching reserve by `decisionId`. Expired reserves are dropped lazily on the next check/record/release.
+- **Strict late-record:** if the reserve TTL already expired, `executed` / `downgraded` still accept the outcome for orphan hygiene but **do not** apply pressure cost. Response includes `applied: false` and `reserveExpired: true` — re-`check` before sending again.
+- When the reserve was still active, `record` returns `applied: true` (and omits `reserveExpired`).
+- Crash / abort after allow: call [`POST …/release`](/api/release) to free the lease without charging pressure.
+- Health exposes `expiredReserveRate` (and `expiredReserveCount`) for checks past TTL with no closing outcome — see [orphan rate](/ops/orphan-rate).
 - User state uses `stateVersion` optimistic concurrency (memory + Supabase) so concurrent allows retry rather than both writing.
 
 Enable:
@@ -114,5 +118,6 @@ Prefer SoftStop names; legacy Governor names still work where documented:
 
 - [check](/api/check)
 - [record](/api/record)
+- [release](/api/release)
 - [Default pack](/policies/default-pack)
 - [Troubleshooting](/ops/troubleshooting)

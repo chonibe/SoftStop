@@ -58,6 +58,34 @@ export const clearReserveByDecisionId = (
   };
 };
 
+/** True when decisionId has a non-expired reserve hold. */
+export const hasActiveReserve = (
+  state: GovernorUserState,
+  decisionId: string | undefined,
+  now: Date
+): boolean => {
+  if (!decisionId) return false;
+  const pruned = pruneExpiredReserves(state, now);
+  return (pruned.reserves ?? []).some((r) => r.decisionId === decisionId);
+};
+
+/**
+ * Under opt-in reserve, late executed/downgraded after lease expiry must not
+ * apply cost. Callers use this for `applied` / `reserveExpired` on record.
+ */
+export const isStrictReserveExpired = (
+  state: GovernorUserState,
+  decisionId: string | undefined,
+  outcome: "executed" | "downgraded" | "blocked",
+  config: GovernorRulesConfig,
+  now: Date
+): boolean => {
+  if ((config.reserveTtlMs ?? 0) <= 0) return false;
+  if (outcome !== "executed" && outcome !== "downgraded") return false;
+  if (!decisionId) return false;
+  return !hasActiveReserve(state, decisionId, now);
+};
+
 export const appendReserve = (
   state: GovernorUserState,
   reserve: PressureReserve,
@@ -279,6 +307,13 @@ export const applyOutcome = (
   config: GovernorRulesConfig = defaultRulesConfig,
   options: ApplyOutcomeOptions = {}
 ): GovernorUserState => {
+  const skipCost = isStrictReserveExpired(
+    state,
+    options.decisionId,
+    outcome,
+    config,
+    now
+  );
   const cleared = clearReserveByDecisionId(state, options.decisionId, now);
   const next = { ...cleared };
   next.cooldowns = { ...cleared.cooldowns };
@@ -298,7 +333,7 @@ export const applyOutcome = (
     next.cooldowns[actionType] = cooldownUntil;
   }
 
-  if (outcome === "executed" || outcome === "downgraded") {
+  if ((outcome === "executed" || outcome === "downgraded") && !skipCost) {
     const pressure = decayedPressure(cleared, now, config.decayPerHour);
     const cost = config.costs[actionType];
     next.pressure = pressure + cost;

@@ -49,3 +49,9 @@ export const mergeSchema = z.object({
   toUserId: z.string().min(1),
   tenantId: z.string().min(1).optional()
 });
+
+export const releaseSchema = z.object({
+  decisionId: z.string().uuid(),
+  userId: z.string().min(1),
+  tenantId: z.string().min(1).optional()
+});

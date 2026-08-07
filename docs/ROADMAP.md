@@ -29,6 +29,7 @@ Production OSS priorities from the AI / agent control-layer plan:
 | High | 1-click self-host polish (Docker / Fly / Railway), GH Actions + README badges, measured local latency note | **Shipped** |
 | Medium | SDK fail-safe (`onUnavailable` fail_closed / fail_open + `timeoutMs`) | **Shipped** |
 | Medium | Opt-in check-and-reserve + OCC (`SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs`; default `0` = legacy) | **Shipped** |
+| Medium | Reserve Phase B honesty: `POST …/release`, strict late-record (`applied` / `reserveExpired`), `expiredReserveRate` on health | **Shipped** |
 
 Also in active 0.2.x:
 
@@ -36,7 +37,7 @@ Also in active 0.2.x:
 - Thin agent adapters: `beforeContact` + `wrapUserFacingTool` (shipped in 0.2.1)
 - Docs: [Governing AI agents](../apps/docs/start/governing-ai-agents.md)
 
-Design detail: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). SoftStop does **not** claim Redis locks or race-safety when reserve is off.
+Design detail: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). SoftStop does **not** claim Redis locks or race-safety when reserve is off. Concurrency Wave A (release + expired-reserve metrics + strict late-record): [concurrency & integration rigor](superpowers/specs/2026-08-07-concurrency-integration-rigor-design.md).
 
 ## Explicitly not v0.1 / v0.2
 
@@ -52,7 +53,7 @@ Design detail: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-des
 - **OTEL / Datadog / decision webhooks** for decision export
 - **Helm chart** for Kubernetes self-host
 - **P4 — Hierarchical pressure scopes** — optional channel / org / thread budgets atop `tenantId` + `userId` + merge
-- Redis multi-region locks / `extend-reserve` (reserve Phase C)
+- Redis multi-region locks / `extend-reserve` (reserve Phase C) — Wave A (release + `expiredReserveRate` + strict late-record) **shipped**; mutex/outbound gateway remain out of OSS core — see [concurrency & integration rigor design](superpowers/specs/2026-08-07-concurrency-integration-rigor-design.md)
 - Hosted sub-10–20ms latency guarantees without measured evidence
 - P2 aspirational local/memory P95 &lt;15–30ms beyond current measured baseline; classic token-bucket if designed separately
 - Additional framework adapters beyond Vercel AI / LangChain JS `withSoftStop` shape

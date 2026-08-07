@@ -32,6 +32,7 @@ const sidebar = [
     items: [
       { text: 'check', link: '/api/check' },
       { text: 'record', link: '/api/record' },
+      { text: 'release', link: '/api/release' },
       { text: 'merge', link: '/api/merge' },
       { text: 'pressure & activity', link: '/api/pressure' },
       { text: 'verify', link: '/api/verify' },

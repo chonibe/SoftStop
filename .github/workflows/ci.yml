@@ -17,9 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Version comes from root package.json "packageManager" (pnpm@8.15.4).
+      # Do not also set `version` here — pnpm/action-setup errors on mismatch.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 8
 
       - uses: actions/setup-node@v4
         with:

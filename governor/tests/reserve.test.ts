@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import request from "supertest";
 import { createApp } from "../api/src/app";
+import { handleCheck, handleRecord, handleRelease } from "../api/src/handlers";
 import { MemoryStorage } from "../api/src/storage/memoryStorage";
 import { defaultRulesConfig, GovernorRulesConfig } from "../api/src/rules/config";
 import {
@@ -150,6 +151,88 @@ describe("check-and-reserve (opt-in)", () => {
     // effective pressure includes active reserve hold
     expect(decision.pressure).toBe(100);
     expect(decision.projectedPressure).toBe(140);
+  });
+
+  it("late executed after reserve expiry does not apply cost (strict)", async () => {
+    const storage = new MemoryStorage();
+    const config = withReserve(20_000);
+    const check = await handleCheck(
+      storage,
+      { userId: "u1", actionType: "urgency" },
+      config
+    );
+    expect(check.body.allowed).toBe(true);
+    const decisionId = (check.body as { decisionId: string }).decisionId;
+
+    const state = await storage.getUserState("u1");
+    await storage.upsertUserState("u1", {
+      ...state!,
+      reserves: (state!.reserves ?? []).map((r) => ({
+        ...r,
+        expiresAt: new Date(Date.now() - 1000).toISOString()
+      }))
+    });
+
+    const pressureBefore = (await storage.getUserState("u1"))!.pressure ?? 0;
+    const record = await handleRecord(
+      storage,
+      {
+        decisionId,
+        userId: "u1",
+        actionType: "urgency",
+        outcome: "executed"
+      },
+      config
+    );
+    expect(record.status).toBe(200);
+    expect((record.body as { applied: boolean }).applied).toBe(false);
+    expect((record.body as { reserveExpired: boolean }).reserveExpired).toBe(true);
+    const after = await storage.getUserState("u1");
+    expect(after!.pressure ?? 0).toBe(pressureBefore);
+  });
+
+  it("release clears reserve without applying cost", async () => {
+    const storage = new MemoryStorage();
+    const config = withReserve(20_000);
+    const check = await handleCheck(
+      storage,
+      { userId: "u2", actionType: "interruption" },
+      config
+    );
+    const decisionId = (check.body as { decisionId: string }).decisionId;
+    const before = await storage.getUserState("u2");
+    expect(before!.reserves?.length).toBe(1);
+
+    const rel = await handleRelease(
+      storage,
+      { decisionId, userId: "u2" },
+      config
+    );
+    expect(rel.status).toBe(200);
+    expect((rel.body as { released: boolean }).released).toBe(true);
+    const after = await storage.getUserState("u2");
+    expect(after!.reserves ?? []).toEqual([]);
+    expect(after!.pressure ?? 0).toBe(before!.pressure ?? 0);
+  });
+
+  it("health reports expiredReserveRate when reserved check ages past TTL", async () => {
+    const storage = new MemoryStorage();
+    const ttlMs = 20_000;
+    const app = createApp(storage, { rulesConfig: withReserve(ttlMs) });
+
+    await request(app).post("/v1/check").send({
+      userId: "expire_metric",
+      actionType: "urgency"
+    });
+
+    const checkEvent = storage.events.find((e) => e.eventType === "check");
+    expect(checkEvent).toBeTruthy();
+    checkEvent!.createdAt = new Date(Date.now() - ttlMs - 1000).toISOString();
+
+    const health = await request(app).get("/v1/health").query({ periodHours: 24 });
+    expect(health.status).toBe(200);
+    expect(health.body.metrics.expiredReserveCount).toBe(1);
+    expect(health.body.metrics.expiredReserveRate).toBe(1);
   });
 
   it("record clears matching reserve and applies cost once", async () => {

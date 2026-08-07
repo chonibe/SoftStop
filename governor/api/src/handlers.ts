@@ -1,19 +1,22 @@
 import { randomUUID } from "crypto";
 import { formatExplanation } from "./clarity";
-import { checkSchema, recordSchema, mergeSchema } from "./schemas";
+import { checkSchema, recordSchema, mergeSchema, releaseSchema } from "./schemas";
 import { Storage } from "./storage/storage";
 import {
   appendReserve,
   applyOutcome,
+  clearReserveByDecisionId,
   decayedPressure,
   emptyState,
   evaluateCheck,
+  hasActiveReserve,
+  isStrictReserveExpired,
   mergeUserStates,
   pruneExpiredReserves,
   tombstoneState
 } from "./rules/engine";
 import { defaultRulesConfig, GovernorRulesConfig, isPolicyActionType } from "./rules/config";
-import { OutcomeType } from "./types";
+import { ActionType, OutcomeType } from "./types";
 
 const unknownActionTypeError = (actionType: string) => ({
   status: 400 as const,
@@ -52,7 +55,8 @@ const DEFAULT_TENANT = "default";
 export const handleHealth = async (
   storage: Storage,
   periodHours?: number,
-  tenantId?: string
+  tenantId?: string,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
 ): Promise<{ status: number; body: unknown }> => {
   if (!storage.getHealthMetrics) {
     return {
@@ -62,7 +66,11 @@ export const handleHealth = async (
   }
 
   const tid = tenantId ?? DEFAULT_TENANT;
-  const metrics = await storage.getHealthMetrics(periodHours ?? 24, tid);
+  const metrics = await storage.getHealthMetrics(
+    periodHours ?? 24,
+    tid,
+    reserveTtlMs(rulesConfig)
+  );
   return { status: 200, body: { ok: true, metrics } };
 };
 
@@ -321,6 +329,14 @@ export const handleRecord = async (
   const state = (await storage.getUserState(userId, tid)) ?? emptyState();
   const pressureBefore = decayedPressure(state, now, rulesConfig.decayPerHour);
   const cost = rulesConfig.costs[actionType];
+  const reserveExpired = isStrictReserveExpired(
+    state,
+    decisionId,
+    outcome as OutcomeType,
+    rulesConfig,
+    now
+  );
+  const applied = !reserveExpired;
   const nextState = applyOutcome(
     state,
     actionType,
@@ -341,7 +357,11 @@ export const handleRecord = async (
   eventContext.projectedPressure = pressureBefore + cost;
   if (outcome === "executed" || outcome === "downgraded") {
     eventContext.pressureAfter =
-      typeof nextState.pressure === "number" ? nextState.pressure : pressureBefore + cost;
+      typeof nextState.pressure === "number" ? nextState.pressure : pressureBefore;
+    if (reserveExpired) {
+      eventContext.reserveExpired = true;
+      eventContext.applied = false;
+    }
   }
   if (blockReason) {
     eventContext.reason = blockReason;
@@ -390,16 +410,103 @@ export const handleRecord = async (
     await storage.upsertUserState(userId, nextState, tid);
   }
 
+  const body: Record<string, unknown> = {
+    ok: true,
+    applied,
+    pressure:
+      typeof nextState.pressure === "number"
+        ? decayedPressure(nextState, now, rulesConfig.decayPerHour)
+        : pressureBefore,
+    threshold: rulesConfig.threshold
+  };
+  if (reserveExpired) {
+    body.reserveExpired = true;
+  }
+  return { status: 200, body };
+};
+
+export const handleRelease = async (
+  storage: Storage,
+  payload: unknown,
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+) => {
+  if (reserveTtlMs(rulesConfig) <= 0) {
+    return {
+      status: 400,
+      body: { error: "release requires reserve mode (reserveTtlMs > 0)" }
+    };
+  }
+  const parsed = releaseSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { status: 400, body: { error: parsed.error.flatten() } };
+  }
+
+  const { decisionId, userId, tenantId } = parsed.data;
+  const tid = tenantId ?? DEFAULT_TENANT;
+  const now = new Date();
+  const state = (await storage.getUserState(userId, tid)) ?? emptyState();
+  const had = hasActiveReserve(state, decisionId, now);
+  const reserveEntry = (pruneExpiredReserves(state, now).reserves ?? []).find(
+    (r) => r.decisionId === decisionId
+  );
+  const actionType: ActionType = reserveEntry?.actionType ?? "reminder";
+
+  const cleared = clearReserveByDecisionId(state, decisionId, now);
+  const version = typeof cleared.stateVersion === "number" ? cleared.stateVersion : 0;
+  const nextState = {
+    ...cleared,
+    reserves: [...(cleared.reserves ?? [])],
+    stateVersion: version + 1
+  };
+  const expectedVersion =
+    typeof state.stateVersion === "number" ? state.stateVersion : 0;
+
+  await storage.insertEvent({
+    userId,
+    actionType,
+    eventType: "released",
+    decisionId,
+    context: {
+      release: true,
+      pressure: decayedPressure(state, now, rulesConfig.decayPerHour)
+    },
+    tenantId: tid
+  });
+
+  if (storage.tryUpsertUserState) {
+    const result = await storage.tryUpsertUserState(
+      userId,
+      nextState,
+      expectedVersion,
+      tid
+    );
+    if (result === "conflict") {
+      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
+      const retryCleared = clearReserveByDecisionId(latest, decisionId, now);
+      const latestVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      const retried = {
+        ...retryCleared,
+        reserves: [...(retryCleared.reserves ?? [])],
+        stateVersion: latestVersion + 1
+      };
+      const retryResult = await storage.tryUpsertUserState(
+        userId,
+        retried,
+        latestVersion,
+        tid
+      );
+      if (retryResult === "conflict") {
+        await storage.upsertUserState(userId, retried, tid);
+      }
+    }
+  } else {
+    await storage.upsertUserState(userId, nextState, tid);
+  }
+
   return {
     status: 200,
-    body: {
-      ok: true,
-      pressure:
-        typeof nextState.pressure === "number"
-          ? decayedPressure(nextState, now, rulesConfig.decayPerHour)
-          : pressureBefore,
-      threshold: rulesConfig.threshold
-    }
+    body: { ok: true, released: had }
   };
 };
 

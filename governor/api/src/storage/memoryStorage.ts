@@ -48,19 +48,25 @@ export class MemoryStorage implements Storage {
     this.events.push(withTimestamp);
   }
 
-  async getHealthMetrics(periodHours = 24, tenantId = "default"): Promise<HealthMetrics> {
+  async getHealthMetrics(
+    periodHours = 24,
+    tenantId = "default",
+    reserveTtlMs = 0
+  ): Promise<HealthMetrics> {
     const cutoff = Date.now() - periodHours * 60 * 60 * 1000;
     const recent = this.events.filter(
       (e) => (e.tenantId ?? "default") === tenantId && (e.createdAt ? new Date(e.createdAt).getTime() : 0) >= cutoff
     );
 
+    const closingTypes = ["executed", "blocked", "downgraded", "released"];
     const checks = recent.filter((e) => e.eventType === "check" && e.decisionId);
     const outcomes = recent.filter((e) =>
       ["executed", "blocked", "downgraded"].includes(e.eventType)
     );
+    const closing = recent.filter((e) => closingTypes.includes(e.eventType));
 
-    const outcomeDecisionIds = new Set(outcomes.map((o) => o.decisionId).filter(Boolean));
-    const orphanCount = checks.filter((c) => !outcomeDecisionIds.has(c.decisionId!)).length;
+    const closingDecisionIds = new Set(closing.map((o) => o.decisionId).filter(Boolean));
+    const orphanCount = checks.filter((c) => !closingDecisionIds.has(c.decisionId!)).length;
 
     const totalChecks = checks.length;
     const totalOutcomes = outcomes.length;
@@ -69,6 +75,18 @@ export class MemoryStorage implements Storage {
       totalOutcomes > 0
         ? outcomes.filter((o) => o.eventType === "blocked").length / totalOutcomes
         : 0;
+
+    let expiredReserveCount = 0;
+    if (reserveTtlMs > 0) {
+      const now = Date.now();
+      expiredReserveCount = checks.filter((c) => {
+        if (closingDecisionIds.has(c.decisionId!)) return false;
+        const created = c.createdAt ? new Date(c.createdAt).getTime() : 0;
+        return now - created >= reserveTtlMs;
+      }).length;
+    }
+    const expiredReserveRate =
+      reserveTtlMs > 0 && totalChecks > 0 ? expiredReserveCount / totalChecks : 0;
 
     const actionTypeDistribution: Record<string, number> = {};
     for (const o of outcomes) {
@@ -94,6 +112,8 @@ export class MemoryStorage implements Storage {
       totalOutcomes,
       orphanCount,
       orphanRate,
+      expiredReserveCount,
+      expiredReserveRate,
       blockRate,
       actionTypeDistribution,
       healthScore
@@ -114,7 +134,7 @@ export class MemoryStorage implements Storage {
     const outcomeDecisionIds = new Set(
       recent
         .filter((e) =>
-          ["executed", "blocked", "downgraded"].includes(e.eventType)
+          ["executed", "blocked", "downgraded", "released"].includes(e.eventType)
         )
         .map((o) => o.decisionId)
         .filter(Boolean)

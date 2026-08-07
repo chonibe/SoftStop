@@ -8,6 +8,7 @@ import { defaultRulesConfig, GovernorRulesConfig } from "./rules/config";
 import {
   handleCheck,
   handleRecord,
+  handleRelease,
   handleMerge,
   handleHealth,
   handleVerify,
@@ -41,6 +42,11 @@ const mountRoutes = (
     return res.status(result.status).json(result.body);
   });
 
+  app.post(`${prefix}/release`, async (req, res) => {
+    const result = await handleRelease(storage, req.body, rulesConfig);
+    return res.status(result.status).json(result.body);
+  });
+
   app.post(`${prefix}/users/merge`, async (req, res) => {
     const result = await handleMerge(storage, req.body, rulesConfig);
     return res.status(result.status).json(result.body);
@@ -51,7 +57,7 @@ const mountRoutes = (
       ? parseInt(String(req.query.periodHours), 10)
       : undefined;
     const tenantId = await resolveTenantId(storage, req, "query");
-    const result = await handleHealth(storage, periodHours, tenantId);
+    const result = await handleHealth(storage, periodHours, tenantId, rulesConfig);
     return res.status(result.status).json(result.body);
   });
 

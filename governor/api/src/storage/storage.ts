@@ -6,6 +6,10 @@ export interface HealthMetrics {
   totalOutcomes: number;
   orphanCount: number;
   orphanRate: number;
+  /** Checks past reserve TTL with no closing outcome; 0 when reserve mode off. */
+  expiredReserveCount: number;
+  /** expiredReserveCount / totalChecks; 0 when reserve mode off or no checks. */
+  expiredReserveRate: number;
   blockRate: number;
   actionTypeDistribution: Record<string, number>;
   healthScore: number;
@@ -48,7 +52,11 @@ export interface Storage {
     tenantId?: string
   ): Promise<"ok" | "conflict">;
   insertEvent(event: GovernorEvent): Promise<void>;
-  getHealthMetrics?(periodHours?: number, tenantId?: string): Promise<HealthMetrics>;
+  getHealthMetrics?(
+    periodHours?: number,
+    tenantId?: string,
+    reserveTtlMs?: number
+  ): Promise<HealthMetrics>;
   getOrphanedDecisionIds?(periodHours?: number, limit?: number, tenantId?: string): Promise<string[]>;
   getReportMetrics?(from: string, to: string, tenantId?: string): Promise<ReportMetrics>;
   getDecisionLog?(

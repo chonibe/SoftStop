@@ -42,8 +42,29 @@ Record the outcome of a `check` — including when the escalation never ran.
 ## Response
 
 ```json
-{ "ok": true }
+{
+  "ok": true,
+  "applied": true,
+  "pressure": 40,
+  "threshold": 100
+}
 ```
+
+When check-and-reserve is enabled and the matching lease already expired before this `executed` / `downgraded`:
+
+```json
+{
+  "ok": true,
+  "applied": false,
+  "reserveExpired": true,
+  "pressure": 0,
+  "threshold": 100
+}
+```
+
+`applied: false` means SoftStop did **not** add cost / windows for that outcome — re-`check` before contacting the user again. See [Errors — concurrent allows](/api/errors#concurrent-allows-race).
+
+To free a lease without applying cost (abort path), use [`release`](/api/release) instead of inventing a record outcome.
 
 ## Blocked path (required)
 
@@ -65,11 +86,12 @@ Skipping `record` after `check` creates **orphans**. See [orphan rate](/ops/orph
 
 Use the exact `decisionId` from the preceding `check`. The server does not reject unknown ids — a mismatch still writes an outcome but breaks orphan pairing. See [Errors](/api/errors).
 
-Pressure and caps update here on `executed` / `downgraded` (not on `check`). Concurrent allows that both recorded `executed` can both land — see [check](/api/check) and [Errors](/api/errors#concurrent-allows-race).
+Pressure and caps update here on `executed` / `downgraded` (not on `check`), except under reserve mode when the lease already expired (`applied: false`). Concurrent allows that both recorded `executed` can both land unless reserve is on — see [check](/api/check) and [Errors](/api/errors#concurrent-allows-race).
 
 ## Next
 
 - [check](/api/check)
+- [release](/api/release)
 - [Errors](/api/errors)
 - [verify](/api/verify)
 - [Adoption contract](/start/adoption-contract)

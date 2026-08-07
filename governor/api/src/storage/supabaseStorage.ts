@@ -145,13 +145,17 @@ export class SupabaseStorage implements Storage {
     }
   }
 
-  async getHealthMetrics(periodHours = 24, tenantId = "default"): Promise<HealthMetrics> {
+  async getHealthMetrics(
+    periodHours = 24,
+    tenantId = "default",
+    reserveTtlMs = 0
+  ): Promise<HealthMetrics> {
     const periodStart = new Date(Date.now() - periodHours * 60 * 60 * 1000).toISOString();
 
-    const [checksRes, outcomesRes, orphanIds] = await Promise.all([
+    const [checksRes, outcomesRes, closingRes, orphanIds] = await Promise.all([
       this.client
         .from("governor_events")
-        .select("id", { count: "exact", head: true })
+        .select("decision_id, created_at", { count: "exact" })
         .eq("tenant_id", tenantId)
         .eq("event_type", "check")
         .not("decision_id", "is", null)
@@ -162,11 +166,24 @@ export class SupabaseStorage implements Storage {
         .eq("tenant_id", tenantId)
         .in("event_type", ["executed", "blocked", "downgraded"])
         .gte("created_at", periodStart),
+      this.client
+        .from("governor_events")
+        .select("decision_id")
+        .eq("tenant_id", tenantId)
+        .in("event_type", ["executed", "blocked", "downgraded", "released"])
+        .gte("created_at", periodStart),
       this.getOrphanedDecisionIds(periodHours, 1000, tenantId)
     ]);
 
-    const totalChecks = (checksRes as { count?: number }).count ?? 0;
-    const outcomesData = outcomesRes as { count?: number; data?: { decision_id: string; action_type: string; event_type: string }[] };
+    const checksData = checksRes as {
+      count?: number;
+      data?: { decision_id: string; created_at: string }[];
+    };
+    const totalChecks = checksData.count ?? checksData.data?.length ?? 0;
+    const outcomesData = outcomesRes as {
+      count?: number;
+      data?: { decision_id: string; action_type: string; event_type: string }[];
+    };
     const totalOutcomes = outcomesData.count ?? outcomesData.data?.length ?? 0;
     const orphanCount = orphanIds.length;
 
@@ -175,6 +192,24 @@ export class SupabaseStorage implements Storage {
     const outcomes = outcomesData.data ?? [];
     const blockedCount = outcomes.filter((o) => o.event_type === "blocked").length;
     const blockRate = totalOutcomes > 0 ? blockedCount / totalOutcomes : 0;
+
+    const closingIds = new Set(
+      ((closingRes as { data?: { decision_id: string }[] }).data ?? [])
+        .map((o) => o.decision_id)
+        .filter(Boolean)
+    );
+
+    let expiredReserveCount = 0;
+    if (reserveTtlMs > 0) {
+      const now = Date.now();
+      for (const c of checksData.data ?? []) {
+        if (!c.decision_id || closingIds.has(c.decision_id)) continue;
+        const created = new Date(c.created_at).getTime();
+        if (now - created >= reserveTtlMs) expiredReserveCount += 1;
+      }
+    }
+    const expiredReserveRate =
+      reserveTtlMs > 0 && totalChecks > 0 ? expiredReserveCount / totalChecks : 0;
 
     const actionTypeDistribution: Record<string, number> = {};
     for (const o of outcomes) {
@@ -196,6 +231,8 @@ export class SupabaseStorage implements Storage {
       totalOutcomes,
       orphanCount,
       orphanRate,
+      expiredReserveCount,
+      expiredReserveRate,
       blockRate,
       actionTypeDistribution,
       healthScore
@@ -222,7 +259,7 @@ export class SupabaseStorage implements Storage {
       .from("governor_events")
       .select("decision_id")
       .eq("tenant_id", tenantId)
-      .in("event_type", ["executed", "blocked", "downgraded"])
+      .in("event_type", ["executed", "blocked", "downgraded", "released"])
       .gte("created_at", periodStart);
 
     const checkIds = new Set(
