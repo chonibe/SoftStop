@@ -23,6 +23,7 @@
   <a href="https://softstop.vercel.app">Live demo</a> ·
   <a href="https://softstop.vercel.app/console.html">See pressure live</a> ·
   <a href="governor/README.md">API</a> ·
+  <a href="governor/api">Canonical runtime (`governor/api`)</a> ·
   <a href="examples/README.md">Examples</a> ·
   <a href="SECURITY.md">Security</a>
 </p>
@@ -75,7 +76,9 @@ npm i softstop
 pip install softstop
 ```
 
-Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
+Self-host the SoftStop API for production ([`governor/api`](governor/api) is the **canonical runtime**). [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
+
+Experimental packages under `packages/core|server|storage|gateway` are **non-canonical** — see [`packages/NON_CANONICAL.md`](packages/NON_CANONICAL.md).
 
 ### Quick start — AI tool call
 

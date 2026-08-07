@@ -1,7 +1,7 @@
 {
   "name": "@governor/gateway",
   "version": "0.0.0",
-  "description": "MCP and tool execution gateway helpers for Governor.",
+  "description": "MCP and tool execution gateway helpers for Governor. [NON-CANONICAL — use governor/api]",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -191,6 +191,8 @@ export {
   type BeforeContactResult,
   type BeforeContactAllowed,
   type BeforeContactBlocked,
+  type ExecutionStatus,
+  type RecordingStatus,
   type UserFacingToolConfig,
   type WithSoftStopConfig
 } from "./agent";

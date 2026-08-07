@@ -25,8 +25,8 @@ const withReserve = (
   ...overrides
 });
 
-describe("check-and-reserve (opt-in)", () => {
-  it("reserve off (default): check does not write state or return reserveExpiresAt", async () => {
+describe("check-and-reserve", () => {
+  it("legacy/builtin rulesConfig (reserveTtlMs=0): check does not write state or return reserveExpiresAt", async () => {
     const storage = new MemoryStorage();
     const app = createApp(storage);
 
@@ -39,6 +39,32 @@ describe("check-and-reserve (opt-in)", () => {
     expect(response.body.allowed).toBe(true);
     expect(response.body.reserveExpiresAt).toBeUndefined();
     expect(await storage.getUserState("legacy_user")).toBeNull();
+  });
+
+  it("production/supabase path enables reserve by default unless SOFTSTOP_RESERVE=off", async () => {
+    const { resolveReserveTtlMs } = await import("../api/src/env");
+    expect(
+      resolveReserveTtlMs(
+        { GOVERNOR_STORAGE: "supabase" },
+        { useSupabase: true }
+      )
+    ).toBe(20_000);
+    expect(
+      resolveReserveTtlMs(
+        { GOVERNOR_STORAGE: "supabase", SOFTSTOP_RESERVE: "off" },
+        { useSupabase: true }
+      )
+    ).toBe(0);
+    expect(
+      resolveReserveTtlMs(
+        {
+          GOVERNOR_STORAGE: "supabase",
+          SOFTSTOP_UNSAFE_LEGACY_CHECK: "1"
+        },
+        { useSupabase: true }
+      )
+    ).toBe(0);
+    expect(resolveReserveTtlMs({}, { useSupabase: false })).toBe(0);
   });
 
   it("reserve on: allow returns reserveExpiresAt and holds cost in state", async () => {
@@ -161,8 +187,9 @@ describe("check-and-reserve (opt-in)", () => {
       { userId: "u1", actionType: "urgency" },
       config
     );
-    expect(check.body.allowed).toBe(true);
-    const decisionId = (check.body as { decisionId: string }).decisionId;
+    const checkBody = check.body as { allowed?: boolean; decisionId?: string };
+    expect(checkBody.allowed).toBe(true);
+    const decisionId = checkBody.decisionId!;
 
     const state = await storage.getUserState("u1");
     await storage.upsertUserState("u1", {

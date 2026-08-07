@@ -19,7 +19,7 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 
 ## User pressure
 
-Every executed contact adds a **cost** (urgency 40, discount 30, interruption 25, reminder 15 by default). SoftStop decays pressure over time. If `pressure + cost > threshold` (default 100), the check returns `pressure_exceeded`.
+Every executed contact adds a **cost** (urgency 40, discount 30, interruption 25, reminder 15 by default). SoftStop decays pressure over time. SoftStop blocks only when `pressure + cost > threshold` (default 100) — **exact equality is allowed**. Example: pressure 60 + cost 40 = 100 → allow; 61 + 40 = 101 → `pressure_exceeded`.
 
 Callers never send a cost. Costs live in the policy pack.
 

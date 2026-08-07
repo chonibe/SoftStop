@@ -60,7 +60,8 @@ describe("Governor Report API", () => {
         userId: "user_1",
         actionType: "urgency",
         outcome: "blocked",
-        blockReason: check2.body.reason
+        blockReason: check2.body.reason,
+        decisionId: check2.body.decisionId
       });
 
     const reportRes = await request(app).get("/v1/report");

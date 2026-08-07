@@ -68,19 +68,63 @@ export const handleHealth = async (
 
   const tid = tenantId ?? DEFAULT_TENANT;
   const hours = periodHours ?? 24;
-  const metrics = await storage.getHealthMetrics(
-    hours,
-    tid,
-    reserveTtlMs(rulesConfig)
-  );
-  const body: Record<string, unknown> = { ok: true, metrics };
-  if (includeOrphans && storage.getOrphanedChecks) {
-    body.orphanedChecks = await storage.getOrphanedChecks(hours, 100, tid);
-  } else if (includeOrphans && storage.getOrphanedDecisionIds) {
-    const ids = await storage.getOrphanedDecisionIds(hours, 100, tid);
-    body.orphanedChecks = ids.map((decisionId) => ({ decisionId }));
+  try {
+    const metrics = await storage.getHealthMetrics(
+      hours,
+      tid,
+      reserveTtlMs(rulesConfig)
+    );
+    const {
+      healthScore,
+      periodHours: ph,
+      totalChecks,
+      totalOutcomes,
+      orphanCount,
+      orphanRate,
+      expiredReserveCount,
+      expiredReserveRate,
+      blockRate,
+      actionTypeDistribution
+    } = metrics;
+    // Factual ops metrics vs adoption diagnostics (healthScore heuristics).
+    const factual = {
+      periodHours: ph,
+      totalChecks,
+      totalOutcomes,
+      orphanCount,
+      orphanRate,
+      expiredReserveCount,
+      expiredReserveRate,
+      blockRate,
+      actionTypeDistribution
+    };
+    const adoption = {
+      healthScore,
+      note: "Diagnostic score only — not a liveness signal"
+    };
+    const body: Record<string, unknown> = {
+      ok: true,
+      metrics: { ...factual, healthScore },
+      factual,
+      adoption
+    };
+    if (includeOrphans && storage.getOrphanedChecks) {
+      body.orphanedChecks = await storage.getOrphanedChecks(hours, 100, tid);
+    } else if (includeOrphans && storage.getOrphanedDecisionIds) {
+      const ids = await storage.getOrphanedDecisionIds(hours, 100, tid);
+      body.orphanedChecks = ids.map((decisionId) => ({ decisionId }));
+    }
+    return { status: 200, body };
+  } catch (err) {
+    return {
+      status: 503,
+      body: {
+        ok: false,
+        error: "health_storage_error",
+        message: err instanceof Error ? err.message : "Storage health query failed"
+      }
+    };
   }
-  return { status: 200, body };
 };
 
 export const handleVerify = async (
@@ -182,12 +226,21 @@ export const handleCheck = async (
 
   let decision = evaluateCheck(emptyState(), actionType, now, rulesConfig);
   let reserveExpiresAt: string | undefined;
+  let eventInserted = false;
   let actor =
     context && typeof (context as { actor?: unknown }).actor === "string"
       ? (context as { actor: string }).actor
       : undefined;
 
-  if (reserveEnabled && storage.tryUpsertUserState) {
+  const pressureContextBase = () => ({
+    pressure: decision.pressure,
+    cost: decision.cost,
+    threshold: decision.threshold,
+    projectedPressure: decision.projectedPressure,
+    reason: decision.reason
+  });
+
+  if (reserveEnabled && (storage.checkAndReserveAtomic || storage.tryUpsertUserState)) {
     let wrote = false;
     for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
       const raw = (await storage.getUserState(userId, tid)) ?? emptyState();
@@ -213,8 +266,32 @@ export const handleCheck = async (
         },
         now
       );
-      // appendReserve already bumps version from pruned state's version
-      const result = await storage.tryUpsertUserState(
+      const eventContext = context
+        ? { surface, ...context, ...pressureContextBase() }
+        : { surface, ...pressureContextBase() };
+
+      if (storage.checkAndReserveAtomic) {
+        const atomic = await storage.checkAndReserveAtomic({
+          tenantId: tid,
+          userId,
+          decisionId,
+          actionType,
+          expectedVersion,
+          nextState,
+          eventContext,
+          reserveExpiresAt: expiresAt,
+          cost: decision.cost ?? rulesConfig.costs[actionType]
+        });
+        if (atomic.ok) {
+          reserveExpiresAt = expiresAt;
+          wrote = true;
+          eventInserted = true;
+          break;
+        }
+        continue;
+      }
+
+      const result = await storage.tryUpsertUserState!(
         userId,
         nextState,
         expectedVersion,
@@ -227,44 +304,33 @@ export const handleCheck = async (
       }
     }
     if (!wrote) {
-      // Exhausted CAS retries — re-evaluate once for a safe deny/allow without write
-      const state =
-        pruneExpiredReserves(
-          (await storage.getUserState(userId, tid)) ?? emptyState(),
-          now
-        );
-      decision = evaluateCheck(state, actionType, now, rulesConfig);
-      if (decision.allowed) {
-        decision = {
-          ...decision,
-          allowed: false,
-          reason: "pressure_exceeded"
-        };
-      }
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "Could not reserve under concurrent load; retry check"
+        }
+      };
     }
   } else {
     const state = (await storage.getUserState(userId, tid)) ?? emptyState();
     decision = evaluateCheck(state, actionType, now, rulesConfig);
   }
 
-  const pressureContext = {
-    pressure: decision.pressure,
-    cost: decision.cost,
-    threshold: decision.threshold,
-    projectedPressure: decision.projectedPressure,
-    reason: decision.reason
-  };
+  const pressureContext = pressureContextBase();
 
-  await storage.insertEvent({
-    userId,
-    actionType,
-    eventType: "check",
-    decisionId,
-    context: context
-      ? { surface, ...context, ...pressureContext }
-      : { surface, ...pressureContext },
-    tenantId: tid
-  });
+  if (!eventInserted) {
+    await storage.insertEvent({
+      userId,
+      actionType,
+      eventType: "check",
+      decisionId,
+      context: context
+        ? { surface, ...context, ...pressureContext }
+        : { surface, ...pressureContext },
+      tenantId: tid
+    });
+  }
 
   const body: Record<string, unknown> = {
     allowed: decision.allowed,
@@ -346,7 +412,7 @@ export const handleRecord = async (
     now
   );
   const applied = !reserveExpired;
-  const nextState = applyOutcome(
+  let nextState = applyOutcome(
     state,
     actionType,
     outcome as OutcomeType,
@@ -376,6 +442,84 @@ export const handleRecord = async (
     eventContext.reason = blockReason;
   }
 
+  const expectedVersion =
+    typeof state.stateVersion === "number" ? state.stateVersion : 0;
+
+  if (storage.recordDecisionAtomic) {
+    let wrote = false;
+    let workingNext = nextState;
+    let workingVersion = expectedVersion;
+    let idempotent = false;
+    for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
+      const atomic = await storage.recordDecisionAtomic({
+        tenantId: tid,
+        userId,
+        decisionId,
+        actionType,
+        outcome: outcome as "executed" | "blocked" | "downgraded",
+        expectedVersion: workingVersion,
+        nextState: workingNext,
+        eventContext
+      });
+      if (atomic.ok) {
+        wrote = true;
+        nextState = workingNext;
+        idempotent = Boolean(atomic.idempotent);
+        break;
+      }
+      if (atomic.error === "already_terminal") {
+        return {
+          status: 409,
+          body: {
+            error: "already_terminal",
+            status: atomic.status,
+            message: "Decision already has a different terminal outcome"
+          }
+        };
+      }
+      if (atomic.error !== "conflict") {
+        return {
+          status: 503,
+          body: { error: atomic.error, message: "record_decision failed" }
+        };
+      }
+      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
+      workingVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      workingNext = applyOutcome(
+        latest,
+        actionType,
+        outcome as OutcomeType,
+        signals,
+        now,
+        rulesConfig,
+        { decisionId }
+      );
+    }
+    if (!wrote) {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "State changed concurrently; retry record with same decisionId"
+        }
+      };
+    }
+
+    const body: Record<string, unknown> = {
+      ok: true,
+      applied: idempotent ? false : applied,
+      pressure:
+        typeof nextState.pressure === "number"
+          ? decayedPressure(nextState, now, rulesConfig.decayPerHour)
+          : pressureBefore,
+      threshold: rulesConfig.threshold
+    };
+    if (reserveExpired) body.reserveExpired = true;
+    if (idempotent) body.idempotent = true;
+    return { status: 200, body };
+  }
+
   await storage.insertEvent({
     userId,
     actionType,
@@ -385,19 +529,26 @@ export const handleRecord = async (
     tenantId: tid
   });
 
-  const expectedVersion =
-    typeof state.stateVersion === "number" ? state.stateVersion : 0;
-  if (storage.tryUpsertUserState && reserveTtlMs(rulesConfig) > 0) {
-    const result = await storage.tryUpsertUserState(
-      userId,
-      nextState,
-      expectedVersion,
-      tid
-    );
-    if (result === "conflict") {
-      // Re-read and apply once more (bounded) for orphan hygiene
+  if (storage.tryUpsertUserState) {
+    let wrote = false;
+    let workingNext = nextState;
+    let workingVersion = expectedVersion;
+    for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
+      const result = await storage.tryUpsertUserState(
+        userId,
+        workingNext,
+        workingVersion,
+        tid
+      );
+      if (result === "ok") {
+        wrote = true;
+        nextState = workingNext;
+        break;
+      }
       const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
-      const retried = applyOutcome(
+      workingVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      workingNext = applyOutcome(
         latest,
         actionType,
         outcome as OutcomeType,
@@ -406,14 +557,15 @@ export const handleRecord = async (
         rulesConfig,
         { decisionId }
       );
-      const latestVersion =
-        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
-      const retryResult = storage.tryUpsertUserState
-        ? await storage.tryUpsertUserState(userId, retried, latestVersion, tid)
-        : "ok";
-      if (retryResult === "conflict") {
-        await storage.upsertUserState(userId, retried, tid);
-      }
+    }
+    if (!wrote) {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "State changed concurrently; retry record with same decisionId"
+        }
+      };
     }
   } else {
     await storage.upsertUserState(userId, nextState, tid);
@@ -483,31 +635,38 @@ export const handleRelease = async (
   });
 
   if (storage.tryUpsertUserState) {
-    const result = await storage.tryUpsertUserState(
-      userId,
-      nextState,
-      expectedVersion,
-      tid
-    );
-    if (result === "conflict") {
-      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
-      const retryCleared = clearReserveByDecisionId(latest, decisionId, now);
-      const latestVersion =
-        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
-      const retried = {
-        ...retryCleared,
-        reserves: [...(retryCleared.reserves ?? [])],
-        stateVersion: latestVersion + 1
-      };
-      const retryResult = await storage.tryUpsertUserState(
+    let wrote = false;
+    let workingNext = nextState;
+    let workingVersion = expectedVersion;
+    for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
+      const result = await storage.tryUpsertUserState(
         userId,
-        retried,
-        latestVersion,
+        workingNext,
+        workingVersion,
         tid
       );
-      if (retryResult === "conflict") {
-        await storage.upsertUserState(userId, retried, tid);
+      if (result === "ok") {
+        wrote = true;
+        break;
       }
+      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
+      const retryCleared = clearReserveByDecisionId(latest, decisionId, now);
+      workingVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      workingNext = {
+        ...retryCleared,
+        reserves: [...(retryCleared.reserves ?? [])],
+        stateVersion: workingVersion + 1
+      };
+    }
+    if (!wrote) {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "State changed concurrently; retry release"
+        }
+      };
     }
   } else {
     await storage.upsertUserState(userId, nextState, tid);
@@ -567,23 +726,96 @@ export const handleMerge = async (
   }
 
   const merged = mergeUserStates(fromState, toState, now, rulesConfig);
+  const toVersion =
+    typeof toState.stateVersion === "number" ? toState.stateVersion : 0;
+  const fromVersion =
+    typeof fromState.stateVersion === "number" ? fromState.stateVersion : 0;
+  const mergedWithVersion = {
+    ...merged,
+    stateVersion: toVersion + 1
+  };
+  const tombstone = {
+    ...tombstoneState(toUserId),
+    stateVersion: fromVersion + 1
+  };
 
-  await storage.upsertUserState(toUserId, merged, tid);
-  await storage.upsertUserState(fromUserId, tombstoneState(toUserId), tid);
+  const eventContext = {
+    fromUserId,
+    toUserId,
+    pressure: merged.pressure ?? 0,
+    pressureAfter: merged.pressure ?? 0,
+    threshold: rulesConfig.threshold
+  };
 
-  await storage.insertEvent({
-    userId: toUserId,
-    actionType: "reminder",
-    eventType: "merged",
-    context: {
+  if (storage.mergeUsersAtomic) {
+    const atomic = await storage.mergeUsersAtomic({
+      tenantId: tid,
       fromUserId,
       toUserId,
-      pressure: merged.pressure ?? 0,
-      pressureAfter: merged.pressure ?? 0,
-      threshold: rulesConfig.threshold
-    },
-    tenantId: tid
-  });
+      fromExpectedVersion: fromVersion,
+      toExpectedVersion: toVersion,
+      mergedState: mergedWithVersion,
+      tombstoneState: tombstone,
+      eventContext
+    });
+    if (!atomic.ok) {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "User state changed concurrently; retry merge"
+        }
+      };
+    }
+  } else if (storage.tryUpsertUserState) {
+    const toResult = await storage.tryUpsertUserState(
+      toUserId,
+      mergedWithVersion,
+      toVersion,
+      tid
+    );
+    if (toResult === "conflict") {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "Target user state changed concurrently; retry merge"
+        }
+      };
+    }
+    const fromResult = await storage.tryUpsertUserState(
+      fromUserId,
+      tombstone,
+      fromVersion,
+      tid
+    );
+    if (fromResult === "conflict") {
+      return {
+        status: 409,
+        body: {
+          error: "conflict",
+          message: "Source user state changed concurrently; retry merge"
+        }
+      };
+    }
+    await storage.insertEvent({
+      userId: toUserId,
+      actionType: "reminder",
+      eventType: "merged",
+      context: eventContext,
+      tenantId: tid
+    });
+  } else {
+    await storage.upsertUserState(toUserId, mergedWithVersion, tid);
+    await storage.upsertUserState(fromUserId, tombstone, tid);
+    await storage.insertEvent({
+      userId: toUserId,
+      actionType: "reminder",
+      eventType: "merged",
+      context: eventContext,
+      tenantId: tid
+    });
+  }
 
   return {
     status: 200,

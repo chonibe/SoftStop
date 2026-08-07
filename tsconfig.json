@@ -10,5 +10,18 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["packages/**/*.ts", "governor/**/*.ts"]
+  "include": [
+    "governor/**/*.ts",
+    "packages/sdk-js/**/*.ts",
+    "packages/eslint-plugin-softstop/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "packages/core",
+    "packages/gateway",
+    "packages/server",
+    "packages/storage",
+    "packages/cli"
+  ]
 }

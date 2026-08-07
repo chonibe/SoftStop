@@ -13,8 +13,9 @@ export interface GovernorRulesConfig {
   /** Server-owned pressure cost per action type. */
   costs: Record<ActionType, number>;
   /**
-   * Opt-in check-and-reserve TTL in ms. `0` (default) = legacy read-only check.
-   * When > 0, an allow holds cost until record or expiry (typically 15–20s).
+   * Check-and-reserve TTL in ms. `0` = legacy read-only check (unsafe under concurrency).
+   * Production/Supabase defaults to >0 via env unless SOFTSTOP_RESERVE=off /
+   * SOFTSTOP_UNSAFE_LEGACY_CHECK.
    */
   reserveTtlMs?: number;
 }
@@ -45,7 +46,7 @@ export const defaultRulesConfig: GovernorRulesConfig = {
   threshold: 100,
   decayPerHour: 8,
   costs: { ...defaultPressureCosts },
-  /** Legacy check (no reserve) until SOFTSTOP_RESERVE_TTL_MS / policy sets > 0. */
+  /** Builtin unit-test default: legacy read-only. Production env enables reserve. */
   reserveTtlMs: 0
 };
 

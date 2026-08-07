@@ -1,5 +1,75 @@
 import { GovernorEvent, GovernorUserState } from "../types";
 
+export type ApiKeyScope =
+  | "check"
+  | "record"
+  | "read:pressure"
+  | "read:audit"
+  | "merge:users"
+  | "admin:keys";
+
+export const ALL_API_KEY_SCOPES: ApiKeyScope[] = [
+  "check",
+  "record",
+  "read:pressure",
+  "read:audit",
+  "merge:users",
+  "admin:keys"
+];
+
+export type DecisionStatus =
+  | "reserved"
+  | "executed"
+  | "blocked"
+  | "released"
+  | "expired"
+  | "downgraded";
+
+export interface ApiKeyInfo {
+  tenantId: string;
+  scopes: ApiKeyScope[];
+  expiresAt?: string | null;
+  revokedAt?: string | null;
+}
+
+export interface AtomicReserveInput {
+  tenantId: string;
+  userId: string;
+  decisionId: string;
+  actionType: string;
+  expectedVersion: number;
+  nextState: GovernorUserState;
+  eventContext: Record<string, unknown>;
+  reserveExpiresAt: string;
+  cost: number;
+}
+
+export interface AtomicRecordInput {
+  tenantId: string;
+  userId: string;
+  decisionId: string;
+  actionType: string;
+  outcome: "executed" | "blocked" | "downgraded";
+  expectedVersion: number;
+  nextState: GovernorUserState;
+  eventContext: Record<string, unknown>;
+}
+
+export interface AtomicMergeInput {
+  tenantId: string;
+  fromUserId: string;
+  toUserId: string;
+  fromExpectedVersion: number;
+  toExpectedVersion: number;
+  mergedState: GovernorUserState;
+  tombstoneState: GovernorUserState;
+  eventContext: Record<string, unknown>;
+}
+
+export type AtomicResult =
+  | { ok: true; idempotent?: boolean; status?: string }
+  | { ok: false; error: string; status?: string; version?: number };
+
 export interface HealthMetrics {
   periodHours: number;
   totalChecks: number;
@@ -80,5 +150,18 @@ export interface Storage {
     userId?: string
   ): Promise<DecisionLogEntry[]>;
   getTenantByApiKey?(key: string): Promise<string | null>;
-  createApiKey?(tenantId: string, name?: string): Promise<{ key: string }>;
+  /** Resolve key → tenant + scopes (preferred over getTenantByApiKey). */
+  resolveApiKey?(key: string): Promise<ApiKeyInfo | null>;
+  createApiKey?(
+    tenantId: string,
+    name?: string,
+    scopes?: ApiKeyScope[]
+  ): Promise<{ key: string }>;
+  /** Atomic check+reserve (Wave 2). */
+  checkAndReserveAtomic?(input: AtomicReserveInput): Promise<AtomicResult>;
+  /** Atomic terminal record (Wave 2). */
+  recordDecisionAtomic?(input: AtomicRecordInput): Promise<AtomicResult>;
+  /** Atomic merge (Wave 2). */
+  mergeUsersAtomic?(input: AtomicMergeInput): Promise<AtomicResult>;
+  touchApiKey?(key: string): Promise<void>;
 }

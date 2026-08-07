@@ -22,6 +22,13 @@ function mockFetchSequence(responses: unknown[]) {
   });
 }
 
+function requestBody(fetchMock: ReturnType<typeof vi.fn>, callIndex: number) {
+  const call = fetchMock.mock.calls[callIndex] as
+    | [string, { body?: string }]
+    | undefined;
+  return JSON.parse(String(call?.[1]?.body ?? "{}"));
+}
+
 describe("beforeContact", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -53,12 +60,68 @@ describe("beforeContact", () => {
     expect(result.allowed).toBe(true);
     if (result.allowed) {
       expect(result.result).toBe("sent");
+      expect(result.execution).toBe("executed");
+      expect(result.recording).toBe("ok");
+      expect(result.retryExecution).toBe(false);
+      expect(result.retryRecord).toBe(false);
     }
     expect(run).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const recordBody = JSON.parse(fetchMock.mock.calls[1][1].body);
+    const recordBody = requestBody(fetchMock, 1);
     expect(recordBody.outcome).toBe("executed");
     expect(recordBody.context.actor).toBe("sales-agent");
+  });
+
+  it("does not imply safe replay when record fails after side effect", async () => {
+    let call = 0;
+    const fetchMock = vi.fn(async () => {
+      call += 1;
+      if (call === 1) {
+        const body = {
+          allowed: true,
+          reason: "allowed",
+          decisionId: "11111111-1111-4111-8111-111111111111",
+          pressure: 0,
+          cost: 40,
+          threshold: 100,
+          projectedPressure: 40
+        };
+        return {
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          text: async () => JSON.stringify(body),
+          json: async () => body
+        };
+      }
+      return {
+        ok: false,
+        status: 503,
+        statusText: "Service Unavailable",
+        text: async () => JSON.stringify({ error: "down" }),
+        json: async () => ({ error: "down" })
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ss = new SoftStop({ url: "http://localhost:3000" });
+    const run = vi.fn(async () => "sent");
+
+    const result = await beforeContact(
+      ss,
+      { userId: "u1", actionType: "urgency" },
+      run
+    );
+
+    expect(run).toHaveBeenCalledOnce();
+    expect(result.allowed).toBe(true);
+    if (result.allowed) {
+      expect(result.result).toBe("sent");
+      expect(result.execution).toBe("executed");
+      expect(result.recording).toBe("failed");
+      expect(result.retryExecution).toBe(false);
+      expect(result.retryRecord).toBe(true);
+    }
   });
 
   it("skips run and records blocked when denied", async () => {
@@ -92,7 +155,7 @@ describe("beforeContact", () => {
       expect(result.decision.reason).toBe("pressure_exceeded");
       expect(result.suggestedActionType).toBe("reminder");
     }
-    const recordBody = JSON.parse(fetchMock.mock.calls[1][1].body);
+    const recordBody = requestBody(fetchMock, 1);
     expect(recordBody.outcome).toBe("blocked");
     expect(recordBody.blockReason).toBe("pressure_exceeded");
   });
@@ -135,6 +198,45 @@ describe("wrapUserFacingTool", () => {
     if (out.ok) {
       expect(out.result.delivered).toBe(true);
     }
+    const checkBody = requestBody(fetchMock, 0);
+    expect(checkBody.context?.toolArgs).toBeUndefined();
+    expect(checkBody.context?.actor).toBe("marketing-agent");
+  });
+
+  it("does not put raw toolArgs in check context by default", async () => {
+    const fetchMock = mockFetchSequence([
+      {
+        allowed: true,
+        reason: "allowed",
+        decisionId: "dec-4",
+        pressure: 0,
+        cost: 30,
+        threshold: 100,
+        projectedPressure: 30
+      },
+      { ok: true }
+    ]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ss = new SoftStop({ url: "http://localhost:3000" });
+    const tool = wrapUserFacingTool(
+      ss,
+      {
+        userId: "u1",
+        actionType: "urgency",
+        actor: "agent",
+        toolName: "send_email",
+        operationId: "op-1"
+      },
+      async () => ({ ok: true })
+    );
+    await tool({ secret: "should-not-leak", to: "x" });
+    const checkBody = requestBody(fetchMock, 0);
+    expect(checkBody.context).toEqual({
+      actor: "agent",
+      toolName: "send_email",
+      operationId: "op-1"
+    });
   });
 });
 

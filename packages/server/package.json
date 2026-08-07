@@ -1,7 +1,7 @@
 {
   "name": "@governor/server",
   "version": "0.0.0",
-  "description": "HTTP server for Governor policy enforcement.",
+  "description": "HTTP server for Governor policy enforcement. [NON-CANONICAL — use governor/api]",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

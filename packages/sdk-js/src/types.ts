@@ -85,7 +85,8 @@ export interface PressureResponse {
 }
 
 export interface RecordRequest {
-  decisionId?: string;
+  /** Required UUID from check (server enforces). */
+  decisionId: string;
   userId: string;
   actionType: ActionType;
   outcome: Outcome;
@@ -96,6 +97,7 @@ export interface RecordRequest {
     hesitated?: boolean;
   };
   context?: Record<string, unknown>;
+  tenantId?: string;
 }
 
 export interface MergeRequest {

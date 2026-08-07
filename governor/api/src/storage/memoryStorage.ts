@@ -1,5 +1,19 @@
+import { randomBytes } from "crypto";
 import { GovernorEvent, GovernorUserState } from "../types";
-import { DecisionLogEntry, HealthMetrics, ReportMetrics, Storage } from "./storage";
+import {
+  ALL_API_KEY_SCOPES,
+  ApiKeyInfo,
+  ApiKeyScope,
+  AtomicMergeInput,
+  AtomicRecordInput,
+  AtomicReserveInput,
+  AtomicResult,
+  DecisionLogEntry,
+  DecisionStatus,
+  HealthMetrics,
+  ReportMetrics,
+  Storage
+} from "./storage";
 
 function stateKey(userId: string, tenantId = "default"): string {
   return `${tenantId}:${userId}`;
@@ -9,6 +23,20 @@ export class MemoryStorage implements Storage {
   /** Exposed for tests; production callers should use Storage methods. */
   events: GovernorEvent[] = [];
   private states = new Map<string, GovernorUserState>();
+  /** Raw key → ApiKeyInfo (test/dev only; production hashes keys in Supabase). */
+  private apiKeys = new Map<string, ApiKeyInfo>();
+  /** decisionId → lifecycle status */
+  decisions = new Map<
+    string,
+    {
+      tenantId: string;
+      userId: string;
+      actionType: string;
+      status: DecisionStatus;
+      cost?: number;
+      reserveExpiresAt?: string;
+    }
+  >();
 
   async getUserState(userId: string, tenantId = "default"): Promise<GovernorUserState | null> {
     return this.states.get(stateKey(userId, tenantId)) ?? null;
@@ -251,5 +279,148 @@ export class MemoryStorage implements Storage {
         context: e.context
       }));
     return outcomes;
+  }
+
+  async getTenantByApiKey(key: string): Promise<string | null> {
+    const info = await this.resolveApiKey(key);
+    return info?.tenantId ?? null;
+  }
+
+  async resolveApiKey(key: string): Promise<ApiKeyInfo | null> {
+    const info = this.apiKeys.get(key);
+    if (!info) return null;
+    if (info.revokedAt) return null;
+    if (info.expiresAt && new Date(info.expiresAt).getTime() <= Date.now()) {
+      return null;
+    }
+    return info;
+  }
+
+  async createApiKey(
+    tenantId: string,
+    _name?: string,
+    scopes?: ApiKeyScope[]
+  ): Promise<{ key: string }> {
+    const key = `gov_${randomBytes(24).toString("hex")}`;
+    this.apiKeys.set(key, {
+      tenantId,
+      scopes: scopes ?? ALL_API_KEY_SCOPES.filter((s) => s !== "admin:keys")
+    });
+    return { key };
+  }
+
+  async touchApiKey(key: string): Promise<void> {
+    const info = this.apiKeys.get(key);
+    if (info) {
+      this.apiKeys.set(key, { ...info });
+    }
+  }
+
+  async checkAndReserveAtomic(input: AtomicReserveInput): Promise<AtomicResult> {
+    const result = await this.tryUpsertUserState(
+      input.userId,
+      input.nextState,
+      input.expectedVersion,
+      input.tenantId
+    );
+    if (result === "conflict") {
+      return { ok: false, error: "conflict" };
+    }
+    this.decisions.set(input.decisionId, {
+      tenantId: input.tenantId,
+      userId: input.userId,
+      actionType: input.actionType,
+      status: "reserved",
+      cost: input.cost,
+      reserveExpiresAt: input.reserveExpiresAt
+    });
+    await this.insertEvent({
+      userId: input.userId,
+      actionType: input.actionType,
+      eventType: "check",
+      decisionId: input.decisionId,
+      context: input.eventContext,
+      tenantId: input.tenantId
+    });
+    return { ok: true, status: "reserved" };
+  }
+
+  async recordDecisionAtomic(input: AtomicRecordInput): Promise<AtomicResult> {
+    const existing = this.decisions.get(input.decisionId);
+    if (existing && existing.status === input.outcome) {
+      return { ok: true, idempotent: true, status: existing.status };
+    }
+    if (
+      existing &&
+      ["executed", "blocked", "released", "expired", "downgraded"].includes(
+        existing.status
+      ) &&
+      existing.status !== input.outcome
+    ) {
+      return { ok: false, error: "already_terminal", status: existing.status };
+    }
+
+    const result = await this.tryUpsertUserState(
+      input.userId,
+      input.nextState,
+      input.expectedVersion,
+      input.tenantId
+    );
+    if (result === "conflict") {
+      return { ok: false, error: "conflict" };
+    }
+
+    this.decisions.set(input.decisionId, {
+      tenantId: input.tenantId,
+      userId: input.userId,
+      actionType: input.actionType,
+      status: input.outcome,
+      cost: existing?.cost
+    });
+
+    const already = this.events.some(
+      (e) =>
+        e.decisionId === input.decisionId && e.eventType === input.outcome
+    );
+    if (!already) {
+      await this.insertEvent({
+        userId: input.userId,
+        actionType: input.actionType,
+        eventType: input.outcome,
+        decisionId: input.decisionId,
+        context: input.eventContext,
+        tenantId: input.tenantId
+      });
+    }
+    return { ok: true, status: input.outcome };
+  }
+
+  async mergeUsersAtomic(input: AtomicMergeInput): Promise<AtomicResult> {
+    const toResult = await this.tryUpsertUserState(
+      input.toUserId,
+      input.mergedState,
+      input.toExpectedVersion,
+      input.tenantId
+    );
+    if (toResult === "conflict") {
+      return { ok: false, error: "conflict" };
+    }
+    const fromResult = await this.tryUpsertUserState(
+      input.fromUserId,
+      input.tombstoneState,
+      input.fromExpectedVersion,
+      input.tenantId
+    );
+    if (fromResult === "conflict") {
+      return { ok: false, error: "conflict" };
+    }
+    await this.insertEvent({
+      userId: input.toUserId,
+      actionType: "reminder",
+      eventType: "merged",
+      context: input.eventContext,
+      tenantId: input.tenantId
+    });
+    return { ok: true };
   }
 }
