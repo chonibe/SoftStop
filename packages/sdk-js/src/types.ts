@@ -19,6 +19,14 @@ export type ActionType = BuiltinActionType | (string & {});
 export type Surface = "email" | "sms" | "push" | "in-app";
 export type Outcome = "executed" | "blocked" | "downgraded";
 
+export type FallbackStrategy = "downgrade" | "skip" | "defer";
+
+export interface SuggestedFallback {
+  strategy: FallbackStrategy;
+  actionType?: ActionType;
+  message?: string;
+}
+
 export interface SoftStopOptions {
   url?: string;
   baseUrl?: string;
@@ -38,7 +46,10 @@ export interface CheckResponse {
   reason: string;
   decisionId?: string;
   cooldownUntil?: string;
+  /** Compat alias — same as suggestedFallback.actionType when present. */
   suggestedActionType?: ActionType;
+  suggestedFallback?: SuggestedFallback;
+  retryAfterMs?: number;
   explanation?: string;
   pressure?: number;
   cost?: number;

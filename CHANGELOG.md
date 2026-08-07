@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 — Agent deny schema + withSoftStop
+
+- Additive deny fields: `suggestedFallback`, `retryAfterMs` (keep `suggestedActionType`)
+- SDK `formatBlockedForLlm(decision)` — stable JSON for LLM tool results
+- SDK `withSoftStop(execute, config)` — Vercel AI SDK `tool({ execute })` wrapper on top of `wrapUserFacingTool`
+- Docs: governing-ai-agents, sdk-js, check, errors; example `agent-tool-wrapper` updated
+
 ## 0.2.1 — Thin agent adapters
 
 - SDK `beforeContact` / `SoftStop#beforeContact` — check → run → record for user-facing escalations

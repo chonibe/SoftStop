@@ -118,3 +118,49 @@ export function wrapUserFacingTool<TArgs extends Record<string, unknown>, TResul
     return { ok: true, result: gated.result, decision: gated.decision };
   };
 }
+
+/**
+ * Stable JSON string for LLM / tool-result context when SoftStop blocks.
+ * Omits pressure internals and decisionId — steers the model, not the journal.
+ */
+export function formatBlockedForLlm(decision: CheckResponse): string {
+  const payload: Record<string, unknown> = {
+    blocked: true,
+    reason: decision.reason
+  };
+  if (decision.explanation != null) payload.explanation = decision.explanation;
+  if (decision.suggestedActionType != null) {
+    payload.suggestedActionType = decision.suggestedActionType;
+  }
+  if (decision.suggestedFallback != null) {
+    payload.suggestedFallback = decision.suggestedFallback;
+  }
+  if (decision.retryAfterMs != null) payload.retryAfterMs = decision.retryAfterMs;
+  return JSON.stringify(payload);
+}
+
+export type WithSoftStopConfig = UserFacingToolConfig & {
+  client: SoftStopClient;
+};
+
+/**
+ * Zero-boilerplate execute wrapper for Vercel AI SDK `tool({ execute })`
+ * (and the same shape for LangChain JS tool handlers).
+ *
+ * Allowed → returns the execute result.
+ * Blocked → returns `formatBlockedForLlm(decision)` (record already done).
+ */
+export function withSoftStop<TArgs extends Record<string, unknown>, TResult>(
+  execute: (args: TArgs) => Promise<TResult> | TResult,
+  config: WithSoftStopConfig
+): (args: TArgs) => Promise<TResult | string> {
+  const { client, ...toolConfig } = config;
+  const wrapped = wrapUserFacingTool(client, toolConfig, execute);
+  return async (args: TArgs) => {
+    const result = await wrapped(args);
+    if (!result.ok) {
+      return formatBlockedForLlm(result.decision);
+    }
+    return result.result;
+  };
+}

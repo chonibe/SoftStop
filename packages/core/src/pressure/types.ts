@@ -30,11 +30,24 @@ export interface GovernorUserState {
   pressureUpdatedAt?: string | null;
 }
 
+export type FallbackStrategy = "downgrade" | "skip" | "defer";
+
+export interface SuggestedFallback {
+  strategy: FallbackStrategy;
+  actionType?: ActionType;
+  message?: string;
+}
+
 export interface PressureDecision {
   allowed: boolean;
   reason: DecisionReason;
   cooldownUntil?: string;
+  /** Compat alias — same as suggestedFallback.actionType when present. */
   suggestedActionType?: ActionType;
+  /** Structured steering for agents when blocked. */
+  suggestedFallback?: SuggestedFallback;
+  /** Ms until a retry may succeed (from cooldown or stacking window). */
+  retryAfterMs?: number;
   pressure?: number;
   cost?: number;
   threshold?: number;

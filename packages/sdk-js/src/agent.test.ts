@@ -1,5 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { SoftStop, beforeContact, wrapUserFacingTool } from "./index";
+import {
+  SoftStop,
+  beforeContact,
+  wrapUserFacingTool,
+  formatBlockedForLlm,
+  withSoftStop
+} from "./index";
 
 function mockFetchSequence(responses: unknown[]) {
   let i = 0;
@@ -129,5 +135,144 @@ describe("wrapUserFacingTool", () => {
     if (out.ok) {
       expect(out.result.delivered).toBe(true);
     }
+  });
+});
+
+describe("formatBlockedForLlm", () => {
+  it("returns stable JSON for a blocked decision", () => {
+    const text = formatBlockedForLlm({
+      allowed: false,
+      reason: "pressure_exceeded",
+      decisionId: "dec-x",
+      explanation: "User pressure would exceed the threshold.",
+      suggestedActionType: "reminder",
+      suggestedFallback: {
+        strategy: "downgrade",
+        actionType: "reminder",
+        message: "Prefer a softer reminder path."
+      },
+      retryAfterMs: 600_000,
+      pressure: 90,
+      cost: 40,
+      threshold: 100,
+      projectedPressure: 130
+    });
+
+    const parsed = JSON.parse(text);
+    expect(parsed).toEqual({
+      blocked: true,
+      reason: "pressure_exceeded",
+      explanation: "User pressure would exceed the threshold.",
+      suggestedActionType: "reminder",
+      suggestedFallback: {
+        strategy: "downgrade",
+        actionType: "reminder",
+        message: "Prefer a softer reminder path."
+      },
+      retryAfterMs: 600_000
+    });
+    expect(parsed.decisionId).toBeUndefined();
+    expect(parsed.pressure).toBeUndefined();
+  });
+
+  it("omits optional fields when absent", () => {
+    const parsed = JSON.parse(
+      formatBlockedForLlm({
+        allowed: false,
+        reason: "global_cap_reached"
+      })
+    );
+    expect(parsed).toEqual({
+      blocked: true,
+      reason: "global_cap_reached"
+    });
+  });
+});
+
+describe("withSoftStop", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns execute result when allowed", async () => {
+    const fetchMock = mockFetchSequence([
+      {
+        allowed: true,
+        reason: "allowed",
+        decisionId: "dec-ws-1",
+        pressure: 0,
+        cost: 40,
+        threshold: 100,
+        projectedPressure: 40
+      },
+      { ok: true }
+    ]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ss = new SoftStop({ url: "http://localhost:3000" });
+    const execute = withSoftStop(
+      async (args: { userId: string; subject: string }) => ({
+        messageId: `msg_${args.userId}`
+      }),
+      {
+        client: ss,
+        userId: (args) => String(args.userId),
+        actionType: "urgency",
+        surface: "email",
+        actor: "vercel-ai-agent"
+      }
+    );
+
+    const out = await execute({ userId: "u1", subject: "Hi" });
+    expect(out).toEqual({ messageId: "msg_u1" });
+  });
+
+  it("returns formatBlockedForLlm string when denied", async () => {
+    const fetchMock = mockFetchSequence([
+      {
+        allowed: false,
+        reason: "recent_escalation",
+        decisionId: "dec-ws-2",
+        explanation: "Another hard escalation was too recent.",
+        suggestedActionType: "reminder",
+        suggestedFallback: {
+          strategy: "downgrade",
+          actionType: "reminder",
+          message: "Prefer a softer reminder path."
+        },
+        retryAfterMs: 420_000,
+        pressure: 15,
+        cost: 40,
+        threshold: 100,
+        projectedPressure: 55
+      },
+      { ok: true }
+    ]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ss = new SoftStop({ url: "http://localhost:3000" });
+    const run = vi.fn(async () => ({ messageId: "should-not-run" }));
+    const execute = withSoftStop(run, {
+      client: ss,
+      userId: "u1",
+      actionType: "urgency",
+      surface: "email"
+    });
+
+    const out = await execute({ subject: "Again?" });
+    expect(run).not.toHaveBeenCalled();
+    expect(typeof out).toBe("string");
+    expect(JSON.parse(out as string)).toEqual({
+      blocked: true,
+      reason: "recent_escalation",
+      explanation: "Another hard escalation was too recent.",
+      suggestedActionType: "reminder",
+      suggestedFallback: {
+        strategy: "downgrade",
+        actionType: "reminder",
+        message: "Prefer a softer reminder path."
+      },
+      retryAfterMs: 420_000
+    });
   });
 });

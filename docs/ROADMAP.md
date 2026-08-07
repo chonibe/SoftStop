@@ -23,6 +23,7 @@
 - Publish `softstop` to the public npm registry (**done** — `softstop@0.2.1`)
 - Thin agent adapters: `beforeContact` + `wrapUserFacingTool` (shipped in 0.2.1)
 - Docs: [Governing AI agents](../apps/docs/start/governing-ai-agents.md) — circuit breaker, deterministic state, `suggestedActionType`, multi-agent collision
+- **0.2.2:** `suggestedFallback` / `retryAfterMs`, `formatBlockedForLlm`, `withSoftStop` (Vercel AI `tool({ execute })`)
 
 ## Explicitly not v0.1 / v0.2
 
@@ -40,9 +41,9 @@
 Design: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). Pressure decay + action costs **already ship**; do not re-list them here. SoftStop does **not** claim Redis locks or race-safety on plain `check` today.
 
 1. **P0 — Check-and-reserve / race prevention** — opt-in atomic reserve + TTL lease (10–30s), OCC on user state; compatible with existing `check` / `record`. Documented gap: [errors.md](../apps/docs/api/errors.md).
-2. **P1 — Richer blocked schema + LLM helpers** — additive `retryAfterMs` / `suggestedFallback`; SDK `formatBlockedForLlm` (keep `suggestedActionType`).
+2. **P1 — Richer blocked schema + LLM helpers** — **shipped in 0.2.2** (`retryAfterMs` / `suggestedFallback` / `formatBlockedForLlm`; keep `suggestedActionType`).
 3. **P2 — Latency / throughput** — instrument check P95; aspirational &lt;15–30ms local/memory; do not claim token-bucket until designed separately.
-4. **P3 — Framework middlewares** — first-party Vercel AI SDK / LangChain-style adapters beyond `beforeContact` / `wrapUserFacingTool`.
+4. **P3 — Framework middlewares** — **partial in 0.2.2** (`withSoftStop` for Vercel AI `tool({ execute })` / LangChain JS shape); more adapters later.
 5. **P4 — Hierarchical pressure scopes** — optional channel / org / thread budgets atop `tenantId` + `userId` + merge.
 
 ## Shipped after feedback (2026-08)

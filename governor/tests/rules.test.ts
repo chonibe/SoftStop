@@ -102,4 +102,29 @@ describe("rules engine", () => {
     expect(decision.pressure).toBe(40);
     expect(decision.projectedPressure).toBe(80);
   });
+
+  it("attaches suggestedFallback + keeps suggestedActionType on urgency deny", () => {
+    const now = new Date();
+    const state = {
+      ...emptyState(),
+      pressure: 80,
+      pressureUpdatedAt: now.toISOString()
+    };
+    const decision = evaluateCheck(state, "urgency", now, defaultRulesConfig);
+    expect(decision.suggestedActionType).toBe("reminder");
+    expect(decision.suggestedFallback?.strategy).toBe("downgrade");
+    expect(decision.suggestedFallback?.actionType).toBe("reminder");
+  });
+
+  it("sets retryAfterMs from cooldownUntil", () => {
+    const now = new Date("2026-08-07T12:00:00.000Z");
+    const cooldownUntil = "2026-08-07T12:30:00.000Z";
+    const state = {
+      ...emptyState(),
+      cooldowns: { urgency: cooldownUntil }
+    };
+    const decision = evaluateCheck(state, "urgency", now, defaultRulesConfig);
+    expect(decision.reason).toBe("cooldown_active");
+    expect(decision.retryAfterMs).toBe(30 * 60 * 1000);
+  });
 });

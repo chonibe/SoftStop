@@ -12,7 +12,9 @@ export type {
   DecisionReason,
   GovernorUserState,
   GovernorRulesConfig,
-  PressureDecision
+  PressureDecision,
+  SuggestedFallback,
+  FallbackStrategy
 } from "./pressure";
 
 /** Experimental MCP / tool-call authorization (not the launch hero) */

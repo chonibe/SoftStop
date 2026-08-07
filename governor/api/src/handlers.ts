@@ -180,6 +180,8 @@ export const handleCheck = async (
     decisionId,
     cooldownUntil: decision.cooldownUntil,
     suggestedActionType: decision.suggestedActionType,
+    suggestedFallback: decision.suggestedFallback,
+    retryAfterMs: decision.retryAfterMs,
     pressure: decision.pressure,
     cost: decision.cost,
     threshold: decision.threshold,

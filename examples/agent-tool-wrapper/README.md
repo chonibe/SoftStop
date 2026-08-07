@@ -2,7 +2,7 @@
 
 Thin SoftStop **circuit breaker** for agent tools that contact humans — the pattern to drop into an OpenAI-style / LangChain-style **function-calling loop**.
 
-Uses shipped APIs only: `SoftStop`, `wrapUserFacingTool`, and (inline) `beforeContact`. No framework dependency required.
+Uses shipped APIs only: `SoftStop`, `wrapUserFacingTool`, `withSoftStop`, `formatBlockedForLlm`, and (inline) `beforeContact`. No framework dependency required.
 
 ## Why
 
@@ -10,7 +10,7 @@ LLMs don’t keep reliable cooldowns. SoftStop does:
 
 1. `check()` before the side effect (circuit breaker)  
 2. `record()` after — `outcome: 'executed' | 'blocked'` (never skip on deny)  
-3. Optional `suggestedActionType` so a blocked urgency/interruption can downgrade to a reminder instead of looping
+3. `suggestedActionType` / `suggestedFallback` / `retryAfterMs` so a blocked urgency/interruption can downgrade or defer instead of looping
 
 ## Wrap a tool
 
@@ -79,6 +79,29 @@ const gated = await ss.beforeContact(
 if (!gated.allowed) {
   // gated.suggestedActionType
 }
+```
+
+## Vercel AI SDK `tool({ execute })`
+
+`withSoftStop` is the same gate shaped for `execute` — allowed returns your result; blocked returns `formatBlockedForLlm(decision)`:
+
+```js
+const { SoftStop, withSoftStop } = require('softstop')
+
+const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL })
+
+const execute = withSoftStop(
+  async ({ userId, subject }) => sendEmail(userId, subject),
+  {
+    client: ss,
+    userId: (args) => String(args.userId),
+    actionType: 'urgency',
+    surface: 'email',
+    actor: 'vercel-ai-agent'
+  }
+)
+
+// tool({ execute }) — or call execute(args) directly
 ```
 
 ## Run

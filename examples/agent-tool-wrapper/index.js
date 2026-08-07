@@ -1,14 +1,19 @@
 /**
- * Framework-agnostic agent tool wrapper.
+ * Framework-agnostic agent tool wrapper + withSoftStop.
  *
  * Pattern: wrap any user-facing tool (email, SMS, notify) so SoftStop
  * runs before the side effect. Drop this into OpenAI tools, LangChain,
- * Mastra, or plain handlers.
+ * Mastra, Vercel AI SDK tool({ execute }), or plain handlers.
  *
  * Run SoftStop: pnpm dev. Then: node index.js
  */
 
-const { SoftStop, wrapUserFacingTool } = require("../../packages/sdk-js/dist/index.cjs");
+const {
+  SoftStop,
+  wrapUserFacingTool,
+  withSoftStop,
+  formatBlockedForLlm
+} = require("../../packages/sdk-js/dist/index.cjs");
 
 const base =
   process.env.SOFTSTOP_API_URL ||
@@ -34,6 +39,15 @@ const sendFollowUp = wrapUserFacingTool(
   sendFollowUpEmail
 );
 
+/** Same gate shaped for Vercel AI SDK: tool({ execute: withSoftStop(...) }) */
+const executeFollowUp = withSoftStop(sendFollowUpEmail, {
+  client: ss,
+  userId: (args) => String(args.userId),
+  actionType: "urgency",
+  surface: "email",
+  actor: "vercel-ai-style-agent"
+});
+
 async function main() {
   const userId = process.env.SOFTSTOP_DEMO_USER || `tool_user_${Date.now()}`;
 
@@ -55,6 +69,22 @@ async function main() {
     second.ok ? "sent" : `${second.reason} (blocked)`,
     second.decision?.pressure ?? second.decision?.projectedPressure
   );
+  if (!second.ok) {
+    console.log("  LLM payload:", formatBlockedForLlm(second.decision));
+  }
+
+  console.log("\n=== withSoftStop (execute-shaped) ===");
+  const userId2 = `${userId}_ws`;
+  const a = await executeFollowUp({
+    userId: userId2,
+    subject: "First withSoftStop send"
+  });
+  console.log("first:", typeof a === "string" ? a : a);
+  const b = await executeFollowUp({
+    userId: userId2,
+    subject: "Second withSoftStop send"
+  });
+  console.log("second:", typeof b === "string" ? b : b);
 }
 
 main().catch((err) => {

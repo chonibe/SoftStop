@@ -11,7 +11,13 @@
 | `recent_escalation` | Stacking window — another hard escalation was too recent |
 | `allowed` | Not a block — escalation may proceed |
 
-When blocked, the response includes `explanation` (plain language). For `urgency` or `interruption`, SoftStop may also return `suggestedActionType: "reminder"`.
+When blocked, the response includes `explanation` (plain language). For `urgency` or `interruption`, SoftStop may also return:
+
+- `suggestedActionType: "reminder"` (compat alias)
+- `suggestedFallback` — `{ strategy: "downgrade", actionType: "reminder", message? }`
+- `retryAfterMs` — when a cooldown or stacking window applies
+
+In the JS SDK, pass the decision to `formatBlockedForLlm(decision)` for a stable JSON string suitable as an LLM tool result. `withSoftStop(execute, config)` does this automatically on deny.
 
 ## HTTP status codes
 

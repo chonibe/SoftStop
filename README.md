@@ -71,18 +71,15 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 npm i softstop
 ```
 
-```bash
-pip install softstop
-```
 
 Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
 
 ### Quick start — AI tool call
 
-Prefer the shipped adapters (`beforeContact`, `wrapUserFacingTool`). Outcomes are **`executed` | `blocked`** (not “landed”).
+Prefer the shipped adapters (`beforeContact`, `wrapUserFacingTool`, `withSoftStop`). Outcomes are **`executed` | `blocked`** (not “landed”). On deny, `formatBlockedForLlm(decision)` (or `withSoftStop`) returns a stable JSON string for the model — including `suggestedFallback` / `retryAfterMs` when present.
 
 ```js
-import { SoftStop, wrapUserFacingTool } from 'softstop'
+import { SoftStop, wrapUserFacingTool, withSoftStop } from 'softstop'
 
 const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
 
@@ -113,6 +110,8 @@ if (!result.ok) {
 }
 // SoftStop already recorded outcome: 'executed'
 ```
+
+For Vercel AI SDK `tool({ execute })`, prefer `withSoftStop(fn, { client: ss, … })` — blocked paths return `formatBlockedForLlm` automatically.
 
 Inline without wrapping:
 

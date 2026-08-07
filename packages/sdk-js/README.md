@@ -115,10 +115,13 @@ await ss.beforeContact(
 )
 
 // Wrap any user-facing tool (OpenAI / LangChain / plain)
-import { wrapUserFacingTool } from 'softstop'
+import { wrapUserFacingTool, withSoftStop, formatBlockedForLlm } from 'softstop'
 const sendFollowUp = wrapUserFacingTool(
   ss,
   { userId: (args) => args.userId, actionType: 'urgency', surface: 'email', actor: 'agent' },
   async (args) => { /* send */ }
 )
+
+// Vercel AI SDK: tool({ execute: withSoftStop(fn, { client: ss, … }) })
+// On deny, withSoftStop returns formatBlockedForLlm(decision)
 ```

@@ -57,7 +57,12 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
   "cost": 40,
   "threshold": 100,
   "projectedPressure": 120,
-  "suggestedActionType": "reminder"
+  "suggestedActionType": "reminder",
+  "suggestedFallback": {
+    "strategy": "downgrade",
+    "actionType": "reminder",
+    "message": "Prefer a softer reminder path; do not retry the same actionType immediately."
+  }
 }
 ```
 
@@ -69,7 +74,13 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
   "reason": "cooldown_active",
   "explanation": "User recently dismissed or ignored this type. Cooldown expires at …",
   "cooldownUntil": "2026-01-20T10:30:00Z",
+  "retryAfterMs": 600000,
   "suggestedActionType": "reminder",
+  "suggestedFallback": {
+    "strategy": "downgrade",
+    "actionType": "reminder",
+    "message": "Prefer a softer reminder path; do not retry the same actionType immediately."
+  },
   "decisionId": "550e8400-e29b-41d4-a716-446655440000",
   "pressure": 40,
   "cost": 40,
@@ -78,7 +89,13 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
 }
 ```
 
-Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason` from `reason` (use `explanation` / optional `suggestedActionType` in your own UX — do not skip `record`).
+| Additive deny field | When |
+|---|---|
+| `suggestedActionType` | Compat alias — usually `reminder` for blocked `urgency` / `interruption` |
+| `suggestedFallback` | Structured `{ strategy, actionType?, message? }` (`downgrade` \| `skip` \| `defer`) |
+| `retryAfterMs` | From `cooldownUntil` or remaining stacking window; omit when not applicable |
+
+Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason` from `reason` (use `explanation` / `suggestedFallback` / optional `suggestedActionType` in your own UX — do not skip `record`). For LLM tool results, prefer SDK `formatBlockedForLlm(decision)`.
 
 `check` is **read-only for pressure**: it evaluates current state and logs a check event; pressure, caps, and cooldowns advance on [`record`](/api/record) (`executed` / `downgraded`). Two concurrent allows can both pass before either records — SoftStop does not lock across callers. See [Errors](/api/errors#concurrent-allows-race).
 

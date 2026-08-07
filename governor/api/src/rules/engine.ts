@@ -85,6 +85,42 @@ const withPressureFields = (
   projectedPressure: pressure + cost
 });
 
+const reminderFallback = (): Pick<
+  GovernorDecision,
+  "suggestedActionType" | "suggestedFallback"
+> => ({
+  suggestedActionType: "reminder",
+  suggestedFallback: {
+    strategy: "downgrade",
+    actionType: "reminder",
+    message:
+      "Prefer a softer reminder path; do not retry the same actionType immediately."
+  }
+});
+
+const softDowngradeHints = (
+  actionType: ActionType
+): Pick<GovernorDecision, "suggestedActionType" | "suggestedFallback"> =>
+  actionType === "urgency" || actionType === "interruption"
+    ? reminderFallback()
+    : {};
+
+const retryAfterFromCooldown = (
+  cooldownUntil: string,
+  now: Date
+): number => Math.max(0, new Date(cooldownUntil).getTime() - now.getTime());
+
+const retryAfterFromStacking = (
+  lastAnyEscalationAt: string,
+  now: Date,
+  stackingWindowMinutes: number
+): number => {
+  const windowMs = stackingWindowMinutes * 60_000;
+  const elapsed =
+    now.getTime() - new Date(lastAnyEscalationAt).getTime();
+  return Math.max(0, Math.ceil(windowMs - elapsed));
+};
+
 export const evaluateCheck = (
   state: GovernorUserState,
   actionType: ActionType,
@@ -101,10 +137,7 @@ export const evaluateCheck = (
     return attach({
       allowed: false,
       reason: "pressure_exceeded",
-      suggestedActionType:
-        actionType === "urgency" || actionType === "interruption"
-          ? "reminder"
-          : undefined
+      ...softDowngradeHints(actionType)
     });
   }
 
@@ -114,10 +147,8 @@ export const evaluateCheck = (
       allowed: false,
       reason: "cooldown_active",
       cooldownUntil,
-      suggestedActionType:
-        actionType === "urgency" || actionType === "interruption"
-          ? "reminder"
-          : undefined
+      retryAfterMs: retryAfterFromCooldown(cooldownUntil, now),
+      ...softDowngradeHints(actionType)
     });
   }
 
@@ -131,10 +162,7 @@ export const evaluateCheck = (
     return attach({
       allowed: false,
       reason: "type_cap_reached",
-      suggestedActionType:
-        actionType === "urgency" || actionType === "interruption"
-          ? "reminder"
-          : undefined
+      ...softDowngradeHints(actionType)
     });
   }
 
@@ -161,7 +189,12 @@ export const evaluateCheck = (
       return attach({
         allowed: false,
         reason: "recent_escalation",
-        suggestedActionType: "reminder"
+        retryAfterMs: retryAfterFromStacking(
+          state.lastAnyEscalationAt,
+          now,
+          config.stackingWindowMinutes
+        ),
+        ...reminderFallback()
       });
     }
   }

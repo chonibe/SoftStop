@@ -10,7 +10,9 @@ export type {
   RecordRequest,
   SoftStopClient,
   MergeRequest,
-  MergeResponse
+  MergeResponse,
+  SuggestedFallback,
+  FallbackStrategy
 } from "./types";
 
 import type {
@@ -147,11 +149,14 @@ export class SoftStop {
 export {
   beforeContact,
   wrapUserFacingTool,
+  formatBlockedForLlm,
+  withSoftStop,
   type BeforeContactRequest,
   type BeforeContactResult,
   type BeforeContactAllowed,
   type BeforeContactBlocked,
-  type UserFacingToolConfig
+  type UserFacingToolConfig,
+  type WithSoftStopConfig
 } from "./agent";
 
 export {

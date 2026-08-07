@@ -1,7 +1,7 @@
 {
   "name": "softstop",
-  "version": "0.2.1",
-  "description": "SoftStop JS/TS client — check before interrupting a human; beforeContact + wrapUserFacingTool for agents.",
+  "version": "0.2.2",
+  "description": "SoftStop JS/TS client — check before interrupting a human; beforeContact, wrapUserFacingTool, withSoftStop for agents.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
