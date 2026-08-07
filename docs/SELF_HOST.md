@@ -33,7 +33,14 @@ Force memory storage: `GOVERNOR_STORAGE=memory`.
 
 ## Env
 
-See [.env.example](../.env.example). Prefer `SOFTSTOP_API_URL`; `GOVERNOR_API_URL` remains supported.
+See [.env.example](../.env.example) and [apps/docs/self-host/env.md](../apps/docs/self-host/env.md). Prefer `SOFTSTOP_API_URL`; `GOVERNOR_API_URL` remains supported.
+
+**Production defaults (when using Supabase):**
+
+- Auth required (`SOFTSTOP_AUTH=required` or storage=supabase) — tenant from API key only
+- Check-and-reserve on (`SOFTSTOP_RESERVE_TTL_MS` default 20000) unless `SOFTSTOP_RESERVE=off` / `SOFTSTOP_UNSAFE_LEGACY_CHECK=1`
+
+**Canonical runtime:** [`governor/api`](../governor/api). Apply SQL migrations under `governor/api/db/migrations` (includes Wave 2 decision lifecycle RPCs).
 
 ## Optional hosted demo
 

@@ -11,6 +11,7 @@ import {
   BUILTIN_ACTION_TYPES,
   isValidActionTypeSlug
 } from "../types";
+import { resolveReserveTtlMs } from "../env";
 
 export const POLICY_PRESETS = ["default", "strict", "lenient", "anon-aggressive"] as const;
 export type PolicyPreset = (typeof POLICY_PRESETS)[number];
@@ -236,7 +237,7 @@ export const loadPolicy = (options: LoadPolicyOptions = {}): LoadedPolicy => {
  * Load from process.env:
  * - SOFTSTOP_POLICY_FILE or GOVERNOR_POLICY_FILE
  * - SOFTSTOP_POLICY or GOVERNOR_POLICY (preset name)
- * - SOFTSTOP_RESERVE_TTL_MS (or SOFTSTOP_RESERVE=1 → 20000) overlays reserveTtlMs
+ * - Reserve TTL via resolveReserveTtlMs (production/Supabase defaults on)
  */
 export const loadPolicyFromEnv = (
   envVars: NodeJS.ProcessEnv = process.env,
@@ -249,25 +250,28 @@ export const loadPolicyFromEnv = (
 
   const loaded = loadPolicy({ policyFile, policyPreset, cwd });
 
-  const ttlRaw = envVars.SOFTSTOP_RESERVE_TTL_MS?.trim();
-  if (ttlRaw !== undefined && ttlRaw !== "") {
-    const n = Number(ttlRaw);
-    if (!Number.isFinite(n) || n < 0) {
-      throw new Error("SOFTSTOP_RESERVE_TTL_MS must be a non-negative number");
-    }
-    return {
-      ...loaded,
-      config: { ...loaded.config, reserveTtlMs: Math.floor(n) }
-    };
-  }
+  const useSupabase =
+    envVars.GOVERNOR_STORAGE !== "memory" &&
+    Boolean(
+      envVars.SUPABASE_URL &&
+        (envVars.SUPABASE_SERVICE_ROLE_KEY || envVars.SUPABASE_ANON_KEY)
+    );
 
-  const flag = envVars.SOFTSTOP_RESERVE?.trim().toLowerCase();
-  if (flag === "1" || flag === "true" || flag === "yes") {
-    return {
-      ...loaded,
-      config: { ...loaded.config, reserveTtlMs: 20_000 }
-    };
-  }
+  const reserveTtlMs = resolveReserveTtlMs(
+    {
+      SOFTSTOP_RESERVE_TTL_MS: envVars.SOFTSTOP_RESERVE_TTL_MS,
+      SOFTSTOP_RESERVE: envVars.SOFTSTOP_RESERVE,
+      SOFTSTOP_UNSAFE_LEGACY_CHECK: envVars.SOFTSTOP_UNSAFE_LEGACY_CHECK,
+      GOVERNOR_STORAGE: envVars.GOVERNOR_STORAGE
+    },
+    { useSupabase }
+  );
 
-  return loaded;
+  if (reserveTtlMs === (loaded.config.reserveTtlMs ?? 0)) {
+    return loaded;
+  }
+  return {
+    ...loaded,
+    config: { ...loaded.config, reserveTtlMs }
+  };
 };

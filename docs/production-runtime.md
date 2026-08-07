@@ -1,5 +1,14 @@
 # Production Runtime
 
+> **ARCHIVED / NON-CANONICAL (Wave 4).**  
+> This document describes an MCP daemon / tool-proxy direction that is **not** SoftStop OSS core.  
+> SoftStop is **authorize-only** (`check` → caller sends → `record`).  
+> **Canonical runtime:** [`governor/api`](../governor/api).  
+> MCP gateway experiments live under [`archive/mcp-gateway`](../archive/mcp-gateway).  
+> Do not treat this file as the production SoftStop architecture.
+
+---
+
 Governor uses decentralized enforcement with centralized control.
 
 In production, the policy decision must happen where the tool call is about to execute. A cloud service can manage policies and approvals, but the security boundary should live inside the customer's infrastructure.

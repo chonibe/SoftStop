@@ -103,6 +103,28 @@ describe("rules engine", () => {
     expect(decision.projectedPressure).toBe(80);
   });
 
+  it("allows when pressure + cost equals threshold (strict > only)", () => {
+    const now = new Date();
+    const state = {
+      ...emptyState(),
+      pressure: 60,
+      pressureUpdatedAt: now.toISOString()
+    };
+    // cost urgency=40 → 60+40=100 == threshold → allow
+    const atThreshold = evaluateCheck(state, "urgency", now, defaultRulesConfig);
+    expect(atThreshold.allowed).toBe(true);
+    expect(atThreshold.projectedPressure).toBe(100);
+
+    const over = {
+      ...emptyState(),
+      pressure: 61,
+      pressureUpdatedAt: now.toISOString()
+    };
+    const overDecision = evaluateCheck(over, "urgency", now, defaultRulesConfig);
+    expect(overDecision.allowed).toBe(false);
+    expect(overDecision.reason).toBe("pressure_exceeded");
+  });
+
   it("attaches suggestedFallback + keeps suggestedActionType on urgency deny", () => {
     const now = new Date();
     const state = {

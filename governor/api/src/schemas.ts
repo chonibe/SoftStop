@@ -29,7 +29,7 @@ const blockReasonSchema = z
   .optional();
 
 export const recordSchema = z.object({
-  decisionId: z.string().uuid().optional(),
+  decisionId: z.string().uuid(),
   userId: z.string().min(1),
   tenantId: z.string().min(1).optional(),
   actionType: actionTypeSchema,

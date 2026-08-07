@@ -1,7 +1,7 @@
 {
   "name": "@governor/core",
   "version": "0.0.0",
-  "description": "Deterministic pressure / escalation permit engine (experimental package extraction).",
+  "description": "Deterministic pressure / escalation permit engine (experimental package extraction). [NON-CANONICAL — use governor/api]",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

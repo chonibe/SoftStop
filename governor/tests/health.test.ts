@@ -27,6 +27,20 @@ describe("Governor Health API", () => {
     expect(typeof response.body.metrics.blockRate).toBe("number");
     expect(typeof response.body.metrics.healthScore).toBe("number");
     expect(response.body.metrics.actionTypeDistribution).toBeInstanceOf(Object);
+    expect(response.body.factual).toBeDefined();
+    expect(response.body.factual.orphanRate).toBeDefined();
+    expect(response.body.adoption).toBeDefined();
+    expect(typeof response.body.adoption.healthScore).toBe("number");
+  });
+
+  it("exposes /livez and /readyz", async () => {
+    const app = createApp(new MemoryStorage());
+    const live = await request(app).get("/livez");
+    expect(live.status).toBe(200);
+    expect(live.body.status).toBe("live");
+    const ready = await request(app).get("/readyz");
+    expect(ready.status).toBe(200);
+    expect(ready.body.status).toBe("ready");
   });
 
   it("computes orphan rate when checks lack records", async () => {

@@ -175,6 +175,12 @@ export class SupabaseStorage implements Storage {
       this.getOrphanedDecisionIds(periodHours, 1000, tenantId)
     ]);
 
+    for (const res of [checksRes, outcomesRes, closingRes]) {
+      if (res.error) {
+        throw new Error(`Health metrics query failed: ${res.error.message}`);
+      }
+    }
+
     const checksData = checksRes as {
       count?: number;
       data?: { decision_id: string; created_at: string }[];
@@ -475,25 +481,67 @@ export class SupabaseStorage implements Storage {
   }
 
   async getTenantByApiKey(key: string): Promise<string | null> {
+    const info = await this.resolveApiKey(key);
+    return info?.tenantId ?? null;
+  }
+
+  async resolveApiKey(key: string): Promise<import("./storage").ApiKeyInfo | null> {
     const keyHash = hashKey(key);
     const { data, error } = await this.client
       .from("tenant_api_keys")
-      .select("tenant_id")
+      .select("tenant_id, scopes, expires_at, revoked_at")
       .eq("key_hash", keyHash)
       .maybeSingle();
 
     if (error || !data?.tenant_id) return null;
-    return data.tenant_id as string;
+    if (data.revoked_at) return null;
+    if (data.expires_at && new Date(data.expires_at).getTime() <= Date.now()) {
+      return null;
+    }
+    const scopes = Array.isArray(data.scopes)
+      ? (data.scopes as import("./storage").ApiKeyScope[])
+      : ([
+          "check",
+          "record",
+          "read:pressure",
+          "read:audit",
+          "merge:users"
+        ] as import("./storage").ApiKeyScope[]);
+    return {
+      tenantId: data.tenant_id as string,
+      scopes,
+      expiresAt: data.expires_at ?? null,
+      revokedAt: data.revoked_at ?? null
+    };
   }
 
-  async createApiKey(tenantId: string, name?: string): Promise<{ key: string }> {
+  async touchApiKey(key: string): Promise<void> {
+    const keyHash = hashKey(key);
+    await this.client
+      .from("tenant_api_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("key_hash", keyHash);
+  }
+
+  async createApiKey(
+    tenantId: string,
+    name?: string,
+    scopes?: import("./storage").ApiKeyScope[]
+  ): Promise<{ key: string }> {
     const rawKey = `gov_${randomBytes(32).toString("hex")}`;
     const keyHash = hashKey(rawKey);
 
     const { error } = await this.client.from("tenant_api_keys").insert({
       tenant_id: tenantId,
       key_hash: keyHash,
-      name: name ?? null
+      name: name ?? null,
+      scopes: scopes ?? [
+        "check",
+        "record",
+        "read:pressure",
+        "read:audit",
+        "merge:users"
+      ]
     });
 
     if (error) {
@@ -501,5 +549,88 @@ export class SupabaseStorage implements Storage {
     }
 
     return { key: rawKey };
+  }
+
+  async checkAndReserveAtomic(
+    input: import("./storage").AtomicReserveInput
+  ): Promise<import("./storage").AtomicResult> {
+    const { data, error } = await this.client.rpc("softstop_check_and_reserve", {
+      p_tenant_id: input.tenantId,
+      p_user_id: input.userId,
+      p_decision_id: input.decisionId,
+      p_action_type: input.actionType,
+      p_expected_version: input.expectedVersion,
+      p_next_state: input.nextState,
+      p_event_context: input.eventContext,
+      p_reserve_expires_at: input.reserveExpiresAt,
+      p_cost: input.cost
+    });
+    if (error) {
+      throw new Error(`check_and_reserve RPC failed: ${error.message}`);
+    }
+    const row = data as { ok?: boolean; error?: string; status?: string };
+    if (!row?.ok) {
+      return { ok: false, error: row?.error ?? "conflict" };
+    }
+    return { ok: true, status: row.status };
+  }
+
+  async recordDecisionAtomic(
+    input: import("./storage").AtomicRecordInput
+  ): Promise<import("./storage").AtomicResult> {
+    const { data, error } = await this.client.rpc("softstop_record_decision", {
+      p_tenant_id: input.tenantId,
+      p_user_id: input.userId,
+      p_decision_id: input.decisionId,
+      p_action_type: input.actionType,
+      p_outcome: input.outcome,
+      p_expected_version: input.expectedVersion,
+      p_next_state: input.nextState,
+      p_event_context: input.eventContext
+    });
+    if (error) {
+      throw new Error(`record_decision RPC failed: ${error.message}`);
+    }
+    const row = data as {
+      ok?: boolean;
+      error?: string;
+      status?: string;
+      idempotent?: boolean;
+    };
+    if (!row?.ok) {
+      return {
+        ok: false,
+        error: row?.error ?? "conflict",
+        status: row?.status
+      };
+    }
+    return {
+      ok: true,
+      idempotent: row.idempotent,
+      status: row.status
+    };
+  }
+
+  async mergeUsersAtomic(
+    input: import("./storage").AtomicMergeInput
+  ): Promise<import("./storage").AtomicResult> {
+    const { data, error } = await this.client.rpc("softstop_merge_users", {
+      p_tenant_id: input.tenantId,
+      p_from_user_id: input.fromUserId,
+      p_to_user_id: input.toUserId,
+      p_from_expected_version: input.fromExpectedVersion,
+      p_to_expected_version: input.toExpectedVersion,
+      p_merged_state: input.mergedState,
+      p_tombstone_state: input.tombstoneState,
+      p_event_context: input.eventContext
+    });
+    if (error) {
+      throw new Error(`merge_users RPC failed: ${error.message}`);
+    }
+    const row = data as { ok?: boolean; error?: string };
+    if (!row?.ok) {
+      return { ok: false, error: row?.error ?? "conflict" };
+    }
+    return { ok: true };
   }
 }

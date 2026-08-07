@@ -13,12 +13,10 @@ jobs:
   test-js:
     name: JS / SoftStop engine
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      # Version comes from root package.json "packageManager" (pnpm@8.15.4).
-      # Do not also set `version` here — pnpm/action-setup errors on mismatch.
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -29,21 +27,95 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Test governor / SoftStop
-        run: pnpm test:governor
+      - name: Typecheck
+        run: pnpm typecheck
 
-  # Room for Wave 1b Python SDK — enable when packages/sdk-python lands.
-  # test-python:
-  #   name: Python SDK
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 15
-  #   defaults:
-  #     run:
-  #       working-directory: packages/sdk-python
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.12"
-  #     - run: pip install -e ".[dev]"
-  #     - run: pytest
+      - name: Test
+        run: pnpm test
+
+      - name: Build SDK (canonical)
+        run: pnpm --filter softstop build
+
+      - name: Validate SQL migrations
+        run: node scripts/validate-migrations.mjs
+
+  test-python:
+    name: Python SDK
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: packages/sdk-python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest
+
+  docker-smoke:
+    name: Docker smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t softstop:ci .
+      - name: Run health/livez
+        run: |
+          docker run -d --name softstop-ci -p 3000:3000 -e GOVERNOR_STORAGE=memory softstop:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3000/livez >/dev/null; then
+              curl -sf http://127.0.0.1:3000/readyz
+              curl -sf http://127.0.0.1:3000/v1/health
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs softstop-ci
+          exit 1
+        env:
+          GOVERNOR_STORAGE: memory
+
+  postgres-concurrency:
+    name: Postgres concurrency stress
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: softstop
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply migrations
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/softstop
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          for f in governor/api/db/migrations/*.sql; do
+            echo "Applying $f"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - name: Concurrency stress
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/softstop
+          SOFTSTOP_PG_STRESS: "1"
+        run: pnpm exec vitest run --config vitest.config.ts governor/tests/pg-concurrency.stress.test.ts

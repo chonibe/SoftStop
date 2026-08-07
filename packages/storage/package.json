@@ -1,7 +1,7 @@
 {
   "name": "@governor/storage",
   "version": "0.0.0",
-  "description": "Storage interfaces and adapters for Governor.",
+  "description": "Storage interfaces and adapters for Governor. [NON-CANONICAL — use governor/api]",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

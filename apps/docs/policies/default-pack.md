@@ -34,7 +34,7 @@
 
 | Field | Default | Effect |
 |---|---|---|
-| `threshold` | 100 | Block when `pressure + cost > threshold` |
+| `threshold` | 100 | Block when `pressure + cost > threshold` (allow at exact equality) |
 | `decayPerHour` | 8 | Linear decay toward 0 |
 | `costs.*` | see table | Added on `record` `executed` / `downgraded` |
 
