@@ -8,7 +8,7 @@ Authorize only. SoftStop does not send messages, pick offers, store journeys (no
 
 1. **Agent circuit breaking** — a safety layer in tool-calling loops, not just frequency capping. Gate the side effect with `check()`; always `record()` (`executed` or `blocked`).
 2. **Deterministic state for non-deterministic LLMs** — offload time/count cooldowns from the prompt. Policy and pressure live on the SoftStop server.
-3. **Graceful degradation via `suggestedActionType`** — blocked tools get steering (e.g. interruption → reminder), not crash or retry loops.
+3. **Graceful degradation via `suggestedFallback`** — blocked tools get steering (`suggestedActionType` remains a compat alias), plus `retryAfterMs` when a cooldown/stacking window applies — not crash or retry loops.
 4. **Multi-agent collision prevention** — shared per-user permit across Onboarding / Sales / Support on separate runtimes (and channels that hit the same person).
 
 ## Pillar details
@@ -18,7 +18,7 @@ Authorize only. SoftStop does not send messages, pick offers, store journeys (no
 Rogue agents, growth loops, and background jobs can spam without a shared stop signal. SoftStop sits **before** the user-facing tool:
 
 ```js
-import { SoftStop, wrapUserFacingTool } from 'softstop'
+import { SoftStop, wrapUserFacingTool, formatBlockedForLlm } from 'softstop'
 
 const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
 
@@ -41,10 +41,7 @@ async function runTool(name, args) {
   const result = await sendEmail(args)
   if (!result.ok) {
     // SoftStop already recorded outcome: 'blocked'
-    return {
-      error: result.reason,
-      suggestedActionType: result.suggestedActionType
-    }
+    return formatBlockedForLlm(result.decision)
   }
   // SoftStop already recorded outcome: 'executed'
   return result.result
@@ -73,7 +70,7 @@ if (!decision.allowed) {
     outcome: 'blocked',
     blockReason: decision.reason
   })
-  // Prefer decision.suggestedActionType over retrying the same tool
+  // Prefer decision.suggestedActionType / suggestedFallback over retrying the same tool
   return
 }
 ```
@@ -82,7 +79,13 @@ if (!decision.allowed) {
 
 A blocked tool should not crash the loop or hammer `check` again with the same `actionType`.
 
-When SoftStop blocks urgency or interruption, the decision may include `suggestedActionType` (often `reminder`). Use it to steer — then still `record` the blocked attempt if you called `check` yourself.
+When SoftStop blocks urgency or interruption, the decision may include:
+
+- `suggestedActionType` (compat, often `reminder`)
+- `suggestedFallback` — `{ strategy: "downgrade", actionType: "reminder", message? }`
+- `retryAfterMs` — when a cooldown or stacking window applies
+
+Use these to steer — then still `record` the blocked attempt if you called `check` yourself. Prefer `formatBlockedForLlm(decision)` when returning a tool result to the model.
 
 ```js
 if (!decision.allowed) {
@@ -93,10 +96,10 @@ if (!decision.allowed) {
     outcome: 'blocked',
     blockReason: decision.reason
   })
-  if (decision.suggestedActionType === 'reminder') {
+  if (decision.suggestedFallback?.actionType === 'reminder') {
     // softer path, or tell the model to soft-nudge
   }
-  return
+  return formatBlockedForLlm(decision)
 }
 ```
 
@@ -112,6 +115,8 @@ SoftStop is one per-user permit. Golden path: [agent-email-collision](https://gi
 |---|---|
 | `SoftStop#beforeContact` | Inline gate around one escalation |
 | `wrapUserFacingTool` | OpenAI / LangChain / plain tools that contact humans |
+| `withSoftStop` | Vercel AI SDK `tool({ execute })` (same shape for LangChain JS) |
+| `formatBlockedForLlm` | Stable JSON string for LLM tool results on deny |
 
 ```js
 const gated = await ss.beforeContact(
@@ -124,27 +129,16 @@ if (!gated.allowed) {
 }
 ```
 
-### Illustrative: Vercel AI SDK `tool()` (no hard dependency)
+### Vercel AI SDK `tool()` (no hard dependency)
 
-SoftStop does not depend on the AI SDK. If you use it, wrap the execute path the same way:
+SoftStop does not depend on the AI SDK. Wrap `execute` with `withSoftStop`:
 
 ```js
 import { tool } from 'ai' // your app's dependency — not SoftStop's
-import { SoftStop, wrapUserFacingTool } from 'softstop'
+import { SoftStop, withSoftStop } from 'softstop'
 import { z } from 'zod'
 
 const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL })
-
-const gatedSend = wrapUserFacingTool(
-  ss,
-  {
-    userId: (args) => String(args.userId),
-    actionType: 'urgency',
-    surface: 'email',
-    actor: 'vercel-ai-agent'
-  },
-  async ({ userId, subject }) => sendEmail(userId, subject)
-)
 
 export const sendFollowUp = tool({
   description: 'Email the user a follow-up',
@@ -152,19 +146,20 @@ export const sendFollowUp = tool({
     userId: z.string(),
     subject: z.string()
   }),
-  execute: async (args) => {
-    const result = await gatedSend(args)
-    if (!result.ok) {
-      return {
-        blocked: true,
-        reason: result.reason,
-        suggestedActionType: result.suggestedActionType
-      }
+  execute: withSoftStop(
+    async ({ userId, subject }) => sendEmail(userId, subject),
+    {
+      client: ss,
+      userId: (args) => String(args.userId),
+      actionType: 'urgency',
+      surface: 'email',
+      actor: 'vercel-ai-agent'
     }
-    return result.result
-  }
+  )
 })
 ```
+
+Allowed → your send result. Blocked → `formatBlockedForLlm` JSON string (record already done).
 
 Runnable copies without framework deps: [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper), [agent-touchpoint](https://github.com/chonibe/SoftStop/tree/main/examples/agent-touchpoint).
 
@@ -185,17 +180,15 @@ See [Adoption contract](/start/adoption-contract) and [Orphan rate](/ops/orphan-
 | Example | What it shows |
 |---|---|
 | [agent-email-collision](https://github.com/chonibe/SoftStop/tree/main/examples/agent-email-collision) | Multi-actor pressure on one user |
-| [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper) | `wrapUserFacingTool` / `withSoftStop` in a tool-style loop |
+| [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper) | `wrapUserFacingTool` + `withSoftStop` in a tool-style loop |
 | [agent-touchpoint](https://github.com/chonibe/SoftStop/tree/main/examples/agent-touchpoint) | `beforeContact` before escalating a human |
-| [langchain-agent](https://github.com/chonibe/SoftStop/tree/main/examples/langchain-agent) | Python `wrap_user_facing_tool` |
 
 ## Roadmap (not shipped)
 
-SoftStop already gates agents with deterministic permits and thin wrappers. These are **design priorities**, not product claims — see [agent control-layer design](https://github.com/chonibe/SoftStop/blob/main/docs/superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md):
+SoftStop already gates agents with deterministic permits, structured deny fields (`suggestedFallback` / `retryAfterMs`), `formatBlockedForLlm`, and `withSoftStop`. These remain **design priorities**, not product claims — see [agent control-layer design](https://github.com/chonibe/SoftStop/blob/main/docs/superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md):
 
 - **Atomic reserve** — check-and-reserve / short lease so concurrent agents cannot both spend the same pressure budget (today `check` is read-only; [concurrent allows](/api/errors#concurrent-allows-race))
-- **Richer fallbacks** — structured deny payloads (`retryAfterMs`, `suggestedFallback`) plus helpers to format blocks for LLM tool results
-- **Framework middlewares** — first-party `withSoftStop` adapters for common agent SDKs (beyond agnostic `beforeContact` / `wrapUserFacingTool`)
+- **Fail-safe SDK modes** — configurable fail-open / fail-closed when SoftStop is unreachable
 - **Hierarchical scopes** — optional channel / thread pressure on top of today’s `tenantId` + `userId` journal (`surface` is audit metadata only)
 
 ## Python

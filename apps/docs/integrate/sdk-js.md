@@ -67,7 +67,7 @@ Non-2xx responses throw `SoftStopHttpError` (`status`, `body`, message includes 
 ## Agent adapters
 
 ```js
-import { SoftStop, wrapUserFacingTool } from 'softstop'
+import { SoftStop, wrapUserFacingTool, withSoftStop, formatBlockedForLlm } from 'softstop'
 
 const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
 
@@ -91,8 +91,21 @@ const sendFollowUp = wrapUserFacingTool(
 
 const result = await sendFollowUp({ userId, subject: '…' })
 if (!result.ok) {
-  // result.reason, result.suggestedActionType — do not crash/retry the same actionType
+  // result.reason, result.suggestedActionType — or format for the model:
+  return formatBlockedForLlm(result.decision)
 }
+
+// Vercel AI SDK tool({ execute }) — zero-boilerplate
+const execute = withSoftStop(
+  async (args) => { /* send */ },
+  {
+    client: ss,
+    userId: (args) => args.userId,
+    actionType: 'urgency',
+    surface: 'email',
+    actor: 'sales-agent'
+  }
+)
 ```
 
 Full patterns: [Governing AI agents](/start/governing-ai-agents).
