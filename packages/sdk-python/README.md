@@ -19,7 +19,11 @@ pip install -e ./packages/sdk-python
 ```python
 from softstop import SoftStop, wrap_user_facing_tool
 
-ss = SoftStop(url="http://localhost:3000")  # or SOFTSTOP_API_URL / GOVERNOR_API_URL
+ss = SoftStop(
+    url="http://localhost:3000",  # or SOFTSTOP_API_URL / GOVERNOR_API_URL
+    # timeout_ms=500 (default), on_unavailable="fail_closed" (default)
+    # on_unavailable="fail_open" → { allowed: True, reason: "softstop_unavailable" }; skip record
+)
 
 decision = ss.check(user_id="user_123", action_type="urgency", surface="email")
 

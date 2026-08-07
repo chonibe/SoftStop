@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
+
+OnUnavailable = Literal["fail_closed", "fail_open"]
 
 
 class SoftStopHttpError(Exception):
@@ -20,6 +22,30 @@ class SoftStopHttpError(Exception):
             else:
                 detail = str(body)
         super().__init__(f"SoftStop {operation} failed ({status}): {detail}")
+
+
+class SoftStopUnavailableError(Exception):
+    """SoftStop was unreachable or timed out. Thrown under fail_closed (default)."""
+
+    def __init__(self, operation: str, cause: BaseException | None = None):
+        self.operation = operation
+        self.cause = cause
+        detail = str(cause) if cause is not None else "unreachable"
+        super().__init__(
+            f"SoftStop {operation} unavailable ({detail}); fail_closed — not inventing allowed:true"
+        )
+
+
+def fail_open_check_response() -> dict[str, Any]:
+    """Synthetic check decision for explicit on_unavailable='fail_open'. No decisionId."""
+    return {
+        "allowed": True,
+        "reason": "softstop_unavailable",
+        "explanation": (
+            "SoftStop unreachable or timed out; fail_open permitted the action without a "
+            "server decision. Do not call record() — there is no decisionId."
+        ),
+    }
 
 
 def read_json_or_throw(operation: str, response) -> Any:

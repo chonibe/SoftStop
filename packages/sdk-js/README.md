@@ -23,7 +23,11 @@ Alternates: `github:chonibe/SoftStop#path:packages/sdk-js` or `https://softstop.
 ```js
 import { SoftStop } from 'softstop'
 
-const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000' })
+const ss = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000',
+  // timeoutMs: 500 (default), onUnavailable: 'fail_closed' (default)
+  // onUnavailable: 'fail_open' → { allowed: true, reason: 'softstop_unavailable' }; skip record
+})
 
 const decision = await ss.check({
   userId: 'user_123',

@@ -27,11 +27,29 @@ export interface SuggestedFallback {
   message?: string;
 }
 
+/**
+ * When SoftStop is unreachable or times out during `check`:
+ * - `fail_closed` (default) — throw SoftStopUnavailableError; never invent allowed:true
+ * - `fail_open` — return `{ allowed: true, reason: "softstop_unavailable" }` with no decisionId
+ *   (skip `record()`; use for critical paths only)
+ */
+export type OnUnavailable = "fail_closed" | "fail_open";
+
 export interface SoftStopOptions {
   url?: string;
   baseUrl?: string;
   apiKey?: string;
   prefix?: "/v1" | "/api";
+  /**
+   * Behavior when SoftStop is unreachable / times out on `check`.
+   * Default: `fail_closed` (authorize-only honesty).
+   */
+  onUnavailable?: OnUnavailable;
+  /**
+   * Per-request timeout in milliseconds (AbortSignal).
+   * Default: `500` — short enough for agent loops.
+   */
+  timeoutMs?: number;
 }
 
 export interface CheckRequest {

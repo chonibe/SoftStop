@@ -4,13 +4,21 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
-from softstop._http import SoftStopHttpError, read_json_or_throw
+from softstop._http import (
+    SoftStopHttpError,
+    SoftStopUnavailableError,
+    fail_open_check_response,
+    read_json_or_throw,
+)
 from softstop.agent import BeforeContactResult, before_contact
+
+DEFAULT_TIMEOUT_MS = 500
 
 
 def _default_prefix(base_url: str) -> str:
@@ -30,6 +38,10 @@ class SoftStop:
     ss = SoftStop(url="http://localhost:3000")
     decision = ss.check(user_id="u1", action_type="urgency")
     ```
+
+    Fail-safe options:
+    - ``on_unavailable``: ``"fail_closed"`` (default) | ``"fail_open"``
+    - ``timeout_ms``: per-request timeout (default 500)
     """
 
     def __init__(
@@ -39,6 +51,8 @@ class SoftStop:
         base_url: str | None = None,
         api_key: str | None = None,
         prefix: str | None = None,
+        on_unavailable: str = "fail_closed",
+        timeout_ms: int = DEFAULT_TIMEOUT_MS,
     ) -> None:
         raw = (
             url
@@ -50,6 +64,10 @@ class SoftStop:
         self.base_url = str(raw).rstrip("/")
         self.prefix = prefix or _default_prefix(self.base_url)
         self.api_key = api_key
+        if on_unavailable not in ("fail_closed", "fail_open"):
+            raise ValueError("on_unavailable must be 'fail_closed' or 'fail_open'")
+        self.on_unavailable = on_unavailable
+        self.timeout_ms = timeout_ms
 
     def _headers(self) -> dict[str, str]:
         headers = {"Content-type": "application/json"}
@@ -64,7 +82,6 @@ class SoftStop:
         *,
         operation: str,
         payload: dict[str, Any] | None = None,
-        timeout: float = 30.0,
     ) -> Any:
         data = None if payload is None else json.dumps(payload).encode("utf-8")
         req = Request(
@@ -73,9 +90,12 @@ class SoftStop:
             headers=self._headers(),
             method=method,
         )
+        timeout_s = self.timeout_ms / 1000.0
         try:
-            with urlopen(req, timeout=timeout) as response:
+            with urlopen(req, timeout=timeout_s) as response:
                 return read_json_or_throw(operation, response)
+        except SoftStopHttpError:
+            raise
         except HTTPError as exc:
             raw = exc.read().decode("utf-8") if exc.fp else ""
             try:
@@ -83,8 +103,10 @@ class SoftStop:
             except json.JSONDecodeError:
                 body = raw
             raise SoftStopHttpError(operation, exc.code, body) from exc
-        except URLError as exc:
-            raise SoftStopHttpError(operation, 0, None, message=str(exc.reason)) from exc
+        except (URLError, TimeoutError, socket.timeout, OSError) as exc:
+            if operation == "check" and self.on_unavailable == "fail_open":
+                return fail_open_check_response()
+            raise SoftStopUnavailableError(operation, exc) from exc
 
     def check(
         self,
@@ -158,4 +180,4 @@ class SoftStop:
         return before_contact(self, request, run)
 
 
-__all__ = ["SoftStop", "SoftStopHttpError"]
+__all__ = ["SoftStop", "SoftStopHttpError", "SoftStopUnavailableError"]

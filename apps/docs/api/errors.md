@@ -36,11 +36,40 @@ There is **no** request rate-limit (`429`) on `check`/`record` in the current AP
 
 ## Client guidance: unreachable SoftStop
 
-SoftStop does not prescribe a built-in client policy. Recommended:
+SDKs expose explicit fail-safe knobs (JS + Python). Defaults prefer authorize-only honesty:
 
-- **Fail closed or queue** — do not silently escalate without a decision.
-- **Retry** transient network / 5xx with backoff; do not invent an `allowed` decision locally.
-- After a successful `check`, always `record` (including `outcome: "blocked"`). Crash between the two → queue a retry with the same `decisionId`.
+| Option | Values | Default | Behavior on network failure / timeout during `check` |
+|---|---|---|---|
+| `onUnavailable` / `on_unavailable` | `fail_closed` \| `fail_open` | `fail_closed` | **fail_closed** — throw `SoftStopUnavailableError` (never invent `allowed: true`). **fail_open** — return `{ allowed: true, reason: "softstop_unavailable" }` with **no** `decisionId`; skip `record()`. |
+| `timeoutMs` / `timeout_ms` | number (ms) | `500` | Abort the HTTP request; treated as unavailable. |
+
+```js
+import { SoftStop, SoftStopUnavailableError } from 'softstop'
+
+// Default: fail closed
+const ss = new SoftStop({ url: process.env.SOFTSTOP_API_URL, timeoutMs: 400 })
+
+// Critical path only — explicit fail-open
+const critical = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL,
+  onUnavailable: 'fail_open',
+  timeoutMs: 300
+})
+```
+
+```python
+from softstop import SoftStop, SoftStopUnavailableError
+
+ss = SoftStop(url="http://localhost:3000", timeout_ms=400)  # fail_closed default
+critical = SoftStop(url="http://localhost:3000", on_unavailable="fail_open", timeout_ms=300)
+```
+
+Rules:
+
+- Never invent a silent `allowed: true` unless `fail_open` is set explicitly.
+- On fail-open, do **not** call `record()` (there is no `decisionId`). `beforeContact` / `before_contact` skip record automatically when `reason === "softstop_unavailable"`.
+- Live API errors (`SoftStopHttpError`, e.g. 400 unknown `actionType`) are **not** converted to fail-open allows.
+- After a successful server `check`, always `record` (including `outcome: "blocked"`). Crash between the two → queue a retry with the same `decisionId`.
 
 ## `decisionId` matching
 

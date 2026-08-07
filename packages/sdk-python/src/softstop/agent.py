@@ -81,6 +81,10 @@ def before_contact(
 
     result = run()
 
+    # Explicit fail_open unavailable allow — no server decisionId; never invent a record.
+    if decision.get("reason") == "softstop_unavailable":
+        return {"allowed": True, "result": result, "decision": decision}
+
     client.record(
         decision_id=decision.get("decisionId"),
         user_id=request["user_id"],

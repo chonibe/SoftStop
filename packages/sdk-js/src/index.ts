@@ -4,6 +4,7 @@ export type {
   Surface,
   Outcome,
   SoftStopOptions,
+  OnUnavailable,
   CheckRequest,
   CheckResponse,
   PressureResponse,
@@ -17,6 +18,7 @@ export type {
 
 import type {
   SoftStopOptions,
+  OnUnavailable,
   CheckRequest,
   CheckResponse,
   PressureResponse,
@@ -25,8 +27,17 @@ import type {
   MergeResponse
 } from "./types";
 
-import { readJsonOrThrow, SoftStopHttpError } from "./httpError";
-export { SoftStopHttpError } from "./httpError";
+import {
+  readJsonOrThrow,
+  SoftStopHttpError,
+  SoftStopUnavailableError,
+  failOpenCheckResponse
+} from "./httpError";
+export {
+  SoftStopHttpError,
+  SoftStopUnavailableError,
+  failOpenCheckResponse
+} from "./httpError";
 
 /** @deprecated Prefer SoftStopOptions */
 export type GovernorClientOptions = SoftStopOptions;
@@ -36,6 +47,8 @@ import {
   type BeforeContactRequest,
   type BeforeContactResult
 } from "./agent";
+
+const DEFAULT_TIMEOUT_MS = 500;
 
 function defaultPrefix(baseUrl: string): "/v1" | "/api" {
   try {
@@ -60,12 +73,16 @@ export class SoftStop {
   private readonly baseUrl: string;
   private readonly prefix: "/v1" | "/api";
   private readonly apiKey?: string;
+  private readonly onUnavailable: OnUnavailable;
+  private readonly timeoutMs: number;
 
   constructor(options: SoftStopOptions = {}) {
     const raw = options.url ?? options.baseUrl ?? "http://localhost:3000";
     this.baseUrl = String(raw).replace(/\/$/, "");
     this.prefix = options.prefix ?? defaultPrefix(this.baseUrl);
     this.apiKey = options.apiKey;
+    this.onUnavailable = options.onUnavailable ?? "fail_closed";
+    this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
   private headers(): Record<string, string> {
@@ -75,31 +92,52 @@ export class SoftStop {
     };
   }
 
+  private async fetchJson<T>(
+    operation: string,
+    path: string,
+    init: RequestInit
+  ): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const response = await fetch(`${this.baseUrl}${this.prefix}${path}`, {
+        ...init,
+        signal: controller.signal
+      });
+      return await readJsonOrThrow<T>(operation, response);
+    } catch (err) {
+      if (err instanceof SoftStopHttpError) throw err;
+      if (operation === "check" && this.onUnavailable === "fail_open") {
+        return failOpenCheckResponse() as T;
+      }
+      throw new SoftStopUnavailableError(operation, err);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async check(payload: CheckRequest): Promise<CheckResponse> {
-    const response = await fetch(`${this.baseUrl}${this.prefix}/check`, {
+    return this.fetchJson<CheckResponse>("check", "/check", {
       method: "POST",
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    return readJsonOrThrow<CheckResponse>("check", response);
   }
 
   async record(payload: RecordRequest): Promise<{ ok?: boolean }> {
-    const response = await fetch(`${this.baseUrl}${this.prefix}/record`, {
+    return this.fetchJson<{ ok?: boolean }>("record", "/record", {
       method: "POST",
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    return readJsonOrThrow<{ ok?: boolean }>("record", response);
   }
 
   async merge(payload: MergeRequest): Promise<MergeResponse> {
-    const response = await fetch(`${this.baseUrl}${this.prefix}/users/merge`, {
+    return this.fetchJson<MergeResponse>("merge", "/users/merge", {
       method: "POST",
       headers: this.headers(),
       body: JSON.stringify(payload)
     });
-    return readJsonOrThrow<MergeResponse>("merge", response);
   }
 
   async getPressure(
@@ -107,31 +145,29 @@ export class SoftStop {
     tenantId?: string
   ): Promise<PressureResponse> {
     const qs = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
-    const response = await fetch(
-      `${this.baseUrl}${this.prefix}/users/${encodeURIComponent(userId)}/pressure${qs}`,
+    return this.fetchJson<PressureResponse>(
+      "getPressure",
+      `/users/${encodeURIComponent(userId)}/pressure${qs}`,
       {
         method: "GET",
         headers: this.headers()
       }
     );
-    return readJsonOrThrow<PressureResponse>("getPressure", response);
   }
 
   async verify(): Promise<{ ok?: boolean; message?: string }> {
-    const response = await fetch(`${this.baseUrl}${this.prefix}/verify`, {
+    return this.fetchJson<{ ok?: boolean; message?: string }>("verify", "/verify", {
       method: "POST",
       headers: this.headers(),
       body: JSON.stringify({})
     });
-    return readJsonOrThrow<{ ok?: boolean; message?: string }>("verify", response);
   }
 
   async health(): Promise<Record<string, unknown>> {
-    const response = await fetch(`${this.baseUrl}${this.prefix}/health`, {
+    return this.fetchJson<Record<string, unknown>>("health", "/health", {
       method: "GET",
       headers: this.headers()
     });
-    return readJsonOrThrow<Record<string, unknown>>("health", response);
   }
 
   /**

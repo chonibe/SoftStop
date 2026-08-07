@@ -183,12 +183,34 @@ See [Adoption contract](/start/adoption-contract) and [Orphan rate](/ops/orphan-
 | [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper) | `wrapUserFacingTool` + `withSoftStop` in a tool-style loop |
 | [agent-touchpoint](https://github.com/chonibe/SoftStop/tree/main/examples/agent-touchpoint) | `beforeContact` before escalating a human |
 
+## Fail-safe when SoftStop is unreachable
+
+Agent loops need a short timeout and an explicit policy when the permit API is down:
+
+```js
+const ss = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000',
+  timeoutMs: 400,                 // default 500
+  onUnavailable: 'fail_closed'    // default — throws SoftStopUnavailableError
+})
+
+// Critical path only — never silent; reason is always softstop_unavailable
+const critical = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL,
+  onUnavailable: 'fail_open',
+  timeoutMs: 300
+})
+```
+
+- **fail_closed** (default) — do not escalate; catch `SoftStopUnavailableError`
+- **fail_open** — returns `{ allowed: true, reason: "softstop_unavailable" }` with **no** `decisionId`; skip `record()` (adapters do this for you)
+- Details: [Errors — unreachable SoftStop](/api/errors#client-guidance-unreachable-softstop)
+
 ## Roadmap (not shipped)
 
-SoftStop already gates agents with deterministic permits, structured deny fields (`suggestedFallback` / `retryAfterMs`), `formatBlockedForLlm`, and `withSoftStop`. These remain **design priorities**, not product claims — see [agent control-layer design](https://github.com/chonibe/SoftStop/blob/main/docs/superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md):
+SoftStop already gates agents with deterministic permits, structured deny fields (`suggestedFallback` / `retryAfterMs`), `formatBlockedForLlm`, `withSoftStop`, and SDK fail-safe modes. These remain **design priorities**, not product claims — see [agent control-layer design](https://github.com/chonibe/SoftStop/blob/main/docs/superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md):
 
 - **Atomic reserve** — check-and-reserve / short lease so concurrent agents cannot both spend the same pressure budget (today `check` is read-only; [concurrent allows](/api/errors#concurrent-allows-race))
-- **Fail-safe SDK modes** — configurable fail-open / fail-closed when SoftStop is unreachable
 - **Hierarchical scopes** — optional channel / thread pressure on top of today’s `tenantId` + `userId` journal (`surface` is audit metadata only)
 
 ## Python

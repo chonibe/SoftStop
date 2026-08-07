@@ -47,6 +47,27 @@ The client picks `/v1` on localhost and `/api` on hosted hosts.
 
 Non-2xx responses raise `SoftStopHttpError` (`status`, `body`).
 
+### Fail-safe options
+
+```python
+from softstop import SoftStop, SoftStopUnavailableError
+
+ss = SoftStop(
+    url="http://localhost:3000",
+    timeout_ms=400,                 # default 500
+    on_unavailable="fail_closed",   # default — raises SoftStopUnavailableError on network/timeout
+)
+
+# Critical path only
+critical = SoftStop(
+    url="http://localhost:3000",
+    on_unavailable="fail_open",     # { allowed: True, reason: "softstop_unavailable" } — no decisionId; skip record
+    timeout_ms=300,
+)
+```
+
+See [Errors — unreachable SoftStop](/api/errors#client-guidance-unreachable-softstop).
+
 ## Agent adapters
 
 ```python

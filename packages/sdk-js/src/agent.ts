@@ -61,6 +61,11 @@ export async function beforeContact<T>(
 
   const result = await run();
 
+  // Explicit fail_open unavailable allow — no server decisionId; never invent a record.
+  if (decision.reason === "softstop_unavailable") {
+    return { allowed: true, result, decision };
+  }
+
   await client.record({
     decisionId: decision.decisionId,
     userId: request.userId,

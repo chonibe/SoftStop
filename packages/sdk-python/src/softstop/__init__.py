@@ -8,7 +8,7 @@ from softstop.agent import (
     wrap_user_facing_tool,
 )
 from softstop.client import SoftStop
-from softstop._http import SoftStopHttpError
+from softstop._http import SoftStopHttpError, SoftStopUnavailableError
 
 # Deprecated alias
 GovernorClient = SoftStop
@@ -17,6 +17,7 @@ __all__ = [
     "SoftStop",
     "GovernorClient",
     "SoftStopHttpError",
+    "SoftStopUnavailableError",
     "before_contact",
     "wrap_user_facing_tool",
     "BeforeContactResult",

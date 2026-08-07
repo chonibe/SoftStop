@@ -64,6 +64,27 @@ The client picks `/v1` on localhost and `/api` on hosted hosts.
 
 Non-2xx responses throw `SoftStopHttpError` (`status`, `body`, message includes API `error` text) — e.g. unknown `actionType` is a clear 400, not a soft block.
 
+### Fail-safe options
+
+```js
+import { SoftStop, SoftStopUnavailableError } from 'softstop'
+
+const ss = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL || 'http://localhost:3000',
+  timeoutMs: 400,              // default 500
+  onUnavailable: 'fail_closed' // default — throw SoftStopUnavailableError on network/timeout
+})
+
+// Critical path only
+const critical = new SoftStop({
+  url: process.env.SOFTSTOP_API_URL,
+  onUnavailable: 'fail_open',  // { allowed: true, reason: 'softstop_unavailable' } — no decisionId; skip record
+  timeoutMs: 300
+})
+```
+
+See [Errors — unreachable SoftStop](/api/errors#client-guidance-unreachable-softstop).
+
 ## Agent adapters
 
 ```js
