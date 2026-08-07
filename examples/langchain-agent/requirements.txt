@@ -1,0 +1,2 @@
+# SoftStop Python SDK (local path). After publish: softstop
+-e ../../packages/sdk-python

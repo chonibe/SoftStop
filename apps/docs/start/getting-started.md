@@ -16,13 +16,19 @@ Hosted: [https://softstop.vercel.app/console.html](https://softstop.vercel.app/c
 ```bash
 curl -X POST http://localhost:3000/v1/verify
 ```
-## 2. Install the JS client
+## 2. Install a client
 
 ```bash
 npm i softstop
 ```
 
-Alternates: `npm i https://softstop.vercel.app/softstop.tgz` or `npm i 'github:chonibe/SoftStop#path:packages/sdk-js'`.
+```bash
+pip install softstop
+```
+
+JS alternates: `npm i https://softstop.vercel.app/softstop.tgz` or `npm i 'github:chonibe/SoftStop#path:packages/sdk-js'`.
+
+Python from checkout: `pip install -e ./packages/sdk-python`. Docs: [JS SDK](/integrate/sdk-js) · [Python SDK](/integrate/sdk-python).
 
 Self-host the SoftStop API for production (`pnpm dev` / Docker). The hosted site is demo + CDN, not a production SoftStop host.
 ## 3. Check, then record

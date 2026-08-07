@@ -197,10 +197,36 @@ SoftStop already gates agents with deterministic permits and thin wrappers. Thes
 - **Framework middlewares** — first-party `withSoftStop` adapters for common agent SDKs (beyond agnostic `beforeContact` / `wrapUserFacingTool`)
 - **Hierarchical scopes** — optional channel / thread pressure on top of today’s `tenantId` + `userId` journal (`surface` is audit metadata only)
 
+## Python
+
+```bash
+pip install softstop
+```
+
+```python
+from softstop import SoftStop, wrap_user_facing_tool
+
+ss = SoftStop(url="http://localhost:3000")
+
+send_email = wrap_user_facing_tool(
+    ss,
+    {
+        "user_id": lambda args: args["user_id"],
+        "action_type": "urgency",
+        "surface": "email",
+        "actor": "sales-agent",
+    },
+    lambda args: {"message_id": "…"},
+)
+```
+
+See [Python SDK](/integrate/sdk-python) and [`examples/langchain-agent`](https://github.com/chonibe/SoftStop/tree/main/examples/langchain-agent).
+
 ## Next
 
 - [Getting started](/start/getting-started)
 - [JS SDK](/integrate/sdk-js)
+- [Python SDK](/integrate/sdk-python)
 - [Integration workflow](/integrate/workflow)
 - [API — check](/api/check)
 - [API — record](/api/record)

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "softstop"
+version = "0.2.1"
+description = "SoftStop Python client — check before interrupting a human; before_contact + wrap_user_facing_tool for agents."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "SoftStop contributors" }]
+keywords = [
+  "softstop",
+  "governor",
+  "escalation",
+  "pressure",
+  "frequency-cap",
+  "cooldown",
+  "check-record",
+  "authorization",
+  "ai-agents",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://softstop.vercel.app"
+Documentation = "https://softstop-docs.vercel.app"
+Repository = "https://github.com/chonibe/SoftStop"
+Issues = "https://github.com/chonibe/SoftStop/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/softstop"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.hatch.build.targets.sdist]
+include = ["src/softstop", "tests", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

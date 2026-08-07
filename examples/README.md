@@ -6,9 +6,10 @@ Complete integration examples for SoftStop in different languages and environmen
 
 - [**Agent + email collision**](agent-email-collision/) — golden path with pressure readout (start here)
 - [**Agent tool wrapper**](agent-tool-wrapper/) — `wrapUserFacingTool` in a tool / function-call loop ([docs](../apps/docs/start/governing-ai-agents.md))
+- [**LangChain agent (Python)**](langchain-agent/) — `pip install softstop` + `wrap_user_facing_tool`
 - [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health`
 - [Node.js](nodejs/) — server-side integration
-- [Python](python/) — Python application integration
+- [Python](python/) — thin script (prefer [`packages/sdk-python`](../packages/sdk-python/))
 - [Browser](browser/) — client-side JavaScript integration
 - [Agent touchpoint](agent-touchpoint/) — `beforeContact` before escalating a user
 
@@ -28,8 +29,13 @@ SoftStop checks:
 ## SoftStop SDK
 
 ```bash
-npm i https://softstop.vercel.app/softstop.tgz
+npm i softstop
 # or: npm i 'github:chonibe/SoftStop#path:packages/sdk-js'
+```
+
+```bash
+pip install softstop
+# or: pip install -e ../packages/sdk-python
 ```
 
 ```js
@@ -38,6 +44,8 @@ const softstop = new SoftStop({ url: process.env.SOFTSTOP_API_URL || 'http://loc
 ```
 
 Browser: `import { SoftStop } from 'https://softstop.vercel.app/sdk.js'`
+
+Python: see [packages/sdk-python](../packages/sdk-python/) and [langchain-agent](langchain-agent/).
 
 ## Integration Pattern
 

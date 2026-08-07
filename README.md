@@ -71,6 +71,10 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 npm i softstop
 ```
 
+```bash
+pip install softstop
+```
+
 Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
 
 ### Quick start — AI tool call
@@ -237,9 +241,10 @@ Repo note: root [`tenet-policy.json`](tenet-policy.json) configures **contributo
 
 - [**Agent + email collision**](examples/agent-email-collision) — sales agent email then marketing SMS; print pressure
 - [**Agent tool wrapper**](examples/agent-tool-wrapper) — `wrapUserFacingTool` in a function-calling / tool loop
+- [**LangChain agent (Python)**](examples/langchain-agent) — `pip install softstop` + `wrap_user_facing_tool`
 - [**Governing AI agents**](apps/docs/start/governing-ai-agents.md) — circuit breaker, pillars, `suggestedActionType`
 - [**Sample shop**](examples/sample-shop) — chaos vs SoftStop + orphan-rate health (`node index.js --mode=compare`)
-- [Node.js](examples/nodejs) · [Python](examples/python) · [Browser](examples/browser)
+- [Node.js](examples/nodejs) · [Python SDK](packages/sdk-python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — `beforeContact` before escalating a human
 - [Scroll demo](https://softstop.vercel.app) — marketing-chaos example story
 - [Pressure Console](https://softstop.vercel.app/console.html) — look up a user, watch the meter, simulate contacts

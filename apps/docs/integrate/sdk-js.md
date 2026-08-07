@@ -105,6 +105,7 @@ Full patterns: [Governing AI agents](/start/governing-ai-agents).
 ## Next
 
 - [Governing AI agents](/start/governing-ai-agents)
+- [Python SDK](/integrate/sdk-python)
 - [Examples](/integrate/examples)
 - [API — check](/api/check)
 - [Getting started](/start/getting-started)

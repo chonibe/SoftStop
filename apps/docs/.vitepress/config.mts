@@ -22,6 +22,7 @@ const sidebar = [
     items: [
       { text: 'Workflow', link: '/integrate/workflow' },
       { text: 'JS SDK', link: '/integrate/sdk-js' },
+      { text: 'Python SDK', link: '/integrate/sdk-python' },
       { text: 'Examples', link: '/integrate/examples' }
     ]
   },

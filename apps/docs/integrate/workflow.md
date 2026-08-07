@@ -80,5 +80,6 @@ Do **not** invent per-touchpoint rules in app code. The server loads `policies/*
 ## Next
 
 - [JS SDK](/integrate/sdk-js)
+- [Python SDK](/integrate/sdk-python)
 - [Examples](/integrate/examples)
 - [Action types](/policies/action-types)

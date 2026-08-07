@@ -1,3 +1,8 @@
 # Experimental: python agent
 
-For SoftStop + agent user escalations, see [agent-touchpoint](../agent-touchpoint) (Node pattern; same check/record contract applies in Python via `examples/python`).
+Use the published SDK + LangChain-shaped example:
+
+- [`packages/sdk-python`](../../packages/sdk-python/) — `pip install softstop`
+- [`examples/langchain-agent`](../langchain-agent/) — `wrap_user_facing_tool`
+
+Same check/record contract as [agent-touchpoint](../agent-touchpoint) (Node).
