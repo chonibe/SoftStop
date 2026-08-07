@@ -23,7 +23,8 @@ const blockReasonSchema = z
     "type_cap_reached",
     "global_cap_reached",
     "recent_escalation",
-    "pressure_exceeded"
+    "pressure_exceeded",
+    "orphan_timeout"
   ])
   .optional();
 

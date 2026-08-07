@@ -125,6 +125,17 @@ export class MemoryStorage implements Storage {
     limit = 100,
     tenantId = "default"
   ): Promise<string[]> {
+    const orphans = await this.getOrphanedChecks(periodHours, limit, tenantId);
+    return orphans.map((o) => o.decisionId);
+  }
+
+  async getOrphanedChecks(
+    periodHours = 24,
+    limit = 100,
+    tenantId = "default"
+  ): Promise<
+    { decisionId: string; userId: string; actionType: string; createdAt: string }[]
+  > {
     const cutoff = Date.now() - periodHours * 60 * 60 * 1000;
     const recent = this.events.filter(
       (e) => (e.tenantId ?? "default") === tenantId && (e.createdAt ? new Date(e.createdAt).getTime() : 0) >= cutoff
@@ -142,7 +153,12 @@ export class MemoryStorage implements Storage {
 
     return checks
       .filter((c) => !outcomeDecisionIds.has(c.decisionId!))
-      .map((c) => c.decisionId!)
+      .map((c) => ({
+        decisionId: c.decisionId!,
+        userId: c.userId,
+        actionType: c.actionType,
+        createdAt: c.createdAt ?? new Date(0).toISOString()
+      }))
       .slice(0, limit);
   }
 

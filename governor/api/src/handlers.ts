@@ -56,7 +56,8 @@ export const handleHealth = async (
   storage: Storage,
   periodHours?: number,
   tenantId?: string,
-  rulesConfig: GovernorRulesConfig = defaultRulesConfig
+  rulesConfig: GovernorRulesConfig = defaultRulesConfig,
+  includeOrphans = false
 ): Promise<{ status: number; body: unknown }> => {
   if (!storage.getHealthMetrics) {
     return {
@@ -66,12 +67,20 @@ export const handleHealth = async (
   }
 
   const tid = tenantId ?? DEFAULT_TENANT;
+  const hours = periodHours ?? 24;
   const metrics = await storage.getHealthMetrics(
-    periodHours ?? 24,
+    hours,
     tid,
     reserveTtlMs(rulesConfig)
   );
-  return { status: 200, body: { ok: true, metrics } };
+  const body: Record<string, unknown> = { ok: true, metrics };
+  if (includeOrphans && storage.getOrphanedChecks) {
+    body.orphanedChecks = await storage.getOrphanedChecks(hours, 100, tid);
+  } else if (includeOrphans && storage.getOrphanedDecisionIds) {
+    const ids = await storage.getOrphanedDecisionIds(hours, 100, tid);
+    body.orphanedChecks = ids.map((decisionId) => ({ decisionId }));
+  }
+  return { status: 200, body };
 };
 
 export const handleVerify = async (
@@ -675,7 +684,9 @@ function blockReasonToPlainLanguage(reason?: string): string {
     global_cap_reached:
       "Maximum total escalations (4) in the last 24 hours.",
     recent_escalation:
-      "Another escalation occurred in the last 10 minutes; avoid stacking."
+      "Another escalation occurred in the last 10 minutes; avoid stacking.",
+    orphan_timeout:
+      "Check had no record within the orphan window; closed as blocked by the orphan sweeper."
   };
   return known[reason] ?? reason;
 }

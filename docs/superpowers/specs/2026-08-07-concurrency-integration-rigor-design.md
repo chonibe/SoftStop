@@ -46,9 +46,9 @@ Historical constraint: Sprint 2 messaging gateway (Resend inside SoftStop) was *
 | User ask | Status | Evidence | Gap |
 |----------|--------|----------|-----|
 | **Outbound Notification Gateway** | **Not started (and historically rejected in core)** | ROADMAP: MCP/tool gateway not homepage; Sprint 2 Resend gateway reverted; `tenet-policy.json` forbids ESP imports in apps | Do **not** build in OSS core. Optional commercial/out-of-tree adapter only after explicit product flip |
-| **Orphan Sweeper / Auto-Reconciliation** | **Partial (observe-only)** | `orphanRate` / `getOrphanedDecisionIds` on health/report; pull alert recipe `apps/docs/ops/orphan-rate.md`; lazy reserve prune on check/record | No background worker. Spec mentioned `expiredReserveRate` — **not shipped**. No auto-record of expired reserves |
+| **Orphan Sweeper / Auto-Reconciliation** | **Partial (Wave B)** | `orphanRate` / `expiredReserveRate` on health; `includeOrphans=1` → `orphanedChecks`; `scripts/orphan-sweeper.js` alert-only cron (optional `--auto-record-blocked` → `blocked`/`orphan_timeout` only) | No silent `executed` backfill. Redis not required |
 | **Provider Webhook Auditing** | **Not started** | Decision-export webhooks listed as Later in ROADMAP; no Twilio/SendGrid ingest | Out of authorize-only core; optional adapter |
-| **AST / ESLint rules for check→record** | **Not started (for SoftStop consumers)** | Repo has tenet/ESLint for **internal** boundary enforcement (`apps/.eslintrc` history, `scripts/tenet-check.js`); SDK `beforeContact` / `withSoftStop` already encapsulate try/finally-equivalent flow | Publishable `eslint-plugin-softstop` not started — good Wave B adapter, not API change |
+| **AST / ESLint rules for check→record** | **Shipped (Wave B)** | `packages/eslint-plugin-softstop` (`require-record-after-check`); docs in `apps/docs/integrate/workflow.md` | Heuristic pairing check — prefer `beforeContact` / `withSoftStop` |
 
 ### Storage backends (context)
 

@@ -39,6 +39,25 @@ describe("Governor API", () => {
     expect(record.body.ok).toBe(true);
   });
 
+  it("accepts blockReason orphan_timeout for sweeper closeout", async () => {
+    const app = createApp(new MemoryStorage());
+    const decision = await request(app).post("/v1/check").send({
+      userId: "user_orphan_to",
+      actionType: "urgency"
+    });
+
+    const record = await request(app).post("/v1/record").send({
+      userId: "user_orphan_to",
+      actionType: "urgency",
+      outcome: "blocked",
+      blockReason: "orphan_timeout",
+      decisionId: decision.body.decisionId
+    });
+
+    expect(record.status).toBe(200);
+    expect(record.body.ok).toBe(true);
+  });
+
   it("returns user pressure after executed contacts", async () => {
     const app = createApp(new MemoryStorage());
     const check = await request(app).post("/v1/check").send({

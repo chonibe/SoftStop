@@ -244,11 +244,22 @@ export class SupabaseStorage implements Storage {
     limit = 100,
     tenantId = "default"
   ): Promise<string[]> {
+    const orphans = await this.getOrphanedChecks(periodHours, limit, tenantId);
+    return orphans.map((o) => o.decisionId);
+  }
+
+  async getOrphanedChecks(
+    periodHours = 24,
+    limit = 100,
+    tenantId = "default"
+  ): Promise<
+    { decisionId: string; userId: string; actionType: string; createdAt: string }[]
+  > {
     const periodStart = new Date(Date.now() - periodHours * 60 * 60 * 1000).toISOString();
 
     const { data: checks } = await this.client
       .from("governor_events")
-      .select("decision_id")
+      .select("decision_id, user_id, action_type, created_at")
       .eq("tenant_id", tenantId)
       .eq("event_type", "check")
       .not("decision_id", "is", null)
@@ -262,21 +273,31 @@ export class SupabaseStorage implements Storage {
       .in("event_type", ["executed", "blocked", "downgraded", "released"])
       .gte("created_at", periodStart);
 
-    const checkIds = new Set(
-      (checks ?? [])
-        .map((c: { decision_id: string }) => c.decision_id)
-        .filter(Boolean)
-    );
     const outcomeIds = new Set(
       (outcomes ?? []).map((o: { decision_id: string }) => o.decision_id)
     );
 
-    const orphaned: string[] = [];
-    for (const id of checkIds) {
-      if (!outcomeIds.has(id)) {
-        orphaned.push(id);
-        if (orphaned.length >= limit) break;
-      }
+    const orphaned: {
+      decisionId: string;
+      userId: string;
+      actionType: string;
+      createdAt: string;
+    }[] = [];
+    for (const c of checks ?? []) {
+      const row = c as {
+        decision_id: string;
+        user_id: string;
+        action_type: string;
+        created_at: string;
+      };
+      if (!row.decision_id || outcomeIds.has(row.decision_id)) continue;
+      orphaned.push({
+        decisionId: row.decision_id,
+        userId: row.user_id,
+        actionType: row.action_type,
+        createdAt: row.created_at
+      });
+      if (orphaned.length >= limit) break;
     }
     return orphaned;
   }

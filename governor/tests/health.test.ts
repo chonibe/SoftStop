@@ -68,4 +68,38 @@ describe("Governor Health API", () => {
     expect(response.status).toBe(200);
     expect(response.body.metrics.periodHours).toBe(24);
   });
+
+  it("returns orphanedChecks when includeOrphans=1", async () => {
+    const storage = new MemoryStorage();
+    const app = createApp(storage);
+
+    const orphan = await request(app).post("/v1/check").send({
+      userId: "user_orphan",
+      actionType: "urgency"
+    });
+    const closed = await request(app).post("/v1/check").send({
+      userId: "user_ok",
+      actionType: "reminder"
+    });
+    await request(app).post("/v1/record").send({
+      userId: "user_ok",
+      actionType: "reminder",
+      outcome: "executed",
+      decisionId: closed.body.decisionId
+    });
+
+    const healthRes = await request(app)
+      .get("/v1/health")
+      .query({ periodHours: 24, includeOrphans: "1" });
+
+    expect(healthRes.status).toBe(200);
+    expect(healthRes.body.orphanedChecks).toBeInstanceOf(Array);
+    expect(healthRes.body.orphanedChecks).toHaveLength(1);
+    expect(healthRes.body.orphanedChecks[0]).toMatchObject({
+      decisionId: orphan.body.decisionId,
+      userId: "user_orphan",
+      actionType: "urgency"
+    });
+    expect(typeof healthRes.body.orphanedChecks[0].createdAt).toBe("string");
+  });
 });

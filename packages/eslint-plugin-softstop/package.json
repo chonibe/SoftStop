@@ -1,0 +1,40 @@
+{
+  "name": "eslint-plugin-softstop",
+  "version": "0.1.0",
+  "description": "ESLint rules for SoftStop check→record pairing (prefer beforeContact / withSoftStop).",
+  "main": "index.js",
+  "type": "commonjs",
+  "files": [
+    "index.js",
+    "lib",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "peerDependencies": {
+    "eslint": ">=8"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "softstop",
+    "check-record"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chonibe/SoftStop.git",
+    "directory": "packages/eslint-plugin-softstop"
+  },
+  "homepage": "https://softstop.vercel.app",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

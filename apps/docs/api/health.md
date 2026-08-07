@@ -48,10 +48,21 @@ When `reserveTtlMs > 0`, SoftStop counts checks in the window that have **no** c
 `expiredReserveRate = expiredReserveCount / totalChecks` (0 if no checks or reserve disabled).
 
 This overlaps orphans older than the lease window — intentional. Keep both metrics; see [orphan rate](/ops/orphan-rate).
+
+### `includeOrphans=1`
+
+Optional query flag for ops / the orphan sweeper. When set, the response also includes `orphanedChecks`: `{ decisionId, userId, actionType, createdAt }[]` (up to 100).
+
+```bash
+curl 'http://localhost:3000/v1/health?periodHours=24&includeOrphans=1'
+```
+
 ## CLI
 
 ```bash
 SOFTSTOP_API_URL=http://localhost:3000 pnpm softstop health
+# Alert-only orphan sweeper (cron):
+node scripts/orphan-sweeper.js --periodHours=24
 ```
 
 ## Next

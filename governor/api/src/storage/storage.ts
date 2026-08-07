@@ -37,6 +37,13 @@ export interface DecisionLogEntry {
   context?: Record<string, unknown>;
 }
 
+export interface OrphanedCheck {
+  decisionId: string;
+  userId: string;
+  actionType: string;
+  createdAt: string;
+}
+
 export interface Storage {
   getUserState(userId: string, tenantId?: string): Promise<GovernorUserState | null>;
   upsertUserState(userId: string, state: GovernorUserState, tenantId?: string): Promise<void>;
@@ -58,6 +65,12 @@ export interface Storage {
     reserveTtlMs?: number
   ): Promise<HealthMetrics>;
   getOrphanedDecisionIds?(periodHours?: number, limit?: number, tenantId?: string): Promise<string[]>;
+  /** Checks with no closing outcome; used by orphan sweeper / health?includeOrphans=1 */
+  getOrphanedChecks?(
+    periodHours?: number,
+    limit?: number,
+    tenantId?: string
+  ): Promise<OrphanedCheck[]>;
   getReportMetrics?(from: string, to: string, tenantId?: string): Promise<ReportMetrics>;
   getDecisionLog?(
     from: string,

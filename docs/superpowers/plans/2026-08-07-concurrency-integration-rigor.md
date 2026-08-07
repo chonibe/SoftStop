@@ -307,22 +307,22 @@ Note: this overlaps orphans older than TTL; that is intentional — expired leas
 
 **Files:** Create `packages/eslint-plugin-softstop/` (or `packages/eslint-plugin-softstop/src/rules/require-record-after-check.ts`)
 
-- Rule: bare `client.check` / `ss.check` should be in try/finally with `record`, **or** use `beforeContact` / `withSoftStop`.
-- Golden fixtures: bad file fails, `beforeContact` example passes.
-- Document in `apps/docs/integrate/workflow.md`.
+- [x] Rule: bare `client.check` / `ss.check` should be in try/finally with `record`, **or** use `beforeContact` / `withSoftStop`.
+- [x] Golden fixtures: bad file fails, `beforeContact` example passes.
+- [x] Document in `apps/docs/integrate/workflow.md`.
 
 ### Task B2: Orphan sweeper script (alert-only default)
 
 **Files:** Create `scripts/orphan-sweeper.js`
 
-- Poll `GET …/health` + optional `getOrphanedDecisionIds` if exposed.
-- Exit nonzero when `orphanRate > 0.05` or `expiredReserveRate > 0.05`.
-- Flag `--auto-record-blocked` off by default; when on, `record({ outcome: "blocked", blockReason: "orphan_timeout" })` only for expired orphans — never invent `executed`.
+- [x] Poll `GET …/health` + optional `getOrphanedDecisionIds` if exposed.
+- [x] Exit nonzero when `orphanRate > 0.05` or `expiredReserveRate > 0.05`.
+- [x] Flag `--auto-record-blocked` off by default; when on, `record({ outcome: "blocked", blockReason: "orphan_timeout" })` only for expired orphans — never invent `executed`.
 
 ### Wave B acceptance
 
-- ESLint rule published or documented as workspace package
-- Sweeper usable from cron; no silent executed backfill
+- [x] ESLint rule published or documented as workspace package
+- [x] Sweeper usable from cron; no silent executed backfill
 
 ---
 

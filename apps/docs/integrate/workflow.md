@@ -73,6 +73,40 @@ async function withSoftStop(userId, actionType, surface, fn) {
 }
 ```
 
+## Prefer SDK wrappers
+
+Bare `check` + `record` is easy to orphan. Prefer:
+
+```js
+import { SoftStop } from 'softstop'
+
+const ss = new SoftStop({ url: API })
+await ss.beforeContact(
+  { userId, actionType: 'urgency', surface: 'email' },
+  () => sendEmail(userId)
+)
+```
+
+Or `withSoftStop` / `wrapUserFacingTool` — same pairing, less boilerplate.
+
+## Lint check→record pairing
+
+Install the workspace package (or publishable) `eslint-plugin-softstop` and enable `softstop/require-record-after-check`. It flags bare `.check(` without a matching `.record(` in the same function; `beforeContact` / `withSoftStop` examples pass.
+
+```bash
+pnpm add -D eslint-plugin-softstop
+```
+
+```js
+// .eslintrc.cjs
+module.exports = {
+  plugins: ['softstop'],
+  extends: ['plugin:softstop/recommended']
+}
+```
+
+See `packages/eslint-plugin-softstop/README.md`.
+
 ## Policy
 
 Do **not** invent per-touchpoint rules in app code. The server loads `policies/*.json` via `SOFTSTOP_POLICY` or `SOFTSTOP_POLICY_FILE`. Integrators only choose `actionType`. See [Policies](/policies/).
@@ -83,3 +117,4 @@ Do **not** invent per-touchpoint rules in app code. The server loads `policies/*
 - [Python SDK](/integrate/sdk-python)
 - [Examples](/integrate/examples)
 - [Action types](/policies/action-types)
+- [Orphan rate](/ops/orphan-rate)

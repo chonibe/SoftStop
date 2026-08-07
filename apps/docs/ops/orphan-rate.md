@@ -31,6 +31,27 @@ Scrape `GET …/health` on a timer (cron, uptime check, or your metrics agent). 
 
 When reserve mode is on, also alert on `metrics.expiredReserveRate` above **0.05**.
 
+### Orphan sweeper script (recommended)
+
+Alert-only by default — exits **1** when rates exceed the threshold; never invents `executed`.
+
+```bash
+# Alert only (cron-friendly)
+SOFTSTOP_API_URL=http://localhost:3000 node scripts/orphan-sweeper.js --periodHours=24
+
+# Optional: close *expired* orphans as blocked (off by default)
+# Uses health?includeOrphans=1; records outcome:blocked + blockReason:orphan_timeout
+node scripts/orphan-sweeper.js --auto-record-blocked --minAgeMs=3600000
+```
+
+Cron example (hourly):
+
+```cron
+0 * * * * cd /path/to/softstop && SOFTSTOP_API_URL=http://localhost:3000 node scripts/orphan-sweeper.js >> /var/log/softstop-orphan.log 2>&1
+```
+
+### One-liner (jq)
+
 ```bash
 # Example: fail the job (nonzero exit) when orphanRate > 0.05
 URL="${SOFTSTOP_API_URL:-http://localhost:3000}/v1/health?periodHours=24"
@@ -40,6 +61,12 @@ awk -v r="$rate" 'BEGIN { if ((r + 0) > 0.05) { print "ALERT orphanRate=" r; exi
 # Optional: expired leases (reserve mode)
 expired=$(curl -fsS "$URL" | jq -r '.metrics.expiredReserveRate // 0')
 awk -v r="$expired" 'BEGIN { if ((r + 0) > 0.05) { print "ALERT expiredReserveRate=" r; exit 1 } print "ok expiredReserveRate=" r }'
+```
+
+List orphan details (for debugging / sweeper auto-record):
+
+```bash
+curl -fsS 'http://localhost:3000/v1/health?periodHours=24&includeOrphans=1' | jq '.orphanedChecks'
 ```
 
 Hosted demo paths use `/api/health` instead of `/v1/health`. Prefer alerting against **your** self-hosted SoftStop.

@@ -56,8 +56,17 @@ const mountRoutes = (
     const periodHours = req.query.periodHours
       ? parseInt(String(req.query.periodHours), 10)
       : undefined;
+    const includeOrphans =
+      req.query.includeOrphans === "1" ||
+      req.query.includeOrphans === "true";
     const tenantId = await resolveTenantId(storage, req, "query");
-    const result = await handleHealth(storage, periodHours, tenantId, rulesConfig);
+    const result = await handleHealth(
+      storage,
+      periodHours,
+      tenantId,
+      rulesConfig,
+      includeOrphans
+    );
     return res.status(result.status).json(result.body);
   });
 
