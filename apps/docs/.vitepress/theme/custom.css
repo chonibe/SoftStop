@@ -39,8 +39,8 @@
   --vp-button-brand-text: var(--ss-ink);
   --vp-button-brand-hover-text: var(--ss-ink);
 
-  --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(120deg, var(--ss-ink) 30%, var(--ss-amber-deep));
+  --vp-home-hero-name-color: var(--ss-ink);
+  --vp-home-hero-name-background: none;
   --vp-home-hero-image-background-image: radial-gradient(
     closest-side,
     color-mix(in srgb, var(--ss-amber) 22%, transparent),
@@ -72,7 +72,8 @@
   --vp-c-gutter: rgba(154, 154, 162, 0.12);
   --vp-c-border: rgba(154, 154, 162, 0.22);
 
-  --vp-home-hero-name-background: linear-gradient(120deg, var(--ss-paper) 30%, var(--ss-amber));
+  --vp-home-hero-name-color: var(--ss-paper);
+  --vp-home-hero-name-background: none;
   --vp-home-hero-image-background-image: radial-gradient(
     closest-side,
     color-mix(in srgb, var(--ss-amber) 28%, transparent),
@@ -85,7 +86,32 @@
   --ss-card-desc: var(--ss-muted);
 }
 
+.VPNavBarTitle .logo {
+  height: 28px;
+  width: 28px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
 .VPNavBarTitle .title {
+  font-family: var(--vp-font-family-base);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.VPHomeHero .name {
+  font-family: var(--vp-font-family-base);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--vp-home-hero-name-color);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+.VPHomeHero .text {
+  font-family: var(--vp-font-family-base);
   font-weight: 600;
   letter-spacing: -0.02em;
 }

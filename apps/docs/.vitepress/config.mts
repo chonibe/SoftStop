@@ -113,7 +113,7 @@ export default defineConfig({
     ]
   ],
   themeConfig: {
-    logo: { light: '/softstop-mark.svg', dark: '/softstop-mark-dark.svg' },
+    logo: { light: '/softstop-icon.png', dark: '/softstop-icon.png', alt: 'SoftStop' },
     siteTitle: 'SoftStop',
     nav: [
       { text: 'Start', link: '/start/getting-started' },
