@@ -1,0 +1,233 @@
+import { describe, expect, it } from "vitest";
+import request from "supertest";
+import { createApp } from "../api/src/app";
+import { MemoryStorage } from "../api/src/storage/memoryStorage";
+import { defaultRulesConfig, GovernorRulesConfig } from "../api/src/rules/config";
+import {
+  activeReserveCost,
+  applyOutcome,
+  emptyState,
+  evaluateCheck,
+  pruneExpiredReserves
+} from "../api/src/rules/engine";
+import { GovernorUserState } from "../api/src/types";
+
+const withReserve = (
+  ttlMs: number,
+  overrides: Partial<GovernorRulesConfig> = {}
+): GovernorRulesConfig => ({
+  ...defaultRulesConfig,
+  cooldownHours: { ...defaultRulesConfig.cooldownHours },
+  typeCap: { ...defaultRulesConfig.typeCap },
+  costs: { ...defaultRulesConfig.costs },
+  reserveTtlMs: ttlMs,
+  ...overrides
+});
+
+describe("check-and-reserve (opt-in)", () => {
+  it("reserve off (default): check does not write state or return reserveExpiresAt", async () => {
+    const storage = new MemoryStorage();
+    const app = createApp(storage);
+
+    const response = await request(app).post("/v1/check").send({
+      userId: "legacy_user",
+      actionType: "urgency"
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.allowed).toBe(true);
+    expect(response.body.reserveExpiresAt).toBeUndefined();
+    expect(await storage.getUserState("legacy_user")).toBeNull();
+  });
+
+  it("reserve on: allow returns reserveExpiresAt and holds cost in state", async () => {
+    const storage = new MemoryStorage();
+    const ttlMs = 20_000;
+    const app = createApp(storage, { rulesConfig: withReserve(ttlMs) });
+    const before = Date.now();
+
+    const response = await request(app).post("/v1/check").send({
+      userId: "reserve_user",
+      actionType: "urgency"
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.allowed).toBe(true);
+    expect(response.body.reserveExpiresAt).toBeTruthy();
+    const expiresAt = new Date(response.body.reserveExpiresAt as string).getTime();
+    expect(expiresAt).toBeGreaterThanOrEqual(before + ttlMs - 50);
+    expect(expiresAt).toBeLessThanOrEqual(Date.now() + ttlMs + 50);
+
+    const state = await storage.getUserState("reserve_user");
+    expect(state?.reserves?.length).toBe(1);
+    expect(state?.reserves?.[0]?.decisionId).toBe(response.body.decisionId);
+    expect(state?.reserves?.[0]?.cost).toBe(40);
+    expect(state?.stateVersion).toBe(1);
+  });
+
+  it("concurrent double-check: only one allow when reserve would exhaust budget", async () => {
+    const storage = new MemoryStorage();
+    const app = createApp(storage, { rulesConfig: withReserve(20_000) });
+    // 60 + 40 = 100 allowed; a held reserve of 40 makes the next urgency exceed.
+    await storage.upsertUserState("race_user", {
+      ...emptyState(),
+      pressure: 60,
+      pressureUpdatedAt: new Date().toISOString()
+    });
+
+    const [a, b] = await Promise.all([
+      request(app).post("/v1/check").send({
+        userId: "race_user",
+        actionType: "urgency"
+      }),
+      request(app).post("/v1/check").send({
+        userId: "race_user",
+        actionType: "urgency"
+      })
+    ]);
+
+    const allowed = [a, b].filter((r) => r.body.allowed === true);
+    const denied = [a, b].filter((r) => r.body.allowed === false);
+
+    expect(allowed).toHaveLength(1);
+    expect(denied).toHaveLength(1);
+    expect(denied[0].body.reason).toBe("pressure_exceeded");
+
+    const state = await storage.getUserState("race_user");
+    expect(state?.reserves?.length).toBe(1);
+  });
+
+  it("expired reserves are dropped and no longer hold budget", async () => {
+    const now = new Date();
+    const expired: GovernorUserState = {
+      ...emptyState(),
+      pressure: 60,
+      pressureUpdatedAt: now.toISOString(),
+      reserves: [
+        {
+          decisionId: "old-reserve",
+          actionType: "urgency",
+          cost: 40,
+          expiresAt: new Date(now.getTime() - 1000).toISOString()
+        }
+      ],
+      stateVersion: 1
+    };
+
+    const pruned = pruneExpiredReserves(expired, now);
+    expect(pruned.reserves).toEqual([]);
+    expect(activeReserveCost(pruned, now)).toBe(0);
+
+    const decision = evaluateCheck(
+      pruned,
+      "urgency",
+      now,
+      withReserve(20_000)
+    );
+    expect(decision.allowed).toBe(true);
+  });
+
+  it("active reserve blocks a second check that would exceed threshold", () => {
+    const now = new Date();
+    const state: GovernorUserState = {
+      ...emptyState(),
+      pressure: 60,
+      pressureUpdatedAt: now.toISOString(),
+      reserves: [
+        {
+          decisionId: "held",
+          actionType: "urgency",
+          cost: 40,
+          expiresAt: new Date(now.getTime() + 20_000).toISOString()
+        }
+      ],
+      stateVersion: 1
+    };
+
+    const decision = evaluateCheck(state, "urgency", now, withReserve(20_000));
+    expect(decision.allowed).toBe(false);
+    expect(decision.reason).toBe("pressure_exceeded");
+    // effective pressure includes active reserve hold
+    expect(decision.pressure).toBe(100);
+    expect(decision.projectedPressure).toBe(140);
+  });
+
+  it("record clears matching reserve and applies cost once", async () => {
+    const storage = new MemoryStorage();
+    const app = createApp(storage, { rulesConfig: withReserve(20_000) });
+
+    const check = await request(app).post("/v1/check").send({
+      userId: "record_clear",
+      actionType: "urgency"
+    });
+    expect(check.body.allowed).toBe(true);
+    expect(check.body.reserveExpiresAt).toBeTruthy();
+
+    const held = await storage.getUserState("record_clear");
+    expect(held?.reserves?.length).toBe(1);
+
+    const record = await request(app).post("/v1/record").send({
+      userId: "record_clear",
+      actionType: "urgency",
+      outcome: "executed",
+      decisionId: check.body.decisionId
+    });
+    expect(record.status).toBe(200);
+    expect(record.body.ok).toBe(true);
+
+    const state = await storage.getUserState("record_clear");
+    expect(state?.reserves ?? []).toEqual([]);
+    expect(state?.pressure).toBe(40);
+  });
+
+  it("applyOutcome clears reserve by decisionId", () => {
+    const now = new Date();
+    const state: GovernorUserState = {
+      ...emptyState(),
+      reserves: [
+        {
+          decisionId: "d1",
+          actionType: "urgency",
+          cost: 40,
+          expiresAt: new Date(now.getTime() + 20_000).toISOString()
+        }
+      ],
+      stateVersion: 1
+    };
+
+    const next = applyOutcome(
+      state,
+      "urgency",
+      "executed",
+      {},
+      now,
+      withReserve(20_000),
+      { decisionId: "d1" }
+    );
+    expect(next.reserves ?? []).toEqual([]);
+    expect(next.pressure).toBe(40);
+  });
+
+  it("MemoryStorage OCC rejects stale stateVersion writes", async () => {
+    const storage = new MemoryStorage();
+    await storage.upsertUserState("occ_user", {
+      ...emptyState(),
+      stateVersion: 2
+    });
+
+    const result = await storage.tryUpsertUserState(
+      "occ_user",
+      { ...emptyState(), pressure: 40, stateVersion: 3, reserves: [] },
+      1
+    );
+    expect(result).toBe("conflict");
+
+    const ok = await storage.tryUpsertUserState(
+      "occ_user",
+      { ...emptyState(), pressure: 40, stateVersion: 3, reserves: [] },
+      2
+    );
+    expect(ok).toBe("ok");
+    expect((await storage.getUserState("occ_user"))?.stateVersion).toBe(3);
+  });
+});

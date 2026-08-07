@@ -22,6 +22,23 @@ export class MemoryStorage implements Storage {
     this.states.set(stateKey(userId, tenantId), state);
   }
 
+  async tryUpsertUserState(
+    userId: string,
+    state: GovernorUserState,
+    expectedVersion: number,
+    tenantId = "default"
+  ): Promise<"ok" | "conflict"> {
+    const key = stateKey(userId, tenantId);
+    const current = this.states.get(key);
+    const currentVersion =
+      current && typeof current.stateVersion === "number" ? current.stateVersion : 0;
+    if (currentVersion !== expectedVersion) {
+      return "conflict";
+    }
+    this.states.set(key, state);
+    return "ok";
+  }
+
   async insertEvent(event: GovernorEvent): Promise<void> {
     const withTimestamp = {
       ...event,

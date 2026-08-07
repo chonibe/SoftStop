@@ -18,6 +18,9 @@ if (!env.useSupabase) {
 
 const loaded = loadPolicyFromEnv(process.env, process.cwd());
 console.log(`SoftStop policy: ${loaded.source}`);
+if ((loaded.config.reserveTtlMs ?? 0) > 0) {
+  console.log(`SoftStop check-and-reserve TTL: ${loaded.config.reserveTtlMs}ms`);
+}
 
 const app = createApp(storage, {
   rulesConfig: loaded.config,

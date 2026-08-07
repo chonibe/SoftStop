@@ -57,6 +57,77 @@ export class SupabaseStorage implements Storage {
     }
   }
 
+  /**
+   * OCC via read-compare-write on state.stateVersion in the JSON document.
+   * Concurrent writers may still race between read and write; callers should
+   * retry evaluate on conflict. Prefer a DB column/RPC for multi-region later.
+   */
+  async tryUpsertUserState(
+    userId: string,
+    state: GovernorUserState,
+    expectedVersion: number,
+    tenantId = "default"
+  ): Promise<"ok" | "conflict"> {
+    const current = await this.getUserState(userId, tenantId);
+    const currentVersion =
+      current && typeof current.stateVersion === "number" ? current.stateVersion : 0;
+    if (currentVersion !== expectedVersion) {
+      return "conflict";
+    }
+
+    if (!current) {
+      const { error } = await this.client.from("governor_user_state").insert({
+        tenant_id: tenantId,
+        user_id: userId,
+        state,
+        updated_at: new Date().toISOString()
+      });
+      if (error) {
+        // Unique violation → another writer inserted first
+        if (error.code === "23505") return "conflict";
+        throw new Error(`Failed to insert user state: ${error.message}`);
+      }
+      return "ok";
+    }
+
+    // Conditional update: only if JSON stateVersion still matches expected.
+    const { data, error } = await this.client
+      .from("governor_user_state")
+      .update({
+        state,
+        updated_at: new Date().toISOString()
+      })
+      .eq("tenant_id", tenantId)
+      .eq("user_id", userId)
+      .filter("state->>stateVersion", "eq", String(expectedVersion))
+      .select("user_id");
+
+    if (error) {
+      throw new Error(`Failed to CAS upsert user state: ${error.message}`);
+    }
+    if (!data || data.length === 0) {
+      // Row may lack stateVersion key (legacy) — fall back to eq on missing as 0
+      if (expectedVersion === 0) {
+        const { data: legacyData, error: legacyError } = await this.client
+          .from("governor_user_state")
+          .update({
+            state,
+            updated_at: new Date().toISOString()
+          })
+          .eq("tenant_id", tenantId)
+          .eq("user_id", userId)
+          .is("state->>stateVersion", null)
+          .select("user_id");
+        if (legacyError) {
+          throw new Error(`Failed to CAS upsert user state: ${legacyError.message}`);
+        }
+        if (legacyData && legacyData.length > 0) return "ok";
+      }
+      return "conflict";
+    }
+    return "ok";
+  }
+
   async insertEvent(event: GovernorEvent): Promise<void> {
     const tenantId = event.tenantId ?? "default";
     const { error } = await this.client.from("governor_events").insert({

@@ -49,6 +49,14 @@ export interface GovernorEvent {
   tenantId?: string;
 }
 
+export interface PressureReserve {
+  decisionId: string;
+  actionType: ActionType;
+  cost: number;
+  expiresAt: string;
+  actor?: string;
+}
+
 export interface GovernorUserState {
   cooldowns: Record<string, string | null>;
   lastActionAt: Record<string, string | null>;
@@ -66,6 +74,16 @@ export interface GovernorUserState {
   pressureUpdatedAt?: string | null;
   /** Set when this journal was merged into another userId (tombstone). */
   mergedInto?: string | null;
+  /**
+   * Optimistic concurrency token. Incremented on every successful CAS upsert.
+   * Defaults to 0 when missing.
+   */
+  stateVersion?: number;
+  /**
+   * Soft holds from check-and-reserve (opt-in). Costs count toward effective
+   * pressure until expiry or matching record.
+   */
+  reserves?: PressureReserve[];
 }
 
 export type FallbackStrategy = "downgrade" | "skip" | "defer";

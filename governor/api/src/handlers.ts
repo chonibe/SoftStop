@@ -3,11 +3,13 @@ import { formatExplanation } from "./clarity";
 import { checkSchema, recordSchema, mergeSchema } from "./schemas";
 import { Storage } from "./storage/storage";
 import {
+  appendReserve,
   applyOutcome,
   decayedPressure,
   emptyState,
   evaluateCheck,
   mergeUserStates,
+  pruneExpiredReserves,
   tombstoneState
 } from "./rules/engine";
 import { defaultRulesConfig, GovernorRulesConfig, isPolicyActionType } from "./rules/config";
@@ -19,6 +21,12 @@ const unknownActionTypeError = (actionType: string) => ({
     error: `actionType "${actionType}" is not defined in the loaded policy. Add it to costs, cooldownHours, and typeCap (same keys), or use a built-in type.`
   }
 });
+
+const RESERVE_CAS_RETRIES = 3;
+
+function reserveTtlMs(config: GovernorRulesConfig): number {
+  return config.reserveTtlMs ?? 0;
+}
 
 function parseReportPeriod(from?: string, to?: string): { from: string; to: string } {
   const now = new Date();
@@ -150,10 +158,77 @@ export const handleCheck = async (
     return unknownActionTypeError(actionType);
   }
   const tid = tenantId ?? DEFAULT_TENANT;
+  const ttlMs = reserveTtlMs(rulesConfig);
+  const reserveEnabled = ttlMs > 0;
   const now = new Date();
-  const state = (await storage.getUserState(userId, tid)) ?? emptyState();
-  const decision = evaluateCheck(state, actionType, now, rulesConfig);
   const decisionId = randomUUID();
+
+  let decision = evaluateCheck(emptyState(), actionType, now, rulesConfig);
+  let reserveExpiresAt: string | undefined;
+  let actor =
+    context && typeof (context as { actor?: unknown }).actor === "string"
+      ? (context as { actor: string }).actor
+      : undefined;
+
+  if (reserveEnabled && storage.tryUpsertUserState) {
+    let wrote = false;
+    for (let attempt = 0; attempt < RESERVE_CAS_RETRIES; attempt++) {
+      const raw = (await storage.getUserState(userId, tid)) ?? emptyState();
+      const state = pruneExpiredReserves(raw, now);
+      const expectedVersion =
+        typeof state.stateVersion === "number" ? state.stateVersion : 0;
+      decision = evaluateCheck(state, actionType, now, rulesConfig);
+
+      if (!decision.allowed) {
+        wrote = true; // nothing to write; proceed to event + response
+        break;
+      }
+
+      const expiresAt = new Date(now.getTime() + ttlMs).toISOString();
+      const nextState = appendReserve(
+        state,
+        {
+          decisionId,
+          actionType,
+          cost: decision.cost ?? rulesConfig.costs[actionType],
+          expiresAt,
+          ...(actor ? { actor } : {})
+        },
+        now
+      );
+      // appendReserve already bumps version from pruned state's version
+      const result = await storage.tryUpsertUserState(
+        userId,
+        nextState,
+        expectedVersion,
+        tid
+      );
+      if (result === "ok") {
+        reserveExpiresAt = expiresAt;
+        wrote = true;
+        break;
+      }
+    }
+    if (!wrote) {
+      // Exhausted CAS retries — re-evaluate once for a safe deny/allow without write
+      const state =
+        pruneExpiredReserves(
+          (await storage.getUserState(userId, tid)) ?? emptyState(),
+          now
+        );
+      decision = evaluateCheck(state, actionType, now, rulesConfig);
+      if (decision.allowed) {
+        decision = {
+          ...decision,
+          allowed: false,
+          reason: "pressure_exceeded"
+        };
+      }
+    }
+  } else {
+    const state = (await storage.getUserState(userId, tid)) ?? emptyState();
+    decision = evaluateCheck(state, actionType, now, rulesConfig);
+  }
 
   const pressureContext = {
     pressure: decision.pressure,
@@ -187,6 +262,10 @@ export const handleCheck = async (
     threshold: decision.threshold,
     projectedPressure: decision.projectedPressure
   };
+  if (reserveExpiresAt) {
+    body.reserveExpiresAt = reserveExpiresAt;
+    body.reserveTtlMs = ttlMs;
+  }
   if (!decision.allowed) {
     body.explanation = formatExplanation(decision.reason, {
       cooldownUntil: decision.cooldownUntil,
@@ -248,7 +327,8 @@ export const handleRecord = async (
     outcome as OutcomeType,
     signals,
     now,
-    rulesConfig
+    rulesConfig,
+    { decisionId }
   );
 
   const eventContext: Record<string, unknown> = context ? { ...context, signals } : { signals };
@@ -276,7 +356,39 @@ export const handleRecord = async (
     tenantId: tid
   });
 
-  await storage.upsertUserState(userId, nextState, tid);
+  const expectedVersion =
+    typeof state.stateVersion === "number" ? state.stateVersion : 0;
+  if (storage.tryUpsertUserState && reserveTtlMs(rulesConfig) > 0) {
+    const result = await storage.tryUpsertUserState(
+      userId,
+      nextState,
+      expectedVersion,
+      tid
+    );
+    if (result === "conflict") {
+      // Re-read and apply once more (bounded) for orphan hygiene
+      const latest = (await storage.getUserState(userId, tid)) ?? emptyState();
+      const retried = applyOutcome(
+        latest,
+        actionType,
+        outcome as OutcomeType,
+        signals,
+        now,
+        rulesConfig,
+        { decisionId }
+      );
+      const latestVersion =
+        typeof latest.stateVersion === "number" ? latest.stateVersion : 0;
+      const retryResult = storage.tryUpsertUserState
+        ? await storage.tryUpsertUserState(userId, retried, latestVersion, tid)
+        : "ok";
+      if (retryResult === "conflict") {
+        await storage.upsertUserState(userId, retried, tid);
+      }
+    }
+  } else {
+    await storage.upsertUserState(userId, nextState, tid);
+  }
 
   return {
     status: 200,

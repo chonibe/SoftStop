@@ -135,6 +135,14 @@ export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
     assertSameActionKeys(cooldownHours, costs, "cooldownHours", "costs");
   }
 
+  let reserveTtlMs = defaultRulesConfig.reserveTtlMs ?? 0;
+  if (obj.reserveTtlMs !== undefined) {
+    if (!isPositiveNumber(obj.reserveTtlMs)) {
+      throw new Error("Policy.reserveTtlMs must be a non-negative number");
+    }
+    reserveTtlMs = obj.reserveTtlMs;
+  }
+
   return {
     cooldownHours: { ...cooldownHours },
     typeCap: { ...typeCap },
@@ -143,7 +151,8 @@ export const validateRulesConfig = (raw: unknown): GovernorRulesConfig => {
     stackingWindowMinutes: obj.stackingWindowMinutes,
     threshold,
     decayPerHour,
-    costs
+    costs,
+    reserveTtlMs
   };
 };
 
@@ -227,15 +236,38 @@ export const loadPolicy = (options: LoadPolicyOptions = {}): LoadedPolicy => {
  * Load from process.env:
  * - SOFTSTOP_POLICY_FILE or GOVERNOR_POLICY_FILE
  * - SOFTSTOP_POLICY or GOVERNOR_POLICY (preset name)
+ * - SOFTSTOP_RESERVE_TTL_MS (or SOFTSTOP_RESERVE=1 → 20000) overlays reserveTtlMs
  */
 export const loadPolicyFromEnv = (
-  env: NodeJS.ProcessEnv = process.env,
+  envVars: NodeJS.ProcessEnv = process.env,
   cwd = process.cwd()
 ): LoadedPolicy => {
   const policyFile =
-    env.SOFTSTOP_POLICY_FILE?.trim() || env.GOVERNOR_POLICY_FILE?.trim();
+    envVars.SOFTSTOP_POLICY_FILE?.trim() || envVars.GOVERNOR_POLICY_FILE?.trim();
   const policyPreset =
-    env.SOFTSTOP_POLICY?.trim() || env.GOVERNOR_POLICY?.trim();
+    envVars.SOFTSTOP_POLICY?.trim() || envVars.GOVERNOR_POLICY?.trim();
 
-  return loadPolicy({ policyFile, policyPreset, cwd });
+  const loaded = loadPolicy({ policyFile, policyPreset, cwd });
+
+  const ttlRaw = envVars.SOFTSTOP_RESERVE_TTL_MS?.trim();
+  if (ttlRaw !== undefined && ttlRaw !== "") {
+    const n = Number(ttlRaw);
+    if (!Number.isFinite(n) || n < 0) {
+      throw new Error("SOFTSTOP_RESERVE_TTL_MS must be a non-negative number");
+    }
+    return {
+      ...loaded,
+      config: { ...loaded.config, reserveTtlMs: Math.floor(n) }
+    };
+  }
+
+  const flag = envVars.SOFTSTOP_RESERVE?.trim().toLowerCase();
+  if (flag === "1" || flag === "true" || flag === "yes") {
+    return {
+      ...loaded,
+      config: { ...loaded.config, reserveTtlMs: 20_000 }
+    };
+  }
+
+  return loaded;
 };

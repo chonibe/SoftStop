@@ -97,7 +97,7 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
 
 Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason` from `reason` (use `explanation` / `suggestedFallback` / optional `suggestedActionType` in your own UX — do not skip `record`). For LLM tool results, prefer SDK `formatBlockedForLlm(decision)`.
 
-`check` is **read-only for pressure**: it evaluates current state and logs a check event; pressure, caps, and cooldowns advance on [`record`](/api/record) (`executed` / `downgraded`). Two concurrent allows can both pass before either records — SoftStop does not lock across callers. See [Errors](/api/errors#concurrent-allows-race).
+`check` evaluates current state and logs a check event. By default it is **read-only for pressure** — pressure, caps, and cooldowns advance on [`record`](/api/record) (`executed` / `downgraded`). Two concurrent allows can both pass before either records unless **check-and-reserve** is enabled (`SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs > 0`); then an allow holds cost until record or TTL and returns `reserveExpiresAt`. See [Errors — concurrent allows](/api/errors#concurrent-allows-race).
 
 Read live pressure anytime: `GET /v1/users/:userId/pressure`.
 

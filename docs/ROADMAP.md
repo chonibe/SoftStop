@@ -40,7 +40,7 @@
 
 Design: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md](superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md). Pressure decay + action costs **already ship**; do not re-list them here. SoftStop does **not** claim Redis locks or race-safety on plain `check` today.
 
-1. **P0 — Check-and-reserve / race prevention** — opt-in atomic reserve + TTL lease (10–30s), OCC on user state; compatible with existing `check` / `record`. Documented gap: [errors.md](../apps/docs/api/errors.md).
+1. **P0 — Check-and-reserve / race prevention** — **shipped (opt-in):** `reserves[]` + `stateVersion` OCC on memory/Supabase; enable with `SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs` (default `0` = legacy). Docs: [errors.md](../apps/docs/api/errors.md#concurrent-allows-race).
 2. **P1 — Richer blocked schema + LLM helpers** — **shipped in 0.2.2** (`retryAfterMs` / `suggestedFallback` / `formatBlockedForLlm`; keep `suggestedActionType`).
 3. **P2 — Latency / throughput** — instrument check P95; aspirational &lt;15–30ms local/memory; do not claim token-bucket until designed separately.
 4. **P3 — Framework middlewares** — **partial in 0.2.2** (`withSoftStop` for Vercel AI `tool({ execute })` / LangChain JS shape); more adapters later.

@@ -12,6 +12,11 @@ export interface GovernorRulesConfig {
   decayPerHour: number;
   /** Server-owned pressure cost per action type. */
   costs: Record<ActionType, number>;
+  /**
+   * Opt-in check-and-reserve TTL in ms. `0` (default) = legacy read-only check.
+   * When > 0, an allow holds cost until record or expiry (typically 15–20s).
+   */
+  reserveTtlMs?: number;
 }
 
 export const defaultPressureCosts: Record<BuiltinActionType, number> = {
@@ -39,7 +44,9 @@ export const defaultRulesConfig: GovernorRulesConfig = {
   stackingWindowMinutes: 10,
   threshold: 100,
   decayPerHour: 8,
-  costs: { ...defaultPressureCosts }
+  costs: { ...defaultPressureCosts },
+  /** Legacy check (no reserve) until SOFTSTOP_RESERVE_TTL_MS / policy sets > 0. */
+  reserveTtlMs: 0
 };
 
 export const policyActionTypes = (config: GovernorRulesConfig): ActionType[] =>

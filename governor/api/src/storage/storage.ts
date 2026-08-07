@@ -36,6 +36,17 @@ export interface DecisionLogEntry {
 export interface Storage {
   getUserState(userId: string, tenantId?: string): Promise<GovernorUserState | null>;
   upsertUserState(userId: string, state: GovernorUserState, tenantId?: string): Promise<void>;
+  /**
+   * Optimistic concurrency upsert. Succeeds only when the stored stateVersion
+   * matches `expectedVersion` (missing row treated as version 0).
+   * `state.stateVersion` must already be the post-write version (expectedVersion + 1).
+   */
+  tryUpsertUserState?(
+    userId: string,
+    state: GovernorUserState,
+    expectedVersion: number,
+    tenantId?: string
+  ): Promise<"ok" | "conflict">;
   insertEvent(event: GovernorEvent): Promise<void>;
   getHealthMetrics?(periodHours?: number, tenantId?: string): Promise<HealthMetrics>;
   getOrphanedDecisionIds?(periodHours?: number, limit?: number, tenantId?: string): Promise<string[]>;

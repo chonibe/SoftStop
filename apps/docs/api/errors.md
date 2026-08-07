@@ -77,7 +77,29 @@ Always pass the `decisionId` returned by `check` into the matching `record`. Hea
 
 ## Concurrent allows (race)
 
-`check` evaluates current state and logs a check event; it does **not** advance pressure. Pressure, caps, and cooldowns update on `record` when `outcome` is `executed` or `downgraded`. Two callers can both receive `allowed: true` before either records. SoftStop does not claim race-safety or locking across concurrent permits — keep send paths short, and always record promptly. See [`check`](/api/check).
+`check` evaluates current state and logs a check event; by default it does **not** advance pressure. Pressure, caps, and cooldowns update on `record` when `outcome` is `executed` or `downgraded`.
+
+**Legacy (reserve off):** two callers can both receive `allowed: true` before either records. SoftStop does not claim race-safety unless reserve is enabled. Keep send paths short and always record promptly. See [`check`](/api/check).
+
+**With check-and-reserve enabled** (`reserveTtlMs > 0` or `SOFTSTOP_RESERVE_TTL_MS`):
+
+- On allow, SoftStop holds the action cost in `reserves[]` until `record` or TTL expiry (default **20s** when enabled via `SOFTSTOP_RESERVE=1`).
+- Effective pressure = decayed ledger + active reserve costs; a concurrent check that would exceed the threshold is denied (`pressure_exceeded`).
+- Allow responses include `reserveExpiresAt` (and `reserveTtlMs`).
+- `record` clears the matching reserve by `decisionId`. Expired reserves are dropped lazily on the next check/record.
+- User state uses `stateVersion` optimistic concurrency (memory + Supabase) so concurrent allows retry rather than both writing.
+
+Enable:
+
+```bash
+# Prefer explicit TTL (15–20s is typical)
+SOFTSTOP_RESERVE_TTL_MS=20000
+
+# Or flag → 20000ms default
+SOFTSTOP_RESERVE=1
+```
+
+Or set `"reserveTtlMs": 20000` in a policy JSON file. Default remains `0` (legacy read-only check).
 
 ## Env aliases
 
@@ -86,6 +108,7 @@ Prefer SoftStop names; legacy Governor names still work where documented:
 - `SOFTSTOP_API_URL` / `GOVERNOR_API_URL`
 - `SOFTSTOP_POLICY` / `GOVERNOR_POLICY`
 - `SOFTSTOP_POLICY_FILE` / `GOVERNOR_POLICY_FILE`
+- `SOFTSTOP_RESERVE_TTL_MS` / `SOFTSTOP_RESERVE` (opt-in check-and-reserve; see [Concurrent allows](#concurrent-allows-race))
 
 ## Next
 

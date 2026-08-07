@@ -1,4 +1,4 @@
-import { ActionType, GovernorDecision, GovernorUserState } from "../types";
+import { ActionType, GovernorDecision, GovernorUserState, PressureReserve } from "../types";
 import { defaultRulesConfig, GovernorRulesConfig } from "./config";
 
 const GLOBAL_KEY = "global";
@@ -9,8 +9,68 @@ export const emptyState = (): GovernorUserState => ({
   lastAnyEscalationAt: null,
   windows: {},
   pressure: 0,
-  pressureUpdatedAt: null
+  pressureUpdatedAt: null,
+  stateVersion: 0,
+  reserves: []
 });
+
+/** Drop reserves whose expiresAt is at or before now. */
+export const pruneExpiredReserves = (
+  state: GovernorUserState,
+  now: Date
+): GovernorUserState => {
+  const reserves = state.reserves ?? [];
+  if (reserves.length === 0) return state;
+  const active = reserves.filter((r) => new Date(r.expiresAt).getTime() > now.getTime());
+  if (active.length === reserves.length) return state;
+  return { ...state, reserves: active };
+};
+
+/** Sum of costs for non-expired reserves. */
+export const activeReserveCost = (state: GovernorUserState, now: Date): number => {
+  const reserves = state.reserves ?? [];
+  let sum = 0;
+  for (const r of reserves) {
+    if (new Date(r.expiresAt).getTime() > now.getTime()) {
+      sum += r.cost;
+    }
+  }
+  return sum;
+};
+
+/** Decayed ledger pressure plus active reserve holds. */
+export const effectivePressure = (
+  state: GovernorUserState,
+  now: Date,
+  decayPerHour: number
+): number => decayedPressure(state, now, decayPerHour) + activeReserveCost(state, now);
+
+export const clearReserveByDecisionId = (
+  state: GovernorUserState,
+  decisionId: string | undefined,
+  now: Date
+): GovernorUserState => {
+  const pruned = pruneExpiredReserves(state, now);
+  if (!decisionId || !(pruned.reserves?.length)) return pruned;
+  return {
+    ...pruned,
+    reserves: (pruned.reserves ?? []).filter((r) => r.decisionId !== decisionId)
+  };
+};
+
+export const appendReserve = (
+  state: GovernorUserState,
+  reserve: PressureReserve,
+  now: Date
+): GovernorUserState => {
+  const pruned = pruneExpiredReserves(state, now);
+  const version = typeof pruned.stateVersion === "number" ? pruned.stateVersion : 0;
+  return {
+    ...pruned,
+    reserves: [...(pruned.reserves ?? []), reserve],
+    stateVersion: version + 1
+  };
+};
 
 /** Apply linear decay from pressureUpdatedAt to now; floor at 0. */
 export const decayedPressure = (
@@ -127,7 +187,11 @@ export const evaluateCheck = (
   now: Date,
   config: GovernorRulesConfig = defaultRulesConfig
 ): GovernorDecision => {
-  const pressure = decayedPressure(state, now, config.decayPerHour);
+  const reserveEnabled = (config.reserveTtlMs ?? 0) > 0;
+  const working = reserveEnabled ? pruneExpiredReserves(state, now) : state;
+  const pressure = reserveEnabled
+    ? effectivePressure(working, now, config.decayPerHour)
+    : decayedPressure(working, now, config.decayPerHour);
   const cost = config.costs[actionType];
   const threshold = config.threshold;
   const attach = (d: GovernorDecision) =>
@@ -141,7 +205,7 @@ export const evaluateCheck = (
     });
   }
 
-  const cooldownUntil = state.cooldowns[actionType];
+  const cooldownUntil = working.cooldowns[actionType];
   if (cooldownUntil && new Date(cooldownUntil) > now) {
     return attach({
       allowed: false,
@@ -153,7 +217,7 @@ export const evaluateCheck = (
   }
 
   const typeCount = getWindowCount(
-    state,
+    working,
     actionType,
     config.windowHours,
     now
@@ -167,7 +231,7 @@ export const evaluateCheck = (
   }
 
   const globalCount = getWindowCount(
-    state,
+    working,
     GLOBAL_KEY,
     config.windowHours,
     now
@@ -179,9 +243,9 @@ export const evaluateCheck = (
     });
   }
 
-  if (state.lastAnyEscalationAt) {
+  if (working.lastAnyEscalationAt) {
     const diffMinutes =
-      (now.getTime() - new Date(state.lastAnyEscalationAt).getTime()) / 6e4;
+      (now.getTime() - new Date(working.lastAnyEscalationAt).getTime()) / 6e4;
     if (
       diffMinutes < config.stackingWindowMinutes &&
       (actionType === "urgency" || actionType === "interruption")
@@ -190,7 +254,7 @@ export const evaluateCheck = (
         allowed: false,
         reason: "recent_escalation",
         retryAfterMs: retryAfterFromStacking(
-          state.lastAnyEscalationAt,
+          working.lastAnyEscalationAt,
           now,
           config.stackingWindowMinutes
         ),
@@ -202,18 +266,27 @@ export const evaluateCheck = (
   return attach({ allowed: true, reason: "allowed" });
 };
 
+export interface ApplyOutcomeOptions {
+  decisionId?: string;
+}
+
 export const applyOutcome = (
   state: GovernorUserState,
   actionType: ActionType,
   outcome: "executed" | "downgraded" | "blocked",
   signals: { hesitated?: boolean; ignored?: boolean; dismissed?: boolean } = {},
   now: Date,
-  config: GovernorRulesConfig = defaultRulesConfig
+  config: GovernorRulesConfig = defaultRulesConfig,
+  options: ApplyOutcomeOptions = {}
 ): GovernorUserState => {
-  const next = { ...state };
-  next.cooldowns = { ...state.cooldowns };
-  next.lastActionAt = { ...state.lastActionAt };
-  next.windows = { ...state.windows };
+  const cleared = clearReserveByDecisionId(state, options.decisionId, now);
+  const next = { ...cleared };
+  next.cooldowns = { ...cleared.cooldowns };
+  next.lastActionAt = { ...cleared.lastActionAt };
+  next.windows = { ...cleared.windows };
+  next.reserves = [...(cleared.reserves ?? [])];
+  const version = typeof cleared.stateVersion === "number" ? cleared.stateVersion : 0;
+  next.stateVersion = version + 1;
 
   const hasHesitation =
     signals.hesitated || signals.ignored || signals.dismissed;
@@ -226,7 +299,7 @@ export const applyOutcome = (
   }
 
   if (outcome === "executed" || outcome === "downgraded") {
-    const pressure = decayedPressure(state, now, config.decayPerHour);
+    const pressure = decayedPressure(cleared, now, config.decayPerHour);
     const cost = config.costs[actionType];
     next.pressure = pressure + cost;
     next.pressureUpdatedAt = now.toISOString();
@@ -255,30 +328,32 @@ export const mergeUserStates = (
   now: Date,
   config: GovernorRulesConfig = defaultRulesConfig
 ): GovernorUserState => {
-  const fromPressure = decayedPressure(from, now, config.decayPerHour);
-  const toPressure = decayedPressure(to, now, config.decayPerHour);
+  const fromPruned = pruneExpiredReserves(from, now);
+  const toPruned = pruneExpiredReserves(to, now);
+  const fromPressure = decayedPressure(fromPruned, now, config.decayPerHour);
+  const toPressure = decayedPressure(toPruned, now, config.decayPerHour);
   const pressure = Math.min(config.threshold, fromPressure + toPressure);
 
-  const cooldowns: Record<string, string | null> = { ...to.cooldowns };
-  for (const [key, value] of Object.entries(from.cooldowns ?? {})) {
+  const cooldowns: Record<string, string | null> = { ...toPruned.cooldowns };
+  for (const [key, value] of Object.entries(fromPruned.cooldowns ?? {})) {
     cooldowns[key] = maxIso(cooldowns[key], value);
   }
 
-  const lastActionAt: Record<string, string | null> = { ...to.lastActionAt };
-  for (const [key, value] of Object.entries(from.lastActionAt ?? {})) {
+  const lastActionAt: Record<string, string | null> = { ...toPruned.lastActionAt };
+  for (const [key, value] of Object.entries(fromPruned.lastActionAt ?? {})) {
     lastActionAt[key] = maxIso(lastActionAt[key], value);
   }
 
   const windows: GovernorUserState["windows"] = {};
   const keys = new Set([
-    ...Object.keys(from.windows ?? {}),
-    ...Object.keys(to.windows ?? {}),
+    ...Object.keys(fromPruned.windows ?? {}),
+    ...Object.keys(toPruned.windows ?? {}),
     GLOBAL_KEY,
     ...Object.keys(config.typeCap)
   ]);
   for (const key of keys) {
-    const fromWin = from.windows?.[key];
-    const toWin = to.windows?.[key];
+    const fromWin = fromPruned.windows?.[key];
+    const toWin = toPruned.windows?.[key];
     if (!fromWin && !toWin) continue;
     const windowStart =
       maxIso(fromWin?.windowStart, toWin?.windowStart) ?? now.toISOString();
@@ -293,14 +368,22 @@ export const mergeUserStates = (
     };
   }
 
+  const reserves = [
+    ...(fromPruned.reserves ?? []),
+    ...(toPruned.reserves ?? [])
+  ];
+  const toVersion = typeof toPruned.stateVersion === "number" ? toPruned.stateVersion : 0;
+
   return {
     cooldowns,
     lastActionAt,
-    lastAnyEscalationAt: maxIso(from.lastAnyEscalationAt, to.lastAnyEscalationAt),
+    lastAnyEscalationAt: maxIso(fromPruned.lastAnyEscalationAt, toPruned.lastAnyEscalationAt),
     windows,
     pressure,
     pressureUpdatedAt: now.toISOString(),
-    mergedInto: null
+    mergedInto: null,
+    reserves,
+    stateVersion: toVersion + 1
   };
 };
 

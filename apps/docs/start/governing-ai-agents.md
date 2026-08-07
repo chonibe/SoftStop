@@ -210,7 +210,7 @@ const critical = new SoftStop({
 
 SoftStop already gates agents with deterministic permits, structured deny fields (`suggestedFallback` / `retryAfterMs`), `formatBlockedForLlm`, `withSoftStop`, and SDK fail-safe modes. These remain **design priorities**, not product claims — see [agent control-layer design](https://github.com/chonibe/SoftStop/blob/main/docs/superpowers/specs/2026-08-07-ai-agent-governor-control-layer-design.md):
 
-- **Atomic reserve** — check-and-reserve / short lease so concurrent agents cannot both spend the same pressure budget (today `check` is read-only; [concurrent allows](/api/errors#concurrent-allows-race))
+- **Atomic reserve** — opt-in check-and-reserve / short lease (`SOFTSTOP_RESERVE_TTL_MS` or `reserveTtlMs`) so concurrent agents cannot both spend the same pressure budget; default off keeps legacy read-only `check` ([concurrent allows](/api/errors#concurrent-allows-race))
 - **Hierarchical scopes** — optional channel / thread pressure on top of today’s `tenantId` + `userId` journal (`surface` is audit metadata only)
 
 ## Python
