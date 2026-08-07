@@ -71,6 +71,9 @@ It does **not** send email, write copy, pick offers, or replace Braze / Resend /
 npm i softstop
 ```
 
+```bash
+pip install softstop
+```
 
 Self-host the SoftStop API for production. [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
 

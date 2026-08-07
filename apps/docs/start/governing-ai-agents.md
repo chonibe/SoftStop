@@ -185,8 +185,9 @@ See [Adoption contract](/start/adoption-contract) and [Orphan rate](/ops/orphan-
 | Example | What it shows |
 |---|---|
 | [agent-email-collision](https://github.com/chonibe/SoftStop/tree/main/examples/agent-email-collision) | Multi-actor pressure on one user |
-| [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper) | `wrapUserFacingTool` in a tool-style loop |
+| [agent-tool-wrapper](https://github.com/chonibe/SoftStop/tree/main/examples/agent-tool-wrapper) | `wrapUserFacingTool` / `withSoftStop` in a tool-style loop |
 | [agent-touchpoint](https://github.com/chonibe/SoftStop/tree/main/examples/agent-touchpoint) | `beforeContact` before escalating a human |
+| [langchain-agent](https://github.com/chonibe/SoftStop/tree/main/examples/langchain-agent) | Python `wrap_user_facing_tool` |
 
 ## Roadmap (not shipped)
 
