@@ -1,5 +1,8 @@
 {
   "mcpServers": {
+    "vercel": {
+      "url": "https://mcp.vercel.com"
+    },
     "fetch": {
       "command": "npx",
       "args": ["-y", "@tokenizin/mcp-npx-fetch"],
