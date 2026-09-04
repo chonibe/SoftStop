@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoftStop — Circuit breaker for agents and outreach</title>
-    <meta name="description" content="The Circuit Breaker for Autonomous Agents and Customer Outreach. Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface.">
+    <title>SoftStop — Send at the right minute</title>
+    <meta name="description" content="Know if this is the moment to message — not a round hour, not a pile-on. Same check/record API. More opens, less churn.">
     <link rel="icon" href="assets/softstop-icon.png?v=beaver13" type="image/png" />
-    <meta property="og:title" content="SoftStop — Circuit breaker for agents and outreach" />
-    <meta property="og:description" content="Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface. Shared permit. Authorize only." />
+    <meta property="og:title" content="SoftStop — Send at the right minute" />
+    <meta property="og:description" content="Know if this is the moment to message. Same check/record API. More opens, less churn." />
     <meta property="og:image" content="assets/softstop-cover.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="SoftStop — Circuit breaker for agents and outreach" />
-    <meta name="twitter:description" content="Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface." />
+    <meta name="twitter:title" content="SoftStop — Send at the right minute" />
+    <meta name="twitter:description" content="Know if this is the moment to message. Same check/record API. More opens, less churn." />
     <meta name="twitter:image" content="assets/softstop-cover.png" />
     <meta name="color-scheme" content="dark">
     <link rel="preconnect" href="https://api.fontshare.com">
@@ -2142,7 +2142,7 @@
 <body class="mode-off">
 
     <header class="site-topbar">
-        <a href="#" class="site-brand" aria-label="SoftStop home">
+        <a href="/" class="site-brand" aria-label="SoftStop home">
             <img src="assets/softstop-icon.png?v=beaver13" alt="" width="22" height="22" />
             <span>SoftStop</span>
         </a>
@@ -2262,11 +2262,11 @@
         <header class="hero">
             <div class="hero-content">
                 <img class="hero-mark" src="assets/softstop-icon.png?v=beaver13" width="96" height="96" alt="" />
-                <p class="hero-eyebrow">Open source · Circuit breaker</p>
+                <p class="hero-eyebrow">Open source · Right minute</p>
                 <div class="hero-rotator" aria-live="polite">
-                    <h1 class="title" id="heroTitle">The Circuit Breaker<br />for <em>agents</em> and outreach.</h1>
+                    <h1 class="title" id="heroTitle">Send at the minute<br />they will <em>open</em>.</h1>
                     <p class="description" id="heroDescription">
-                        Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface. Shared permit. One journal.
+                        Not less messaging — better timing. Bluetooth in the car, walked in the door, still clicking. <code>check</code> before you fire so the next push is a moment, not a 9:00 blast.
                     </p>
                 </div>
                 <div class="hero-actions">
@@ -2290,7 +2290,7 @@
                         </button>
                     </div>
                     <div class="code-content">
-                        <div class="code-line comment"># Pressure rises fast. SoftStop decides if it should.</div>
+                        <div class="code-line comment"># Is this the minute? SoftStop answers before you send.</div>
                         <div class="code-line cmd">
                             <span class="code-prompt">$</span>
                             <span class="code-cmd-text" data-copy-text>npm i softstop</span>
@@ -2310,7 +2310,7 @@
                     Self-host for production. <code>softstop.vercel.app</code> is the live demo and SDK CDN — not a production SoftStop host.
                 </p>
                 <p class="quickstart-note">
-                    Platform / lifecycle eng runs the SoftStop API. Growth, CRM, product, and agents call <code>check</code>/<code>record</code> at send time.
+                    Growth and lifecycle own the send. Your app already knows the moment (car, home, open). Call <code>check</code>/<code>record</code> at that second.
                 </p>
 
                 <div class="usage-block" id="sdkUsage">
@@ -2343,19 +2343,19 @@ if (!d.allowed) {
                     <h2 class="section-title">How it works</h2>
                     <a href="https://softstop-docs.vercel.app" class="section-link">Docs →</a>
                 </div>
-                <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Many systems. One shared journal per customer.</h3>
+                <h3 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Many systems. One clock per customer.</h3>
                 <p class="journal-caption">
-                    SoftStop is authorize-only: every pressure surface asks the same permit with <span class="code-chip">check</span>,
-                    then writes the outcome with <span class="code-chip">record</span>. Action types stay honest —
+                    Your stack still writes the copy and picks the channel. SoftStop answers <em>is this a good minute for this person?</em>
+                    Every surface asks with <span class="code-chip">check</span>, then writes what happened with <span class="code-chip">record</span> —
                     <span class="code-chip">urgency</span>, <span class="code-chip">discount</span>, <span class="code-chip">interruption</span>, <span class="code-chip">reminder</span>.
-                    <span class="code-chip">check</span> is read-only for pressure; state advances on <span class="code-chip">record</span> — so two concurrent allows can both pass before either records.
+                    Same API as today. The story is cadence, not a hard stop.
                 </p>
 
                 <div class="wf-canvas" data-wf="main" id="journalBoard" aria-label="SoftStop workflow: systems check a shared journal, then allow or block">
                     <div class="wf-toolbar" aria-hidden="true">
                         <span>Systems</span>
                         <span>Shared journal</span>
-                        <span>Permit</span>
+                        <span>Moment</span>
                     </div>
                     <div class="wf-stage" id="wfStage" data-wf-stage>
                         <svg class="wf-edges" id="wfEdges" data-wf-edges aria-hidden="true"></svg>
@@ -2442,7 +2442,7 @@ if (!d.allowed) {
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">01</div>
                         <div class="flow-title">Any system</div>
-                        <p class="text-sm text-slate-500 leading-relaxed">Email, SMS, push, modal, ads, agent — each about to raise pressure.</p>
+                        <p class="text-sm text-slate-500 leading-relaxed">Email, SMS, push, modal, ads, agent — each about to send.</p>
                     </div>
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">02</div>
@@ -2457,33 +2457,33 @@ if (!d.allowed) {
                     <div class="flow-step" data-flow-step>
                         <div class="flow-num">04</div>
                         <div class="flow-title">record()</div>
-                        <p class="text-sm text-slate-500 leading-relaxed">Always write the outcome — including blocked — so the next system isn’t blind.</p>
+                        <p class="text-sm text-slate-500 leading-relaxed">Always write the outcome — including wait — so the next send isn’t blind.</p>
                     </div>
                 </div>
 
                 <div class="flow-outcome">
                     <div class="outcome-chip landed">
-                        <div class="outcome-label"><span class="outcome-badge no">Landed</span><span class="outcome-when">OFF or allowed</span></div>
-                        <p>Touch hits the user. Journal entry lands. SoftStop OFF lands everything.</p>
+                        <div class="outcome-label"><span class="outcome-badge no">Send now</span><span class="outcome-when">Good minute</span></div>
+                        <p>This is the moment. Fire. Journal the landing so the next system knows they just heard from you.</p>
                     </div>
                     <div class="outcome-chip blocked">
-                        <div class="outcome-label"><span class="outcome-badge stop">Blocked</span><span class="outcome-when">ON + over limit</span></div>
-                        <p>Touch does not fire. Still <span class="code-chip">record</span> blocked so other systems see it.</p>
+                        <div class="outcome-label"><span class="outcome-badge stop">Wait</span><span class="outcome-when">Wrong minute</span></div>
+                        <p>Hold or switch channel — don’t burn the next open. Still <span class="code-chip">record</span> so others see it.</p>
                     </div>
                 </div>
 
                 <div class="mt-14">
                     <p class="section-kicker">Action types</p>
-                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-3" style="margin:0 0 10px">Four ways pressure shows up</h3>
+                    <h3 class="font-display text-xl md:text-2xl font-semibold tracking-tight mb-3" style="margin:0 0 10px">Four kinds of send</h3>
                     <p class="journal-caption" style="margin-bottom:14px">
-                        Same permit path for every type — pressure kind → <span class="code-chip">check</span> → shared journal → allow or block.
+                        Same path for every type — kind → <span class="code-chip">check</span> → is this the minute → send now or wait.
                     </p>
 
                     <div class="wf-canvas is-compact" data-wf="actions" id="actionFlow" aria-label="Action types flow into SoftStop check then journal">
                         <div class="wf-toolbar" aria-hidden="true">
-                            <span>Pressure type</span>
+                            <span>Send type</span>
                             <span>check()</span>
-                            <span>Journal</span>
+                            <span>Minute</span>
                         </div>
                         <div class="wf-stage" data-wf-stage>
                             <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -2521,19 +2521,19 @@ if (!d.allowed) {
                                             <div class="wf-hub-mark" aria-hidden="true"><img src="assets/beaver-check.png?v=beaver13" alt="" width="88" height="88" /></div>
                                         </div>
                                     </div>
-                                    <div class="wf-mobile-flow" aria-hidden="true">↓ permit ↓</div>
+                                    <div class="wf-mobile-flow" aria-hidden="true">↓ send / wait ↓</div>
                                 </div>
                                 <div class="wf-spacer" aria-hidden="true"></div>
                                 <div class="wf-col wf-col-out" data-wf-outs>
                                     <div class="wf-node is-sm is-allow" data-wf-node="out" data-port-in="allow">
                                         <span class="wf-port in ok" data-port="in" aria-hidden="true"></span>
                                         <div class="wf-node-icon is-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
-                                        <div class="wf-node-body"><div class="wf-node-name">Allow</div><div class="wf-node-meta">landed</div></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">Send now</div><div class="wf-node-meta">good minute</div></div>
                                     </div>
                                     <div class="wf-node is-sm is-block" data-wf-node="out" data-port-in="block">
                                         <span class="wf-port in amber" data-port="in" aria-hidden="true"></span>
                                         <div class="wf-node-icon is-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
-                                        <div class="wf-node-body"><div class="wf-node-name">Block</div><div class="wf-node-meta">blocked</div></div>
+                                        <div class="wf-node-body"><div class="wf-node-name">Wait</div><div class="wf-node-meta">wrong minute</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -2547,14 +2547,14 @@ if (!d.allowed) {
         <section id="demo" class="scroll-mt-14">
             <div class="max-w-6xl mx-auto px-4 md:px-6 pt-14 md:pt-16 pb-6">
                 <p class="section-kicker mb-3">Live example</p>
-                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">7 days, many channels, one journal</h2>
+                <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-3">7 days, many channels, one clock</h2>
                 <p class="text-slate-400 max-w-2xl leading-relaxed mb-2">
-                    Stacked escalations across email, SMS, push, and in-app — same customer, same SoftStop journal.
-                    SoftStop isn’t the messenger; it’s the shared permit every channel asks before it fires.
+                    Round-hour blasts across email, SMS, push, and in-app — same customer. SoftStop doesn’t write the message.
+                    It tells each channel whether <em>this</em> minute will still get an open.
                 </p>
                 <p class="text-sm text-slate-500 mb-6">
-                    <span class="text-accent-red font-medium">OFF</span> → every touch <span class="text-accent-red font-medium">LANDED</span> (journal stays blind between systems).
-                    <span class="text-stop-amber font-medium">ON</span> → excess shows <span class="text-stop-amber font-medium">BLOCKED</span> because the journal already knows.
+                    <span class="text-accent-red font-medium">OFF</span> → every touch <span class="text-accent-red font-medium">LANDED</span> at once (9:00 for everyone).
+                    <span class="text-stop-amber font-medium">ON</span> → a bad minute shows <span class="text-stop-amber font-medium">WAIT</span> so you can send when they’ll actually click.
                 </p>
             </div>
 
@@ -2668,24 +2668,24 @@ if (!d.allowed) {
         <div class="rail">
             <section id="why">
                 <div class="section-header">
-                    <h2 class="section-title">Why SoftStop</h2>
+                    <h2 class="section-title">Why this, not less mail</h2>
                     <a href="https://github.com/chonibe/SoftStop" class="section-link">GitHub →</a>
                 </div>
-                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Thousands of customers. Many departments. One journal — or none.</h3>
+                <h3 class="font-display font-semibold tracking-tight" style="margin:0 0 12px;font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-0.02em">Spam well. Send as many as they’ll still open.</h3>
                 <p class="description" style="text-align:left;margin:0 0 18px;max-width:44rem">
-                    Growth, CRM, Support, Ads, Product, and Agents each fire urgency, discount, interruption, and reminder
-                    without seeing what the others already did. Pressure climbs per person — Happy → Annoyed → Frustrated → Angry → Churned.
-                    SoftStop doesn’t become your CDP — a CDP stores identity and journeys; SoftStop only gates whether an actor may raise pressure right now. Every system <span class="code-chip">check</span>s and <span class="code-chip">record</span>s into one per-customer journal so landings stay capped.
+                    Growth, CRM, Support, Ads, Product, and Agents each want volume. The CMO isn’t buying a stop — they’re buying the Waze minute:
+                    Bluetooth connected, walked in the door, still tapping. Round hours are easy to configure and hit everyone at once.
+                    SoftStop is the shared <span class="code-chip">check</span> / <span class="code-chip">record</span> at that second so you time the next send instead of training them to ignore you.
                 </p>
 
                 <div class="wf-pair" id="scalePair">
                     <div>
-                        <p class="wf-pair-label is-bad">Without SoftStop · blind silos</p>
+                        <p class="wf-pair-label is-bad">Without SoftStop · 9:00 for everyone</p>
                         <div class="wf-canvas is-scale is-broken" data-wf="chaos" id="chaosBoard" aria-label="Departments pile messages onto customers; pressure climbs Happy to Churned with no shared stop">
                             <div class="wf-toolbar" aria-hidden="true">
                                 <span>Departments</span>
-                                <span>Pressure builds</span>
-                                <span>Churn</span>
+                                <span>Same minute</span>
+                                <span>They stop opening</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -2715,12 +2715,12 @@ if (!d.allowed) {
                         </div>
                     </div>
                     <div>
-                        <p class="wf-pair-label is-good">With SoftStop · one journal</p>
+                        <p class="wf-pair-label is-good">With SoftStop · right minute</p>
                         <div class="wf-canvas is-scale is-clean" data-wf="converge" id="scaleBoard" aria-label="Same department blast hits SoftStop; sparse allows keep customer pressure capped, churn rare">
                             <div class="wf-toolbar" aria-hidden="true">
-                                <span>Same blind fire</span>
-                                <span>SoftStop journal</span>
-                                <span>Pressure capped</span>
+                                <span>Same intent to send</span>
+                                <span>SoftStop clock</span>
+                                <span>Opens held</span>
                             </div>
                             <div class="wf-stage" data-wf-stage>
                                 <svg class="wf-edges" data-wf-edges aria-hidden="true"></svg>
@@ -2765,16 +2765,16 @@ if (!d.allowed) {
 
                 <div class="benefit-row">
                     <div class="benefit-card">
-                        <h3 class="font-display font-semibold text-paper mb-2">Cross-system journal</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Every <span class="code-chip">record</span> lands in one per-customer history — Growth isn’t blind to CRM.</p>
+                        <h3 class="font-display font-semibold text-paper mb-2">Their app is the sensor</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Car Bluetooth, entered home, opened the app — you don’t pull that. Their install already knows. Call us at that second.</p>
                     </div>
                     <div class="benefit-card">
-                        <h3 class="font-display font-semibold text-paper mb-2">Authorize only</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Doesn’t send mail or write copy. Your stack owns the message — SoftStop owns the permit.</p>
+                        <h3 class="font-display font-semibold text-paper mb-2">Do it better, not less</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Doesn’t write copy. Your stack owns the send. SoftStop owns whether this minute will still get a click.</p>
                     </div>
                     <div class="benefit-card">
-                        <h3 class="font-display font-semibold text-paper mb-2">Honest adoption</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed"><span class="code-chip">verify</span> + <span class="code-chip">health</span> catch orphans. Partial wiring isn’t false confidence.</p>
+                        <h3 class="font-display font-semibold text-paper mb-2">Wait is a better send</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Wrong minute → wait or switch channel. Same <span class="code-chip">check</span> / <span class="code-chip">record</span> you already ship.</p>
                     </div>
                 </div>
                 <div class="oss-cta-row">
@@ -2789,7 +2789,7 @@ if (!d.allowed) {
             <div class="footer-inner">
                 <div class="flex items-center gap-2">
                     <img src="assets/softstop-icon.png?v=beaver13" width="18" height="18" alt="" />
-                    <span>SoftStop — MIT</span>
+                    <span>SoftStop — send at the right minute · MIT</span>
                 </div>
                 <div class="footer-links">
                     <a href="#quickstart">Get started</a>
@@ -4840,24 +4840,24 @@ if (!d.allowed) {
 
     const heroPairs = [
         {
-            title: 'The Circuit Breaker<br />for <em>agents</em> and outreach.',
+            title: 'Send at the minute<br />they will <em>open</em>.',
             description:
-                'Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface. Shared permit. One journal.',
+                'Not less messaging — better timing. Bluetooth in the car, walked in the door, still clicking. <code>check</code> before you fire so the next push is a moment, not a 9:00 blast.',
         },
         {
-            title: 'Deterministic Yes/No<br />for non-deterministic <em>LLMs</em>.',
+            title: 'Spam them <em>well</em>.<br />Same volume. Right minute.',
             description:
-                'Don\'t keep cooldowns in the prompt. <code>check()</code> gates the tool call; <code>suggestedActionType</code> steers a blocked urgency or interruption toward a reminder — not a crash loop.',
+                'CMOs don’t buy a stop. They buy cadence: as many sends as this person will still click. Wait is a better send — not a cut in the budget.',
         },
         {
-            title: 'Doesn\'t make software smarter.<br />Makes it <em>stop</em> when it should.',
+            title: 'Waze knew you sat in the car.<br />That’s <em>power</em> to push.',
             description:
-                'Authorize-only pressure permit. Shared journal across Onboarding, Sales, Support, and channels — one <code>check</code> before urgency, discount, interruption, or reminder, then <code>record</code> (<code>executed</code> or <code>blocked</code>).',
+                'Your app already sees Bluetooth, home, open. SoftStop doesn’t pull that. Call <code>check</code> at that second. Knowledge of the moment is permission to send.',
         },
         {
-            title: 'One shared permit.<br /><em>Every</em> actor asks first.',
+            title: 'Doesn’t make you send less.<br />Makes you send when it <em>lands</em>.',
             description:
-                'Email, SMS, push, popups, and agents all <code>check</code> the same SoftStop permit — so marketing, product, and bots stop stacking on the same user.',
+                'Same <code>check</code> / <code>record</code>. Allow = good minute. Wait = don’t burn the next open. Switch channel if this one went quiet.',
         },
     ];
 

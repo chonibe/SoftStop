@@ -6,7 +6,9 @@
   "framework": null,
   "rewrites": [
     { "source": "/demo", "destination": "/index.html" },
-    { "source": "/demo/", "destination": "/index.html" }
+    { "source": "/demo/", "destination": "/index.html" },
+    { "source": "/spam", "destination": "/spam.html" },
+    { "source": "/spam/", "destination": "/spam.html" }
   ],
   "headers": [
     {
