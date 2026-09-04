@@ -267,6 +267,7 @@ export function formatBlockedForLlm(decision: CheckResponse): string {
     payload.suggestedFallback = decision.suggestedFallback;
   }
   if (decision.retryAfterMs != null) payload.retryAfterMs = decision.retryAfterMs;
+  if (decision.sendAfter != null) payload.sendAfter = decision.sendAfter;
   return JSON.stringify(payload);
 }
 

@@ -93,6 +93,8 @@ export interface SuggestedFallback {
   strategy: FallbackStrategy;
   actionType?: ActionType;
   message?: string;
+  /** Next surface to try (email → push → sms → in-app). */
+  surface?: string;
 }
 
 export interface GovernorDecision {
@@ -103,8 +105,10 @@ export interface GovernorDecision {
   suggestedActionType?: ActionType;
   /** Structured steering for agents when blocked. */
   suggestedFallback?: SuggestedFallback;
-  /** Ms until a retry may succeed (from cooldown or stacking window). */
+  /** Ms until a retry of this actionType may succeed. */
   retryAfterMs?: number;
+  /** ISO time when this actionType may pass (now + retryAfterMs). */
+  sendAfter?: string;
   /** Decayed pressure at evaluation time */
   pressure?: number;
   /** Server-owned cost for this actionType */

@@ -25,6 +25,7 @@ export interface SuggestedFallback {
   strategy: FallbackStrategy;
   actionType?: ActionType;
   message?: string;
+  surface?: Surface;
 }
 
 /**
@@ -68,6 +69,7 @@ export interface CheckResponse {
   suggestedActionType?: ActionType;
   suggestedFallback?: SuggestedFallback;
   retryAfterMs?: number;
+  sendAfter?: string;
   explanation?: string;
   pressure?: number;
   cost?: number;

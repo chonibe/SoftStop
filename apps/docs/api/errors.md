@@ -14,7 +14,8 @@
 When blocked, the response includes `explanation` (plain language). For `urgency` or `interruption`, SoftStop may also return:
 
 - `suggestedActionType: "reminder"` (compat alias)
-- `suggestedFallback` — `{ strategy: "downgrade", actionType: "reminder", message? }`
+- `suggestedFallback` — `{ strategy, actionType?, message?, surface? }` on every deny (`downgrade` now or `defer` until `sendAfter`)
+- `retryAfterMs` / `sendAfter` — when this actionType may pass; caller reschedules (no webhook)
 - `retryAfterMs` — when a cooldown or stacking window applies
 
 In the JS SDK, pass the decision to `formatBlockedForLlm(decision)` for a stable JSON string suitable as an LLM tool result. `withSoftStop(execute, config)` does this automatically on deny.

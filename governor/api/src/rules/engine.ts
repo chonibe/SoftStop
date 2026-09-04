@@ -173,25 +173,20 @@ const withPressureFields = (
   projectedPressure: pressure + cost
 });
 
-const reminderFallback = (): Pick<
-  GovernorDecision,
-  "suggestedActionType" | "suggestedFallback"
-> => ({
-  suggestedActionType: "reminder",
-  suggestedFallback: {
-    strategy: "downgrade",
-    actionType: "reminder",
-    message:
-      "Prefer a softer reminder path; do not retry the same actionType immediately."
-  }
-});
+export const SURFACE_ROTATION = ["email", "push", "sms", "in-app"] as const;
 
-const softDowngradeHints = (
-  actionType: ActionType
-): Pick<GovernorDecision, "suggestedActionType" | "suggestedFallback"> =>
-  actionType === "urgency" || actionType === "interruption"
-    ? reminderFallback()
-    : {};
+export type CheckOptions = {
+  surface?: string;
+  /** When false, return the raw allow/deny without next-send fields (used to probe cheaper types). */
+  attachNextSend?: boolean;
+};
+
+const nextSurface = (surface?: string): string | undefined => {
+  if (!surface) return undefined;
+  const i = (SURFACE_ROTATION as readonly string[]).indexOf(surface);
+  if (i < 0) return SURFACE_ROTATION[0];
+  return SURFACE_ROTATION[(i + 1) % SURFACE_ROTATION.length];
+};
 
 const retryAfterFromCooldown = (
   cooldownUntil: string,
@@ -209,11 +204,124 @@ const retryAfterFromStacking = (
   return Math.max(0, Math.ceil(windowMs - elapsed));
 };
 
+const retryAfterFromPressure = (
+  pressure: number,
+  cost: number,
+  threshold: number,
+  decayPerHour: number
+): number | undefined => {
+  if (pressure + cost <= threshold) return 0;
+  if (decayPerHour <= 0) return undefined;
+  const need = pressure + cost - threshold;
+  return Math.ceil((need / decayPerHour) * 36e5);
+};
+
+const retryAfterFromWindow = (
+  state: GovernorUserState,
+  key: string,
+  windowHours: number,
+  now: Date
+): number => {
+  rollWindowIfNeeded(state, key, windowHours, now);
+  const start = new Date(state.windows[key].windowStart).getTime();
+  return Math.max(0, start + windowHours * 36e5 - now.getTime());
+};
+
+const cheaperTypes = (
+  actionType: ActionType,
+  config: GovernorRulesConfig
+): ActionType[] => {
+  const currentCost = config.costs[actionType];
+  return Object.keys(config.costs)
+    .filter((t) => t !== actionType && config.costs[t] < currentCost)
+    .sort((a, b) => config.costs[a] - config.costs[b]);
+};
+
+const withSendAfter = (
+  decision: GovernorDecision,
+  now: Date
+): GovernorDecision => {
+  if (decision.retryAfterMs == null) return decision;
+  return {
+    ...decision,
+    sendAfter: new Date(now.getTime() + decision.retryAfterMs).toISOString()
+  };
+};
+
+const attachNextSend = (
+  denied: GovernorDecision,
+  state: GovernorUserState,
+  actionType: ActionType,
+  now: Date,
+  config: GovernorRulesConfig,
+  surface?: string
+): GovernorDecision => {
+  let retryAfterMs = denied.retryAfterMs;
+  if (retryAfterMs == null) {
+    if (denied.reason === "pressure_exceeded") {
+      retryAfterMs = retryAfterFromPressure(
+        denied.pressure ?? 0,
+        denied.cost ?? config.costs[actionType],
+        denied.threshold ?? config.threshold,
+        config.decayPerHour
+      );
+    } else if (
+      denied.reason === "type_cap_reached" ||
+      denied.reason === "global_cap_reached"
+    ) {
+      const key = denied.reason === "global_cap_reached" ? GLOBAL_KEY : actionType;
+      retryAfterMs = retryAfterFromWindow(state, key, config.windowHours, now);
+    }
+  }
+
+  const altSurface = nextSurface(surface);
+  let fallback = denied.suggestedFallback;
+  let suggestedActionType = denied.suggestedActionType;
+
+  const cheaperFit = cheaperTypes(actionType, config).find((alt) => {
+    const probe = evaluateCheck(state, alt, now, config, { attachNextSend: false });
+    return probe.allowed;
+  });
+
+  if (cheaperFit) {
+    suggestedActionType = cheaperFit;
+    fallback = {
+      strategy: "downgrade",
+      actionType: cheaperFit,
+      message: `Send a cheaper ${cheaperFit} now instead of dropping this contact.`,
+      ...(altSurface ? { surface: altSurface } : {})
+    };
+  } else if (!fallback) {
+    fallback = {
+      strategy: "defer",
+      actionType,
+      message:
+        retryAfterMs == null
+          ? "Pressure does not decay; send a cheaper type now or wait for policy change."
+          : "Retry this actionType at sendAfter — do not drop the send.",
+      ...(altSurface ? { surface: altSurface } : {})
+    };
+  } else if (altSurface && !fallback.surface) {
+    fallback = { ...fallback, surface: altSurface };
+  }
+
+  return withSendAfter(
+    {
+      ...denied,
+      ...(retryAfterMs != null ? { retryAfterMs } : {}),
+      suggestedActionType,
+      suggestedFallback: fallback
+    },
+    now
+  );
+};
+
 export const evaluateCheck = (
   state: GovernorUserState,
   actionType: ActionType,
   now: Date,
-  config: GovernorRulesConfig = defaultRulesConfig
+  config: GovernorRulesConfig = defaultRulesConfig,
+  options: CheckOptions = {}
 ): GovernorDecision => {
   const reserveEnabled = (config.reserveTtlMs ?? 0) > 0;
   const working = reserveEnabled ? pruneExpiredReserves(state, now) : state;
@@ -225,73 +333,82 @@ export const evaluateCheck = (
   const attach = (d: GovernorDecision) =>
     withPressureFields(d, pressure, cost, threshold);
 
+  let core: GovernorDecision;
+
   if (pressure + cost > threshold) {
-    return attach({
+    core = attach({
       allowed: false,
-      reason: "pressure_exceeded",
-      ...softDowngradeHints(actionType)
+      reason: "pressure_exceeded"
     });
-  }
-
-  const cooldownUntil = working.cooldowns[actionType];
-  if (cooldownUntil && new Date(cooldownUntil) > now) {
-    return attach({
-      allowed: false,
-      reason: "cooldown_active",
-      cooldownUntil,
-      retryAfterMs: retryAfterFromCooldown(cooldownUntil, now),
-      ...softDowngradeHints(actionType)
-    });
-  }
-
-  const typeCount = getWindowCount(
-    working,
-    actionType,
-    config.windowHours,
-    now
-  );
-  if (typeCount >= config.typeCap[actionType]) {
-    return attach({
-      allowed: false,
-      reason: "type_cap_reached",
-      ...softDowngradeHints(actionType)
-    });
-  }
-
-  const globalCount = getWindowCount(
-    working,
-    GLOBAL_KEY,
-    config.windowHours,
-    now
-  );
-  if (globalCount >= config.globalCap) {
-    return attach({
-      allowed: false,
-      reason: "global_cap_reached"
-    });
-  }
-
-  if (working.lastAnyEscalationAt) {
-    const diffMinutes =
-      (now.getTime() - new Date(working.lastAnyEscalationAt).getTime()) / 6e4;
-    if (
-      diffMinutes < config.stackingWindowMinutes &&
-      (actionType === "urgency" || actionType === "interruption")
-    ) {
-      return attach({
+  } else {
+    const cooldownUntil = working.cooldowns[actionType];
+    if (cooldownUntil && new Date(cooldownUntil) > now) {
+      core = attach({
         allowed: false,
-        reason: "recent_escalation",
-        retryAfterMs: retryAfterFromStacking(
-          working.lastAnyEscalationAt,
-          now,
-          config.stackingWindowMinutes
-        ),
-        ...reminderFallback()
+        reason: "cooldown_active",
+        cooldownUntil,
+        retryAfterMs: retryAfterFromCooldown(cooldownUntil, now)
       });
+    } else {
+      const typeCount = getWindowCount(
+        working,
+        actionType,
+        config.windowHours,
+        now
+      );
+      if (typeCount >= config.typeCap[actionType]) {
+        core = attach({
+          allowed: false,
+          reason: "type_cap_reached"
+        });
+      } else {
+        const globalCount = getWindowCount(
+          working,
+          GLOBAL_KEY,
+          config.windowHours,
+          now
+        );
+        if (globalCount >= config.globalCap) {
+          core = attach({
+            allowed: false,
+            reason: "global_cap_reached"
+          });
+        } else if (working.lastAnyEscalationAt) {
+          const diffMinutes =
+            (now.getTime() - new Date(working.lastAnyEscalationAt).getTime()) /
+            6e4;
+          if (
+            diffMinutes < config.stackingWindowMinutes &&
+            (actionType === "urgency" || actionType === "interruption")
+          ) {
+            core = attach({
+              allowed: false,
+              reason: "recent_escalation",
+              retryAfterMs: retryAfterFromStacking(
+                working.lastAnyEscalationAt,
+                now,
+                config.stackingWindowMinutes
+              )
+            });
+          } else {
+            core = attach({ allowed: true, reason: "allowed" });
+          }
+        } else {
+          core = attach({ allowed: true, reason: "allowed" });
+        }
+      }
     }
   }
 
-  return attach({ allowed: true, reason: "allowed" });
+  if (core.allowed || options.attachNextSend === false) return core;
+  return attachNextSend(
+    core,
+    working,
+    actionType,
+    now,
+    config,
+    options.surface
+  );
 };
 
 export interface ApplyOutcomeOptions {

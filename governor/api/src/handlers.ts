@@ -224,7 +224,9 @@ export const handleCheck = async (
   const now = new Date();
   const decisionId = randomUUID();
 
-  let decision = evaluateCheck(emptyState(), actionType, now, rulesConfig);
+  let decision = evaluateCheck(emptyState(), actionType, now, rulesConfig, {
+    surface
+  });
   let reserveExpiresAt: string | undefined;
   let eventInserted = false;
   let actor =
@@ -247,7 +249,7 @@ export const handleCheck = async (
       const state = pruneExpiredReserves(raw, now);
       const expectedVersion =
         typeof state.stateVersion === "number" ? state.stateVersion : 0;
-      decision = evaluateCheck(state, actionType, now, rulesConfig);
+      decision = evaluateCheck(state, actionType, now, rulesConfig, { surface });
 
       if (!decision.allowed) {
         wrote = true; // nothing to write; proceed to event + response
@@ -314,7 +316,7 @@ export const handleCheck = async (
     }
   } else {
     const state = (await storage.getUserState(userId, tid)) ?? emptyState();
-    decision = evaluateCheck(state, actionType, now, rulesConfig);
+    decision = evaluateCheck(state, actionType, now, rulesConfig, { surface });
   }
 
   const pressureContext = pressureContextBase();
@@ -340,6 +342,7 @@ export const handleCheck = async (
     suggestedActionType: decision.suggestedActionType,
     suggestedFallback: decision.suggestedFallback,
     retryAfterMs: decision.retryAfterMs,
+    sendAfter: decision.sendAfter,
     pressure: decision.pressure,
     cost: decision.cost,
     threshold: decision.threshold,

@@ -44,6 +44,7 @@ Design detail: [superpowers/specs/2026-08-07-ai-agent-governor-control-layer-des
 
 - MCP tool-call gateway as the homepage product
 - ML personalization / send-time optimization
+- Device-moment sensors (Bluetooth, geofence) — see [MOMENT_SENSORS.md](MOMENT_SENSORS.md)
 - Paid multi-tenant control plane / hosted policy UI
 
 ## Later (optional)

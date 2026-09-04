@@ -1,6 +1,6 @@
 # check
 
-Request permission before raising pressure on a user.
+Request permission before raising pressure on a user. **`allowed: true` means you may send — not that you must.** Every deny names a **next send**: `sendAfter` / `retryAfterMs` and `suggestedFallback` (cheaper type now or defer). SoftStop does not enqueue or push to your ESP.
 
 | Environment | Method | Path |
 |---|---|---|
@@ -57,11 +57,14 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
   "cost": 40,
   "threshold": 100,
   "projectedPressure": 120,
+  "retryAfterMs": 9000000,
+  "sendAfter": "2026-09-04T14:30:00.000Z",
   "suggestedActionType": "reminder",
   "suggestedFallback": {
     "strategy": "downgrade",
     "actionType": "reminder",
-    "message": "Prefer a softer reminder path; do not retry the same actionType immediately."
+    "message": "Send a cheaper reminder now instead of dropping this contact.",
+    "surface": "push"
   }
 }
 ```
@@ -75,11 +78,12 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
   "explanation": "User recently dismissed or ignored this type. Cooldown expires at …",
   "cooldownUntil": "2026-01-20T10:30:00Z",
   "retryAfterMs": 600000,
+  "sendAfter": "2026-01-20T10:30:00.000Z",
   "suggestedActionType": "reminder",
   "suggestedFallback": {
     "strategy": "downgrade",
     "actionType": "reminder",
-    "message": "Prefer a softer reminder path; do not retry the same actionType immediately."
+    "message": "Send a cheaper reminder now instead of dropping this contact."
   },
   "decisionId": "550e8400-e29b-41d4-a716-446655440000",
   "pressure": 40,
@@ -91,9 +95,10 @@ Callers do **not** send a pressure cost. SoftStop applies server-owned costs fro
 
 | Additive deny field | When |
 |---|---|
-| `suggestedActionType` | Compat alias — usually `reminder` for blocked `urgency` / `interruption` |
-| `suggestedFallback` | Structured `{ strategy, actionType?, message? }` (`downgrade` \| `skip` \| `defer`) |
-| `retryAfterMs` | From `cooldownUntil` or remaining stacking window; omit when not applicable |
+| `retryAfterMs` | Ms until **this** `actionType` may pass (decay, cooldown, stacking, or cap window) |
+| `sendAfter` | ISO timestamp (`now + retryAfterMs`) so the caller can reschedule — SoftStop does not enqueue |
+| `suggestedActionType` | Compat alias — usually a cheaper type that would pass *now* |
+| `suggestedFallback` | `{ strategy, actionType?, message?, surface? }` (`downgrade` \| `skip` \| `defer`). Every deny includes this. Optional `surface` rotates email → push → sms → in-app when `check` sent a surface |
 
 Always pass `decisionId` into [`record`](/api/record). When blocked, still record with `outcome: "blocked"` and `blockReason` from `reason` (use `explanation` / `suggestedFallback` / optional `suggestedActionType` in your own UX — do not skip `record`). For LLM tool results, prefer SDK `formatBlockedForLlm(decision)`.
 
