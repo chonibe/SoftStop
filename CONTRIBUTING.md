@@ -39,6 +39,6 @@ Note: the HTTP engine lives under `governor/` for historical reasons; the produc
 
 ## Language
 
-Prefer: SoftStop, escalation permit, pressure gate, check/record, cooldown, adoption contract.
+Prefer: SoftStop, send path, frequency audit, shared permit, Pressure Index, check/record, orphan rate, cooldown, adoption contract.
 
-Avoid framing SoftStop as an AI safety or MCP firewall product on the homepage.
+Avoid: inventing a market category, “circuit breaker for outreach” in titles, CDP / ESP comparison, spray “we’re open source.” GitHub topics to set: `ai-agents`, `gtm`, `frequency-capping`. Enable Discussions. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md).

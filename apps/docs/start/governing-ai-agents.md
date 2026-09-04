@@ -1,19 +1,19 @@
 # Governing AI Agents
 
-SoftStop is the **circuit breaker** for autonomous agents and customer outreach — and for every other system that can reach the same human. Agents are the sharp wedge: LLMs guess; SoftStop trips the breaker. Email, SMS, push, and UI stay in scope as **collision partners**, not afterthoughts.
+SoftStop is a **shared permit on the send path** — for autonomous agents and every other system that can reach the same human. Agents are the sharp wedge: LLMs guess; SoftStop answers before the tool fires. Email, SMS, push, and UI stay in scope as **collision partners**, not afterthoughts.
 
 Authorize only. SoftStop does not send messages, pick offers, store journeys (not a CDP), or replace tool IAM / HITL.
 
 ## Why SoftStop for agents
 
-1. **Agent circuit breaking** — a safety layer in tool-calling loops, not just frequency capping. Gate the side effect with `check()`; always `record()` (`executed` or `blocked`).
-2. **Deterministic state for non-deterministic LLMs** — offload time/count cooldowns from the prompt. Policy and pressure live on the SoftStop server.
+1. **Guardrails on the send path** — a safety layer in tool-calling loops, not a frequency cap inside one ESP. Gate the side effect with `check()`; always `record()` (`executed` or `blocked`).
+2. **Caps in the prompt don’t work** — offload time/count cooldowns from the prompt. Policy and pressure live on the SoftStop server. Retry loops burn domains.
 3. **Graceful degradation via `suggestedFallback`** — blocked tools get steering (`suggestedActionType` remains a compat alias), plus `retryAfterMs` when a cooldown/stacking window applies — not crash or retry loops.
-4. **Multi-agent collision prevention** — shared per-user permit across Onboarding / Sales / Support on separate runtimes (and channels that hit the same person).
+4. **Sales + marketing + agent collision** — shared per-user permit (Pressure Index) across Onboarding / Sales / Support on separate runtimes (and channels that hit the same person).
 
 ## Pillar details
 
-### 1. Circuit breaker in the tool loop
+### 1. Gate in the tool loop
 
 Rogue agents, growth loops, and background jobs can spam without a shared stop signal. SoftStop sits **before** the user-facing tool:
 
@@ -107,7 +107,7 @@ if (!decision.allowed) {
 
 Onboarding, Sales, and Support often run on **separate runtimes**. Lifecycle email and product modals hit the same person with no shared stop signal.
 
-SoftStop is one per-user permit. Golden path: [agent-email-collision](https://github.com/chonibe/SoftStop/tree/main/examples/agent-email-collision).
+SoftStop is one per-user permit. Golden path: [agent-email-collision](https://github.com/chonibe/SoftStop/tree/main/examples/agent-email-collision). Checklist: [Frequency audit](/start/frequency-audit).
 
 ## Adapters
 
@@ -216,7 +216,8 @@ SoftStop already gates agents with deterministic permits, structured deny fields
 ## Python
 
 ```bash
-pip install softstop
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
+# or from a checkout: pip install -e ./packages/sdk-python
 ```
 
 ```python

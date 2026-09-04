@@ -4,9 +4,9 @@
 
 <h1 align="center">SoftStop</h1>
 
-<p align="center"><strong>The Circuit Breaker for Autonomous Agents and Customer Outreach.</strong></p>
+<p align="center"><strong>Guardrails on the send path — a shared journal when HubSpot caps miss the sequence.</strong></p>
 
-<p align="center">Prevent rogue agents, growth loops, and background jobs from spamming your users—across every surface.</p>
+<p align="center">Frequency audit for sales + marketing + agents. Caps in the prompt don’t work. Domain burn and retry loops are a send-path problem.</p>
 
 <p align="center">Doesn't make software smarter. Makes it stop when it should.</p>
 
@@ -40,10 +40,10 @@
 
 ## Why SoftStop?
 
-- **Agent circuit breaking** — a safety layer in tool-calling loops, not just frequency capping. `check()` before the side effect; `record()` after.
-- **Deterministic state for non-deterministic LLMs** — offload time/count cooldowns from the prompt. Policy and pressure live on the server.
-- **Multi-agent collision prevention** — shared per-user permit across Onboarding / Sales / Support (and email / SMS / UI) on separate runtimes.
-- **Graceful fallbacks** — when blocked, `suggestedActionType` steers the next move (e.g. interruption → reminder) instead of crash or retry loops.
+- **Guardrails on the send path** — `check()` before Resend/Twilio/the agent tool; `record()` after (including blocks). Not a cap in the prompt.
+- **Caps in the prompt don’t work** — time/count cooldowns live on the server. LLMs guess; retry loops burn domains.
+- **Sales + marketing collision** — shared permit (Pressure Index) across Outreach/Apollo, Mailchimp/Klaviyo, and the agent on separate runtimes.
+- **SDR blackout that other systems can see** — when blocked, `suggestedActionType` steers (e.g. interruption → reminder) instead of retrying urgency.
 
 Authorize only — SoftStop is not a CDP, not a messenger, not tool IAM. See [Governing AI Agents](apps/docs/start/governing-ai-agents.md).
 
@@ -73,7 +73,9 @@ npm i softstop
 ```
 
 ```bash
-pip install softstop
+# PyPI name is reserved until we publish — install from git or a checkout:
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
+# or: pip install -e ./packages/sdk-python
 ```
 
 Self-host the SoftStop API for production ([`governor/api`](governor/api) is the **canonical runtime**). [softstop.vercel.app](https://softstop.vercel.app) is the live demo and SDK CDN — not a production host. Platform / lifecycle eng typically runs the API; Growth, CRM, product, and agents call `check` / `record` at send time.
@@ -222,8 +224,8 @@ Default threshold: **100**. Default decay: **8** points/hour.
 
 ## When to use
 
-- **Agents** — circuit breaker in tool loops; shared permit across Onboarding/Sales/Support ([Governing AI Agents](apps/docs/start/governing-ai-agents.md))
-- **Marketing + CRM** — lifecycle, promo, and win-back tools don’t share caps with agents
+- **GTM / agents** — guardrails on the send path; shared permit across SDR + marketing + support ([Governing AI Agents](apps/docs/start/governing-ai-agents.md), [Frequency audit](docs/FREQUENCY_AUDIT.md))
+- **RevOps** — frequency audit when HubSpot/Klaviyo caps miss sequences and the AI SDR
 - **Product UI** — modals/banners fire while email/SMS/agents are also pushing
 - **Not SoftStop** — you need a messaging platform, CDP (identity/journey store), or MCP tool firewall. SoftStop only gates pressure; it does not replace a CDP.
 
@@ -246,8 +248,9 @@ Repo note: root [`tenet-policy.json`](tenet-policy.json) configures **contributo
 
 - [**Agent + email collision**](examples/agent-email-collision) — sales agent email then marketing SMS; print pressure
 - [**Agent tool wrapper**](examples/agent-tool-wrapper) — `wrapUserFacingTool` in a function-calling / tool loop
-- [**LangChain agent (Python)**](examples/langchain-agent) — `pip install softstop` + `wrap_user_facing_tool`
-- [**Governing AI agents**](apps/docs/start/governing-ai-agents.md) — circuit breaker, pillars, `suggestedActionType`
+- [**LangChain agent (Python)**](examples/langchain-agent) — git/checkout SDK + `wrap_user_facing_tool`
+- [**Governing AI agents**](apps/docs/start/governing-ai-agents.md) — send-path gate, pillars, `suggestedActionType`
+- [**Frequency audit**](docs/FREQUENCY_AUDIT.md) — list every system that can hit a contact; [design-partner DMs](docs/press/DESIGN_PARTNER_DMS.md)
 - [**Sample shop**](examples/sample-shop) — chaos vs SoftStop + orphan-rate health (`node index.js --mode=compare`)
 - [Node.js](examples/nodejs) · [Python SDK](packages/sdk-python) · [Browser](examples/browser)
 - [Agent touchpoint](examples/agent-touchpoint) — `beforeContact` before escalating a human

@@ -23,12 +23,13 @@ npm i softstop
 ```
 
 ```bash
-pip install softstop
+# Not on PyPI yet — git or checkout:
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
 ```
 
 JS alternates: `npm i https://softstop.vercel.app/softstop.tgz` or `npm i 'github:chonibe/SoftStop#path:packages/sdk-js'`.
 
-Python from checkout: `pip install -e ./packages/sdk-python`. Docs: [JS SDK](/integrate/sdk-js) · [Python SDK](/integrate/sdk-python).
+Python from checkout: `pip install -e ./packages/sdk-python`. Do not use `pip install softstop` until the package is on PyPI. Docs: [JS SDK](/integrate/sdk-js) · [Python SDK](/integrate/sdk-python).
 
 Self-host the SoftStop API for production (`pnpm dev` / Docker). The hosted site is demo + CDN, not a production SoftStop host.
 ## 3. Check, then record

@@ -1,6 +1,6 @@
 # Agent tool wrapper
 
-Thin SoftStop **circuit breaker** for agent tools that contact humans — the pattern to drop into an OpenAI-style / LangChain-style **function-calling loop**.
+Thin SoftStop **send-path gate** for agent tools that contact humans — the pattern to drop into an OpenAI-style / LangChain-style **function-calling loop**. Caps in the prompt don’t work.
 
 Uses shipped APIs only: `SoftStop`, `wrapUserFacingTool`, `withSoftStop`, `formatBlockedForLlm`, and (inline) `beforeContact`. No framework dependency required.
 
@@ -8,7 +8,7 @@ Uses shipped APIs only: `SoftStop`, `wrapUserFacingTool`, `withSoftStop`, `forma
 
 LLMs don’t keep reliable cooldowns. SoftStop does:
 
-1. `check()` before the side effect (circuit breaker)  
+1. `check()` before the side effect (guardrail on the send path)  
 2. `record()` after — `outcome: 'executed' | 'blocked'` (never skip on deny)  
 3. `suggestedActionType` / `suggestedFallback` / `retryAfterMs` so a blocked urgency/interruption can downgrade or defer instead of looping
 
@@ -118,6 +118,6 @@ node index.js
 
 Also see:
 
-- [Governing AI agents](../../apps/docs/start/governing-ai-agents.md) — circuit-breaker framing + optional Vercel AI SDK `tool()` sketch
+- [Governing AI agents](../../apps/docs/start/governing-ai-agents.md) — send-path gate + optional Vercel AI SDK `tool()` sketch
 - [agent-touchpoint](../agent-touchpoint) — `beforeContact` only
 - [agent-email-collision](../agent-email-collision) — multi-actor pressure on one user

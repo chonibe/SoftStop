@@ -39,11 +39,12 @@ Beaver on a log — SoftStop’s soft halt as a dam on pressure. Default app ico
 - SoftStop as one word
 - Default surfaces use the rounded icon tile or logo-only cover
 - Transparent marks when compositing on existing UI chrome
-- Pressure permit / stop-when-it-should framing
+- Pressure permit / send-path / frequency-audit framing (not “circuit breaker for outreach” in titles)
 
 ## Don't
 
 - Purple AI gradients, glow orbs, baby soft-spot literalism
 - Shield/lock IAM vibes
 - MCP / agent-firewall framing on the mark
+- CDP or ESP-comparison positioning
 - Crowding the social cover with taglines — keep it logo-only

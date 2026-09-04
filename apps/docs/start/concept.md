@@ -4,7 +4,7 @@ SoftStop answers one question before an escalation runs:
 
 > Is it allowed to raise pressure on **this user**, with **this action type**, **right now**?
 
-**The Circuit Breaker for Autonomous Agents and Customer Outreach.** SoftStop does not rate-limit humans. It rate-limits the actors that want to reach them — agents, growth loops, background jobs, and channels. LLMs are non-deterministic; `check()` is a deterministic Yes / No / fallback before the next tool or send.
+**Shared permit on the send path.** SoftStop does not rate-limit humans. It rate-limits the actors that want to reach them — agents, sequences, ESP journeys, background jobs. Caps in the prompt don’t work; `check()` is a deterministic Yes / No / fallback before the next tool or send.
 
 It does **not** send email, write copy, pick offers, or replace Braze / Resend / your agents. Those systems still decide *what* to say. SoftStop decides whether they’re allowed to push.
 
@@ -42,6 +42,7 @@ Local paths use `/v1/*`. Hosted demo paths use `/api/*`. Prefer self-host for pr
 
 ## Next
 
+- [Frequency audit](/start/frequency-audit)
 - [Governing AI agents](/start/governing-ai-agents)
 - [Getting started](/start/getting-started)
 - [Adoption contract](/start/adoption-contract)

@@ -12,13 +12,15 @@ This folder keeps source material, brand assets, and internal notes. Prefer the 
 ## Source material (repo)
 
 1. [Concept](CONCEPT.md)
-2. [Self-host](SELF_HOST.md)
-3. [Adoption contract](ADOPTION_CONTRACT.md)
-4. [Before / after](BEFORE_AFTER.md)
-5. [Default policy pack](default-policy-pack.md)
-6. [Integration workflow](GOVERNOR_INTEGRATION_WORKFLOW.md)
-7. [API reference](../governor/README.md)
-8. [Examples](../examples/README.md)
+2. [Frequency audit](FREQUENCY_AUDIT.md)
+3. [Self-host](SELF_HOST.md)
+4. [Adoption contract](ADOPTION_CONTRACT.md)
+5. [Before / after](BEFORE_AFTER.md)
+6. [Default policy pack](default-policy-pack.md)
+7. [Integration workflow](GOVERNOR_INTEGRATION_WORKFLOW.md)
+8. [API reference](../governor/README.md)
+9. [Examples](../examples/README.md)
+10. [Distribution](DISTRIBUTION.md)
 
 ## Experience the story
 
@@ -30,7 +32,9 @@ This folder keeps source material, brand assets, and internal notes. Prefer the 
 
 ## Also
 
-- [One-pager](ONE_PAGER.md)
+- [Frequency audit](FREQUENCY_AUDIT.md) (RevOps / GTM one-pager)
+- [Distribution](DISTRIBUTION.md) · [Design-partner DMs](press/DESIGN_PARTNER_DMS.md)
+- [Clarity one-pager](ONE_PAGER.md)
 - [Roadmap](ROADMAP.md)
 - [Architecture](architecture.md)
 - [Security](../SECURITY.md)

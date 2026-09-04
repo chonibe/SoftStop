@@ -17,7 +17,7 @@ except ImportError:
     print(
         "Install the SoftStop Python SDK first:\n"
         "  pip install -e ../../packages/sdk-python\n"
-        "  # or: pip install softstop",
+        "  # PyPI: not published yet — do not pip install softstop",
         file=sys.stderr,
     )
     raise SystemExit(1)

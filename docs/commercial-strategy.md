@@ -58,19 +58,21 @@ Escalation systems --> SoftStop (self-hosted) --> allow / block
 
 Cloud must not be required for ordinary low-latency checks. Cached / local policy must keep working if Cloud is unreachable.
 
-## Market Category
+## Market (their words)
 
-SoftStop is a **shared pressure permit** / escalation gate for end users.
+Do not invent a SoftStop category. Show up where people already say **frequency audit**, **SDR blackout**, or **caps in the prompt don’t work**.
 
-Do not market primarily as MCP IAM or agent tool firewall (crowded). First adopters:
+| Room | Vocabulary |
+|------|------------|
+| GTM eng | guardrails on the send path, domain burn, retry loops |
+| RevOps | frequency audit, sales+marketing collision, Pressure Index |
+| Platform eng | shared permit, orphan rate, self-host |
 
-- platform engineers on multi-agent / multi-automation products
-- product and lifecycle teams hitting cross-channel fatigue
-- marketplace / multi-tenant platforms where merchant agents collide with platform automations
+First adopters: teams with **Outreach/Apollo + Mailchimp/Klaviyo + an agent**. Operator playbook: [DISTRIBUTION.md](DISTRIBUTION.md). Checklist: [FREQUENCY_AUDIT.md](FREQUENCY_AUDIT.md).
 
 ## Pitch
 
-Your company already caps messages inside one CRM. It does not share pressure state with pricing rules, in-app modals, or AI agents. SoftStop is the shared permit those systems call before they escalate the same human.
+Your company already caps messages inside one CRM. It does not share pressure with Klaviyo, the in-app modal, or the AI SDR. SoftStop is the shared journal those systems call before they escalate the same human.
 
 ## Launch Blueprint
 

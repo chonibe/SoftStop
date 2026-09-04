@@ -3,7 +3,7 @@
 Prefer the published SDK:
 
 ```bash
-pip install softstop
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
 # or from repo: pip install -e ../../packages/sdk-python
 ```
 
