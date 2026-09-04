@@ -6,7 +6,7 @@ Complete integration examples for SoftStop in different languages and environmen
 
 - [**Agent + email collision**](agent-email-collision/) — golden path with pressure readout (start here)
 - [**Agent tool wrapper**](agent-tool-wrapper/) — `wrapUserFacingTool` in a tool / function-call loop ([docs](../apps/docs/start/governing-ai-agents.md))
-- [**LangChain agent (Python)**](langchain-agent/) — `pip install softstop` + `wrap_user_facing_tool`
+- [**LangChain agent (Python)**](langchain-agent/) — git/checkout SDK + `wrap_user_facing_tool`
 - [**Sample shop**](sample-shop/) — chaos vs SoftStop + `/health`
 - [Node.js](nodejs/) — server-side integration
 - [Python](python/) — thin script (prefer [`packages/sdk-python`](../packages/sdk-python/))
@@ -34,7 +34,7 @@ npm i softstop
 ```
 
 ```bash
-pip install softstop
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
 # or: pip install -e ../packages/sdk-python
 ```
 

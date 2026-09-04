@@ -2,7 +2,7 @@
   "name": "softstop",
   "version": "0.2.1",
   "private": true,
-  "description": "SoftStop — every AI agent should ask permission before interrupting a human. Shared user pressure across agents and systems.",
+  "description": "SoftStop — shared permit on the send path. Frequency audit when HubSpot caps miss the sequence.",
   "packageManager": "pnpm@8.15.4",
   "workspaces": [
     "packages/*"

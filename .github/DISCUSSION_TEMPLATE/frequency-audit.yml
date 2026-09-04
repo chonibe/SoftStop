@@ -1,0 +1,25 @@
+---
+title: "[Audit] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Caps in HubSpot/Apollo and caps in the prompt are not a frequency audit.
+        Checklist: https://github.com/chonibe/SoftStop/blob/main/docs/FREQUENCY_AUDIT.md
+        Demo: https://softstop.vercel.app — collision example: `examples/agent-email-collision`
+  - type: textarea
+    id: systems
+    attributes:
+      label: Systems that can hit this contact
+      description: Sequence tool, ESP, agent, support, dunning, retries — who shares a cap with whom?
+      placeholder: Apollo sequences; Klaviyo flows; in-house SDR agent; HubSpot tasks…
+    validations:
+      required: true
+  - type: textarea
+    id: collision
+    attributes:
+      label: What collided
+      description: SDR blackout ignored? Retry loop? Sales + marketing the same morning?
+    validations:
+      required: false

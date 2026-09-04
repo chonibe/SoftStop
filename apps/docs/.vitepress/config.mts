@@ -11,6 +11,7 @@ const sidebar = [
     collapsed: false,
     items: [
       { text: 'Concept', link: '/start/concept' },
+      { text: 'Frequency audit', link: '/start/frequency-audit' },
       { text: 'Governing AI agents', link: '/start/governing-ai-agents' },
       { text: 'Getting started', link: '/start/getting-started' },
       { text: 'Adoption contract', link: '/start/adoption-contract' }
@@ -80,7 +81,7 @@ const sidebar = [
 export default defineConfig({
   title: 'SoftStop',
   description:
-    'The Circuit Breaker for Autonomous Agents and Customer Outreach.',
+    'Shared permit on the send path. Frequency audit when HubSpot caps miss the sequence.',
   lang: 'en-US',
   cleanUrls: true,
   appearance: 'dark',
@@ -95,7 +96,7 @@ export default defineConfig({
       {
         property: 'og:description',
         content:
-          'The Circuit Breaker for Autonomous Agents and Customer Outreach.'
+          'Shared permit on the send path. Frequency audit when HubSpot caps miss the sequence.'
       }
     ],
     ['meta', { property: 'og:image', content: '/softstop-cover.png' }],

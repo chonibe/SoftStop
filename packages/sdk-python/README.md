@@ -5,7 +5,7 @@ Tiny Python client for [SoftStop](https://softstop.vercel.app) — every AI agen
 ## Install
 
 ```bash
-pip install softstop
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
 ```
 
 From this repo (editable):

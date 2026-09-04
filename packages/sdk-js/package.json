@@ -35,7 +35,10 @@
     "governor",
     "escalation",
     "pressure",
+    "frequency-capping",
     "frequency-cap",
+    "ai-agents",
+    "gtm",
     "cooldown",
     "check-record",
     "authorization"

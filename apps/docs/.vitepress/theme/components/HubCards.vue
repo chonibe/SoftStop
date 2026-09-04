@@ -3,7 +3,7 @@ const hubs = [
   {
     title: 'Start',
     href: '/start/getting-started',
-    description: 'Concept, quickstart, and the adoption contract.'
+    description: 'Frequency audit, quickstart, and the adoption contract.'
   },
   {
     title: 'Integrate',

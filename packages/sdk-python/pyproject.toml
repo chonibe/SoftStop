@@ -15,11 +15,13 @@ keywords = [
   "governor",
   "escalation",
   "pressure",
+  "frequency-capping",
   "frequency-cap",
+  "ai-agents",
+  "gtm",
   "cooldown",
   "check-record",
   "authorization",
-  "ai-agents",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",

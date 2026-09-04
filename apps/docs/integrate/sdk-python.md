@@ -1,11 +1,11 @@
 # Python SDK
 
-Tiny Python client for SoftStop (`pip install softstop`).
+Tiny Python client for SoftStop. **Not on PyPI yet** — install from git or a repo checkout.
 
 ## Install
 
 ```bash
-pip install softstop
+pip install "git+https://github.com/chonibe/SoftStop.git#subdirectory=packages/sdk-python"
 ```
 
 From a repo checkout:

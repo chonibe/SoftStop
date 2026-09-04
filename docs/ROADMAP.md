@@ -6,7 +6,7 @@
 
 - Numeric pressure engine (`threshold`, `decayPerHour`, `costs`) + `pressure_exceeded`
 - `GET /users/:userId/pressure`
-- AI-wedge positioning as first-class: circuit breaker for agents + outreach; channel collision remains in scope + agent–email collision golden path
+- AI-wedge: send-path guardrails for agents + outreach; channel collision + agent–email collision golden path
 
 ## v0.1 (shipped)
 
@@ -25,7 +25,7 @@ Production OSS priorities from the AI / agent control-layer plan:
 | Priority | Item | Status |
 |----------|------|--------|
 | High | JS `withSoftStop` + `formatBlockedForLlm` + deny fields (`retryAfterMs` / `suggestedFallback`) | **Shipped** (0.2.2) |
-| High | Python SDK (`pip install softstop`) + agent wrappers / examples | **Shipped** |
+| High | Python SDK (git/checkout until PyPI) + agent wrappers / examples | **Shipped client; PyPI not published** |
 | High | 1-click self-host polish (Docker / Fly / Railway), GH Actions + README badges, measured local latency note | **Shipped** |
 | Medium | SDK fail-safe (`onUnavailable` fail_closed / fail_open + `timeoutMs`) | **Shipped** |
 | Medium | Opt-in check-and-reserve + OCC (`SOFTSTOP_RESERVE_TTL_MS` / `reserveTtlMs`; default `0` = legacy) | **Shipped** |

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — Speak their rooms; trust the install
+
+- Frequency audit checklist + design-partner DMs + distribution operator notes
+- Drop “circuit breaker for outreach” from titles/OG; lead with send-path / frequency audit language
+- Honest Python install: not on PyPI — git subdirectory or editable checkout (npm `softstop` unchanged)
+- Docs: `/start/frequency-audit`; discussion template for audits
+- SDK keywords: `ai-agents`, `gtm`, `frequency-capping`
+
 ## 0.2.2 — Agent deny schema + withSoftStop
 
 - Additive deny fields: `suggestedFallback`, `retryAfterMs` (keep `suggestedActionType`)

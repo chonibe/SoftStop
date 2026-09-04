@@ -1,11 +1,11 @@
 ---
 layout: home
 title: SoftStop Docs
-description: The Circuit Breaker for Autonomous Agents and Customer Outreach.
+description: Shared permit on the send path. Frequency audit when HubSpot caps miss the sequence.
 hero:
   name: SoftStop
   text: Stop when it should
-  tagline: Circuit breaker for autonomous agents and customer outreach. Prevent rogue agents, growth loops, and background jobs from spamming users—across every surface. Authorize only.
+  tagline: Guardrails on the send path. Shared journal when sales, marketing, and agents hit the same person. Authorize only.
   actions:
     - theme: brand
       text: Get started
@@ -76,9 +76,15 @@ When blocked, still call `record` with `outcome: "blocked"`. Skipping record cre
     </a>
   </li>
   <li>
+    <a href="/start/frequency-audit">
+      Frequency audit
+      <span>List every system that can hit a contact. Shared journal when the list is &gt;1.</span>
+    </a>
+  </li>
+  <li>
     <a href="/start/governing-ai-agents">
       Governing AI agents
-      <span>Circuit breaker, deterministic state, suggestedActionType.</span>
+      <span>Send-path guardrails, deterministic state, suggestedActionType.</span>
     </a>
   </li>
   <li>
